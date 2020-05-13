@@ -25,3 +25,44 @@ This model was done by Matt and its features are it is SOC based
 - Does splits 
 
 # v1.1 - Target data Alpha Monday 17 May
+3. Providing the Material. This so confusing that having a set of templates that you can embed into any website to provide the latest training, the condensed recommendation is critical. And then on the backend a marketplace that is easy to setup so you can buy or download what you need in one step. And finally there is a scheme for getting material to non-profits and other vulnerable folks in the population
+
+
+# On using the repo
+You will need to install Git LFS as the models are quite large at 200MB and up
+with:
+
+```
+git lfs install
+# to get whatever version you need, just use the version number
+git checkout v1.0
+# to get the latest daily developmen release
+```
+
+Also we support the use of release tags, the current versions are:
+- v1.0. This version went to the State of Washington for their surge mask
+  forecasting and is over at the Office of Financial Management. This contains
+all the data in a single sheet and runs on Excel or Google Sheets.
+- rich-dev. This is the development fork, please use with caution.
+
+# Questions
+Create an issue and we will get right to it :-)
+
+
+# Development timeline
+The current development timeline is:
+
+v1.1. Add the general use of Pivottables to allow slicing the model and will
+also migrate the data to an external database. This will make the model Excel
+dependent. 
+
+v2.0. Use the WHO v2 Surge model to allow Epidemiological forecasting to plug
+in.
+
+## Workspace is needed
+The major thing is that you need four sheet open to run the modeling
+
+1. Covid-surge-who-1.2.xlsx
+2. 
+3. WHO-efst
+

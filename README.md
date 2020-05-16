@@ -66,3 +66,28 @@ The major thing is that you need four sheet open to run the modeling
 2. 
 3. WHO-efst
 
+
+## Next steps
+And where it goes, there are some great ideas on what to do next for the so called 1.x models
+
+0. The v1. 2model and stability things that I’ve put in and the test of it vs pivot tables (it works!)
+
+1. Do the 50 state model using the Hilburn model (right now called the v1.2.1 as it’s a variant of the current one)
+
+2. Go through the PowerBi data that Mitch and Erin has done to clean up the big data cube
+
+3. Go through the way to deliver the forecast. Mitch suggests doing low/medium/high
+
+4. Visualization of all of this and how to make it look pretty (Bharat has some great ideas here).
+
+5. How exactly the model works with Power BI, can we shove the model into PowerBI, if not, what’s the easiest way to put it into an XLS sheet and have it stably work
+
+Then the really big things, the move to the v2 model
+
+1. The move to a time series to predict the weekly consumption of PPE that is a function of economic restart and the disease progression. For economic restart, how do we model this, seems like basically a sigmoid function so maybe have a parameterized restart and each SOC has a restart time and a sigmoid start up to some limit?
+
+2. This means integration of WHO v2 into the model and doing this automagically, The Who v2 model changes depending on inputs. That is, it projects infection and projects activity and this has to be redo regularly
+
+3. Extensions to the model. The big one is testing requirements.
+
+4. The addition of COVID patients specifically into the model. It is implicit right now

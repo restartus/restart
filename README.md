@@ -108,8 +108,6 @@ git push
 # When you want others to see it, let @richtong know and he will merge it into
 the base so others can see it
 ```
-
-
 # On using the repo
 You will need to install Git LFS as the models are quite large at 200MB and up
 with:
@@ -145,9 +143,7 @@ in.
 The major thing is that you need four sheet open to run the modeling
 
 1. Covid-surge-who-1.2.xlsx
-2. 
 3. WHO-efst
-
 
 ## Next steps
 And where it goes, there are some great ideas on what to do next for the so called 1.x models

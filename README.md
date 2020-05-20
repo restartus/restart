@@ -169,3 +169,13 @@ Then the really big things, the move to the v2 model
 3. Extensions to the model. The big one is testing requirements.
 
 4. The addition of COVID patients specifically into the model. It is implicit right now
+
+## Dealing with PivotTables
+
+Here is are the difficult parts on a Mac. A Pivot table cannot be moved with
+copy and paste, instead, you need to go to the Ribbon and view analyze and there
+is an entry called `Move Pivottable` which lets you move it.
+
+When you select into a Pivot Table, you get a reference that is a cell number,
+you get a named reference that looks like `PIVOTTABLE`
+

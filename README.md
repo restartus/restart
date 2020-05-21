@@ -177,5 +177,82 @@ copy and paste, instead, you need to go to the Ribbon and view analyze and there
 is an entry called `Move Pivottable` which lets you move it.
 
 When you select into a Pivot Table, you get a reference that is a cell number,
-you get a named reference that looks like `PIVOTTABLE`
+you get a named reference that looks like `PIVOTTABLE`. This works really well
+for anything that is developed that has the same number of rows which is great.
 
+
+## Excel does not like Google Sheets
+
+There is some sort of bug where Excel does not like certain forumulas in Google
+Sheets so it deleted all the formulas that were using the Sumproduct. So this
+formula needed to be recreated on the Excel side and we should not use Google
+Sheets as a result.
+
+## The resource formula
+
+The key formula in the spreadsheet is the that takes the level of protection and
+multiplies it against the row that is at the PPE level
+
+The first formula only handled discrete rows like, so it indexes against a fixed
+protection at G7:Q13 and then indexes into it with the D365 which is the
+protection level. We add one because we index at 0. Then we calculate what the
+column. Then multiply by the population
+
+```
+=@INDEX($G$7:$Q$13,$D365+1,COLUMN(H365)-COLUMN($G343)+1)*$E365
+```
+
+# Handling blending of rows
+In many cases, a particular industry or job classification does not fit into any
+one category, so we use sumproduct to figure this out. The key is to find the
+region and then spread the data
+
+So this first calculation gives you the two rows
+
+```
+=sumproduct(_two columns in the use matrix_, _the percentage split between the
+two_)
+```
+
+The way that you collect the sum is by using the trick that modulo 1 gives you a
+fraction so mod(3.4, 1) is 0.4 :
+
+This is where the spreadsheet broke because Google Sheets and Excel, 
+
+```
+{MOD(protection,1),
+```
+
+Now this gives the weight average use and then you just multiply by the
+population and you are done
+
+
+```
+= sumproduct * population
+```
+
+One problem with
+[Sumproduct](https://blog.udemy.com/excel-sumproduct/?utm_source=adwords&utm_medium=udemyads&utm_campaign=DSA_Catchall_la.EN_cc.US&utm_content=deal4584&utm_term=_._ag_95911180068_._ad_436653296108_._kw__._de_c_._dm__._pl__._ti_dsa-841699839063_._li_1027744_._pd__._&matchtype=b&gclid=EAIaIQobChMI-Leli9jD6QIV9Al9Ch3BXgn-EAAYASAAEgLSJfD_BwE) is that it does not like the vectors to be of
+different shapes, so you can't do `sumproduct({1, 0}, {1 ; 0}), it needs both to
+be row vectors.
+
+In another note when used with a
+[Boolean](https://exceljet.net/excel-functions/excel-sumproduct-function), you
+can use it if you do a double negative to coerce TRUE/FALSE into a number
+```
+sumproduct( --(A2:A6="TX"), B2+B6) will only add numbers where the A column has
+the string "TX" in it. So you need to
+[transpose](https://support.office.com/en-us/article/transpose-function-ed039415-ed8a-4a81-93e9-4b6dfac76027) them first. 
+
+So the key formula looks like this where $J$7:$T$13 is the table and $D51 is the
+index into it. Note that it automatically rounds down. Then the column
+calculation makes sure you get the correct column starting from J, finally you
+want the row below and then the trick is to transpose the next values.
+
+This gets rid of the need to use the parentheses notation which might not be
+that portable. This is just a simple function now. were E51 has 1-mod(d51) or
+the amount for rounddown(e51,0) and mod(d51) is the fraction above.
+
+```
+=SUMPRODUCT(OFFSET($J$7:$T$13,$D51,COLUMN(J:J)-COLUMN($J:$J),2,1),TRANSPOSE($E51:$F51))*$G51
+```

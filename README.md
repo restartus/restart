@@ -10,6 +10,32 @@ It has three major components:
 
 ## Release Schedule
 
+# v1.4 - In concept
+
+Add non-Washington cubes to the model. Create a separate sheet for
+non-Washington that has the simplified model.
+
+Enable:
+1. Picking of different rows will be done by matching IDs rather than indexing
+2. For a given class, you can select a PPE row and then give it a weight. That 
+3. The stretch goal. Patients will be added as a column so we can spread them
+   across the cubes
+
+# v1.3.2 - Surge model with non-Washington sheet
+Uses the same basic form, but we do not assume Washington population data
+
+# v1.3.1 - Released - Washington Surge Model Corrected
+
+This is the fixed model as the transition to Excel corrupted some cells and we
+lost formulas.
+
+The enhancements are:
+
+1. AT the end of the model, any pivot table can be inserted into the model and
+   it will calculate based on that. It also slices a county appropriately based
+on the Washington Cube
+
+
 # v1.2 - Released - Washington State Surge Model
 This is the model that went to the Washington State Office of Financial Management and we will send updates as needed. It has the following features (or bugs depending on how you look at it):
 
@@ -256,3 +282,4 @@ the amount for rounddown(e51,0) and mod(d51) is the fraction above.
 ```
 =SUMPRODUCT(OFFSET($J$7:$T$13,$D51,COLUMN(J:J)-COLUMN($J:$J),2,1),TRANSPOSE($E51:$F51))*$G51
 ```
+

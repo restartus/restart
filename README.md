@@ -24,6 +24,8 @@ Enable:
 # v1.3.2 - Surge model with non-Washington sheet
 Uses the same basic form, but we do not assume Washington population data
 
+
+
 # v1.3.1 - Released - Washington Surge Model Corrected
 
 This is the fixed model as the transition to Excel corrupted some cells and we
@@ -34,6 +36,52 @@ The enhancements are:
 1. AT the end of the model, any pivot table can be inserted into the model and
    it will calculate based on that. It also slices a county appropriately based
 on the Washington Cube
+2. The model now uses named ranges in Analysis 8 and 9 so just changing the
+   analysis is not just changing names rather than relinking absolute cell
+references
+3. Adds the NYC analysis as well at the bottom as well as Snohomish county and
+   it now uses a Pivottable and external data rather than copying it all into
+the sheet, so this becomes more of analysiss tool.
+4. Also adds a checksum in Analysis 8 and on to make sure the additions are
+   corect. Note that if you put in a Level but not an Essential, you will have
+issues. That is if no Essential is listed, it is not added to the total. That's
+an easy way to exclude groups by the way.
+4. This is on the way to genericization so if you want to change and to add new
+   analysis, copy down the latest Analysis and then change the formulas in the
+SUMIFS after you define new range names, the range names are where you replace
+the `N`with the number of the analysis
+
+AnalysisNItems. All the items being managed
+AnalysisNLevels. The protection levels. These are numeric and index off the
+protection level table. Soon they will be a tuple. The levels can be a fraction
+in which case it takes a percentage from the next level, so 4.2 means 20% from
+level 5 and the rest from level 4
+AnalysisNEssential. The degree of urgency to start. Arbitrarily, less than 4
+means a non-essential, (aka a non-bootstrap of the economy worker)
+AnalysisNLowLower. The lower bound of non-essential, >0
+AnalysisNLowUpper. The upper bound, usually <4
+AnalysisNHighLower. The lower bound of essentially, usually >=4
+AnalysisNHighUpper. The upper bound, usually <=999
+
+To change a pivot, make sure you have lots of rows below, more than what the new
+pivot needs, the go to Pivot Analysis/Change Data Source.
+
+Right now these are absolute paths, this still needs to get resolved how to make
+this portable.
+
+Then you have to relink all of the data out of the pivot table. This takes some
+time as you can't just copy and paste, but have to do a hard equal to get the
+right extraction
+
+The Pivot Table does not work with Hierarchical data, so in that case it is
+probably better to either go to the owrk of chaning the lables so they are or to
+just copy the table in.
+
+
+at level
+
+
+
 
 
 # v1.2 - Released - Washington State Surge Model

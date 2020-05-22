@@ -97,10 +97,10 @@ Enable:
 3. The stretch goal. Patients will be added as a column so we can spread them
    across the cubes
 
-# v1.3.2 - Surge model with non-Washington sheet
+# v1.3.2 - Surge model with non-Washington sheet -- In development
 Uses the same basic form, but we do not assume Washington population data
 
-# v1.3.1 - Released - Washington Surge Model Corrected
+# v1.3.1 - Released - Washington Surge Model Corrected, NYC and Snohomish model -- in Validation
 
 This is the fixed model as the transition to Excel corrupted some cells and we
 lost formulas.
@@ -151,23 +151,15 @@ The Pivot Table does not work with Hierarchical data, so in that case it is
 probably better to either go to the owrk of chaning the lables so they are or to
 just copy the table in.
 
-
-# v1.2 - Released - Washington State Surge Model
-This is the model that went to the Washington State Office of Financial Management and we will send updates as needed. It has the following features (or bugs depending on how you look at it):
+# v1.0 - Released - Washington State Surge Model (deprecated)
+This is the model that went to the Washington State Office of Financial Management and we will send updates as needed. It has the following features (or bugs depending on how you look at it). Note that this model has a big bug, the formulas were inadvertently deleted, so use 1.3.1 or later
 
 - Washington State only. No splits nor is this a country model
 - Five forecasts in one. NAICS-2, NAICS-6, SOC, Small Business only, Not employed splits
 - Depends on WHO EFST v1.2 surge to estimate healthcare needs augmented with DOH Tier 1-4 dates 14 April (not updated to latest) and some LNI rules for Construction but not updated to latest phases
 - Estimates conserved use
 
-# v1.2.1 - Released Utah Surge Model
-This model was done by Matt and its features are it is SOC based 
 
-- SOC based
-- Does splits 
-
-# v1.1 - Target data Alpha Monday 17 May
-3. Providing the Material. This so confusing that having a set of templates that you can embed into any website to provide the latest training, the condensed recommendation is critical. And then on the backend a marketplace that is easy to setup so you can buy or download what you need in one step. And finally there is a scheme for getting material to non-profits and other vulnerable folks in the population
 
 ## Why are we using Github and what is XLTrail and what is LFS
 

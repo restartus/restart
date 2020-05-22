@@ -1,7 +1,7 @@
 ## New York
 
 The [New York Department of Labor](https://labor.ny.gov/stats/) has some great statistics that is just for counties
-and the city of New Yorik
+and the city of New York
 
 They include ten [labor markets](https://labor.ny.gov/stats/regmap.shtm)
 including just the [city](https://labor.ny.gov/stats/nyc/index.shtm).

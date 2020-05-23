@@ -277,3 +277,37 @@ The next complicated formula relies on ranges and does the summing. The main
 trick here is that it uses SUMIFS as a conditional and you need to have a
 protection level one greater at the end of each, so there is a mythical "7" or
 N+1. It made construction of the model very neat as a result.
+
+## Automatically deployment
+
+[xltrail](https://www.xltrail.com/blog/how-to-manage-and-release-excel-files-on-github-part2)
+has a great explanation of how to 
+
+```
+name: Release Pipeline
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Upload Excel file to GitHub Release Page
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./covid-surge-who-1.3.xlsx
+          asset_name: covid-surge-projection-${{ github.event.release.tag_name }}.xlsx
+          asset_content_type: application/zip
+```
+
+When this is done, you need to generate a release. The best away appears to be
+to create a tag and then push it to master
+

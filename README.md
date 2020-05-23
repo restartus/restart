@@ -34,7 +34,7 @@ Now you need to create a logon at [GitHub](https://github.com) and then ask
 forecast and run these commands to get all the latest spreadsheets directly into
 your machine
 
-# On using the repo you need Git LFS and XLTrail
+## On using the repo you need Git LFS and XLTrail
 
 You will need to install Git LFS as the models are quite large at 200MB and up
 with and it will really clog your machine:
@@ -83,10 +83,20 @@ git push
 # When you want others to see it, let @richtong know and he will merge it into
 the base so others can see it
 ```
+# Other repos
+The best way to work on this is to see what others are doing. In
+[https://github.com/restartpartners](https://github.com/restartpartners])
+so here are the certain ways of doing it which are forked:
 
-## Release Schedule
+- https://github.com/NYTimes/covide-19-data. This is the New York Times data repository
+- https://github.com/datasets/covid-19. Time series data from datahub.io
+- https://github.com/ImperialCollegeLondon/covid19model their specfic model
+- https://github.com/neherlab/covid19_scenarios The summary and visualization of
+  all scenarios
 
-# v1.4 - In concept
+# Release Schedule
+
+## v1.4 - In concept
 
 Add non-Washington cubes to the model. Create a separate sheet for
 non-Washington that has the simplified model.
@@ -97,10 +107,10 @@ Enable:
 3. The stretch goal. Patients will be added as a column so we can spread them
    across the cubes
 
-# v1.3.2 - Surge model with non-Washington sheet -- In development
+## v1.3.2 - Surge model with non-Washington sheet -- In development
 Uses the same basic form, but we do not assume Washington population data
 
-# v1.3.1 - Released - Washington Surge Model Corrected, NYC and Snohomish model -- in Validation
+## v1.3.1 - Released - Washington Surge Model Corrected, NYC and Snohomish model -- in Validation
 
 This is the fixed model as the transition to Excel corrupted some cells and we
 lost formulas.
@@ -151,7 +161,7 @@ The Pivot Table does not work with Hierarchical data, so in that case it is
 probably better to either go to the owrk of chaning the lables so they are or to
 just copy the table in.
 
-# v1.0 - Released - Washington State Surge Model (deprecated)
+## v1.0 - Released - Washington State Surge Model (deprecated)
 This is the model that went to the Washington State Office of Financial Management and we will send updates as needed. It has the following features (or bugs depending on how you look at it). Note that this model has a big bug, the formulas were inadvertently deleted, so use 1.3.1 or later
 
 - Washington State only. No splits nor is this a country model
@@ -159,9 +169,7 @@ This is the model that went to the Washington State Office of Financial Manageme
 - Depends on WHO EFST v1.2 surge to estimate healthcare needs augmented with DOH Tier 1-4 dates 14 April (not updated to latest) and some LNI rules for Construction but not updated to latest phases
 - Estimates conserved use
 
-
-
-## Why are we using Github and what is XLTrail and what is LFS
+# Why are we using Github and what is XLTrail and what is LFS
 
 Github and Excel spreadsheets are not really used much together, but as we are
 going to have both Excel spreadsheets and real code integrated, this seems like
@@ -183,9 +191,9 @@ you are getting the right model at the right time.
 4. The final piece is Git LFS or Large File Storage, this makes it blazingly
    fast to store even GB models (we do!) into the system
 
-## Notes on using Excel
+# Notes on using Excel
 
-# Dealing with PivotTables
+## Dealing with PivotTables
 
 Here is are the difficult parts on a Mac. A Pivot table cannot be moved with
 copy and paste, instead, you need to go to the Ribbon and view analyze and there
@@ -217,7 +225,7 @@ column. Then multiply by the population
 =@INDEX($G$7:$Q$13,$D365+1,COLUMN(H365)-COLUMN($G343)+1)*$E365
 ```
 
-# Handling blending of rows
+## Handling blending of rows
 In many cases, a particular industry or job classification does not fit into any
 one category, so we use sumproduct to figure this out. The key is to find the
 region and then spread the data
@@ -310,4 +318,3 @@ jobs:
 
 When this is done, you need to generate a release. The best away appears to be
 to create a tag and then push it to master
-

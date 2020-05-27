@@ -1,15 +1,14 @@
 # This is a basic workflow to help you get started with Actions
 # https://github.com/actions/upload-release-asset
 
-name: Release
+name: Release Upload
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
+# Only run when a release is created
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  release:
+    types:
+      - created
+    
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -23,7 +22,8 @@ jobs:
     - name: Upload the main spreadsheet
       uses: actions/upload-release-asset@v1.0.2
       with: 
-        # The URL for uploading assets to the release
+        # The URL for uploading assets to the release so this won't work if
+        # there is no release
         upload_url: ${{ github.event.release.upload_url }}
         # The path to the asset you want to upload
         asset_path: ./covid-surge-who-1.3.xlsx

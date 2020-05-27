@@ -39,10 +39,16 @@ jobs:
       # with lfs is too slow
       # with:
       #  lfs: true
+    - name: Extract tag
+      # https://stackoverflow.com/questions/58177786/get-the-current-pushed-tag-in-github-actions
+      id: vars
+      # Extract just the last bit
+      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
     - name: Checkout LFS Objects
       # https://git-scm.com/book/en/v2/Git-Basics-Tagging
       run: git lfs pull --include "$SPREADSHEET"
 
+    # Need the tag name that is clean
     # We only have a tag, so make a release out of it
     # https://github.com/actions/create-release
     - name: Create release
@@ -52,13 +58,16 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ steps.vars.outputs.tag  }}
+        release_name: Release ${{ steps.vars.outputs.tag }}
+        # Use this is you just want the sha
+        # tag_name: ${{ github.ref }}
+        # release_name: Release ${{ github.ref }}
         body: |
           New release
         draft: false
         prerelease: false
-      # move it up there
+    # move it up there
     - name: Upload Release Asset
       id: upload-release-asset
       uses: actions/upload-release-asset@v1
@@ -72,6 +81,10 @@ jobs:
         # The path to the asset you want to upload
         asset_path: ./${{ env.SPREADSHEET }}
         # The name of the asset you want to upload
-        asset_name: covid-surge-projection-release-${{ github.event.release.tag_name }}.xlsx
+        # Not there is no release tag_name so use the output of create_release
+        # This will just give the sha and not the desired tag
+        # https://github.com/actions/create-release
+        # asset_name: covid-surge-projection-release-${{ steps.create_release.outputs.id }}.xlsx
+        asset_name: covid-surge-projection-release-${{ steps.vars.outputs.tag }}.xlsx
         # The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information
         asset_content_type: application/zip

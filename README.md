@@ -8,6 +8,12 @@ It has three major components:
 2. Changing Norms. No amount of equipment works without changing how people work, live and play. This is a set of behavioral models and content that works against the different segments that need to be protected. From children, to the elderly to specific groups that are disportionately effect, getting the right message at the right time is key.
 3. Providing the Material. This so confusing that having a set of templates that you can embed into any website to provide the latest training, the condensed recommendation is critical. And then on the backend a marketplace that is easy to setup so you can buy or download what you need in one step.
 
+## The various documents
+
+- [README.md](README.md) You are reading this, the basic introduction
+- [INTRODUCTION.md](INTRODUCTION.md). The model and how it works at a high level
+- [RESEARCH.md](RESEARCH.md). Various call reports on new ideas
+
 # How to set it all up (for the Mac)
 
 @richtong will shortly generate instructions for Windows machines, but here is
@@ -318,3 +324,4 @@ jobs:
 
 When this is done, you need to generate a release. The best away appears to be
 to create a tag and then push it to master
+

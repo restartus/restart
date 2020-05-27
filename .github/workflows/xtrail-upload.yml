@@ -1,14 +1,25 @@
 # This is a basic workflow to help you get started with Actions
-
-name: CI
+# https://www.xltrail.com/blog/how-to-manage-and-release-excel-files-on-github-part2
+#
+# This uses the Release mechanism of GitHub, instead of the command line with
+# Publish Release
+#
+# This name appears in the actions user interface
+name: XTrail Upload
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
+# This is just testing, so every push run
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
+
+# Only run when a release is created
+# on:
+#   release:
+#     types:
+#       - created
+    
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -21,13 +32,14 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-
-    # Runs a single command using the runners shell
-    - name: Run a one-line script
-      run: echo Hello, world!
-
-    # Runs a set of commands using the runners shell
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+    - name: Upload Excel fil to GitHub Release pPage
+      if: github.event_name == 'release'
+      # this is a required variable
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url ${{ github.event.release.upload_url }}
+      # The magic file to upload
+      asset_path: ./covid-surge-who-1.3.1.xlsx
+      asset_name: ./covie-forecast-${{ github.event.release.tag_name }}.xlsx
+      asset_content_type: application/zip

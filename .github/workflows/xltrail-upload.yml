@@ -1,6 +1,8 @@
 # This name appears in the actions user interface
-name: XLTrail Upload
+name: Upload from XLTrail.com
 
+env:
+  RELEASE_SPREADSHEET: covid-surge-who.xlsx
 # This is a basic workflow to help you get started with Actions
 # https://www.xltrail.com/blog/how-to-manage-and-release-excel-files-on-github-part2
 #
@@ -34,7 +36,7 @@ jobs:
         #   lfs: true
       - name: Checkout LFS Objects
         # https://git-scm.com/book/en/v2/Git-Basics-Tagging
-        run: git lfs pull --include "covid-surge-who-1.3.1.xlsx"
+        run: git lfs pull --include "$RELEASE_SPREADSHEET"
       - name: Upload Excel file to GitHub Release Page
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
         if: github.event_name == 'release'
@@ -45,6 +47,6 @@ jobs:
         with:
           upload_url: ${{ github.event.release.upload_url }}
           # The magic file to upload
-          asset_path: ./covid-surge-who-1.3.1.xlsx
+          asset_path: ./${{ env.RELEASE_SPREADSHEET }}
           asset_name: covid-surge-projection-xlt-${{ github.event.release.tag_name }}.xlsx
           asset_content_type: application/zip

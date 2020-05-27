@@ -295,33 +295,12 @@ N+1. It made construction of the model very neat as a result.
 ## Automatically deployment
 
 [xltrail](https://www.xltrail.com/blog/how-to-manage-and-release-excel-files-on-github-part2)
-has a great explanation of how to 
+has a great explanation of how to make this work but see .github/workflow for
+additional files.
 
-```
-name: Release Pipeline
+The main trick here is the need to add a step to checkout the right Excel
+spreadsheet. 
 
-on:
-  release:
-    types:
-      - created
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Upload Excel file to GitHub Release Page
-        if: github.event_name == 'release'
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./covid-surge-who-1.3.xlsx
-          asset_name: covid-surge-projection-${{ github.event.release.tag_name }}.xlsx
-          asset_content_type: application/zip
-```
-
-When this is done, you need to generate a release. The best away appears to be
-to create a tag and then push it to master
-
+To make the deployment work, there is a named file, currently
+covid-surge-who.xlsx which you need to copy the latest model into. Do not
+symlink this as git lfs will get confused on the build

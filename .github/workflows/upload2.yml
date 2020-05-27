@@ -1,34 +1,53 @@
 # This is a basic workflow to help you get started with Actions
 # https://github.com/actions/upload-release-asset
+# This outputs a brouser_download_url 
+# For subsequent steps like an upload to Google or somewhere
 
 name: Release
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
+# Only run for tagged pushed
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    tags: 
+    - 'v*' # so the tag should be v1.0, v2.1, v2.1.2-2020-05
+
+name: Upload Release Asset
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
+    name: Upload Release Asset
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - name: Upload the main spreadsheet
-      uses: actions/upload-release-asset@v1.0.2
+      # Not sure why this is needed not in other tutorials
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+      # not sure why you need to create a release
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+
+      # move it up there
+    - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with: 
         # The URL for uploading assets to the release
-        upload_url: ${{ github.event.release.upload_url }}
+        # upload_url: ${{ github.event.release.upload_url }}
+        # You get this from the create release set
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
         # The path to the asset you want to upload
-        asset_path: ./covid-surge-who-1.3.xlsx
+        asset_path: ./covid-surge-who-1.3.1.xlsx
         # The name of the asset you want to upload
         asset_name: covid-surge-projection-${{ github.event.release.tag_name }}.xlsx
         # The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information
         asset_content_type: application/zip
-

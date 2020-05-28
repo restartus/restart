@@ -2,17 +2,25 @@
 
 Getting the world up and running again isn't going to be easy. This project is a start at making that easier. Feel free to take pieces and contribute. While we wait for an effective treatment or a vaccine, we need all these pieces to save lives from the infection and get the economy back to work.
 
-It has three major components:
+It has four major components:
 
 1. Modeling the Need. Model the entire world of the COVID-19 response from the epidemeological models, to the consumer confidence model and finally to the supply chain models that estimate how much Personal Protective Equiptment (PPE), Test kits and other equipment is needed to make it work.
-2. Changing Norms. No amount of equipment works without changing how people work, live and play. This is a set of behavioral models and content that works against the different segments that need to be protected. From children, to the elderly to specific groups that are disportionately effect, getting the right message at the right time is key.
 3. Providing the Material. This so confusing that having a set of templates that you can embed into any website to provide the latest training, the condensed recommendation is critical. And then on the backend a marketplace that is easy to setup so you can buy or download what you need in one step.
+2. Changing Norms. No amount of equipment works without changing how people work, live and play. This is a set of behavioral models and content that works against the different segments that need to be protected. From children, to the elderly to specific groups that are disportionately effect, getting the right message at the right time is key.
+4. Community. Getting the entire network of public, private and non-profit
+   organizations working together.
 
 ## The various documents
 
 - [README.md](README.md) You are reading this, the basic introduction
 - [INTRODUCTION.md](INTRODUCTION.md). The model and how it works at a high level
 - [RESEARCH.md](RESEARCH.md). Various call reports on new ideas
+
+## The PowerBI cube
+
+The supporting documents needed are mainly in PowerBI.
+- [OCC Based
+  Employment](https://azure.microsoft.com/email/?destination=https%3A%2F%2Fapp.powerbi.com%2FMobileRedirect.html%3Faction%3DOpenReport%26reportObjectId%3De9e58394-451a-429b-aed1-20ef6e317dc4%26ctid%3D1e355c04-e0a4-42ed-8e2d-7351591f0ef1%26groupObjectId%3Df2f0cf78-3695-4dd6-a6fd-cf2063d3195c%26OpenAppFromWindowsPCAndTablet%3Dfalse%26emailSource%3DReportInvitation&p=bT0xN2RlMjVkYy04ODg4LTQwYmYtOTJmYy1iNDEwODVlNDAzZDEmdT1hZW8mbD1Nb2JpbGVSZWRpcmVjdC5odG1s)
 
 # How to set it all up (for the Mac)
 
@@ -304,3 +312,19 @@ spreadsheet.
 To make the deployment work, there is a named file, currently
 covid-surge-who.xlsx which you need to copy the latest model into. Do not
 symlink this as git lfs will get confused on the build
+
+## Automated Testing
+You can use [XLWings](https://docs.xlwings.org/en/stable/installation.html) to
+run an Excel application from Mac or PC. This uses a PIP package to control
+Excel.
+
+Since GitHub Actions allows runneers with Windows, you could theoretically start
+a Windows machine, load Excel and run it with the Python to do testing. Man that
+seems complicated though.
+
+Another approach might be to take models which are compatible with Google Sheets
+and push the model into Google Drive and drive it with Javascript
+
+# Mobility Modeling
+
+We need a way to model economic behavior and mobility. 

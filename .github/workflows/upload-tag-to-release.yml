@@ -1,18 +1,23 @@
-# This is a basic workflow to help you get started with Actions
-# https://github.com/actions/upload-release-asset
+##  This is a basic workflow to help you get started with Actions
+##  https://github.com/actions/upload-release-asset
 # This outputs a brouser_download_url 
 # For subsequent steps like an upload to Google or somewhere
 # https://github.com/actions/create-relea…
 # 
-## Note that we have a hard-coded file here so change the xlsx as needed
-## so make sure to copy the file into 
-## ./covid-surge-who.xlsx as an env variable
-## https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables
+# Note that we have a hard-coded file here so change the xlsx as needed
+# so make sure to copy the file into 
+# ./covid-surge-who.xlsx as an env variable
+# https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables
+# Current duplicates release asset
+# https://github.com/actions/upload-release-asset/issues/28
+# Explains how to use hub to do this for you
+# with `hub release create "file" -m "comment" "tag_name"
 
-name: Upload a Tag to a Release
+name: Upload a Tag to a Release Multiple files
 
 env:
-  SPREADSHEET: covid-surge-who.xlsx
+  WA_RELEASE: covid-surge-who.xlsx
+  SINGLE_RELEASE: covid-surge-who-single.xlsx
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -46,7 +51,8 @@ jobs:
       run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
     - name: Checkout LFS Objects
       # https://git-scm.com/book/en/v2/Git-Basics-Tagging
-      run: git lfs pull --include "$SPREADSHEET"
+      # note git lfs pull only allows one --include flat at a time
+      run: git lfs pull --include "$WA_RELEASE" && git lfs pull --include "$SINGLE_RELEASE"
 
     # Need the tag name that is clean
     # We only have a tag, so make a release out of it
@@ -67,9 +73,9 @@ jobs:
           New release
         draft: false
         prerelease: false
-    # move it up there
-    - name: Upload Release Asset
-      id: upload-release-asset
+    # move it up there need one for each
+    - name: Upload Release Asset ${{ env.WA_RELEASE }}
+      id: upload-release-asset-1
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -79,12 +85,35 @@ jobs:
         # You get this from the create release set
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         # The path to the asset you want to upload
-        asset_path: ./${{ env.SPREADSHEET }}
+        asset_path: ./${{ env.WA_RELEASE }}
         # The name of the asset you want to upload
         # Not there is no release tag_name so use the output of create_release
         # This will just give the sha and not the desired tag
         # https://github.com/actions/create-release
         # asset_name: covid-surge-projection-release-${{ steps.create_release.outputs.id }}.xlsx
-        asset_name: covid-surge-projection-release-${{ steps.vars.outputs.tag }}.xlsx
+        asset_name: covid-surge-projection-washington-${{ steps.vars.outputs.tag }}.xlsx
+        # The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information
+        asset_content_type: application/zip
+
+    # move it up there need one for each
+    # note that the id filed cannot take a variable, so must be hard named
+    - name: Upload Release Asset ${{ env.SINGLE_RELEASE }}
+      id: upload-release-asset-2
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with: 
+        # The URL for uploading assets to the release
+        # upload_url: ${{ github.event.release.upload_url }}
+        # You get this from the create release set
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        # The path to the asset you want to upload
+        asset_path: ./${{ env.SINGLE_RELEASE }}
+        # The name of the asset you want to upload
+        # Not there is no release tag_name so use the output of create_release
+        # This will just give the sha and not the desired tag
+        # https://github.com/actions/create-release
+        # asset_name: covid-surge-projection-release-${{ steps.create_release.outputs.id }}.xlsx
+        asset_name: covid-surge-projection-single-${{ steps.vars.outputs.tag }}.xlsx
         # The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information
         asset_content_type: application/zip

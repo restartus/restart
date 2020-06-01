@@ -10,6 +10,17 @@ It has four major components:
 4. Community. Getting the entire network of public, private and non-profit
    organizations working together.
 
+## Release points
+
+The system release two spreadsheets right now as of v1.x at
+https://github.com/restartus/covid-projection/releases
+
+- covid-who-surge.xlsx. This is the copied latest file that is the large model
+  for State of Washington including SOC
+- covid-who-surge-single.xlsx. This is the
+  template is for a new client. It is not reentrent, so for each new client, make a copy
+and then you can change the name to that client
+
 ## The various documents
 
 - [README.md](README.md) You are reading this, the basic introduction

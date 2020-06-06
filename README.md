@@ -15,11 +15,20 @@ It has four major components:
 The system release two spreadsheets right now as of v1.x at
 https://github.com/restartus/covid-projection/releases
 
-- covid-who-surge.xlsx. This is the copied latest file that is the large model
+- covid-who-surge-washington.xlsx. This is the copied latest file that is the large model
   for State of Washington including SOC
 - covid-who-surge-single.xlsx. This is the
   template is for a new client. It is not reentrent, so for each new client, make a copy
-and then you can change the name to that client
+- covid-who-surge-single-cook.xlsx. Thsi is the first release that uses the
+  single for Cook county restaurants
+
+## Release notes
+
+- v1.4.2. This has fixes for disinfection calculation and introduction to a
+  single sheet models
+- v1.3.1. Fixes the the washington surge and has the new york city surge
+
+
 
 ## The various documents
 

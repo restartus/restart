@@ -24,11 +24,18 @@ https://github.com/restartus/covid-projection/releases
 
 ## Release notes
 
+- v1.4.5 Removes the data table from main washington model and creates a county
+  only model
+- v1.4.4 First cut of the stockpile model
 - v1.4.2. This has fixes for disinfection calculation and introduction to a
   single sheet models
 - v1.3.1. Fixes the the washington surge and has the new york city surge
 
-
+## Excel bug notes
+If you put a data table inside the system, you will get a external content
+error. To fix this, you should go to the Data tab and look at connections. This
+is the place to remove external connections
+[External](https://answers.microsoft.com/en-us/msoffice/forum/all/excel-for-mac-external-data-connections-have-been/03d3efa9-d540-4b00-8bc8-a06ddb7c4ea1)
 
 ## The various documents
 
@@ -36,7 +43,19 @@ https://github.com/restartus/covid-projection/releases
 - [INTRODUCTION.md](INTRODUCTION.md). The model and how it works at a high level
 - [RESEARCH.md](RESEARCH.md). Various call reports on new ideas
 
-## The PowerBI cube
+
+## Data sources
+
+### Apple Mobility
+
+A regularly published CSV on mobility data
+[Apple](https://www.apple.com/covid19/mobility)
+
+### Google Mobility
+
+A regular data source from [Google](https://www.google.com/covid19/mobility/)
+
+### The PowerBI cube
 
 The supporting documents needed are mainly in PowerBI.
 - [OCC Based

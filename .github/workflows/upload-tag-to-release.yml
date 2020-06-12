@@ -20,9 +20,6 @@ env:
   SINGLE_RELEASE: covid-surge-who-single.xlsx
   COOK_RELEASE: covid-surge-who-single-cook.xlsx
   COUNTY_RELEASE: covid-surge-who-county.xlsx
-  # note you cannot use substitution in env
-  # RELEASES: ${{ env.WA_RELEASE }} ${{env.SINGLE_RELEASE}} ${{env.COOK_RELEASE}} ${{env.COUNTY_RELEASE}}
-  RELEASES: covid-surge-who.xlsx covid-surge-who-single.xlsx covid-surge-who-single-cook.xlsx covid-surge-who-county.xlsx
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
@@ -58,10 +55,7 @@ jobs:
       # https://git-scm.com/book/en/v2/Git-Basics-Tagging
       # note git lfs pull only allows one --include flat at a time
       run: |
-          git lfs pull --include "$WA_RELEASE"
-          git lfs pull --include "$SINGLE_RELEASE" 
-          git lfs pull --include "$COOK_RELEASE"
-          for release in $RELEASES
+        for release in "$WA_RELEASE" "$COOK_RELEASE" "$SINGLE_RELEASE" "$COUNTY_RELEASE"
           do
             git lfs pull --include "$release"
           done
@@ -75,6 +69,8 @@ jobs:
       # make sure we only do this on a tagged release
       if: startsWith(github.ref, 'refs/tags/')
       with:
+        draft: false
+        prerelease: false
         files: |
           ${{ env.WA_RELEASE }}
           ${{ env.SINGLE_RELEASE }}
@@ -98,8 +94,6 @@ jobs:
     #    # release_name: Release ${{ github.ref }}
     #    body: |
     #      New release
-    #    draft: false
-    #    prerelease: false
     ## move it up there need one for each
     #- name: Upload Release Asset ${{ env.WA_RELEASE }}
     #  id: upload-release-asset-1

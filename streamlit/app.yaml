@@ -1,0 +1,4 @@
+# https://blog.jcharistech.com/2020/01/14/how-to-deploy-streamlit-apps-to-google-cloud-platformgcp-app-engine/
+# For Google Cloud App Engine
+runtime: custom
+env: flex

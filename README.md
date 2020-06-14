@@ -10,10 +10,54 @@ It has four major components:
 4. Community. Getting the entire network of public, private and non-profit
    organizations working together.
 
+# Directory layout
+
+The directory layout has a few major areas:
+
+- [data](data). This is where all the raw data is kept. Right now, this uses Git
+  LFS so that we have version control and this works since the data sets are
+relatively small at at most a few GB. You do need git lfs installed to read
+this.
+- [bin](bin). This is where the developer tools live. They are mainly a subset
+  ported from @richtong at https://github.com/richtong/src . The most important
+is install.sh which should install the development environment for Mac (for
+sure), Linux (hopefully) and Windows is in development. Our standard dev
+environment is Mac, so let @richtong know if you want to become a maintainer for
+the other builds.
+- [lib](lib). Used by bin, this gives a standard development environment with
+  some standard variables like SOURCE_DIR you can use everywhere
+- [jupyter](jupyter). This is for experiments and is our poor man's Jupyter Hub.
+- We do have some Excel sheets at the top, there is technical debt to fix the
+  Github actions to pull data from below, but they are named files that you copy
+in Athena sheets
+
+
+
+# Versions and releases
+
+The main relese scheme is to alternate between adding features (the v1, v3,...)
+and then solving technical debt issues and solidifying things, you can think of
+these a v1, v1.x, v2, v2.x, etc
+
+Our first v1 models (codenamed Athena) are in the [excel](excel) these are
+Excel spreadsheets and they have now stabilized with a series of 1.x releases.
+All versions are kept there.
+
+Our next generation or v2 models (codenamed Balsa) are the conversion to Python
+and implement the Surge models once again and then will add additional
+extensions. Most of this work lives in the Jupyter and src subdirectories.
+
+Our v2.x models (codenamed Concrete) will be a technical catchup release where we
+put in the CD/CI features
+
+As with all semvar compliant systems, major versions v1, v2,... maintain the
+same interface, that is they produce the same output and are called the same
+
 ## Release points
 
 The system release two spreadsheets right now as of v1.x at
-https://github.com/restartus/covid-projection/releases
+https://github.com/restartus/covid-projection/releases. These are right taken
+from the files at the root and renamed appropriately. So when you want to do 
 
 - covid-who-surge-washington.xlsx. This is the copied latest file that is the large model
   for State of Washington including SOC

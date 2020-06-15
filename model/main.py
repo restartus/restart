@@ -17,6 +17,7 @@ from population import population, population_label
 from consumption import usage_by_level, level_name, level_by_population
 
 import pandas as pd
+import numpy as np
 
 
 # https://www.w3schools.com/python/python_classes.asp
@@ -31,7 +32,9 @@ class Model:
 def main():
     print('hello world')
     model = Model(resource_name(), population_label(), level_name())
-    print(model, model.resource_name)
+    print('model resource name\n', model.resource_name)
+    print('model population label\n', model.population_label)
+    print('model level name\n', model.level_name)
 
     # This is a population p by d dimension, eventually the second column
     # should be a call back that calculates consumption based
@@ -42,27 +45,28 @@ def main():
     Population_df = population(model)
     print('Population\n', Population_df)
 
+    # Now bucket population into a set of levels
+    # So we have a table is p x l
+    Levels_by_population_df = level_by_population(model)
+    print('Usage by population\n', Levels_by_population_df)
+
     # This is rows that are levels adn then usage of each resource  or l, n
     # When population become n x d, then there will be a usage
     # level for each do, so this become d x p x n
     Usage_by_level_df = usage_by_level(model)
     print('Usage by level\n', Usage_by_level_df)
 
-    # Now bucket population into a set of levels
-    # So we have a table is p x l
-    Levels_by_population_df = level_by_population(model)
-    print('Usage by population\n', Levels_by_population_df)
-
     # Required equipment is p poulation rows for each resource n
     # which we can get with a mac p x l * l x n
-    Resource_by_population_array = Usage_by_level_df @ Levels_by_population_df
-    print('Resources needed by population\n', Resource_by_population_array)
-    # now convert to a dataframe
+    print('levels_by_population_df',
+          Levels_by_population_df.shape)
+    print('usage_by_level_df', Usage_by_level_df.shape)
 
-    Resource_by_population_df = pd.DataFrame(Resource_by_population_array,
-                                             columns=model.resource_name,
-                                             index=model.level_name)
-    print('Resources needed by population df\n', Resource_by_population_df)
+    # p x l * l x n -> p x n
+    Resource_by_population_df = Levels_by_population_df @ Usage_by_level_df
+
+    print('Resources needed by population\n', Resource_by_population_df)
+    # now convert to a dataframe
 
 
 if __name__ == "__main__":

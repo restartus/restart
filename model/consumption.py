@@ -13,10 +13,16 @@ def level_name():
 def level_by_population(model):
     level_by_population_array = np.zeros([len(model.population_label),
                                           len(model.level_name)])
+    # https://docs.python.org/3/library/pdb.html
+    print('level_by_population', len(model.population_label))
+    print('level_by_population shape', level_by_population_array.shape)
+    level_by_population_array[0, -1] = level_by_population_array[0, -2] = 0.5
+    level_by_population_array[1, 1] = 1.0
 
-    level_by_population_array[0, 5:6] = 0.5
-    level_by_population_array[1, 1] - 1.0
-    return level_by_population
+    level_by_population_df = pd.DataFrame(level_by_population_array,
+                                          index=model.population_label['name'],
+                                          columns=model.level_name)
+    return level_by_population_df
 
 
 # This is rows that are levels adn then usage of each resource  or l, n

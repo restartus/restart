@@ -15,23 +15,25 @@
 from resource import resource_name
 from population import population, population_label
 from consumption import usage_by_level, level_name, level_by_population
-
-import pandas as pd
-import numpy as np
+from essential import essential_name, population_by_essentiality
+from supply import cost_per_resource_by_essentiality, stockpile_required_by_essentiality
 
 
 # https://www.w3schools.com/python/python_classes.asp
 class Model:
-    def __init__(self, resource_name, population_label, level_name):
+    def __init__(self, resource_name, population_label, level_name,
+                 essential_name):
         self.resource_name = resource_name
         # population has population rows details
         self.population_label = population_label
         self.level_name = level_name
+        self.essential_name = essential_name
 
 
 def main():
     print('hello world')
-    model = Model(resource_name(), population_label(), level_name())
+    model = Model(resource_name(), population_label(), level_name(),
+                  essential_name())
     print('model resource name\n', model.resource_name)
     print('model population label\n', model.population_label)
     print('model level name\n', model.level_name)
@@ -63,11 +65,42 @@ def main():
     print('usage_by_level_df', Usage_by_level_df.shape)
 
     # p x l * l x n -> p x n
-    Resource_by_population_df = Levels_by_population_df @ Usage_by_level_df
+    Unit_resource_by_population_df = Levels_by_population_df @ Usage_by_level_df
 
-    print('Resources needed by population\n', Resource_by_population_df)
+    print('Unit Resources needed by population\n',
+          Unit_resource_by_population_df)
     # now convert to a dataframe
 
+    # Now it get's easier, this is the per unit value, so multiply by the
+    # population and the * with values does an element wise multiplication
+    # With different tempos, this will be across all d dimensions
+
+    Total_resource_by_population_df = Unit_resource_by_population_df * Population_df.values
+    print('Total resource needed by population\n',
+          Total_resource_by_population_df)
+
+    Population_by_essentiality_df = population_by_essentiality(model)
+    print('Population by essentiality\n', Population_by_essentiality_df)
+
+    Total_resource_by_essentiality_df = Population_by_essentiality_df @ Total_resource_by_population_df
+    print('Total resource by essentiality\n',
+          Total_resource_by_essentiality_df)
+
+    Cost_per_resource_by_essentiality_df = cost_per_resource_by_essentiality(model)
+    print('Cost per resource by essentiality\n',
+          Cost_per_resource_by_essentiality_df)
+    
+    Total_cost_by_essentiality_df = Total_resource_by_essentiality_df * Cost_per_resource_by_essentiality_df.values
+    print('Total cost per resource by essentiality\n',
+          Total_cost_by_essentiality_df)
+
+    Stockpile_required_by_essentiality_df = stockpile_required_by_essentiality(model)
+    print('Stockpile per resource required by essentiality\n',
+          Stockpile_required_by_essentiality_df)
+
+    Total_stockpile_by_essentiality_df = Total_resource_by_essentiality_df * Stockpile_required_by_essentiality_df.values
+    print('Total Stockpile required by essentiality\n',
+          Total_stockpile_by_essentiality_df)
 
 if __name__ == "__main__":
     main()

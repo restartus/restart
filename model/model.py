@@ -101,6 +101,8 @@ def main():
     Total_stockpile_by_essentiality_df = Total_resource_by_essentiality_df * Stockpile_required_by_essentiality_df.values
     print('Total Stockpile required by essentiality\n',
           Total_stockpile_by_essentiality_df)
+    
+    mo
 
 if __name__ == "__main__":
     main()

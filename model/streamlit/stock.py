@@ -15,8 +15,8 @@ import streamlit as st
 def main():
     # Not that write uses Markdown
     st.write("""
-    # Simple Stock Price Analysis
-    Shown are the stock **closing price** and ***volume*** of Tesla
+# Simple Stock Price Analysis
+Shown are the stock **closing price** and ***volume*** of Tesla
     """)
 
     # https://towardsdatascience.com/how-to-get-stock-data-using-python-c0de1df17e75
@@ -24,7 +24,8 @@ def main():
 
     tickerData = yf.Ticker(tickerSymbol)
     # Returns a Pandas dataframe
-    tickerDf = tickerData.history(period='1d', start='2010-05-31', end='2020-06-10')
+    tickerDf = tickerData.history(period='1d', start='2010-05-31',
+                                  end='2020-06-10')
     print(tickerDf)
 
     # It's so easy to chart with builtin types

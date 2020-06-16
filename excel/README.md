@@ -2,6 +2,24 @@
 
 This has the Excel models used with version 1.x
 
+# Installation
+
+When you have a version you want to push up the chain, make sure the files have
+the suffix `-vX.Y,Z` and they are all the same then run if the version is
+v.1.4.7
+
+```
+make release TAG=v1.4.7
+```
+
+If you want to override the default files then run and make sure you *do not*
+put in the .xlsx extension, it is assumed:
+
+```
+make release FILES=newfilewithoutextension TAG=v.1.47
+```
+
+
 ## Note on breaking bugs
 
 The main issue with models are in the use of the `column` which in the latest
@@ -17,3 +35,4 @@ The net is that you should never save a sheet with Microsoft 365, it produces
 incompatible formulas when arrays are used.
 
 We use them in a sumproduct and this is breaking.
+

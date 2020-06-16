@@ -12,14 +12,16 @@
 # change the variables here
 #
 
-tag =? v1.4.7.2
-## release: copy up the Excel files to the named locations at the root
-files =?  covid-surge-who-county.xlsx covid-surge-who-single-cook.xlsx covid-surge-who-single.xlsx covid-surge-who.xlsx
+# Note that 
+TAG ?= v1.4.7.2
 
-.PHONY: install
-install: 
-	for file in $(files); do \
-		cp "$$file-$(tag)" "../$$file"; \
+FILES ?= covid-surge-who-county covid-surge-who-single-cook covid-surge-who-single covid-surge-who
+
+## release: copy up the Excel files to the named locations at the root
+.PHONY: release
+release: 
+	for file in $(FILES); do \
+		cp "$$file-$(TAG).xlsx" "../$$file.xlsx"; \
 	done
 
 include include.mk

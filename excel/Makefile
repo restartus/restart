@@ -14,6 +14,7 @@
 
 # Note that 
 TAG ?= v1.4.7.2
+COMMENT ?= test comment
 
 FILES ?= covid-surge-who-county covid-surge-who-single-cook covid-surge-who-single covid-surge-who
 
@@ -23,5 +24,13 @@ release:
 	for file in $(FILES); do \
 		cp "$$file-$(TAG).xlsx" "../$$file.xlsx"; \
 	done
+
+## action: pushes a new tag up while delete old if they exist forcing a github action
+.PHONY: action
+action:
+	git tag -d "$(TAG)"; \
+	git push origin :"$(TAG)" ; \
+	git tag -a "$(TAG)" -m "$(COMMENT)" && \
+	git push origin "$(TAG)"
 
 include include.mk

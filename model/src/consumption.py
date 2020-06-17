@@ -1,42 +1,28 @@
 #
-# Resource usage by protection level returned
+# These are the classes that set the protection levels and manage them
+# It takes in the population
+#
+# This actually contains two matrix
+#
+# For each level, what is the usage
 #
 import pandas as pd
-import numpy as np
 
 
-def level_name():
-    level_name = ['WA0', 'WA1', 'WA2', 'WA3', 'WA4', 'WA5', 'WA6']
-    return level_name
-
-
-def level_by_population(model):
-    level_by_population_array = np.zeros([len(model.population_label),
-                                          len(model.level_name)])
-    # https://docs.python.org/3/library/pdb.html
-    print('level_by_population', len(model.population_label))
-    print('level_by_population shape', level_by_population_array.shape)
-    level_by_population_array[0, -1] = level_by_population_array[0, -2] = 0.5
-    level_by_population_array[1, 1] = 1.0
-
-    level_by_population_df = pd.DataFrame(level_by_population_array,
-                                          index=model.population_label['name'],
-                                          columns=model.level_name)
-    return level_by_population_df
-
-
-# This is rows that are levels adn then usage of each resource  or l, n
-# When population become n x d, then there will be a usage
-# level for each do, so this become d x p x n
-def usage_by_level(model):
-    usage_by_level_array = [[0, 0],
-                            [0, 1],
-                            [0, 2],
-                            [0.1, 3],
-                            [0.2, 4],
-                            [0.3, 6],
-                            [1.18, 0]]
-    usage_by_level_df = pd.DataFrame(usage_by_level_array,
-                                     columns=model.resource_name,
-                                     index=model.level_name)
-    return usage_by_level_df
+class Consumption:
+    """initialize consumption
+    When population become n x d, then there will be a usage
+    evel for each do, so this become d x p x n
+    This is for each level l, what is the usage of n resources
+    """
+    def __init__(self, model):
+        self.level_consume_values = [[0, 0],
+                                     [0, 1],
+                                     [0, 2],
+                                     [0.1, 3],
+                                     [0.2, 4],
+                                     [0.3, 6],
+                                     [1.18, 0]]
+        self.level_consume = pd.DataFrame(self.level_consume_values,
+                                          columns=model.resource_labels,
+                                          index=model.level_labels)

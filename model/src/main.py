@@ -12,37 +12,54 @@
 # putting these inside the class definition
 # http://effbot.org/pyfaq/how-do-i-share-global-variables-across-modules.htm
 # Before we move to full modules, just import locally
-from resource import resource_name, Resource_bharat
-from population import population, population_label
-from consumption import usage_by_level, level_name, level_by_population
-from essential import essential_name, population_by_essentiality
-from supply import cost_per_resource_by_essentiality
-from supply import stockpile_required_by_essentiality
-
-
-# https://www.w3schools.com/python/python_classes.asp
-class Model:
-    def __init__(self, resource_name, population_label, level_name,
-                 essential_name):
-        self.resource_name = resource_name
-        # population has population rows details
-        self.population_label = population_label
-        self.level_name = level_name
-        self.essential_name = essential_name
+from model import Model
+from resource import Resource
+from population import Population
+from consumption import Consumption
+from essential import Essential
+from supply import Supply
 
 
 def main():
-    print('hello world')
+    """ Bootstrap the whole model creating all objects
+    Bootstrap where each modules successively knows more about the world
+    Population defines Pop_details[p,d], Pop_levels[p,l]
 
-    # create the resource object
-    resource = Resource_bharat("bharat")
+    In this version, there is a specific order of creation and implicit
+    dependencies so use in this order. The notation we uses suffixes each with
+    a unique letter that gives the number of elements so n x a means n resource
+    by a attributes. And yes this will not work when we have more than 26
+    types of dimensions :-)
+
+    In a future revision, you can do this in any order and it will work
+    - model itself
+    - resource which creates the n resources (eg N95, test kit, etc.) with
+      the columns being x attributes like the units and space R[n, x].
+    - consumption to create burn rates for each "level" of the model. Instead
+    of calculating unique burn rates per population element, we bucketize with
+      the consumption level l so it returns C[l, n]
+
+    And if you make a change to any, the model will automatically recalc
+    everything
+    """
+    model = Model('test')
+    model.resource = Resource(model)
+    model.consumption = Consumption(model)
+    model.population = Population(model)
+    # returns p population, d details and l levels of protection
+    model.essential = Essential(model)
+    model.supply = Supply(model)
+
+
+    print('model resource labels', model.resource.labels)
+
+    # create the resource object that is p populations and n items
     print('resource name', resource.name)
+    print('resource labels:', resource.row_labels, resource.column_labels)
 
-    model = Model(resource_name(), population_label(), level_name(),
-                  essential_name())
-    print('model resource name\n', model.resource_name)
-    print('model population label\n', model.population_label)
-    print('model level name\n', model.level_name)
+
+    print('model population labels', model.population.row_labels)
+    print('model level name', model.level_name)
 
     # This is a population p by d dimension, eventually the second column
     # should be a call back that calculates consumption based
@@ -50,7 +67,7 @@ def main():
     # but there will also be the number of COVID patients
     # And other tempo data like number of runs so
     # eventually this is d dimensinoal
-    Population_df = population(model)
+    Population_df = model.population.df
     print('Population\n', Population_df)
 
     # Now bucket population into a set of levels

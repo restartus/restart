@@ -24,10 +24,12 @@ destination ?= $(HOME)/ws/runtime
 user ?= anaconda
 
 ## install: for bare metal installs installs Python packages
+.PHONY: install
 install:
 	pip install --upgrade opencv-python vega-datasets streamlit altair
 
 ## gcloud: push up to Google Cloud
+.PHONY: gcloud
 gcloud:
 	gcloud projects list
 

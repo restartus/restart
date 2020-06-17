@@ -12,11 +12,12 @@
 # putting these inside the class definition
 # http://effbot.org/pyfaq/how-do-i-share-global-variables-across-modules.htm
 # Before we move to full modules, just import locally
-from resource import resource_name
+from resource import resource_name, Resource_bharat
 from population import population, population_label
 from consumption import usage_by_level, level_name, level_by_population
 from essential import essential_name, population_by_essentiality
-from supply import cost_per_resource_by_essentiality, stockpile_required_by_essentiality
+from supply import cost_per_resource_by_essentiality
+from supply import stockpile_required_by_essentiality
 
 
 # https://www.w3schools.com/python/python_classes.asp
@@ -32,6 +33,11 @@ class Model:
 
 def main():
     print('hello world')
+
+    # create the resource object
+    resource = Resource_bharat("bharat")
+    print('resource name', resource.name)
+
     model = Model(resource_name(), population_label(), level_name(),
                   essential_name())
     print('model resource name\n', model.resource_name)

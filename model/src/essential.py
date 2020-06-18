@@ -1,23 +1,21 @@
-#
-# Essential math
-# determine how to compress population into meaningful categories
-#
 import numpy as np
 import pandas as pd
 
 
-def essential_name():
-    essential_name = ["Essential", "Non-essential"]
-    return essential_name
+class Essential():
+    """Converts population to essentiality for simplicity
 
+    Essential math
+    determine how to compress population into meaningful categories
+    We assume that we have the p population but define the e
 
-def population_by_essentiality(model):
-    # Make it simple, just map healthcare to essential
-    population_by_essentiality_array = np.eye(2)
+    """
+    def __init__(self, model):
 
-    population_by_essentiality_df = pd.DataFrame(
-            population_by_essentiality_array,
-            index=model.essential_name,
-            columns=model.population_label['name'])
+        # Make it simple, just map healthcare to essential
+        self.pop_essential_values = np.eye(2)
 
-    return population_by_essentiality_df
+        self.pop_essentiality_df = pd.DataFrame(
+                self.pop_essentiality_values,
+                index=model.consume.labels,
+                columns=model.population.pop_labels)

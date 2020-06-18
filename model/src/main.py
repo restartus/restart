@@ -14,8 +14,8 @@
 # Before we move to full modules, just import locally
 from model import Model
 from resource import Resource
-from population import Population
 from consumption import Consumption
+from population import Population
 from essential import Essential
 from supply import Supply
 

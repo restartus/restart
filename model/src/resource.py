@@ -1,21 +1,18 @@
 
 # https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
-from typing import List
-from pandas import pd
+import pandas as pd
+import numpy as np
 
 
 class Resource():
     """Resource - Manages all the resources that are used in the model
+    This creates for all r resources, the list of attributes a
 
- Today this is the first thing called, but later, starting anywhere works and
- the Model class adds things until they are full and then creates the
- computation graph
-
- This contains
- This uses https://realpython.com/documenting-python-code/
- docstrings using the NumPy/SciPy syntax
- Uses a modified standard project
- Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
+    This contains
+    This uses https://realpython.com/documenting-python-code/
+    docstrings using the NumPy/SciPy syntax
+    Uses a modified standard project
+    Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
     """
     def init(self, model):
         """Initialize the Resource object
@@ -23,7 +20,7 @@ class Resource():
         This uses the Frame object and populates it with default data unless yo
         override it
         """
-        self.frame = pd.DataFrame(
-                 [[1, 2], [2, 3]],
-                 index=["Units", "Dimensions"],
-                 columns=["N95", "ASTM3"])
+        self.ra_array = np.array([[1, 2], [2, 3]])
+        self.ra_frame = pd.DataFrame(
+                 index=self.model.resource_labels,
+                 columns=self.model.detail_labels)

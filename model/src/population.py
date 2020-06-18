@@ -14,52 +14,27 @@ class Population:
     For instance the number of covid patients
     The number of trips or visits or runs for a given population
 
+    The second matrix p population describes is how to map population to
+    l consumption levels to give a p x l. Long term this becomes d x p x l
+    So that you can have a different run rate for each detail d of population
+
     """
     def __init__(self, model):
 
-        print('set labels')
-        self.pop_details_values = [735.2, 7179.6]
-        # Hack to set it right
-        self.pop_levels_values = np.zeros([self.pop_len, self.level_len])
-        self.pop_levels_values[0, -1] = self.pop_levels_values[0, -2] = 0.5
-        self.pop_levels_values[1, 1] = 1.0
-        # https://docs.python.org/3/library/pdb.html
-        print('each population, which levels: ', self.pop_len, self.detail_len)
-        print('pop_levels, p x l', self.pop_details_values.shape)
-        self.pop_levels_df = pd.DataFrame(self.pop_levels_values,
-                                          index=self.pop_labels,
-                                          columns=self.level_labels)
+        # set the arrays of values
+        self.pop_details_values = np.array([735.2, 7179.6])
         self.pop_details_df = pd.DataFrame(self.pop_details_values,
                                            index=self.pop_labels,
                                            columns=self.detail_labels)
-        self.pop_labels = ["Healthcare workers",
-                           "Non-heathcare employees"],
-        self.detail_labels = ["People"]
-        self.level_labels = ['WA0', 'WA1', 'WA2', 'WA3', 'WA4', 'WA5', 'WA6']
+        print('pop_levels, p x d', self.pop_details_values.shape)
 
-        # Is this really allowed, it is doing in place edits into model
-        # could also have it return a new model which is cleaner
-        print('now set model with new labels')
-        model.pop_labels = self.pop_labels
-        model.detail_labels = self.detail_labels
-        model.level_labels = self.level_labels
-        model.pop_len = len(self.pop_labels)
-        model.detail_len = len(self.detail_labels)
-        model.level_len = len(self.level_labels)
-        model.population = self
-
-        print('set default values')
-        self.pop_details_values = [735.2, 7179.6]
-        # Hack to set it right
-        self.pop_levels_values = np.zeros([self.pop_len, self.level_len])
-        self.pop_levels_values[0, -1] = self.pop_levels_values[0, -2] = 0.5
-        self.pop_levels_values[1, 1] = 1.0
+        # set the population by consumption levels
+        self.pop_consume_values = np.zeros([self.pop_len, self.level_len])
+        self.pop_consume_values[0, -1] = self.pop_levels_values[0, -2] = 0.5
+        self.pop_consume_values[1, 1] = 1.0
         # https://docs.python.org/3/library/pdb.html
-        print('each population, which levels: ', self.pop_len, self.detail_len)
-        print('pop_levels, p x l', self.pop_details_values.shape)
-        self.pop_levels_df = pd.DataFrame(self.pop_levels_values,
-                                          index=self.pop_labels,
-                                          columns=self.level_labels)
-        self.pop_details_df = pd.DataFrame(self.pop_details_values,
+        print('pop_consume, p x l', self.pop_consume_values.shape)
+
+        self.pop_consume_df = pd.DataFrame(self.pop_levels_values,
                                            index=self.pop_labels,
-                                           columns=self.detail_labels)
+                                           columns=self.level_labels)

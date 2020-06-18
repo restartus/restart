@@ -36,10 +36,10 @@ class Model:
     def __init__(self, name,
                  label: Dict[str, List[str]] =
                  {"Resource": ["N95", "ASTM3"],
-                  "Resource Attribute": ["Units", "Dimensions"],
+                  "Attribute": ["Units", "Dimensions"],
                   "Population": ["Healthcare workers",
                                  "Non-heathcare employees"],
-                  "Population Details": ["People"],
+                  "Details": ["People"],
                   "Consumption":  ['WA0', 'WA1', 'WA2', 'WA3',
                                           'WA4', 'WA5', 'WA6'],
                   "Essentiality": ["Essential", "Non-essential"],

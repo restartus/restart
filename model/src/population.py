@@ -1,3 +1,4 @@
+
 import numpy as np
 import pandas as pd
 
@@ -22,19 +23,21 @@ class Population:
     def __init__(self, model):
 
         # set the arrays of values
-        self.pop_details_values = np.array([735.2, 7179.6])
-        self.pop_details_df = pd.DataFrame(self.pop_details_values,
-                                           index=self.pop_labels,
-                                           columns=self.detail_labels)
-        print('pop_levels, p x d', self.pop_details_values.shape)
+        self.details_pd_array = np.array([735.2, 7179.6])
+        self.details_pd_df = pd.DataFrame(self.details_values,
+                                          index=model.label['Population'],
+                                          columns=model.label['Details'])
+        print('pop_levels, p x d', self.details_pd_array.shape)
 
         # set the population by consumption levels
-        self.pop_consume_values = np.zeros([self.pop_len, self.level_len])
-        self.pop_consume_values[0, -1] = self.pop_levels_values[0, -2] = 0.5
-        self.pop_consume_values[1, 1] = 1.0
+        self.consumption_pl_array = np.zeros([len(model.label['Population']),
+                                              len(model.label['Consumption']))
+        self.consumption_pl_array[0, -1] = self.consumption_pl_array[0, -2] = 0.5
+        self.consumption_pl_array[1, 1] = 1.0
         # https://docs.python.org/3/library/pdb.html
-        print('pop_consume, p x l', self.pop_consume_values.shape)
+        print('population.consumption_pl_array, p x l',
+            self.consumption_pl_array.shape)
 
-        self.pop_consume_df = pd.DataFrame(self.pop_levels_values,
-                                           index=self.pop_labels,
-                                           columns=self.level_labels)
+        self.consumption_pl_df = pd.DataFrame(self.consumption_pl_array,
+                                              index=model.label['Population']
+                                              columns=model.label['Consumption'])

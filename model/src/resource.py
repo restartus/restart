@@ -1,4 +1,3 @@
-
 # https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 import pandas as pd
 import numpy as np
@@ -21,6 +20,6 @@ class Resource():
         override it
         """
         self.ra_array = np.array([[1, 2], [2, 3]])
-        self.ra_frame = pd.DataFrame(
-                 index=self.model.resource_labels,
-                 columns=self.model.detail_labels)
+        self.ra_df = pd.DataFrame(
+                 index=model.label["Resource"],
+                 columns=model.label["Attribute"])

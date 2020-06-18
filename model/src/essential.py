@@ -8,14 +8,16 @@ class Essential():
     Essential math
     determine how to compress population into meaningful categories
     We assume that we have the p population but define the e
+    We take each row of population and then say what percent 
+    goes into which essential bucket
 
     """
     def __init__(self, model):
 
         # Make it simple, just map healthcare to essential
-        self.pop_essential_values = np.eye(2)
+        self.from_population_pe_array = np.eye(2)
 
-        self.pop_essentiality_df = pd.DataFrame(
-                self.pop_essentiality_values,
-                index=model.consume.labels,
-                columns=model.population.pop_labels)
+        self.from_population_pe_df = pd.DataFrame(
+                self.from_population_pe_array,
+                index=model.label["Consumption"],
+                columns=model.label["Population"])

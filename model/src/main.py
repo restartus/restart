@@ -50,16 +50,15 @@ def main():
     model.essential = Essential(model)
     model.supply = Supply(model)
 
-
-    print('model resource labels', model.resource.labels)
+    print('model resource labels', model.label["Resource"])
 
     # create the resource object that is p populations and n items
-    print('resource name', resource.name)
-    print('resource labels:', resource.row_labels, resource.column_labels)
+    print('resource labels:',
+          model.resource.ra_df.index,
+          model.resource.ra_df.columns)
 
-
-    print('model population labels', model.population.row_labels)
-    print('model level name', model.level_name)
+    print('model population labels', model.population.detail_pd_df.index)
+    print('model level name', model.population.consumption_pl_df.index)
 
     # This is a population p by d dimension, eventually the second column
     # should be a call back that calculates consumption based
@@ -67,18 +66,18 @@ def main():
     # but there will also be the number of COVID patients
     # And other tempo data like number of runs so
     # eventually this is d dimensinoal
-    Population_df = model.population.df
+    Population_df = model.population.detail_pd_df
     print('Population\n', Population_df)
 
     # Now bucket population into a set of levels
     # So we have a table is p x l
-    Levels_by_population_df = level_by_population(model)
+    Levels_by_population_df = model.population.consumption_pl_df
     print('Usage by population\n', Levels_by_population_df)
 
     # This is rows that are levels adn then usage of each resource  or l, n
     # When population become n x d, then there will be a usage
     # level for each do, so this become d x p x n
-    Usage_by_level_df = usage_by_level(model)
+    Usage_by_level_df = model.consumption.ln_df
     print('Usage by level\n', Usage_by_level_df)
 
     # Required equipment is p poulation rows for each resource n
@@ -102,14 +101,14 @@ def main():
     print('Total resource needed by population\n',
           Total_resource_by_population_df)
 
-    Population_by_essentiality_df = population_by_essentiality(model)
+    Population_by_essentiality_df = model.essential.from_population_pe.df
     print('Population by essentiality\n', Population_by_essentiality_df)
 
     Total_resource_by_essentiality_df = Population_by_essentiality_df @ Total_resource_by_population_df
     print('Total resource by essentiality\n',
           Total_resource_by_essentiality_df)
 
-    Cost_per_resource_by_essentiality_df = cost_per_resource_by_essentiality(model)
+    Cost_per_resource_by_essentiality_df = model.essential.cost_per_resource_en.df
     print('Cost per resource by essentiality\n',
           Cost_per_resource_by_essentiality_df)
     
@@ -117,13 +116,14 @@ def main():
     print('Total cost per resource by essentiality\n',
           Total_cost_by_essentiality_df)
 
-    Stockpile_required_by_essentiality_df = stockpile_required_by_essentiality(model)
+    Stockpile_required_by_essentiality_df = model.essential.stockpile_en_df
     print('Stockpile per resource required by essentiality\n',
           Stockpile_required_by_essentiality_df)
 
     Total_stockpile_by_essentiality_df = Total_resource_by_essentiality_df * Stockpile_required_by_essentiality_df.values
     print('Total Stockpile required by essentiality\n',
           Total_stockpile_by_essentiality_df)
+
 
 if __name__ == "__main__":
     main()

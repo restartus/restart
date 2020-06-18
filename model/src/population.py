@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 
@@ -23,21 +22,22 @@ class Population:
     def __init__(self, model):
 
         # set the arrays of values
-        self.details_pd_array = np.array([735.2, 7179.6])
-        self.details_pd_df = pd.DataFrame(self.details_values,
-                                          index=model.label['Population'],
-                                          columns=model.label['Details'])
-        print('pop_levels, p x d', self.details_pd_array.shape)
+        self.detail_pd_array = np.array([735.2, 7179.6])
+        self.detail_pd_df = pd.DataFrame(self.detail_pd_array,
+                                         index=model.label['Population'],
+                                         columns=model.label['Details'])
+        print('pop_levels, p x d', self.detail_pd_array.shape)
 
         # set the population by consumption levels
-        self.consumption_pl_array = np.zeros([len(model.label['Population']),
-                                              len(model.label['Consumption']))
-        self.consumption_pl_array[0, -1] = self.consumption_pl_array[0, -2] = 0.5
+        self.consumption_pl_array = np.zeros((len(model.label['Population']),
+                                              len(model.label['Consumption'])))
+        self.consumption_pl_array[0, -1] = 0.5
+        self.consumption_pl_array[0, -2] = 0.5
         self.consumption_pl_array[1, 1] = 1.0
         # https://docs.python.org/3/library/pdb.html
         print('population.consumption_pl_array, p x l',
-            self.consumption_pl_array.shape)
+              self.consumption_pl_array.shape)
 
         self.consumption_pl_df = pd.DataFrame(self.consumption_pl_array,
-                                              index=model.label['Population']
+                                              index=model.label['Population'],
                                               columns=model.label['Consumption'])

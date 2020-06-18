@@ -7,6 +7,9 @@
 # https://stackoverflow.com/questions/20309456/call-a-function-from-another-file-in-python
 #
 
+# https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
+import logging
+
 # https://stackoverflow.com/questions/47561840/python-how-can-i-separate-functions-of-class-into-multiple-files
 # explains that you can split a class into separate files by
 # putting these inside the class definition
@@ -42,6 +45,12 @@ def main():
     And if you make a change to any, the model will automatically recalc
     everything
     """
+
+    # https://www.digitalocean.com/community/tutorials/how-to-use-logging-in-python-3
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s:$(levelname)s:%(message)s')
+    logging.debug('Start logging')
+
     model = Model('test')
     model.resource = Resource(model)
     model.consumption = Consumption(model)
@@ -50,7 +59,7 @@ def main():
     model.essential = Essential(model)
     model.supply = Supply(model)
 
-    print('model resource labels', model.label["Resource"])
+    logging.debug('model resource labels', model.label["Resource"])
 
     # create the resource object that is p populations and n items
     print('resource labels:',
@@ -108,7 +117,7 @@ def main():
     print('Total resource by essentiality\n',
           Total_resource_by_essentiality_df)
 
-    Cost_per_resource_by_essentiality_df = model.essential.cost_per_resource_en.df
+    Cost_per_resource_by_essentiality_df = model.supply.cost_per_resource_en.df
     print('Cost per resource by essentiality\n',
           Cost_per_resource_by_essentiality_df)
     
@@ -116,7 +125,7 @@ def main():
     print('Total cost per resource by essentiality\n',
           Total_cost_by_essentiality_df)
 
-    Stockpile_required_by_essentiality_df = model.essential.stockpile_en_df
+    Stockpile_required_by_essentiality_df = model.stockpile.stockpile_en_df
     print('Stockpile per resource required by essentiality\n',
           Stockpile_required_by_essentiality_df)
 

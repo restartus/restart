@@ -2,13 +2,12 @@ import numpy as np
 import pandas as pd
 
 
-class Essential():
+class Supply():
     """Maps population to the essential levels for simpler analysis
 
     The first is a cost matrix for essential level what is their cost for each
-    of n items or e x n 
-    This is essential stockpile by essential so e x n which tells you how
-    many days of stockpile you need
+    of n items or e x n This is essential stockpile by essential so e x n
+    which tells you how many days of stockpile you need
 
     """
     def __init__(self, model):

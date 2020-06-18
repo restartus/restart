@@ -34,6 +34,6 @@ class Consumption:
                                    [0.3, 6],
                                    [1.18, 0]])
 
-        self.ln_df = pd.DataFrame(self.consume_resourcevalues,
+        self.ln_df = pd.DataFrame(self.ln_values,
                                   columns=model.label["Resource"],
                                   index=model.label["Consumption"])

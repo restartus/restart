@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 
-class Resource():
+class Resource:
     """Resource - Manages all the resources that are used in the model
     This creates for all r resources, the list of attributes a
 
@@ -13,7 +13,7 @@ class Resource():
     Uses a modified standard project
     Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
     """
-    def init(self, model):
+    def __init__(self, model):
         """Initialize the Resource object
 
         This uses the Frame object and populates it with default data unless yo

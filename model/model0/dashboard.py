@@ -1,38 +1,85 @@
-
-#
+import logging
 import streamlit as st
 import pandas as pd
 import numpy as np
 # import yfinance as yf
 import altair as alt
-import logging
 from typing import List
+
+# for some reason logger.baseConfig(level=logging.DEBUG) does not work
+# So the lines below don't print anything where are they going
+log_formatter = logging.Formatter("{message} ({filename}:{lineno})", style='{')
+logging.basicConfig(level=logging.DEBUG, format=log_formatter)
+# doees not works
+logging.debug('logger base debug')
+
+# https://www.loggly.com/ultimate-guide/python-logging-basics/
+# https://stackoverflow.com/questions/50714316/how-to-use-logging-getlogger-name-in-multiple-modules
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+
+# https://stackoverflow.com/questions/50714316/how-to-use-logging-getlogger-name-in-multiple-modules
+log.info('hello world')
+log.debug('debug!')
+
+# https://stackoverflow.com/questions/6614078/logging-setlevel-how-it-works
+
+
+# For some reason this does not work
+# logger.basicConfig('level=DEBUG')
 
 # Note how there are no call backs
 
 
 class Model:
     def __init__(self, name):
+        log.debug('entering model init')
         self.name: str = name
-        self.label_pop: List[str] = ["healthcare", "Non-healthcare"]
+        self.label_pop: List[str] = ["Healthcare", "Non-healthcare"]
+        self.label_attribute: List[str] = ["Count"]
         self.label_resource: List[str] = ["N95 Resp", "N95", "Mask", "Gloves",
                                           "Gowns", "Disinfectant", "Test Kits"]
         self.label_detail: List[str] = ["Landed Cost"]
-
+        log.debug(f'name is {self.name} and label_pop {self.label_pop}')
         # Consumption data
         self.pop_consumption_pn_array = np.array([[1.18, 0.2, 4.51, 6.7, 1.4, 1.5, 0.2],
-                                                   [0.1, 0.5, 2.1, 1.0, 0.05, 0.1, 0.01]])
+                                                  [0.1, 0.5, 2.1, 1.0, 0.05, 0.1, 0.01]])
+        log.debug(f'pop_consumption shape\n{self.pop_consumption_pn_array}')
+        df = pd.DataFrame(self.pop_consumption_pn_array)
+        log.debug(f'pop_consumption df\n{df}')
+        log.debug(f'test df\n{df}')
         self.pop_consumption_pn_df = pd.DataFrame(
-                                    self.pop_consumption_pn_array,
-                                    index=self.label_pop,
-                                    columns=self.label_resource)
-
-        # Supply data not you cannot name an member with a 1 so .1n.array does not
-        # work
-        self.pop_supply_n_array = np.array([4.50, 3.00, 0.5, 0.2, 4.0, 0.45, 4.00])
-        self.pop_supply_n_df = pd.DataFrame(self.pop_suppy_n_array,
+                                        self.pop_consumption_pn_array,
+                                        index=self.label_pop,
+                                        columns=self.label_resource)
+        log.debug(f'pop_consumption_pn_df\n{self.pop_consumption_pn_df}')
+        # Supply data not you cannot name an member with a 1 so .1n.array
+        # does not work
+        # this creates a row vector, need two brackete
+        # https://stackoverflow.com/questions/17428621/python-differentiating-between-row-and-column-vectors
+        self.pop_supply_n_array = np.array([[4.50, 3.00, 0.5, 0.2, 4.0, 0.45, 4.00]])
+        log.debug(f'pop_supply_n_array: {self.pop_supply_n_array.shape}')
+        log.debug(f'pop_label_pop: {self.label_pop}')
+        log.debug(f'pop_label_detail: {self.label_detail}')
+        log.debug(f'pop_label_resource: {self.label_resource}')
+        df = pd.DataFrame(self.pop_supply_n_array)
+        log.debug(f'df\n{df}')
+        self.pop_supply_n_df = pd.DataFrame(self.pop_supply_n_array,
                                             index=self.label_detail,
                                             columns=self.label_resource)
+
+        self.pop_p_array = np.array([735, 7161])
+        log.debug(f'pop_p_array\n{self.pop_p_array}')
+        self.pop_p_df = pd.DataFrame(self.pop_p_array,
+                                     index=self.label_pop,
+                                     columns=self.label_attribute)
+        log.debug(f'pop_p_df\n{self.pop_p_df}')
+
+        self.usage_pn_array = self.pop_consumption_pn_df * self.pop_p_df.values
+        self.usage_pn_df = pd.DataFrame(self.usage_pn_array,
+                                        index=self.label_pop,
+                                        columns=self.label_resource)
+        log.debug(f'usage_pn_df\n{self.usage_pn_df}')
 
 
 def main():
@@ -92,32 +139,41 @@ def homepage(model):
     Use caution when interpreting these numbers and consult experts on use.
     Numbers are 000s except *$0s*
     """)
-    print(population_consumption_pn_df)
+
+    log.debug(f'pop consumption {model.pop_consumption_pn_df}')
+
     st.write("""
     ### All Resource Burn Rate Table
     """)
     # display the data
-    st.dataframe(population_consumption_pn_df.head())
+    st.dataframe(model.pop_consumption_pn_df.head())
     st.write("""
     ### Select Resource for Filtered Burn Rate Table
     """)
     # do a multiselect to pick relevant items
-    data_ms = st.multiselect("Columns",
-                             population_consumption_pn_df.columns.tolist(),
-                             default=population_consumption_pn_df.columns.tolist())
+    burn_ms = st.multiselect("Columns",
+                             model.pop_consumption_pn_df.columns.tolist(),
+                             default=model.pop_consumption_pn_df.columns.tolist())
     # now render just those columns and the first 10 rows
-    filtered_population_consumption_pn_df = population_consumption_pn_df[data_ms]
-    st.dataframe(filtered_population_consumption_pn_df.head(10))
+    filtered_pop_consumption_pn_df = model.pop_consumption_pn_df[burn_ms]
+    st.dataframe(filtered_pop_consumption_pn_df.head(10))
+
+    st.write("""
+    ### Total Usage Required for the Population
+    """)
+    st.dataframe(model.usage_pn_df)
+
     st.write("""
     ### Histogram of uses
     """)
-    st.bar_chart(filtered_population_consumption_pn_df)
+    st.bar_chart(filtered_pop_consumption_pn_df)
     # It's so easy to chart with builtin types
     # And labelsa re just more markdown
-    st.line_chart(population_consumption_pn_df)
+    st.line_chart(model.pop_consumption_pn_df)
 
 
-def exploration(df):
+def exploration(model):
+    df = model.pop_consumption_pn_df
     print(df)
     st.title("Data Exploration")
     # https://docs.streamlit.io/en/latest/api.html
@@ -138,6 +194,7 @@ def exploration(df):
     st.write(graph)
 
 
+log.debug(f'about to check for {__name__} module')
 # you start this by detecting a magic variable
 if __name__ == "__main__":
     main()

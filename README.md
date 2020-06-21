@@ -26,6 +26,7 @@ environment is Mac, so let @richtong know if you want to become a maintainer for
 the other builds.
 - [lib](lib). Used by bin, this gives a standard development environment with
   some standard variables like SOURCE_DIR you can use everywhere
+- [model](model). This is where the new V2 model lives
 - [nb](nb). This is for experiments and is our poor man's Jupyter Hub for
   notebooks
 - We do have some Excel sheets at the top, there is technical debt to fix the

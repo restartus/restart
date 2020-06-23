@@ -4,11 +4,39 @@ Getting the world up and running again isn't going to be easy. This project is a
 
 It has four major components:
 
-1. Modeling the Need. Model the entire world of the COVID-19 response from the epidemeological models, to the consumer confidence model and finally to the supply chain models that estimate how much Personal Protective Equiptment (PPE), Test kits and other equipment is needed to make it work.
-3. Providing the Material. This so confusing that having a set of templates that you can embed into any website to provide the latest training, the condensed recommendation is critical. And then on the backend a marketplace that is easy to setup so you can buy or download what you need in one step.
-2. Changing Norms. No amount of equipment works without changing how people work, live and play. This is a set of behavioral models and content that works against the different segments that need to be protected. From children, to the elderly to specific groups that are disportionately effect, getting the right message at the right time is key.
+1. Modeling the Need. Model the entire world of the COVID-19 response from the
+   epidemeological models, to the consumer confidence model and finally to the
+supply chain models that estimate how much Personal Protective Equiptment (PPE),
+Test kits and other equipment is needed to make it work.
+3. Providing the Material. This so confusing that having a set of templates that
+   you can embed into any website to provide the latest training, the condensed
+recommendation is critical. And then on the backend a marketplace that is easy
+to setup so you can buy or download what you need in one step.
+2. Changing Norms. No amount of equipment works without changing how people
+   work, live and play. This is a set of behavioral models and content that
+works against the different segments that need to be protected. From children,
+to the elderly to specific groups that are disportionately effect, getting the
+right message at the right time is key.
 4. Community. Getting the entire network of public, private and non-profit
    organizations working together.
+
+# Project Management
+
+The overall project is managed with [Github
+Projects](https://github.com/restartus/covid-projection/projects/1). The process
+works this way:
+
+1. We assign items to people for the weekly sprint. Check the board to see what
+   issues you own
+2. The syntax of each issue is `[Estimated time in hours to complete] Item name
+   (actual used), so for instance `[3] Insert new Class (2)` which means it will
+take 3 hours to complete and you've used 2.
+3. When estimating times, we are using the Fibonacci series as a rough guide so
+   assign hours as when estimating as `0.5, 1, 2, 3, 5, 8, 13, 21` for how many
+hours something will take.
+4. We don't use that for for much now but it is a good way to see how accurate
+   we are. You should try to turn on your 30 minute announcment on and see how
+log it takes.
 
 # Directory layout
 
@@ -34,10 +62,9 @@ the other builds.
 in Athena sheets
 
 
-
 # Versions and releases
 
-The main relese scheme is to alternate between adding features (the v1, v3,...)
+The main release scheme is to alternate between adding features (the v1, v3,...)
 and then solving technical debt issues and solidifying things, you can think of
 these a v1, v1.x, v2, v2.x, etc
 

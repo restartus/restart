@@ -33,25 +33,4 @@ install:
 gcloud:
 	gcloud projects list
 
-# /dev/video0 needed for v4l2
-# /dev/vchiq needed for mmal
-# Punch the image directory out to the host. We are doing this because docker cp
-# is way too slow
-# port 5858 is the node debug port
-# For some reason the src mapping no long works you cannot map
-# probably for security reasons only hard files below the level of the current
-# directory can to bind mounted
-# -v $(PWD)/src:/home/$(user)/src 
-# port 22 is ssh
-# -p 22:22
-# port 8888 is jupyter output port
-flags ?= -p 8888:8888  \
-		 --mount type=bind,source=$(host_data),target=$(data)
-
-## prebuild: runs the base docker container
-prebuild:
-					cd ../../../extern/jupyter-docker-stacks/ && \
-					make build/tensorflow-notebook OWNER=$(repo) && \
-					docker push $(repo)/tensorflow-notebook
-
-include include.mk
+include include.python.mk

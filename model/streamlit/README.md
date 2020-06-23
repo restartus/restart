@@ -13,11 +13,23 @@ The complete stack looks like:
 ## Demo application
 
 ### [stock.py](https://link.medium.com/AtvAhw3Mh7)
-A stock demonstration that pulls from Yahoo
+A stock demonstration that pulls from Yahoo and you should see running on your
+local machine
+
+```
+streamlit run stock.py
+```
 
 ### [car detection](https://link.medium.com/KWw8FN7Qh7)
 This shows how to build for Heroku. But the cool thing is that it shows. Note
 that you don't want to check in the weights that are automagically downloaded
+
+```
+streamlit run cars.py
+```
+
+
+## Other demonstrations straight from github
 
 ```
 pip install streamlit opencv-python
@@ -31,28 +43,7 @@ streamlit run https://raw.githubusercontent.com/streamlit/demo-uber-nyc-pickups/
 
 Run `make install` in this directory
 
-## Installatino of Google Accounts
-
-This is probably the trickiest part, but the general scheme for all GCloud is:
-
-1. Have a Billing Account.
-   [Lobster1234](https://lobster1234.github.io/2017/05/14/get-started-on-google-cloud-with-cli/)
-has gist on this that is slightly old, for instance the Billing is now a `beta`
-feature and not an `alpha`. For this project we have a single billing system.
-
-
-## Installatino of Google Accounts
-
-This is probably the trickiest part, but the general scheme for all GCloud is:
-
-1. Have a Billing Account.
-   [Lobster1234](https://lobster1234.github.io/2017/05/14/get-started-on-google-cloud-with-cli/)
-has gist on this that is slightly old, for instance the Billing is now a `beta`
-feature and not an `alpha`. For this project we have a single billing system.
-
-
-
-## Installatino of Google Accounts
+## Installatino of Google Accounts (not done yet)
 
 This is probably the trickiest part, but the general scheme for all GCloud is:
 

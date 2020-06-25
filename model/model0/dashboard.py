@@ -13,6 +13,7 @@ logging.basicConfig(level=logging.DEBUG, format=log_formatter)
 # doees not works
 logging.debug('logger base debug')
 
+# This does work
 # https://www.loggly.com/ultimate-guide/python-logging-basics/
 # https://stackoverflow.com/questions/50714316/how-to-use-logging-getlogger-name-in-multiple-modules
 log = logging.getLogger(__name__)

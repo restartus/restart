@@ -43,12 +43,23 @@ encode.
 
 Although the gravizo.com site shows an easier way with a direct embed but this
 [no longer](https://gist.github.com/svenevs/ce05761128e240e27883e3372ccd4ecd)
-works with github. Which is sad
+works with github. Which is sad because the only way the indirect method works
+is for public repos since private repos require an authentication key.
 
 Most of the actual work is kept in a Jupyter Notebook
 [README.ipynb](README.ipynb) points to the latest one. You can launch from
 https://colab.research.google.com to view it or you can see it statically
 rendered on https://github.com
+
+## Why no scientific notation
+
+The most confusing part about this model are the many parameters. We use
+Einstein summations and the working model is in [README.ipynb](README.ipynb).
+Note that github markdown does not support Latex, so you have to use a
+[hack](https://gist.github.com/a-rodin/fef3f543412d6e1ec5b6cf55bf197d7b) to
+display it properly by using an image call, so we just remove this from this
+readme, otherwise it tracks the Jupyter Notebook but without the scientific
+notation.
 
 # Class Structure
 
@@ -85,54 +96,61 @@ custom_mark
 custom_mark
 </details>
 
-![Alt text](https://g.gravizo.com/source/custom_mark1?https%3A%2F%2Fraw.githubusercontent.com%2Frestartus%2Fcovid-projection%2Frich-demo%2Fmodel%2FREADME.md)
-<details>
-<summary></summary>
-custom_mark1
-  digraph G {
-    size ="4,4";
-    main [shape=box];
-    main -> parse [weight=8];
-    parse -> execute;
-    main -> init [style=dotted];
-    main -> cleanup;
-    execute -> { make_string; printf};
-    init -> make_string;
-    edge [color=red];
-    main -> printf [style=bold,label="100 times"];
-    make_string [label="make a string"];
-    node [shape=box,style=filled,color=".7 .3 1.0"];
-    execute -> compare;
-  }
-custom_mark1
-</details>
+# The main classes
+Then each major module can be subclassed from this and your can replace it. The current list of modules are and in the notation, the class name is the major part of the variable. Note that is copied from Jupyter so you will see $Latex$ formula for those of you who can read that, otherwise you can ignore it.
 
-![Alt text](https://g.gravizo.com/source/custom_mark10?https%3A%2F%2Fraw.githubusercontent.com%2FTLmaK0%2Fgravizo%2Fmaster%2FREADME.md)
-<details> 
-<summary></summary>
-custom_mark10
-  digraph G {
-    size ="4,4";
-    main [shape=box];
-    main -> parse [weight=8];
-    parse -> execute;
-    main -> init [style=dotted];
-    main -> cleanup;
-    execute -> { make_string; printf};
-    init -> make_string;
-    edge [color=red];
-    main -> printf [style=bold,label="100 times"];
-    make_string [label="make a string"];
-    node [shape=box,style=filled,color=".7 .3 1.0"];
-    execute -> compare;
-  }
-custom_mark10
-</details>
+## Model Class 
+Model or `model`. This is the core framework. It holds the dimensions and
+pointers to all the module component instances. It's main use is to "dimension"
+the problem so that the other subclasses know the size of the problem. It also
+holds points to the entire "graph" of objects (similar to a Keras object in
+machine learning. So the process is to add "layers" or model elements, then run
+the model as needed with a "solver" that is used for specific purposes and later
+for optimization of an objective function.
 
-# The main variables and constants
+The objects in the world which has a single character $symbol$ or a 3-4
+character `_short_name_` name and then some other facts
 
-The most confusing part about this model are the many parameters. We use
-Einstein summations and the working model is in [README.ipynb](README.ipynb)
+## Population Class
+Population as or `pop`. This holds the population and details about it. It's
+main output are two fold wtih a set of variables that are 'inside' Population
+
+- $P_{pd}$ or `Population.attr_pd[p, d] for p Populations with d details on each such as number of covid patients or number of runs per day
+- $P^R_{pn}$ or `Population.to_res_pn[p, n]`. This is a given populations use of all n resources and is the per capita, per day figure.
+- $P^T_{pn}$ or `Population.total_pn[p, n]`. This is the total population usage
+- $P^{LC}_{en}$ or `Population.level_cost_en[e, n]`. for every essentiality level, what is the cost for each resource n.
+- $P^{LT}_{en}$ or `Population.level_total_cost_en[e, n]`. The total cost for every essential level for each resource
+- $P^{D}_{ln}$ or `Population.demand_ln`. This is the conversion from essential levels to items used where l is the number of levels and n is the number of resources. It is the core burn rate analysis
+- $P^{L}_{p,l}$ or `Population.to_level_pl[p, l]`. Converts a population into levels of essentiality and use
+Finally there are various properties that these objects can have. these are handles as superscripts in the formula notation or as the second word in the code as snake_case.
+
+- Burn rate $B$ or `burn` which is the use per day per person of a resource
+- Total units $U$ or `total` which is the total needed for an entire population
+- Cost $C$ or `cost`. The cost per unit
+- Total $T$ or `total_cost`. The total for an entire population
+
+
+  - Summary Level of Essentiality  `level`. The population summarized by summary
+    levels
+     that are used to restart the economy in phases and stop it the same way 
+  - Demand $D$ or `demand`. This calculates the burn rates or usage of the
+    products. In the surge model these are done per person per day which
+generates an lxn matrix
+
+## Resource class
+Resource  `res`. The resources needed, it takes demand from Population and returns to the population what can actualy be supplied.
+
+  - $R_{na}$ or `Resource.attr_na[n, a]` were Resource data for n items with a attributes (like it's volume and cost), by convention, the first column has a one in it for easy matrix multiplication
+  - Supply $S$ or `supp`. The sources of supply and input of resources
+  - Inventory $I$ or `inv`. What is currenty on hand
+
+## Economy Class
+Economy $E$ or `econ`. This is a model of the economy that takes in the Population and the degree of economic activity and returns the GDP and employment and other measures of work
+
+## Disease Class
+Disease $D$ or `disease`. This models the progression of the disease and takes in the population and social mobility and it returns the number of patients, deaths and recovered patients.
+
+
 
 But here are the major variables as a glossary and these usually have two forms,
 the canonical dataframe and then an array form for tensors that are more than
@@ -141,9 +159,10 @@ form. The names change, but the first is for the surge model and the second for
 the full range of data plus time series. And in colons are the class that
 creates it
 
-- Resource.res_n_df (Resource.res_na_df). Resource list main labels and it is all 1's in the surge model
+- 
+- Resource.attr_n_df (Resource.attr_na_df). Resource list main labels and it is all 1's in the surge model
   then extends to the a attributes which are mainly things like volume.
-- Population.pop_p (Population_pd). The populations we are studying. In this case,
+- Population.attr_p (Population.attr_pd_df). The populations we are studying. In this case,
   we are talking about d details including things like number of COVID patients
 in each population.
 - Demand.usage_res_ln_df (Demand.usc_res_dln_df). The Usage for each protection level for a resource per capita

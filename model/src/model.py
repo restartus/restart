@@ -1,5 +1,13 @@
+"""
+MOdel definition
+https://www.w3schools.com/python/python_classes.asp
+"""
 from typing import List, Dict
-# https://www.w3schools.com/python/python_classes.asp
+import logging
+
+LOG = logging.getLogger(__name__)
+# https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
+LOG.debug('in %s', __name__)
 
 
 class Model:
@@ -19,48 +27,41 @@ class Model:
     parameters
 
     resources: n resources being modeled
-    resource Attribute: r attributes for a resource
+        resource Attribute: a attributes for a resource
+        supply: s stockpile units
     population: p labels defines the populations
-    population Details: d details about each population
-    consumption Levels: l levels of resource consumption
-    essentiality: maps population down to e tiersc
-    supply: s stockpile units
+        population Details: d details about each population
+        consumption Levels: l levels of resource consumption
+        essentiality: maps population down to e tiersc
 
-
-    population: for each p population, give the d details on each [pxd=1] and
-                and the level of use pxl
-    consumption: for each p population, give consumption of n resources [pxn]
-    essential: for each e summary levels, bucket p populations [exp]
-    supply: for each p population, gives the
     """
-    def __init__(self, name,
-                 label: Dict[str, List[str]] =
-                 {"Resource": ["N95", "ASTM3"],
-                  "Attribute": ["Units", "Dimensions"],
-                  "Population": ["Healthcare workers",
-                                 "Non-heathcare employees"],
-                  "Detail": ["People"],
-                  "Consumption":  ['WA0', 'WA1', 'WA2', 'WA3',
-                                          'WA4', 'WA5', 'WA6'],
-                  "Essentiality": ["Essential", "Non-essential"],
-                  "Supply Units": ["Days"]
-                  }):
+    # https://satran.in/b/python--dangerous-default-value-as-argument
+    # https://stackoverflow.com/questions/2…
+    # do not do default assignment, it remembers it on eash call
+    def __init__(self, name, label: Dict[str, List[str]] = None):
+        if label is None:
+            label = {"Resource": ["N95", "ASTM3"],
+                     "Res Attribute": ["Units", "Dimensions"],
+                     "Supply": ["Days"],
+                     "Population": ["Healthcare workers",
+                                    "Non-heathcare employees"],
+                     "Pop Detail": ["People", "Runs"],
+                     "Pop Consumption": ['WA0', 'WA1', 'WA2', 'WA3',
+                                         'WA4', 'WA5', 'WA6'],
+                     "Pop Level": ["Essential", "Non-essential"]
+                     }
 
         self.name: str = name
-        self.label = label
+        self.label: Dict[str, List[str]] = label
 
         # These are just as convenience functions for dimensions
         # and for type checking this is ugly should make it
         # for look for assign because we are just mapping label
-
-        self.dim.n: int = len(self.label['Resource'])
-        self.dim.a: int = len(self.label['Attribute'])
-        self.dim.p: int = len(self.label['Population'])
-        self.dim.d: int = len(self.label['Detail'])
-        self.dim.c: int = len(self.label['Consumption'])
-        self.dim.e: int = len(self.label['Essentiality'])
-        self.dim.s: int = len(self.label['Stockpile'])
-
-        # https://realpython.com/iterate-through-dictionary-python/
-        for key in label:
-           
+        self.dim: Dict[str, int] = {'n': len(self.label['Resource']),
+                                    'a': len(self.label['Res Attribute']),
+                                    's': len(self.label['Res Supply']),
+                                    'p': len(self.label['Population']),
+                                    'd': len(self.label['Pop Detail']),
+                                    'l': len(self.label['Pop Level']),
+                                    'e': len(self.label['Pop Level'])
+                                    }

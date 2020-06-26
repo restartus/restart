@@ -24,6 +24,7 @@ from resourcemodel import Resource
 from population import Population
 from economy import Economy
 from disease import Disease
+from behavioral import Behavioral
 
 # This is the only way to get it to work needs to be in main
 # https://www.programcreek.com/python/example/192/logging.Formatter
@@ -75,11 +76,16 @@ def main():
     logging.debug('Start logging')
 
     model = Model('test')
-
+    LOG.debug('creating Population')
     model.population = Population(model)
+    LOG.debug('creating Resource')
     model.resource = Resource(model)
+    LOG.debug('creating Economy')
     model.economy = Economy(model)
+    LOG.debug('creating Disease')
     model.disease = Disease(model)
+    LOG.debug('creating Behavioral')
+    model.behavioral = Behavioral(model)
 
     # place holder just 30 days for essential and then zero for the rest
     safety_stock_days_ln_arr = np.array([[30, 30],
@@ -90,12 +96,12 @@ def main():
 
     total_safety_stock_ln_df = model.population.level_total_demand_ln_df * safety_stock_days_ln_df
     LOG.debug('total safety stock %s', total_safety_stock_ln_df)
-    model.resource.inventory.safety_stock(total_safety_stock_ln_df)
+    model.resource.safety_stock(total_safety_stock_ln_df)
 
     # create the resource object that is p populations and n items
     print('resource labels:',
-          model.resource.attr_ra_df.index,
-          model.resource.attr_ra_df.columns)
+          model.resource.attr_na_df.index,
+          model.resource.attr_na_df.columns)
 
     print('model population labels', model.population.attr_pd_df.index)
     print('model level name', model.population.level_pl_df.index)
@@ -139,23 +145,18 @@ def main():
     print('Population level total demand for resources\n',
           model.population.level_total_demand_ln_df)
 
-    print('ask resrouce for total demand worth of resource')
+    print('ask resoruce for total demand worth of resource')
     model.resource.demand(model.population.level_total_demand_ln_df)
 
     print('Cost per resource by essentiality\n',
-          model.resource.level_cost_ln_df)
+          model.resource.cost_ln_df)
 
-    Total_cost_by_essentiality_df = Total_resource_by_essentiality_df * Cost_per_resource_by_essentiality_df.values
+    model.population.level_total_cost_ln_df = model.population.level_total_demand_ln_df * model.resource.cost_ln_df.values
     print('Total cost per resource by essentiality\n',
-          Total_cost_by_essentiality_df)
+          model.resource.cost_ln_df)
 
-    Stockpile_required_by_essentiality_df = model.stockpile.stockpile_en_df
     print('Stockpile per resource required by essentiality\n',
-          Stockpile_required_by_essentiality_df)
-
-    Total_stockpile_by_essentiality_df = Total_resource_by_essentiality_df * Stockpile_required_by_essentiality_df.values
-    print('Total Stockpile required by essentiality\n',
-          Total_stockpile_by_essentiality_df)
+          model.resource.safety_stock_ln_df)
 
 
 if __name__ == "__main__":

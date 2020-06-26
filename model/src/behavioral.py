@@ -1,4 +1,5 @@
-# https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
+""" Behavioral
+"""
 import logging
 import pandas as pd
 import numpy as np
@@ -7,9 +8,8 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 
-class Disease:
-    """Resource - Manages all the resources that are used in the model
-    This creates for all r resources, the list of attributes a
+class Behavioral:
+    """Governs how we act
 
     This contains
     This uses https://realpython.com/documenting-python-code/
@@ -18,7 +18,7 @@ class Disease:
     Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
     """
     def __init__(self, model):
-        """Initialize the Disease object
+        """Initialize the Economy object
 
         This uses the Frame object and populates it with default data unless yo
         override it

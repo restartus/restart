@@ -1,8 +1,12 @@
 """
 https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 """
+import logging
 import pandas as pd
 import numpy as np
+
+LOG = logging.getLogger(__name__)
+LOG.setLevel(logging.DEBUG)
 
 
 class Resource:
@@ -20,12 +24,16 @@ class Resource:
         Costs. Of the resource
         Inventory. The current inventory level
         Safety stock. the minimum inventory level
+
+    Need to be done do an economic order quantity that varies by level and item
+        Economic Order Quantity. eoc_ln_df
     """
     def __init__(self, model,
-                 attribute_na_df: None,
-                 cost_ln_df: None,
-                 initial_inventory_ln_df: None,
-                 safety_stock_ln_df: None):
+                 attribute_na_df=None,
+                 cost_ln_df=None,
+                 initial_inventory_ln_df=None,
+                 eoc_ln_df=None,
+                 safety_stock_ln_df=None):
         """Initialize the Resource object
 
         This uses the Frame object and populates it with default data unless yo
@@ -66,10 +74,23 @@ class Resource:
                                                    columns=model.label['Resource'])
         self.inventory_ln_df = initial_inventory_ln_df
 
+        if eoc_ln_df is None:
+            # default eoc is 2
+            eoc_ln_df = pd.DataFrame(np.ones((self.dim['l'],
+                                              self.dim['n']) * 2),
+                                     index=model.label['Level'],
+                                     columns=model.label['Resource'])
+        self.eoc_ln_df = eoc_ln_df
+
         if safety_stock_ln_df is None:
             safety_stock_ln_df = initial_inventory_ln_df
-        self.safety_stock_ln_df = safety_stock_ln_df
+        self.safety_stock(safety_stock_ln_df)
 
+    def safety_stock(self, safety_stock_ln_df):
+        """set or reset safety stock
+        Triggers a reorder if needed
+        """
+        self.safety_stock_ln_df = safety_stock_ln_df
         self.supply_order()
 
     def supply_order(self):
@@ -82,7 +103,17 @@ class Resource:
         # so get rid of those
         # https://www.w3resource.com/python-exercises/numpy/python-numpy-exercise-90.php
         order_ln_df[order_ln_df < 0] = 0
+        # now gross up the order to the economic order quantity
+        order_ln_df = self.round_up_to_eoc(order_ln_df)
         self.fulfill(order_ln_df)
+
+    # https://stackoverflow.com/questions/2272149/round-to-5-or-other-number-in-python
+    def round_up_to_eoc(self, order_ln_df):
+        """Round order up the economic order quantity
+        """
+        # So take the order and then get the distance to the eoc
+        # by using modulo
+        return order_ln_df + (self.eoc_ln_df - order_ln_df) % self.eoc_ln_df
 
     def fulfill(self, order_ln_df):
         """Fulfill an order form supplier

@@ -9,11 +9,15 @@
 # https://towardsdatascience.com/streamlit-101-an-in-depth-introduction-fc8aad9492f2
 # has more ways to do selects and tables
 #
+import logging
 import streamlit as st
 import pandas as pd
 # import yfinance as yf
 import model as md
 import altair as alt
+
+LOG = logging.getLogger(__name__)
+LOG.setLevel(logging.DEBUG)
 
 # Note how there are no call backs
 

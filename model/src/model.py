@@ -6,6 +6,7 @@ from typing import List, Dict
 import logging
 
 LOG = logging.getLogger(__name__)
+LOG.setLevel(logging.DEBUG)
 # https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
 LOG.debug('in %s', __name__)
 
@@ -42,12 +43,12 @@ class Model:
         if label is None:
             label = {"Resource": ["N95", "ASTM3"],
                      "Res Attribute": ["Units", "Dimensions"],
-                     "Supply": ["Days"],
+                     "Res Supply": ["Days"],
                      "Population": ["Healthcare workers",
                                     "Non-heathcare employees"],
-                     "Pop Detail": ["People", "Runs"],
-                     "Pop Consumption": ['WA0', 'WA1', 'WA2', 'WA3',
-                                         'WA4', 'WA5', 'WA6'],
+                     "Pop Detail": ["People"],
+                     "Pop Protection": ['WA0', 'WA1', 'WA2', 'WA3',
+                                        'WA4', 'WA5', 'WA6'],
                      "Pop Level": ["Essential", "Non-essential"]
                      }
 
@@ -62,6 +63,6 @@ class Model:
                                     's': len(self.label['Res Supply']),
                                     'p': len(self.label['Population']),
                                     'd': len(self.label['Pop Detail']),
+                                    'm': len(self.label['Pop Protection']),
                                     'l': len(self.label['Pop Level']),
-                                    'e': len(self.label['Pop Level'])
                                     }

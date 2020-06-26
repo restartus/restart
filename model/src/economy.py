@@ -1,6 +1,11 @@
-# https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
+""" https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
+"""
+import logging
 import pandas as pd
 import numpy as np
+
+LOG = logging.getLogger(__name__)
+LOG.setLevel(logging.DEBUG)
 
 
 class Economy:

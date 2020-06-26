@@ -22,7 +22,7 @@ class Population:
     The number of trips or visits or runs for a given population
 
     The second matrix p population describes is how to map population to
-    l consumption levels to give a p x l. Long term this becomes d x p x l
+    l demand levels to give a p x l. Long term this becomes d x p x l
     So that you can have a different run rate for each detail d of population
 
     How are resources consumed by different levels in a population
@@ -55,28 +55,38 @@ class Population:
                                        columns=model.label['Pop Details'])
         LOG.debug('pop_levels, p x d %s', self.attr_pd_arr.shape)
 
-        # set the population by consumption levels
-        self.consumption_pl_arr = np.zeros((model.dim['p'],
-                                            model.dim['l']))
-        self.consumption_pl_arr[0, -1] = 0.5
-        self.consumption_pl_arr[0, -2] = 0.5
-        self.consumption_pl_arr[1, 1] = 1.0
+        # set the population by demand levels
+        self.level_pl_arr = np.zeros((model.dim['p'],
+                                      model.dim['l']))
+        self.level_pl_arr[0, -1] = 0.5
+        self.level_pl_arr[0, -2] = 0.5
+        self.level_pl_arr[1, 1] = 1.0
         # https://docs.python.org/3/library/pdb.html
-        LOG.debug('pop.consumption_pl_arr %s', self.consumption_pl_arr.shape)
+        LOG.debug('pop.level_pl_arr %s', self.level_pl_arr.shape)
 
-        self.consumption_pl_df = pd.DataFrame(self.consumption_pl_arr,
-                                              index=model.label['Population'],
-                                              columns=model.label['Pop Consumption'])
+        self.level_pl_df = pd.DataFrame(self.level_pl_arr,
+                                        index=model.label['Population'],
+                                        columns=model.label['Level'])
 
         # note these are defaults for testing
-        self.consumption_ln_arr = np.array([[0, 0],
-                                            [0, 1],
-                                            [0, 2],
-                                            [0.1, 3],
-                                            [0.2, 4],
-                                            [0.3, 6],
-                                            [1.18, 0]])
+        self.level_demand_ln_arr = np.array([[0, 0],
+                                             [0, 1],
+                                             [0, 2],
+                                             [0.1, 3],
+                                             [0.2, 4],
+                                             [0.3, 6],
+                                             [1.18, 0]])
 
-        self.consumption_ln_df = pd.DataFrame(self.consumption_ln_arr,
-                                              columns=model.label["Resource"],
-                                              index=model.label["Consumption"])
+        self.level_demand_ln_df = pd.DataFrame(self.level_demand_ln_arr,
+                                               columns=model.label["Level"],
+                                               index=model.label["Resource"])
+
+        self.demand_pn_df = self.level_pl_df @ model.level_demand_ln_df
+
+        # now to the total for population
+        self.total_demand_pn_df = self.demand_pn_df * self.attr_pd_df["People"].values
+
+        # convert to demand by levels note we have to transpose
+        self.level_total_demand_ln_df = self.level_pl_df.T @ self.total_demand_pn_df
+        LOG.debug('population by level total demand %s',
+                  self.level_total_demand_ln_df)

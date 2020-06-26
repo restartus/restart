@@ -1,5 +1,4 @@
-"""
- Restart.us Main Module
+""" Restart.us Main Module
 
  Eventually this will become a class and we will
  keep the constants like names as private class variables
@@ -8,16 +7,20 @@
 
 """
 
-# https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
-import logging
-
 # https://stackoverflow.com/questions/47561840/python-how-can-i-separate-functions-of-class-into-multiple-files
 # explains that you can split a class into separate files by
 # putting these inside the class definition
 # http://effbot.org/pyfaq/how-do-i-share-global-variables-across-modules.htm
 # Before we move to full modules, just import locally
-from resource import Resource
+# https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
+import logging
+import numpy as np
+import pandas as pd
+
+# name collision https://docs.python.org/3/library/resource.html
+# so can't use resource.py
 from model import Model
+from resourcemodel import Resource
 from population import Population
 from economy import Economy
 from disease import Disease
@@ -78,13 +81,24 @@ def main():
     model.economy = Economy(model)
     model.disease = Disease(model)
 
+    # place holder just 30 days for essential and then zero for the rest
+    safety_stock_days_ln_arr = np.array([[30, 30],
+                                         [0, 0]])
+    safety_stock_days_ln_df = pd.DataFrame(safety_stock_days_ln_arr,
+                                           index=model.label["Level"],
+                                           columns=model.label["Resource"])
+
+    total_safety_stock_ln_df = model.population.level_total_demand_ln_df * safety_stock_days_ln_df
+    LOG.debug('total safety stock %s', total_safety_stock_ln_df)
+    model.resource.inventory.safety_stock(total_safety_stock_ln_df)
+
     # create the resource object that is p populations and n items
     print('resource labels:',
-          model.resource.ra_df.index,
-          model.resource.ra_df.columns)
+          model.resource.attr_ra_df.index,
+          model.resource.attr_ra_df.columns)
 
     print('model population labels', model.population.attr_pd_df.index)
-    print('model level name', model.population.consumption_pl_df.index)
+    print('model level name', model.population.level_pl_df.index)
 
     # This is a population p by d dimension, eventually the second column
     # should be a call back that calculates consumption based
@@ -92,52 +106,45 @@ def main():
     # but there will also be the number of COVID patients
     # And other tempo data like number of runs so
     # eventually this is d dimensinoal
-    population_df = model.population.attr_pd_df
-    print('Population\n', population_df)
+    print('Population\n', model.population.attr_pd_df)
 
     # Now bucket population into a set of levels
     # So we have a table is p x l
-    population_to_level_pl_df = model.population.consumption_pl_df
-    print('Usage by population\n', population_to_level_pl_df)
+    print('Population by level\n', model.population.level_pl_df)
 
     # This is rows that are levels adn then usage of each resource  or l, n
     # When population become n x d, then there will be a usage
     # level for each do, so this become d x p x n
-    level_to_demand_ln_df = model.population.consumption_ln_df
-    print('Usage by level\n', level_to_demand_ln_df)
-
-    # Required equipment is p poulation rows for each resource n
-    # which we can get with a mac p x l * l x n
-    print('populatation_to_level_pl_df',
-          population_to_level_pl_df.shape)
-    print('level_to_demand_ln_df', level_to_demand_ln_df.shape)
+    print('level demand\n', model.population.level_demand_ln_df)
 
     # p x l * l x n -> p x n
-    population_demand_pn_df = population_to_level_pl_df @ level_to_demand_ln_df
+    assert model.population.demand_pn_df == model.population.level_pl_df @ model.population.level_demand_ln_df
 
-    print('Population demand for Resources\n',
-          population_demand_pn_df)
-
+    print('Population demand for Resources\n', model.population.demand_pn_df)
 
     # Now it get's easier, this is the per unit value, so multiply by the
     # population and the * with values does an element wise multiplication
     # With different tempos, this will be across all d dimensions
 
-    Total_resource_by_population_df = Unit_resource_by_population_df * Population_df.values
-    print('Total resource needed by population\n',
-          Total_resource_by_population_df)
+    assert model.population.total_demand_pn_df == model.population.demand_pn_df * model.population.attr_pd_df.values
+    print('Population Total Demand', model.population.total_demand_pn_df)
 
-    Population_by_essentiality_df = model.essential.from_population_pe.df
-    print('Population by essentiality\n', Population_by_essentiality_df)
+    print('Population by level\n', model.population.level_pl_df)
 
-    Total_resource_by_essentiality_df = Population_by_essentiality_df @ Total_resource_by_population_df
-    print('Total resource by essentiality\n',
-          Total_resource_by_essentiality_df)
+    print('Population Level Total Demand',
+          model.population.level_total_demand_ln_df)
 
-    Cost_per_resource_by_essentiality_df = model.supply.cost_per_resource_en.df
+    assert model.population.level_total_demand_ln_df == model.population.level_pl_df.T @ model.population.total_demand_pn_df
+
+    print('Population level total demand for resources\n',
+          model.population.level_total_demand_ln_df)
+
+    print('ask resrouce for total demand worth of resource')
+    model.resource.demand(model.population.level_total_demand_ln_df)
+
     print('Cost per resource by essentiality\n',
-          Cost_per_resource_by_essentiality_df)
-    
+          model.resource.level_cost_ln_df)
+
     Total_cost_by_essentiality_df = Total_resource_by_essentiality_df * Cost_per_resource_by_essentiality_df.values
     print('Total cost per resource by essentiality\n',
           Total_cost_by_essentiality_df)

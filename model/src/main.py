@@ -91,7 +91,7 @@ def main():
     safety_stock_days_ln_arr = np.array([[30, 30],
                                          [0, 0]])
     safety_stock_days_ln_df = pd.DataFrame(safety_stock_days_ln_arr,
-                                           index=model.label["Level"],
+                                           index=model.label["Pop Protection"],
                                            columns=model.label["Resource"])
 
     total_safety_stock_ln_df = model.population.level_total_demand_ln_df * safety_stock_days_ln_df

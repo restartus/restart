@@ -35,10 +35,10 @@ class Resource:
                  eoc_ln_df=None,
                  safety_stock_ln_df=None):
         """Initialize the Resource object
-
         This uses the Frame object and populates it with default data unless yo
         override it
         """
+        LOG.debug('in %s', __name__)
         # initial inventory defaults to zero
         self.dim = {'l': model.dim['l'],
                     'n': model.dim['n']}
@@ -51,6 +51,7 @@ class Resource:
                                            columns=model.label["Res Attribute"])
         self.attr_na_arr = attribute_na_df.values
         self.attr_na_df = attribute_na_df
+        LOG.debug('self.attr_na_df\n%s', self.attr_na_df)
 
         """Maps population to the essential levels for simpler analysis
         The first is a cost matrix for essential level what is their cost for
@@ -61,26 +62,30 @@ class Resource:
             cost_ln_arr = np.array([[3, 0.5],
                                     [4.5, 0.75]])
             cost_ln_df = pd.DataFrame(cost_ln_arr,
-                                      index=model.label["Level"],
-                                      columns=model.label["Resource"])
+                                      index=model.label['Pop Level'],
+                                      columns=model.label['Resource'])
 
         self.cost_ln_arr = cost_ln_df.values
         self.cost_ln_df = cost_ln_df
+        LOG.debug('self.cost_ln_df\n%s', self.cost_ln_df)
 
         if initial_inventory_ln_df is None:
             initial_inventory_ln_df = pd.DataFrame(np.zeros((self.dim['l'],
                                                              self.dim['n'])),
-                                                   index=model.label['Level'],
+                                                   index=model.label['Pop Level'],
                                                    columns=model.label['Resource'])
         self.inventory_ln_df = initial_inventory_ln_df
+        LOG.debug('self.inventory_ln_df\n%s', self.inventory_ln_df)
 
         if eoc_ln_df is None:
             # default eoc is 2
-            eoc_ln_df = pd.DataFrame(np.ones((self.dim['l'],
-                                              self.dim['n']) * 2),
-                                     index=model.label['Level'],
+            eoc_ln_arr = np.ones((self.dim['l'], self.dim['n'])) * 2
+            LOG.debug('eoc_ln_arr\n%s', eoc_ln_arr)
+            eoc_ln_df = pd.DataFrame(eoc_ln_arr,
+                                     index=model.label['Pop Level'],
                                      columns=model.label['Resource'])
         self.eoc_ln_df = eoc_ln_df
+        LOG.debug('self.eoc_ln_df\n%s', self.eoc_ln_df)
 
         if safety_stock_ln_df is None:
             safety_stock_ln_df = initial_inventory_ln_df
@@ -90,6 +95,7 @@ class Resource:
         """set or reset safety stock
         Triggers a reorder if needed
         """
+        LOG.debug('set safety_stock to\n%s', safety_stock_ln_df)
         self.safety_stock_ln_df = safety_stock_ln_df
         self.supply_order()
 
@@ -105,6 +111,7 @@ class Resource:
         order_ln_df[order_ln_df < 0] = 0
         # now gross up the order to the economic order quantity
         order_ln_df = self.round_up_to_eoc(order_ln_df)
+        LOG.debug('supply order\n%s', order_ln_df)
         self.fulfill(order_ln_df)
 
     # https://stackoverflow.com/questions/2272149/round-to-5-or-other-number-in-python
@@ -119,8 +126,9 @@ class Resource:
         """Fulfill an order form supplier
         This is a stub in that all orders are immediatley fulfilled
         """
-        print('fulfilled immediately', order_ln_df)
+        LOG.debug('fulfilled immediately\n%s', order_ln_df)
         self.inventory_ln_df += order_ln_df
+        LOG.debug('inventory\n%s', self.inventory_ln_df)
 
     def demand(self, demand_ln_df):
         """Demand for resources

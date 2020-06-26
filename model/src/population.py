@@ -57,7 +57,7 @@ class Population:
         self.attr_pd_df = pd.DataFrame(self.attr_pd_arr,
                                        index=model.label['Population'],
                                        columns=model.label['Pop Detail'])
-        LOG.debug('pop_levels, p x d %s', self.attr_pd_arr.shape)
+        LOG.debug('self.attr_pd %s', self.attr_pd_df)
 
         # set the population by demand levels
         self.protection_pm_arr = np.zeros((model.dim['p'],
@@ -66,11 +66,12 @@ class Population:
         self.protection_pm_arr[0, -2] = 0.5
         self.protection_pm_arr[1, 1] = 1.0
         # https://docs.python.org/3/library/pdb.html
-        LOG.debug('pop.level_pl_arr %s', self.protection_pm_arr.shape)
+        LOG.debug('pop.protection_pm_arr %s', self.protection_pm_arr)
 
         self.protection_pm_df = pd.DataFrame(self.protection_pm_arr,
                                              index=model.label['Population'],
                                              columns=model.label['Pop Protection'])
+        LOG.debug('self.protection_pm_df %s', self.protection_pm_df)
 
         # note these are defaults for testing
         # this is the protection level and the burn rates for each PPE
@@ -88,11 +89,13 @@ class Population:
                                               columns=model.label["Resource"])
 
         self.demand_pn_df = self.protection_pm_df @ self.prot_demand_mn_df
+        LOG.debug('population.demand.pn_df %s', self.demand_pn_df)
 
         # now to the total for population
-        self.total_demand_pn_df = self.demand_pn_df * self.attr_pd_df["Population"].values
+        self.total_demand_pn_df = self.demand_pn_df * self.attr_pd_df["People"].values
+        LOG.debug('total_demand_pn_df\n%s', self.total_demand_pn_df)
 
         # convert to demand by levels note we have to transpose
-        self.level_total_demand_ln_df = self.level_pl_df.T @ self.total_demand_pn_df
-        LOG.debug('population by level total demand %s',
-                  self.level_total_demand_ln_df)
+        self.level_total_demand_mn_df = self.protection_pm_df.T @ self.total_demand_pn_df
+        LOG.debug('population by level total demand\n%s',
+                  self.level_total_demand_mn_df)

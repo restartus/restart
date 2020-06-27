@@ -98,23 +98,26 @@ class Population:
         self.prot_demand_mn_df = prot_demand_mn_df
 
         self.demand_pn_df = self.protection_pm_df @ self.prot_demand_mn_df
-        LOG.debug('population.demand.pn_df %s', self.demand_pn_df)
-
-        # now to the total for population
-        self.total_demand_pn_df = self.demand_pn_df * self.attr_pd_df["People"].values
-        LOG.debug('total_demand_pn_df\n%s', self.total_demand_pn_df)
+        LOG.debug('population.demand_pn_df %s', self.demand_pn_df)
 
         # now get the conversion from the many p populations to the much smaller
         # l levels that are easier to understand
         if level_pl_df is None:
-            level_pl_df = pd.DataFrame(np.ones((model.dim['p'],
-                                                model.dim['l'])),
+            assert model.dim['p'] == model.dim['l']
+            level_pl_df = pd.DataFrame(np.eye((model.dim['p'])),
                                        index=model.label['Population'],
                                        columns=model.label['Pop Level'])
         self.level_pl_df = level_pl_df
         LOG.debug('level_pl_df\n%s', self.level_pl_df)
 
+        self.level_demand_ln_df = self.level_pl_df.T @ self.demand_pn_df
+        LOG.debug('level_demand_ln_df\n%s', self.level_demand_ln_df)
+
+        # now to the total for population
+        self.total_demand_pn_df = self.demand_pn_df * self.attr_pd_df["People"].values
+        LOG.debug('total_demand_pn_df\n%s', self.total_demand_pn_df)
         # convert to demand by levels note we have to transpose
+
         self.level_total_demand_ln_df = self.level_pl_df.T @ self.total_demand_pn_df
-        LOG.debug('population by level total demand\n%s',
+        LOG.debug('level_total_demand_ln_df\n%s',
                   self.level_total_demand_ln_df)

@@ -28,17 +28,11 @@ from behavioral import Behavioral
 
 # This is the only way to get it to work needs to be in main
 # https://www.programcreek.com/python/example/192/logging.Formatter
+# the confit now seems to work
 logging.basicConfig(format='{filename}:{lineno} {message}', style='{')
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
-
-# https://www.programcreek.com/python/example/192/logging.Formatter
-# How we need to format
-FORMATTER = logging.Formatter('{filename}:{lineno} {message}', style='{')
-CH = logging.StreamHandler()
-CH.setLevel(level=logging.DEBUG)
-CH.setFormatter(FORMATTER)
-LOG.addHandler(CH)
+LOG.debug(f'name {__name__}')
 
 
 # https://docs.python.org/3/howto/logging-cookbook.html
@@ -99,12 +93,7 @@ def main():
     model.resource.safety_stock(total_safety_stock_ln_df)
 
     # create the resource object that is p populations and n items
-    print('resource labels:',
-          model.resource.attr_na_df.index,
-          model.resource.attr_na_df.columns)
-
-    print('model population labels', model.population.attr_pd_df.index)
-    print('model level name', model.population.level_pl_df.index)
+    LOG.debug('resource attributes\n%s', model.resource.attr_na_df)
 
     # This is a population p by d dimension, eventually the second column
     # should be a call back that calculates consumption based
@@ -112,51 +101,46 @@ def main():
     # but there will also be the number of COVID patients
     # And other tempo data like number of runs so
     # eventually this is d dimensinoal
-    print('Population\n', model.population.attr_pd_df)
+    LOG.debug('Population\n%s', model.population.attr_pd_df)
 
     # Now bucket population into a set of levels
     # So we have a table is p x l
-    print('Population by level\n', model.population.level_pl_df)
+    LOG.debug('Population by level\n%s', model.population.level_pl_df)
 
     # This is rows that are levels adn then usage of each resource  or l, n
     # When population become n x d, then there will be a usage
     # level for each do, so this become d x p x n
-    print('level demand\n', model.population.level_demand_ln_df)
+    LOG.debug('level demand\n%s', model.population.level_demand_ln_df)
 
     # p x l * l x n -> p x n
-    assert model.population.demand_pn_df == model.population.level_pl_df @ model.population.level_demand_ln_df
-
-    print('Population demand for Resources\n', model.population.demand_pn_df)
+    LOG.debug('Population demand for Resources\n%s',
+              model.population.demand_pn_df)
 
     # Now it get's easier, this is the per unit value, so multiply by the
     # population and the * with values does an element wise multiplication
     # With different tempos, this will be across all d dimensions
 
-    assert model.population.total_demand_pn_df == model.population.demand_pn_df * model.population.attr_pd_df.values
-    print('Population Total Demand', model.population.total_demand_pn_df)
+    LOG.debug('Population Total Demand\n%s',
+              model.population.total_demand_pn_df)
 
-    print('Population by level\n', model.population.level_pl_df)
+    LOG.debug('Population by level\n%s', model.population.level_pl_df)
 
-    print('Population Level Total Demand',
-          model.population.level_total_demand_ln_df)
+    LOG.debug('Population Level Total Demand\n%s',
+              model.population.level_total_demand_ln_df)
 
-    assert model.population.level_total_demand_ln_df == model.population.level_pl_df.T @ model.population.total_demand_pn_df
-
-    print('Population level total demand for resources\n',
-          model.population.level_total_demand_ln_df)
-
-    print('ask resoruce for total demand worth of resource')
-    model.resource.demand(model.population.level_total_demand_ln_df)
-
-    print('Cost per resource by essentiality\n',
-          model.resource.cost_ln_df)
+    LOG.debug('Cost per resource by essentiality\n%s',
+              model.resource.cost_ln_df)
 
     model.population.level_total_cost_ln_df = model.population.level_total_demand_ln_df * model.resource.cost_ln_df.values
-    print('Total cost per resource by essentiality\n',
-          model.resource.cost_ln_df)
+    LOG.debug('Total cost per resource by essentiality\n%s',
+              model.population.level_total_cost_ln_df)
 
-    print('Stockpile per resource required by essentiality\n',
-          model.resource.safety_stock_ln_df)
+    LOG.debug('Stockpile per resource required by essentiality\n%s',
+              model.resource.safety_stock_ln_df)
+    # total cost lives here too
+    level_total_cost_ln_df = model.population.level_total_demand_ln_df * model.resource.cost_ln_df.values
+    LOG.debug('Level total cost_ln_df\n%s',
+              level_total_cost_ln_df)
 
 
 if __name__ == "__main__":

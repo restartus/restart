@@ -64,7 +64,7 @@ pdb:
 	python -m pdb $(MAIN)
 .PHONY: web
 web:
-	streamlit run $(WEB)
+	pipenv run streamlit run $(WEB)
 
 ## pipenv: Install with pipenv as virtual environment
 # https://pipenv.pypa.io/en/latest/install/

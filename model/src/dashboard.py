@@ -36,10 +36,12 @@ def dashboard():
     Choose the page you want from here
     ''')
     page = st.sidebar.selectbox("Choose page",
-                                ["Homepage",
+                                [
                                  "Tables",
+                                 "Homepage",
                                  "Testhome",
-                                 "Exploration"])
+                                 "Exploration"
+                                ])
     stockpile = st.sidebar.slider('Stockpile', max_value=120, value=30)
     if page == "Homepage":
         homepage(model)
@@ -66,17 +68,47 @@ def homepage(model):
     """)
 
 
+# uses the literal magic in Streamlit 0.62
+# note that just putting an expression automatically wraps an st.write
 def tables(model):
     """Tables
+    The full graphical display of all tables use for debugging mainly
     """
-    # uses the literal magic in Streamlit 0.62
-    st.write("""
+    """
     # COVID-19 Decision Tool
-    ## Restart.us'
-    ### Resource safety Stock
-    The supply of resource needs
-    """)
+    ## Restart.us
+    The main data table in the model for your viewing please.
+    These are all Pandas Dataframes for display. For multi-dimensional data,
+    there will be both a Numpy Array for the tensor and a Multi-Index for
+    display.
+
+    When you are using these, as a hint, the row and column have distinct
+    variable letters so you can keep it all straight in detailed data analysis.
+    """
+
+    """### Resource safety Stock ln
+    The supply of resource needs"""
     model.resource.safety_stock_ln_df
+
+    """### Resource Attributes  na
+    Resources main attribute is their count, but will later have volume and
+    footprint"""
+    model.resource.attr_na_df
+
+    """### Population Details pd
+    Population main attribute is their count, but will later have things like
+    how often they are out doing work and will keep track of things like social
+    mobility and columns will have characteristics like age, ethnicity, gender
+    as a crosstab.t"""
+    model.population.attr_pd_df
+
+
+    """### Population summarized by protection levels pl
+    Population main attribute is their count, but will later have things like
+    how often they are out doing work and will keep track of things like social
+    mobility and columns will have characteristics like age, ethnicity, gender
+    as a crosstab.t"""
+    model.population.level_pl_df
 
 
 def testhome(data_df):

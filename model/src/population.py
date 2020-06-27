@@ -122,3 +122,12 @@ class Population:
         self.level_total_demand_ln_df = self.level_pl_df.T @ self.total_demand_pn_df
         LOG.debug('level_total_demand_ln_df\n%s',
                   self.level_total_demand_ln_df)
+
+        # set to null to make pylint happy
+        self.level_total_cost_ln_df = None
+
+    def level_total_cost(self, cost_ln_df):
+        """Calculate the total cost of resource for a population level
+        """
+        self.level_total_cost_ln_df = self.level_total_demand_ln_df * cost_ln_df.values
+        LOG.debug('level_total_cost_ln_df\n%s', self.level_total_cost_ln_df)

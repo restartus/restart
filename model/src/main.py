@@ -14,8 +14,6 @@
 # Before we move to full modules, just import locally
 # https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
 import logging
-import numpy as np
-import pandas as pd
 
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
@@ -81,19 +79,8 @@ def main():
     LOG.debug('creating Behavioral')
     model.behavioral = Behavioral(model)
 
-    # place holder just 30 days for essential and then zero for the rest
-    safety_stock_days_ln_arr = np.array([[30, 30],
-                                         [0, 0]])
-    safety_stock_days_ln_df = pd.DataFrame(safety_stock_days_ln_arr,
-                                           index=model.label['Pop Level'],
-                                           columns=model.label["Resource"])
-    LOG.debug('Safety_stock_days_ln_df\n%s', safety_stock_days_ln_df)
-    LOG.debug('Population Level Total Demand\n%s',
-              model.population.level_total_demand_ln_df)
-    # need to do a dot product
-    total_safety_stock_ln_df = model.population.level_total_demand_ln_df * safety_stock_days_ln_df.values
-    LOG.debug('Total safety stock %s', total_safety_stock_ln_df)
-    model.resource.safety_stock(total_safety_stock_ln_df)
+    model.resource.stockpile(model.population.level_total_demand_ln_df)
+    LOG.debug('Safety stock\n%s', model.resource.safety_stock_ln_df)
 
     # create the resource object that is p populations and n items
     LOG.debug('resource attributes\n%s', model.resource.attr_na_df)
@@ -130,17 +117,15 @@ def main():
 
     LOG.debug('Cost per resource by population level\n%s',
               model.resource.cost_ln_df)
-
-    model.population.level_total_cost_ln_df = model.population.level_total_demand_ln_df * model.resource.cost_ln_df.values
+    
+    model.population.level_total_cost(model.resource.cost_ln_df)
     LOG.debug('Population by level Total cost\n%s',
               model.population.level_total_cost_ln_df)
 
-    LOG.debug('Safety stock\n%s', model.resource.safety_stock_ln_df)
-
     # total cost lives here too
-    level_total_cost_ln_df = model.population.level_total_demand_ln_df * model.resource.cost_ln_df.values
+    model.population.level_total_cost(model.resource.cost_ln_df)
     LOG.debug('Level total cost_ln_df\n%s',
-              level_total_cost_ln_df)
+              model.population.level_total_cost_ln_df)
 
 
 if __name__ == "__main__":

@@ -40,15 +40,16 @@ class Resource:
         """
         LOG.debug('in %s', __name__)
         # initial inventory defaults to zero
-        self.dim = {'l': model.dim['l'],
-                    'n': model.dim['n']}
+        # need labels for later
+        self.dim = model.dim
+        self.label = model.label
 
         # use Bharat model as default
         if attr_na_df is None:
             attr_na_arr = np.array([[1, 2], [2, 3]])
             attr_na_df = pd.DataFrame(attr_na_arr,
-                                      index=model.label["Resource"],
-                                      columns=model.label["Res Attribute"])
+                                      index=self.label["Resource"],
+                                      columns=self.label["Res Attribute"])
         self.attr_na_arr = attr_na_df.values
         self.attr_na_df = attr_na_df
         LOG.debug('self.attr_na_df\n%s', self.attr_na_df)
@@ -62,8 +63,8 @@ class Resource:
             cost_ln_arr = np.array([[3, 0.5],
                                     [4.5, 0.75]])
             cost_ln_df = pd.DataFrame(cost_ln_arr,
-                                      index=model.label['Pop Level'],
-                                      columns=model.label['Resource'])
+                                      index=self.label['Pop Level'],
+                                      columns=self.label['Resource'])
 
         self.cost_ln_arr = cost_ln_df.values
         self.cost_ln_df = cost_ln_df
@@ -72,8 +73,8 @@ class Resource:
         if initial_inventory_ln_df is None:
             initial_inventory_ln_df = pd.DataFrame(np.zeros((self.dim['l'],
                                                              self.dim['n'])),
-                                                   index=model.label['Pop Level'],
-                                                   columns=model.label['Resource'])
+                                                   index=self.label['Pop Level'],
+                                                   columns=self.label['Resource'])
         self.inventory_ln_df = initial_inventory_ln_df
         LOG.debug('self.inventory_ln_df\n%s', self.inventory_ln_df)
 
@@ -82,14 +83,33 @@ class Resource:
             eoc_ln_arr = np.ones((self.dim['l'], self.dim['n'])) * 2
             LOG.debug('eoc_ln_arr\n%s', eoc_ln_arr)
             eoc_ln_df = pd.DataFrame(eoc_ln_arr,
-                                     index=model.label['Pop Level'],
-                                     columns=model.label['Resource'])
+                                     index=self.label['Pop Level'],
+                                     columns=self.label['Resource'])
         self.eoc_ln_df = eoc_ln_df
         LOG.debug('self.eoc_ln_df\n%s', self.eoc_ln_df)
 
         if safety_stock_ln_df is None:
             safety_stock_ln_df = initial_inventory_ln_df
         self.safety_stock(safety_stock_ln_df)
+
+    def stockpile(self, level_total_demand_ln_df, safety_stock_days_df=None):
+        """Set a stock pile in days of demand
+        """
+        if safety_stock_days_df is None:
+            # place holder just 30 days for essential
+            safety_stock_days_ln_arr = np.array([[30, 30],
+                                                 [0, 0]])
+            safety_stock_days_ln_df = pd.DataFrame(safety_stock_days_ln_arr,
+                                                   index=self.label['Pop Level'],
+                                                   columns=self.label["Resource"])
+            LOG.debug('Safety_stock_days_ln_df\n%s', safety_stock_days_ln_df)
+
+        LOG.debug('Population Level Total Demand\n%s',
+                  level_total_demand_ln_df)
+        # need to do a dot product
+        self.total_safety_stock_ln_df = level_total_demand_ln_df * safety_stock_days_ln_df.values
+        LOG.debug('Total safety stock %s', self.total_safety_stock_ln_df)
+        self.safety_stock(self.total_safety_stock_ln_df)
 
     def safety_stock(self, safety_stock_ln_df):
         """set or reset safety stock

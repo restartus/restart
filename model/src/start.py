@@ -14,6 +14,7 @@
 # Before we move to full modules, just import locally
 # https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
 import logging
+
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
 from model import Model
@@ -26,14 +27,14 @@ from behavioral import Behavioral
 # This is the only way to get it to work needs to be in main
 # https://www.programcreek.com/python/example/192/logging.Formatter
 # the confit now seems to work
-logging.basicConfig(format='{filename}:{lineno} {message}', style='{')
+logging.basicConfig(format="{filename}:{lineno} {message}", style="{")
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
-LOG.debug(f'name {__name__}')
+LOG.debug(f"name {__name__}")
 
 
 # https://docs.python.org/3/howto/logging-cookbook.html
-LOG.info('hello world')
+LOG.info("hello world")
 
 
 def start():
@@ -59,23 +60,23 @@ def start():
     everything
     """
 
-    model = Model('test')
-    LOG.debug('creating Population')
+    model = Model("test")
+    LOG.debug("creating Population")
     model.population = Population(model)
-    LOG.debug('creating Resource')
+    LOG.debug("creating Resource")
     model.resource = Resource(model)
-    LOG.debug('creating Economy')
+    LOG.debug("creating Economy")
     model.economy = Economy(model)
-    LOG.debug('creating Disease')
+    LOG.debug("creating Disease")
     model.disease = Disease(model)
-    LOG.debug('creating Behavioral')
+    LOG.debug("creating Behavioral")
     model.behavioral = Behavioral(model)
 
     model.resource.stockpile(model.population.level_total_demand_ln_df)
-    LOG.debug('Safety stock\n%s', model.resource.safety_stock_ln_df)
+    LOG.debug("Safety stock\n%s", model.resource.safety_stock_ln_df)
 
     # create the resource object that is p populations and n items
-    LOG.debug('resource attributes\n%s', model.resource.attr_na_df)
+    LOG.debug("resource attributes\n%s", model.resource.attr_na_df)
 
     # This is a population p by d dimension, eventually the second column
     # should be a call back that calculates consumption based
@@ -83,36 +84,34 @@ def start():
     # but there will also be the number of COVID patients
     # And other tempo data like number of runs so
     # eventually this is d dimensinoal
-    LOG.debug('Population\n%s', model.population.attr_pd_df)
+    LOG.debug("Population\n%s", model.population.attr_pd_df)
 
     # Now bucket population into a set of levels
     # So we have a table is p x l
-    LOG.debug('Population by level\n%s', model.population.level_pl_df)
+    LOG.debug("Population by level\n%s", model.population.level_pl_df)
 
     # This is rows that are levels adn then usage of each resource  or l, n
     # When population become n x d, then there will be a usage
     # level for each do, so this become d x p x n
-    LOG.debug('level demand\n%s', model.population.level_demand_ln_df)
+    LOG.debug("level demand\n%s", model.population.level_demand_ln_df)
 
     # p x l * l x n -> p x n
-    LOG.debug('Population demand for Resources\n%s',
-              model.population.demand_pn_df)
+    LOG.debug("Population demand for Resources\n%s", model.population.demand_pn_df)
 
     # Now it get's easier, this is the per unit value, so multiply by the
     # population and the * with values does an element wise multiplication
     # With different tempos, this will be across all d dimensions
 
-    LOG.debug('Population Total Demand\n%s',
-              model.population.total_demand_pn_df)
+    LOG.debug("Population Total Demand\n%s", model.population.total_demand_pn_df)
 
-    LOG.debug('Population by level\n%s', model.population.level_pl_df)
+    LOG.debug("Population by level\n%s", model.population.level_pl_df)
 
-    LOG.debug('Cost per resource by population level\n%s',
-              model.resource.cost_ln_df)
+    LOG.debug("Cost per resource by population level\n%s", model.resource.cost_ln_df)
 
     model.population.level_total_cost(model.resource.cost_ln_df)
-    LOG.debug('Population by level Total cost\n%s',
-              model.population.level_total_cost_ln_df)
+    LOG.debug(
+        "Population by level Total cost\n%s", model.population.level_total_cost_ln_df
+    )
 
     return model
 

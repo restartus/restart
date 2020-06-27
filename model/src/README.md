@@ -9,14 +9,200 @@ https://realpython.com/pipenv-guide/
 
 # Installation
 
-Here are the notes on installation, there are three ways to run this project:
+Here are the notes on installation, there are three ways to run this project.
+All of these are done with the make file. To see available commands use `make
+help`
 
 ## Natively (not recommended)
 
+You can just install with the requirements.txt 
+
+```
+# install python package
+make bare
+# run it natively to run it for testing as a command line
+make python
+# to run it as a web app that will start a small webserver on your local machine
+make web
+```
 
 
+## Running with Pipenv
 
-# Logging
+Right now there is some sort of bug in conda that keeps it from installing, so
+this is deprecated. Also streamlit is not yet supported by Conda, so that's
+another deterent so to get this running:
+
+```
+brew install pipenv
+make pipenv
+make python
+make web
+```
+
+## Running in a Docker container
+
+The pipenv should be enough for casual use, but if you have problems with
+getting it to run, then you can also run this as a docker container
+
+```
+brew install docker
+# run Mac Docker and login
+# This will create a docker image for you and push into docker hub
+make docker
+# this will run the streamlit web app in the container
+# you can browse to https://locahost:8051 to see it
+make docker-run
+```
+
+# Modules, Packages and testing
+
+This include `__init__`.py so that you can just include this a  module if you
+are using to connect to other code
+
+```python
+from model import Resource, Model, Behavior, Economy, Disease, Population
+
+your_model = Model() 
+your_resource = Resource(your_model)
+your_behavior = Resrouce(your_model
+```
+
+## PIP package (not done)
+There are two flavors here. A source distribution which is meant so that you can
+easily include it on other machines.
+
+A Wheel distribution where you are creating executable code, like `pip` itself.
+It's a python program that's meant to be run not just used in development.
+
+Not complete it `make package` which will run `setup.py` and gather up the
+files, run a wheel compilation and push it all up there.
+
+[Dzone](https://dzone.com/articles/executable-package-pip-install) guides us through
+using `setuptools` to do this for a wheel distribution of executables.
+
+[Micropyramid](https://micropyramid.com/blog/publishing-python-modules-with-pip-via-pypi/)
+explains how to do this if you just want source code for inclusion in other
+folks package:q
+
+
+## Testing (In development)
+We will implement pytest, flake8 and a security add-on black
+
+### Unit test
+
+The main choices here come down to `pytest` [Real
+Python](https://realpython.com/python-testing/)
+ays there is also unittest and nose2. It is laborious, but you basically have to
+create alot of functions that are prefixed with `test` and then it runs them for
+you via keyword search, so naming matters. You can have all tests for say
+`resource.py` named `test/test-resource-1.py` and so forth
+
+The main trick here is writing assertions with the built in `unittest` you have
+to use their class, but with pytest,
+[Guru99](https://www.guru99.com/pytest-tutorial.html)
+you can use the built in assert() tools
+
+Then you can use `pytest-cov` to make sure you are covering all branches.
+
+
+### Multitasking with tox
+
+If you install tox then you can have multiple runners which will be faster. 
+
+
+### Passive test tools
+
+These are really easy to add as part of a github actions, they are and to a
+CD/CI pipeline
+
+```
+# looks in CWD for all python files
+# if using pipenv
+pipenv run flake8 
+# otherwise if running bare metal
+flake8
+```
+
+And if you want to ignore certain rules, you can create a `.flake8` configuraiton
+file or put into `setup.cfg` so just as a  sample
+To run it against an entire directory just run `flake8` without any options
+
+```
+[flake8]
+exclude= .git,__pycache__
+max-line-length = 90
+```
+
+`black` isn't passive, it reformat codes for you, so it's good if you really
+want the right format observed and if you dare you can even put it into the
+CD/CI pipeline:
+
+```
+# to install it only for development
+# note black is prerelease only and pipenv will not install beta
+# https://github.com/Microsoft/vscode-python/issues/5171
+pipenv install black --dev --pre
+pipenv install black --dev --skip-lock
+# Pip only allows 79 characters per line
+# note that is is destructive so make sure you commit first
+# We are running this inside pipenv
+pipenv run black -l 79 *.py
+# if running baremetal
+black -l 79 *.py
+```
+
+### Security Testing
+There is another passive utility called bandit that looks for security issues
+
+```
+pipenv install --dev bandit
+bandit
+```
+
+## Github Actions for CD/CI
+
+Not done yet, but
+[GitHub](https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions)
+explains what to do  but basically you need to install and then make sure to cd
+down to the right directory and then run the checks. 
+
+```
+name: Python package
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with pytest
+      run: |
+        pytest
+```
+
+## Logging
 
 We define logging somewhat magically by using the same variable name and this
 links all the logging togehter [Stackoverflow](https://stackoverflow.com/questions/40495083/using-python-logging-from-multiple-modules-with-writing-to-a-file-and-rotatingfi)

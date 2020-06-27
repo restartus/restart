@@ -45,10 +45,13 @@ help: $(MAKEFILE_LIST)
 
 # https://medium.com/@Tankado95/how-to-generate-a-documentation-for-python-code-using-pdoc-60f681d14d6e
 ## doc: make the documentation for the Python project
+##
 .PHONY: doc
 doc:
 	cd .. && PYTHONPATH="." pdoc --html src --output-dir docs
 
+
+##
 ## python: run locally with python to test components from main
 .PHONY: python
 python:
@@ -59,33 +62,67 @@ python:
 .PHONY: pdb
 pdb:
 	python -m pdb $(MAIN)
-
-## web: Start the dashboard with streamlit
 .PHONY: web
 web:
 	streamlit run $(WEB)
 
-## pipenv: virtual environment
+## pipenv: Install with pipenv as virtual environment
+# https://pipenv.pypa.io/en/latest/install/
+# https://realpython.com/pipenv-guide/
+# install everything including things just needed for edevelopment
 .PHONY: pipenv
 pipenv:
-	@echo run \"pipenv shell\"
+	@echo you should install with pip install pipenv and then pipenv shell
+	pipenv install --dev
+
+##
+## pypi: push the package to the Python library
+.PHONY: pypi
+pypi:
+	python setup.py register -r pypi
+	python setup.py sdit upload -r pypi
+
+## test: run static tests
+.PHONY: test-pipenv
+test-pipenv:
+	pipenv check
+	pipenv run flake8
+	pipenv run bandit -r $(MAIN)
+	pipenv run bandit -r $(WEB)
+	# pipenv run black -l 79 *.py
+	@echo if you want destructive formatting run black *.py
+	@echo or for pipenv black -l 79 *.py
+
+##
+## requirements: Freeze Python requirements in bare machine
+.PHONY: requirments
+requirements:
+	pip freeze > requirements.txt
+
+## bare: install the python packages natively (not recommended
+# https://note.nkmk.me/en/python-pip-install-requirements/
+.PHONY: bare
+install:
+	pip install -r requirements.txt
 
 ## conda: craete the conda environment run with conda env model
 ## 	 			conda is not working right now
 # https://towardsdatascience.com/getting-started-with-python-environments-using-conda-32e9f2779307
 .PHONY: conda
 conda:
+	@echo this installation is note working
 	conda env create -f environment.yml
 	conda enc --list
 
+## conda-activate: run the python environment for model
+.PHONY: conda-activate
+conda-activate:
+	@echo run \"conda activate model\"
 
-## requirements: Freeze Python requirements in bare machine
-.PHONY: requirments
-requirements:
-	pip freeze > requirements.txt
-
-## build: pull docker image and builds locally along with tag with git sha
-build: 
+##
+##
+## docker: pull docker image and builds locally along with tag with git sha
+docker: 
 	docker build --pull --build-arg USER=$(user) -f $(Dockerfile) -t $(image) .
 	docker tag $(image) $(image):$$(git rev-parse HEAD)
 
@@ -130,8 +167,8 @@ pull:
 # when deploying we do not want to stop running containers
 # And we want to use random names with a two digit extension
 # Make sure to use the -t so you can stop it
-## run: build then push up then run the image
-run: push pull run-local
+## docker-run: build then push up then run the image
+docker-run: push pull run-local
 
 ## run-local: stops all the containers and then runs one locally
 # docker pull $(image)

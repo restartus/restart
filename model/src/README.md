@@ -7,6 +7,14 @@ container
 
 https://realpython.com/pipenv-guide/
 
+# Installation
+
+Here are the notes on installation, there are three ways to run this project:
+
+## Natively (not recommended)
+
+
+
 
 # Logging
 

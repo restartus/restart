@@ -29,11 +29,11 @@ class Model:
 
     resources: n resources being modeled
         resource Attribute: a attributes for a resource
-        supply: s stockpile units
+        inventory: s stockpile units
     population: p labels defines the populations
         population Details: d details about each population
-        consumption Levels: l levels of resource consumption
-        essentiality: maps population down to e tiersc
+        protection protection: m types of resource consumption
+        population levels: l levels maps population down to a smaller number of levels
 
     """
     # https://satran.in/b/python--dangerous-default-value-as-argument

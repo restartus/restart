@@ -1,4 +1,4 @@
-#
+"""Dashboard for COVID
 # vi:se ts=4 sw=4 et:
 # Stock demo
 # https://towardsdatascience.com/how-to-build-a-data-science-web-app-in-python-61d1bed65020
@@ -9,40 +9,79 @@
 # https://towardsdatascience.com/streamlit-101-an-in-depth-introduction-fc8aad9492f2
 # has more ways to do selects and tables
 #
+"""
 import logging
 import streamlit as st
 import pandas as pd
-# import yfinance as yf
-import model as md
 import altair as alt
 
+from start import start
+
+logging.basicConfig(format='{filename}:{lineno} {message}', style='{')
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
+LOG.debug(f'name {__name__}')
 
-# Note how there are no call backs
 
-
-def main():
+def dashboard():
     # sample test data
     data_df = pd.DataFrame([[0, 123], [12, 23]],
                            index=["healthcare", "Non-healthcare"],
                            columns=["N95", "Mask"])
 
+    model = start()
     # Simple selection
-    page = st.sidebar.selectbox("Choose page", ["Homepage", "Exploration"])
+    st.sidebar.markdown('''
+    ## Pages
+    Choose the page you want from here
+    ''')
+    page = st.sidebar.selectbox("Choose page",
+                                ["Homepage",
+                                 "Tables",
+                                 "Testhome",
+                                 "Exploration"])
+    stockpile = st.sidebar.slider('Stockpile', max_value=120, value=30)
     if page == "Homepage":
-        homepage(data_df)
+        homepage(model)
+    elif page == "Tables":
+        tables(model)
+    elif page == "Testhome":
+        testhome(data_df)
     elif page == "Exploration":
         st.title("Data Exploration")
         # https://docs.streamlit.io/en/latest/api.html
         x_axis = st.selectbox("Choose x-axis", data_df.columns, index=0)
         y_axis = st.selectbox("Choose y-axis", data_df.columns, index=1)
         visualize_data(data_df, x_axis, y_axis)
-    # Not that write uses Markdown
+        # Not that write uses Markdown
 
 
-# The home page
-def homepage(data_df):
+def homepage(model):
+    """Home page
+    """
+    st.write("""
+    # COVID-19 Decision Dashboard
+    ## Restart.us
+    Use caution when interpreting these numbers
+    """)
+
+
+def tables(model):
+    """Tables
+    """
+    # uses the literal magic in Streamlit 0.62
+    st.write("""
+    # COVID-19 Decision Tool
+    ## Restart.us'
+    ### Resource safety Stock
+    The supply of resource needs
+    """)
+    model.resource.safety_stock_ln_df
+
+
+def testhome(data_df):
+    """Test drawing
+    """
     st.write("""
     # COVID-19 Decision Dashboard
     ## Restart.us
@@ -93,4 +132,4 @@ def visualize_data(df, x_axis, y_axis):
 
 # you start this by detecting a magic variable
 if __name__ == "__main__":
-    main()
+    dashboard()

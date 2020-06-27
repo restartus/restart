@@ -1,3 +1,13 @@
+# Model v2
+This reimplements the surge model with simple dummy data
+
+This uses Pipenv for managing packages because conda didn't install correctly an
+does not deal with streamlit properly. Eventually we will move this to a docker
+container
+
+https://realpython.com/pipenv-guide/
+
+
 # Logging
 
 We define logging somewhat magically by using the same variable name and this

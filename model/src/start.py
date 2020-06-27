@@ -14,7 +14,6 @@
 # Before we move to full modules, just import locally
 # https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
 import logging
-
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
 from model import Model
@@ -37,7 +36,7 @@ LOG.debug(f'name {__name__}')
 LOG.info('hello world')
 
 
-def main():
+def start():
     """ Bootstrap the whole model creating all objects
     Bootstrap where each modules successively knows more about the world
     Population defines Pop_details[p,d], Pop_levels[p,l]
@@ -59,13 +58,6 @@ def main():
     And if you make a change to any, the model will automatically recalc
     everything
     """
-
-    # This does not seem to start it only the commands above work
-    # Nor does format seem to work
-    # https://www.digitalocean.com/community/tutorials/how-to-use-logging-in-python-3
-    logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s:$(levelname)s:%(message)s')
-    logging.debug('Start logging')
 
     model = Model('test')
     LOG.debug('creating Population')
@@ -117,16 +109,13 @@ def main():
 
     LOG.debug('Cost per resource by population level\n%s',
               model.resource.cost_ln_df)
-    
+
     model.population.level_total_cost(model.resource.cost_ln_df)
     LOG.debug('Population by level Total cost\n%s',
               model.population.level_total_cost_ln_df)
 
-    # total cost lives here too
-    model.population.level_total_cost(model.resource.cost_ln_df)
-    LOG.debug('Level total cost_ln_df\n%s',
-              model.population.level_total_cost_ln_df)
+    return model
 
 
 if __name__ == "__main__":
-    main()
+    start()

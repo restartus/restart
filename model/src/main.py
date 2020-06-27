@@ -87,9 +87,12 @@ def main():
     safety_stock_days_ln_df = pd.DataFrame(safety_stock_days_ln_arr,
                                            index=model.label['Pop Level'],
                                            columns=model.label["Resource"])
-    LOG.debug('safety_stock_days_ln_df\n%s', safety_stock_days_ln_df)
-    total_safety_stock_ln_df = model.population.level_total_demand_ln_df * safety_stock_days_ln_df
-    LOG.debug('total safety stock %s', total_safety_stock_ln_df)
+    LOG.debug('Safety_stock_days_ln_df\n%s', safety_stock_days_ln_df)
+    LOG.debug('Population Level Total Demand\n%s',
+              model.population.level_total_demand_ln_df)
+    # need to do a dot product
+    total_safety_stock_ln_df = model.population.level_total_demand_ln_df * safety_stock_days_ln_df.values
+    LOG.debug('Total safety stock %s', total_safety_stock_ln_df)
     model.resource.safety_stock(total_safety_stock_ln_df)
 
     # create the resource object that is p populations and n items
@@ -125,18 +128,15 @@ def main():
 
     LOG.debug('Population by level\n%s', model.population.level_pl_df)
 
-    LOG.debug('Population Level Total Demand\n%s',
-              model.population.level_total_demand_ln_df)
-
-    LOG.debug('Cost per resource by essentiality\n%s',
+    LOG.debug('Cost per resource by population level\n%s',
               model.resource.cost_ln_df)
 
     model.population.level_total_cost_ln_df = model.population.level_total_demand_ln_df * model.resource.cost_ln_df.values
-    LOG.debug('Total cost per resource by essentiality\n%s',
+    LOG.debug('Population by level Total cost\n%s',
               model.population.level_total_cost_ln_df)
 
-    LOG.debug('Stockpile per resource required by essentiality\n%s',
-              model.resource.safety_stock_ln_df)
+    LOG.debug('Safety stock\n%s', model.resource.safety_stock_ln_df)
+
     # total cost lives here too
     level_total_cost_ln_df = model.population.level_total_demand_ln_df * model.resource.cost_ln_df.values
     LOG.debug('Level total cost_ln_df\n%s',

@@ -29,7 +29,7 @@ class Resource:
         Economic Order Quantity. eoc_ln_df
     """
     def __init__(self, model,
-                 attribute_na_df=None,
+                 attr_na_df=None,
                  cost_ln_df=None,
                  initial_inventory_ln_df=None,
                  eoc_ln_df=None,
@@ -44,13 +44,13 @@ class Resource:
                     'n': model.dim['n']}
 
         # use Bharat model as default
-        if attribute_na_df is None:
-            attribute_na_arr = np.array([[1, 2], [2, 3]])
-            attribute_na_df = pd.DataFrame(attribute_na_arr,
-                                           index=model.label["Resource"],
-                                           columns=model.label["Res Attribute"])
-        self.attr_na_arr = attribute_na_df.values
-        self.attr_na_df = attribute_na_df
+        if attr_na_df is None:
+            attr_na_arr = np.array([[1, 2], [2, 3]])
+            attr_na_df = pd.DataFrame(attr_na_arr,
+                                      index=model.label["Resource"],
+                                      columns=model.label["Res Attribute"])
+        self.attr_na_arr = attr_na_df.values
+        self.attr_na_df = attr_na_df
         LOG.debug('self.attr_na_df\n%s', self.attr_na_df)
 
         """Maps population to the essential levels for simpler analysis

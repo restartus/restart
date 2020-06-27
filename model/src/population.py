@@ -22,7 +22,8 @@ class Population:
     For instance the number of covid patients
     The number of trips or visits or runs for a given population
 
-    The second matrix p population describes is how to map population to
+    The second matrix p population describes is how to map population to:w
+
     l demand levels to give a p x l. Long term this becomes d x p x l
     So that you can have a different run rate for each detail d of population
 

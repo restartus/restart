@@ -10,6 +10,7 @@ bandit = "*"
 tox = "*"
 pytest = "*"
 pytest-cov = "*"
+pytest-xdist = "*"
 
 [packages]
 streamlit = "*"

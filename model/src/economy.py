@@ -3,12 +3,13 @@
 import logging
 import pandas as pd
 import numpy as np
+from base import Base
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 
-class Economy:
+class Economy(Base):
     """Economy - Manages the economy
     This creates for all r resources, the list of attributes a
 

@@ -2,6 +2,7 @@
 Population class
 Main the class
 """
+from typing import Dict
 import logging
 import numpy as np
 import pandas as pd
@@ -46,6 +47,10 @@ class Population:
 
     There is a default mode contained here for testing, you should override
     this by creating a child class and overriding the init
+
+    We also create a friendly name and long description as document strings
+    eventually this will become a file we read in that is a data description but
+    for now it is a dictionary
     """
 
     def __init__(
@@ -69,6 +74,12 @@ class Population:
             )
 
         self.attr_pd_df = attr_pd_df
+        model.description["population.attr_pd_df"] = '''
+## Population Details pd
+There are p Populations in the model and each population
+can have d details about them such as their degree of age,
+ethnicity, attitudes and awareness behaviors
+                   '''
         LOG.debug("self.attr_pd\n%s", self.attr_pd_df)
 
         # set the population by demand levels

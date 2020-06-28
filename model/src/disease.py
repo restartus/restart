@@ -2,12 +2,13 @@
 import logging
 import pandas as pd
 import numpy as np
+from base import Base
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 
-class Disease:
+class Disease(Base):
     """Resource - Manages all the resources that are used in the model
     This creates for all r resources, the list of attributes a
 

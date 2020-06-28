@@ -27,13 +27,18 @@ from behavioral import Behavioral
 # This is the only way to get it to work needs to be in main
 # https://www.programcreek.com/python/example/192/logging.Formatter
 # the confit now seems to work
-logging.basicConfig(format="{filename}:{lineno} {message}", style="{")
+
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
-LOG.debug(f"name {__name__}")
+STREAM = logging.StreamHandler()
+STREAM.setLevel(logging.DEBUG)
+FMT = logging.Formatter('{filename}:{lineno} {message}', style='{')
+STREAM.setFormatter(FMT)
+LOG.addHandler(STREAM)
 
 
 # https://docs.python.org/3/howto/logging-cookbook.html
+LOG.debug(f"name {__name__}")
 LOG.info("hello world")
 
 
@@ -60,17 +65,18 @@ def start():
     everything
     """
 
-    model = Model("test")
+    # Static typing for custom classes
+    model: Model = Model("test")
     LOG.debug("creating Population")
-    model.population = Population(model)
+    model.population: Population = Population(model)
     LOG.debug("creating Resource")
-    model.resource = Resource(model)
+    model.resource: Resource = Resource(model)
     LOG.debug("creating Economy")
-    model.economy = Economy(model)
+    model.economy: Economy = Economy(model)
     LOG.debug("creating Disease")
-    model.disease = Disease(model)
+    model.disease: Disease = Disease(model)
     LOG.debug("creating Behavioral")
-    model.behavioral = Behavioral(model)
+    model.behavioral: Behavioral = Behavioral(model)
 
     model.resource.stockpile(model.population.level_total_demand_ln_df)
     LOG.debug("Safety stock\n%s", model.resource.safety_stock_ln_df)

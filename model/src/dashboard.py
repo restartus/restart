@@ -14,14 +14,21 @@ import logging
 import streamlit as st
 import pandas as pd
 import altair as alt
+from base import Base
 
 from start import start
 
-logging.basicConfig(format='{filename}:{lineno} {message}', style='{')
+# https://docs.python.org/3/howto/logging-cookbook.html
+# logging.basicConfig(level=logging.DEBUG,
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 LOG.debug(f'name {__name__}')
+CON = logging.StreamHandler()
+FORMATTER = logging.Formatter('{filename}:{lineno} {message}', style='{')
+CON.setFormatter(FORMATTER)
+LOG.addHandler(CON)
 
+logging.debug('test')
 
 def dashboard():
     # sample test data
@@ -30,7 +37,25 @@ def dashboard():
                            columns=["N95", "Mask"])
 
     model = start()
-    # Simple selection
+    # https://stackoverflow.com/questions/1398022/looping-over-all-member-variables-of-a-class-in-python
+    LOG.debug(vars(model))
+    LOG.debug(vars(model.population))
+    # https://stackoverflow.com/questions/11637293/iterate-over-object-attributes-in-python
+    # this gives all kinds of things that are hidden functions;
+    LOG.debug(dir(model.population))
+    for name, value in vars(model).items():
+        LOG.debug(name)
+        LOG.debug(value)
+        # http://notesbyanerd.com/2017/12/26/check-in-python-if-a-value-is-instance-of-a-custom-class/
+        if isinstance(value, Base):
+            LOG.debug(f'found ${value} is Base')
+
+    # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
+    for name, value in vars(model.population).items():
+        LOG.debug(name)
+        LOG.debug(value)
+
+# Simple selection
     st.sidebar.markdown('''
     ## Pages
     Choose the page you want from here
@@ -42,7 +67,9 @@ def dashboard():
                                  "Testhome",
                                  "Exploration"
                                 ])
+
     stockpile = st.sidebar.slider('Stockpile', max_value=120, value=30)
+
     if page == "Homepage":
         homepage(model)
     elif page == "Tables":
@@ -100,8 +127,8 @@ def tables(model):
     how often they are out doing work and will keep track of things like social
     mobility and columns will have characteristics like age, ethnicity, gender
     as a crosstab.t"""
+    model.description['model.population.attr_pd_df']
     model.population.attr_pd_df
-
 
     """### Population summarized by protection levels pl
     Population main attribute is their count, but will later have things like
@@ -110,6 +137,10 @@ def tables(model):
     as a crosstab.t"""
     model.population.level_pl_df
 
+    # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
+    for name, value in vars(model.population).items():
+        st.write(name)
+        st.write(value)
 
 def testhome(data_df):
     """Test drawing

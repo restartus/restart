@@ -3,12 +3,13 @@
 import logging
 import pandas as pd
 import numpy as np
+from base import Base
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
 
-class Behavioral:
+class Behavioral(Base):
     """Governs how we act
 
     This contains

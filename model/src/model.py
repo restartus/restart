@@ -40,6 +40,11 @@ class Model:
     # https://stackoverflow.com/questions/2…
     # do not do default assignment, it remembers it on eash call
     def __init__(self, name, label: Dict[str, List[str]] = None):
+        '''Initialize the model
+        '''
+        # the long description of each 
+        self.description: Dict = {}
+
         if label is None:
             label = {"Resource": ["N95", "ASTM3"],
                      "Res Attribute": ["Units", "Dimensions"],

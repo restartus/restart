@@ -224,3 +224,7 @@ parent which is in main.
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 ```
+
+The main thing is that you should not run `logging.basicConfig` when you also
+doing this `getLogger`, this causes duplicates because logging.basicConfig means
+that that you create two streams

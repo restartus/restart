@@ -4,14 +4,15 @@ https://www.w3schools.com/python/python_classes.asp
 """
 from typing import List, Dict
 import logging
+from base import Base
 
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.WARNING)
 # https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
 LOG.debug('in %s', __name__)
 
 
-class Model:
+class Model(Base):
     """ Main model for planning
     It sets the dimensionality of the problem and also the names of all the
     elements. Each subsystem will take the dimensions and names as inputs.
@@ -33,8 +34,7 @@ class Model:
     population: p labels defines the populations
         population Details: d details about each population
         protection protection: m types of resource consumption
-        population levels: l levels maps population down to a smaller number of levels
-
+        population levels: l levels maps population down to a fewer levels
     """
     # https://satran.in/b/python--dangerous-default-value-as-argument
     # https://stackoverflow.com/questions/2…
@@ -42,7 +42,7 @@ class Model:
     def __init__(self, name, label: Dict[str, List[str]] = None):
         '''Initialize the model
         '''
-        # the long description of each 
+        # the long description of each
         self.description: Dict = {}
 
         if label is None:

@@ -15,23 +15,25 @@ import pandas as pd
 import altair as alt
 import streamlit as st
 from base import Base
-
 from start import start
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 # logging.basicConfig(level=logging.DEBUG,
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
-LOG.debug(f'name {__name__}')
-CON = logging.StreamHandler()
-FORMATTER = logging.Formatter('{filename}:{lineno} {message}', style='{')
-CON.setFormatter(FORMATTER)
-LOG.addHandler(CON)
+STREAM = logging.StreamHandler()
+# STREAM.setLevel(logging.DEBUG)
+FMT = logging.Formatter('{filename}:{lineno} {message}', style='{')
+STREAM.setFormatter(FMT)
+LOG.addHandler(STREAM)
 
-logging.debug('test')
+LOG.debug('test')
 
 
 def dashboard():
+    '''Display the decision dashboard
+    '''
+
     # sample test data
     data_df = pd.DataFrame([[0, 123], [12, 23]],
                            index=["healthcare", "Non-healthcare"],
@@ -123,12 +125,7 @@ def tables(model):
     footprint"""
     model.resource.attr_na_df
 
-    """### Population Details pd
-    Population main attribute is their count, but will later have things like
-    how often they are out doing work and will keep track of things like social
-    mobility and columns will have characteristics like age, ethnicity, gender
-    as a crosstab.t"""
-    model.description['model.population.attr_pd_df']
+    model.description['population.attr_pd_df']
     model.population.attr_pd_df
 
     """### Population summarized by protection levels pl
@@ -139,9 +136,20 @@ def tables(model):
     model.population.level_pl_df
 
     # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
+    LOG.debug('look for all population items')
+    # eventually just go through all the model classes and keep going
     for name, value in vars(model.population).items():
         st.write(name)
         st.write(value)
+        st.write('description')
+        key = 'population.' + name
+        LOG.debug(f'name {name} is {key}')
+        # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
+        # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
+        if key in model.description.keys():
+            LOG.debug('found description')
+            st.write(model.description[key])
+
 
 def testhome(data_df):
     """Test drawing
@@ -156,11 +164,12 @@ def testhome(data_df):
     st.write("""
     ### All Resource Burn Rate Table
     """)
-    # display the data
+
     st.dataframe(data_df.head())
     st.write("""
     ### Select Resource for Filtered Burn Rate Table
     """)
+
     # do a multiselect to pick relevant items
     data_ms = st.multiselect("Columns",
                              data_df.columns.tolist(),

@@ -13,10 +13,23 @@ Here are the notes on installation, there are three ways to run this project.
 All of these are done with the make file. To see available commands use `make
 help`
 
+## Preamble get the latest python and homebrew
+We are assuming you have a Mac and it is naked so from
+[Python](https://docs.python-guide.org/starting/install3/osx/) itself
+
+```
+# install homebrew as a bootstrap
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+# install the latest python, the one shipped isn't latest enough
+brew install python
+# make sure you can run python so put it in the path
+echo '[[ $PATH =~ /usr/local/opt/python/libexec/bin ]] || export PATH="/usr/local/opt/python/libexec/bin:$PATH"' > ~/.bash_profile
+```
+
 ## Natively (not recommended)
-
-You can just install with the requirements.txt 
-
+You can just install with the requirements.txt. But beware this can pollute your
+machine with conflicts. it is the easiest way to just get going if you don't
+have any other python projects on your machine. 
 ```
 # install python package
 make bare

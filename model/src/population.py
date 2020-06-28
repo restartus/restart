@@ -2,17 +2,17 @@
 Population class
 Main the class
 """
-from typing import Dict
 import logging
 import numpy as np
 import pandas as pd
+from base import Base
 
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.WARNING)
 LOG.debug("In %s", __name__)
 
 
-class Population:
+class Population(Base):
     """ Population objects are created here
     It has a default model in it for testing which is the Bharat model
     You should override it with a new child class
@@ -53,14 +53,13 @@ class Population:
     for now it is a dictionary
     """
 
-    def __init__(
-        self,
-        model,
-        attr_pd_df=None,
-        protection_pm_df=None,
-        prot_demand_mn_df=None,
-        level_pl_df=None,
-    ):
+    def __init__(self,
+                 model,
+                 attr_pd_df=None,
+                 protection_pm_df=None,
+                 prot_demand_mn_df=None,
+                 level_pl_df=None,
+                 ):
 
         # set the arrays of values should be a column vector
         # https://kite.com/python/answers/how-to-make-a-numpy-array-a-column-vector-in-python
@@ -74,13 +73,13 @@ class Population:
             )
 
         self.attr_pd_df = attr_pd_df
+        LOG.debug("self.attr_pd\n%s", self.attr_pd_df)
         model.description["population.attr_pd_df"] = '''
-## Population Details pd
+## Population Details (pd)
 There are p Populations in the model and each population
 can have d details about them such as their degree of age,
 ethnicity, attitudes and awareness behaviors
                    '''
-        LOG.debug("self.attr_pd\n%s", self.attr_pd_df)
 
         # set the population by demand levels
         if protection_pm_df is None:
@@ -97,6 +96,11 @@ ethnicity, attitudes and awareness behaviors
         # https://docs.python.org/3/library/pdb.html
         self.protection_pm_df = protection_pm_df
         LOG.debug("self.protection_pm_df %s", self.protection_pm_df)
+        model.description["population.protection_pm_df"] = '''
+## Population Protection Level (pm)
+There are p Populations in the model and each protection
+level for the burn rates
+                   '''
 
         # note these are defaults for testing
         # this is the protection level and the burn rates for each PPE

@@ -13,8 +13,8 @@
 #
 # These should be overridden in the makefile that includes this, but this sets
 # defaults use ## to add comments when running make help
-## 
-## Two entry points in MAIN and WEB
+# 
+# Two entry points in MAIN and WEB
 repo ?= restartus
 name ?= $$(basename "$(PWD)")
 Dockerfile ?= Dockerfile
@@ -43,48 +43,32 @@ flags ?= -p 8501:8501
 help: $(MAKEFILE_LIST)
 	@sed -n 's/^##//p' $(MAKEFILE_LIST)
 
-# https://medium.com/@Tankado95/how-to-generate-a-documentation-for-python-code-using-pdoc-60f681d14d6e
-## doc: make the documentation for the Python project
 ##
-.PHONY: doc
-doc:
-	cd .. && PYTHONPATH="." pdoc --html src --output-dir docs
-
-
-##
-## python: run locally with python to test components from main
-.PHONY: python
-python:
-	python $(MAIN)
-
-# https://docs.python.org/3/library/pdb.html
-## pdb: run locally with python to test components from main
-.PHONY: pdb
-pdb:
-	python -m pdb $(MAIN)
+## pipenv based running (for debugging)
+## ------------------------------------
+## web: use streamlit to run the graphical interface
 .PHONY: web
 web:
 	pipenv run streamlit run $(WEB)
 
-## pipenv: Install with pipenv as virtual environment
 # https://pipenv.pypa.io/en/latest/install/
 # https://realpython.com/pipenv-guide/
 # install everything including things just needed for edevelopment
+## pipenv: Install with pipenv as virtual environment
 .PHONY: pipenv
 pipenv:
 	@echo you should install with pip install pipenv and then pipenv shell
 	pipenv install --dev
 
-##
 ## pypi: push the package to the Python library
 .PHONY: pypi
 pypi:
-	python setup.py register -r pypi
-	python setup.py sdit upload -r pypi
+	pipenv run python setup.py register -r pypi
+	pipenv run python setup.py sdit upload -r pypi
 
 ## test: run static tests
-.PHONY: test-pipenv
-test-pipenv:
+.PHONY: test
+test:
 	pipenv check
 	pipenv run flake8
 	pipenv run bandit -r $(MAIN)
@@ -94,19 +78,32 @@ test-pipenv:
 	@echo or for pipenv black -l 79 *.py
 
 ##
-## requirements: Freeze Python requirements in bare machine
+## The bare metal python and conda work is deprecated, please use pipenv
+## ---------------------------------------------------------------------
+## python: run locally with python to test components from main (deprecated use pipenv)
+.PHONY: python
+python:
+	python $(MAIN)
+
+# https://docs.python.org/3/library/pdb.html
+## pdb: run locally with python to test components from main (depreceated use pipenv)
+.PHONY: pdb
+pdb:
+	python -m pdb $(MAIN)
+
+## requirements: Freeze Python requirements in bare machine (deprecated use pipenv)
 .PHONY: requirments
 requirements:
 	pip freeze > requirements.txt
 
-## bare: install the python packages natively (not recommended
+## bare: install the python packages natively (not recommended (deprecated use pipoenv)
 # https://note.nkmk.me/en/python-pip-install-requirements/
 .PHONY: bare
-install:
+bare:
 	pip install -r requirements.txt
 
-## conda: craete the conda environment run with conda env model
-## 	 			conda is not working right now
+##
+## conda: create the conda environment run with conda env model (not running for @richtong)
 # https://towardsdatascience.com/getting-started-with-python-environments-using-conda-32e9f2779307
 .PHONY: conda
 conda:
@@ -120,7 +117,8 @@ conda-activate:
 	@echo run \"conda activate model\"
 
 ##
-##
+## docker installation (for deployments)
+## -------------------------------------
 ## docker: pull docker image and builds locally along with tag with git sha
 docker: 
 	docker build --pull --build-arg USER=$(user) -f $(Dockerfile) -t $(image) .
@@ -198,8 +196,14 @@ resume:
 	docker start -ai $(container)
 
 # Note we say only the type file because otherwise it tries to delete $(data) itself
+## rm-images: remove docker images
 rm-images:
 	$(for_containers) $(container) exec find $(data) -type f -delete
 
 ##
+# https://medium.com/@Tankado95/how-to-generate-a-documentation-for-python-code-using-pdoc-60f681d14d6e
+## doc: make the documentation for the Python project
 ##
+.PHONY: doc
+doc:
+	cd .. && PYTHONPATH="." pdoc --html src --output-dir docs

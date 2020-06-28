@@ -14,6 +14,7 @@ pytest-xdist = "*"
 
 [packages]
 streamlit = "*"
+altair = "*"
 
 [requires]
 python_version = "3.7"

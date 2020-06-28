@@ -4,12 +4,13 @@ https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 import logging
 import pandas as pd
 import numpy as np
+from base import Base
 
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.WARNING)
 
 
-class Resource:
+class Resource(Base):
     """Resource - Manages all the resources that are used in the model
     This creates for all r resources, the list of attributes a
 

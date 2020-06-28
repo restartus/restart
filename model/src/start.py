@@ -29,9 +29,9 @@ from behavioral import Behavioral
 # the confit now seems to work
 
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.WARNING)
 STREAM = logging.StreamHandler()
-STREAM.setLevel(logging.DEBUG)
+# STREAM.setLevel(logging.DEBUG)
 FMT = logging.Formatter('{filename}:{lineno} {message}', style='{')
 STREAM.setFormatter(FMT)
 LOG.addHandler(STREAM)

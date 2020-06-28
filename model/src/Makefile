@@ -1,7 +1,7 @@
 #
 # Makefile tuned for Python and Streamlit
 #
-## overriding the name
+# overriding the name
 name=model
 MAIN=start.py
 

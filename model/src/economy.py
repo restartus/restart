@@ -6,7 +6,7 @@ import numpy as np
 from base import Base
 
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.WARNING)
 
 
 class Economy(Base):

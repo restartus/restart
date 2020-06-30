@@ -23,15 +23,17 @@ from population import Population
 from economy import Economy
 from disease import Disease
 from behavioral import Behavioral
+from base import Base
 
 # This is the only way to get it to work needs to be in main
 # https://www.programcreek.com/python/example/192/logging.Formatter
 # the confit now seems to work
 
 LOG = logging.getLogger(__name__)
+# just comment out the detail you want
 LOG.setLevel(logging.WARNING)
+# LOG.setLevel(logging.DEBUG)
 STREAM = logging.StreamHandler()
-# STREAM.setLevel(logging.DEBUG)
 FMT = logging.Formatter('{filename}:{lineno} {message}', style='{')
 STREAM.setFormatter(FMT)
 LOG.addHandler(STREAM)
@@ -77,6 +79,14 @@ def start():
     model.disease: Disease = Disease(model)
     LOG.debug("creating Behavioral")
     model.behavioral: Behavioral = Behavioral(model)
+
+    # http://net-informations.com/python/iq/instance.htm
+    LOG.debug(f'{model} is {vars(model)}')
+    for name, value in vars(model).items():
+        # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
+        # if issubclass(value, Base):
+        if isinstance(value, Base):
+            LOG.debug(f'object {name} holds {value} subclass of Base')
 
     model.resource.stockpile(model.population.level_total_demand_ln_df)
     LOG.debug("Safety stock\n%s", model.resource.safety_stock_ln_df)

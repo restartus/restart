@@ -80,9 +80,9 @@ test:
 ##
 ## The bare metal python and conda work is deprecated, please use pipenv
 ## ---------------------------------------------------------------------
-## python: run locally with python to test components from main (deprecated use pipenv)
-.PHONY: python
-python:
+## main: run locally with python to test components from main (deprecated use pipenv)
+.PHONY: main
+main:
 	python $(MAIN)
 
 # https://docs.python.org/3/library/pdb.html
@@ -90,6 +90,11 @@ python:
 .PHONY: pdb
 pdb:
 	python -m pdb $(MAIN)
+
+## web-pdb: run web interface in debugger
+web-pdb:
+	python -m pdb $(WEB)
+
 
 ## requirements: Freeze Python requirements in bare machine (deprecated use pipenv)
 .PHONY: requirments

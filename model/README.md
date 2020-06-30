@@ -9,6 +9,7 @@ This is the visual display demo using streamlit. Filled with dummy data
 - [streamlit](streamlit) experiments with using Streamlit for web display.
 - [model0/dashboard0.py](model0/dashboard0.py) is the spaghetti code that is the first implementation of the
   model. Retain for testing purposes
+- [model](model) The current v2 model
 
 ## Model that is the real python model first using streamlit as a demo v0.1
 

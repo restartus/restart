@@ -20,7 +20,8 @@ from start import start
 # https://docs.python.org/3/howto/logging-cookbook.html
 # logging.basicConfig(level=logging.DEBUG,
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.WARNING)
+# LOG.setLevel(logging.DEBUG)
 STREAM = logging.StreamHandler()
 # STREAM.setLevel(logging.DEBUG)
 FMT = logging.Formatter('{filename}:{lineno} {message}', style='{')
@@ -138,18 +139,30 @@ def tables(model):
     # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
     LOG.debug('look for all population items')
     # eventually just go through all the model classes and keep going
-    for name, value in vars(model.population).items():
-        st.write(name)
-        st.write(value)
-        st.write('description')
-        key = 'population.' + name
-        LOG.debug(f'name {name} is {key}')
-        # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
-        # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
-        if key in model.description.keys():
-            LOG.debug('found description')
-            st.write(model.description[key])
+    # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
 
+    # http://net-informations.com/python/iq/instance.htm
+    LOG.debug(f'{model} is {vars(model)}')
+    for model_key, model_value in vars(model).items():
+        # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
+        # if issubclass(value, Base):
+        if isinstance(model_value, Base):
+            LOG.debug(f'object {model_key} holds {model_value} subclass of Base')
+            for name, value in vars(model_value).items():
+                # https://stackoverflow.com/questions/14808945/check-if-variable-is-dataframe
+                if not isinstance(value, pd.DataFrame):
+                    LOG.debug(f'{value} is not a DataFrame')
+                    continue
+                description_key = model_key + '.' + name
+                # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
+                # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
+                if description_key in model.description:
+                    LOG.debug('found description')
+                    st.write(model.description[description_key])
+                else:
+                    st.header(name)
+                    st.write('Description found for variable')
+                st.write(value)
 
 def testhome(data_df):
     """Test drawing

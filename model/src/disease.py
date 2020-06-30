@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 import numpy as np
 from base import Base
+from model import Model
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.WARNING)
@@ -18,9 +19,11 @@ class Disease(Base):
     Uses a modified standard project
     Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
     """
-    def __init__(self, model):
+    def __init__(self, model: Model):
         """Initialize the Disease object
 
         This uses the Frame object and populates it with default data unless yo
         override it
         """
+        # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
+        super().__init__()

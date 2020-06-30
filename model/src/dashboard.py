@@ -117,11 +117,11 @@ def tables(model):
     variable letters so you can keep it all straight in detailed data analysis.
     """
 
-    """### Resource safety Stock ln
+    """# Resource safety Stock ln
     The supply of resource needs"""
     model.resource.safety_stock_ln_df
 
-    """### Resource Attributes  na
+    """# Resource Attributes  na
     Resources main attribute is their count, but will later have volume and
     footprint"""
     model.resource.attr_na_df
@@ -129,7 +129,7 @@ def tables(model):
     model.description['population.attr_pd_df']
     model.population.attr_pd_df
 
-    """### Population summarized by protection levels pl
+    """# Population summarized by protection levels pl
     Population main attribute is their count, but will later have things like
     how often they are out doing work and will keep track of things like social
     mobility and columns will have characteristics like age, ethnicity, gender
@@ -153,12 +153,12 @@ def tables(model):
                 if not isinstance(value, pd.DataFrame):
                     LOG.debug(f'{value} is not a DataFrame')
                     continue
-                description_key = model_key + '.' + name
+                description_key = name + '_description'
                 # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
                 # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
-                if description_key in model.description:
+                if description_key in model_value.description:
                     LOG.debug('found description')
-                    st.write(model.description[description_key])
+                    st.write(name.description[description_key])
                 else:
                     st.header(name)
                     st.write('Description found for variable')

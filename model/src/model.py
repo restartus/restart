@@ -43,7 +43,8 @@ class Model(Base):
         '''Initialize the model
         '''
         # the long description of each
-        self.description: Dict = {}
+        # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
+        super().__init__()
 
         if label is None:
             label = {"Resource": ["N95", "ASTM3"],

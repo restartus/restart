@@ -11,9 +11,9 @@
 #
 """
 import logging
-import streamlit as st
 import pandas as pd
 import altair as alt
+import streamlit as st
 from base import Base
 
 from start import start
@@ -29,6 +29,7 @@ CON.setFormatter(FORMATTER)
 LOG.addHandler(CON)
 
 logging.debug('test')
+
 
 def dashboard():
     # sample test data
@@ -60,9 +61,9 @@ def dashboard():
     ## Pages
     Choose the page you want from here
     ''')
-    page = st.sidebar.selectbox("Choose page",
+    page = st.sidebar.selectbox('Choose page',
                                 [
-                                 "Tables",
+                                 'Tables',
                                  "Homepage",
                                  "Testhome",
                                  "Exploration"

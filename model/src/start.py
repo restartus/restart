@@ -32,9 +32,9 @@ from base import Base
 LOG = logging.getLogger(__name__)
 # just comment out the detail you want
 LOG.setLevel(logging.WARNING)
-# LOG.setLevel(logging.DEBUG)
+LOG.setLevel(logging.DEBUG)
 STREAM = logging.StreamHandler()
-FMT = logging.Formatter('{filename}:{lineno} {message}', style='{')
+FMT = logging.Formatter("{filename}:{lineno} {message}", style="{")
 STREAM.setFormatter(FMT)
 LOG.addHandler(STREAM)
 
@@ -81,12 +81,12 @@ def start():
     model.behavioral: Behavioral = Behavioral(model)
 
     # http://net-informations.com/python/iq/instance.htm
-    LOG.debug(f'{model} is {vars(model)}')
+    LOG.debug(f"{model} is {vars(model)}")
     for name, value in vars(model).items():
         # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
         # if issubclass(value, Base):
         if isinstance(value, Base):
-            LOG.debug(f'object {name} holds {value} subclass of Base')
+            LOG.debug(f"object {name} holds {value} subclass of Base")
 
     model.resource.stockpile(model.population.level_total_demand_ln_df)
     LOG.debug("Safety stock\n%s", model.resource.safety_stock_ln_df)
@@ -112,21 +112,28 @@ def start():
     LOG.debug("level demand\n%s", model.population.level_demand_ln_df)
 
     # p x l * l x n -> p x n
-    LOG.debug("Population demand for Resources\n%s", model.population.demand_pn_df)
+    LOG.debug(
+        "Population demand for Resources\n%s", model.population.demand_pn_df
+    )
 
     # Now it get's easier, this is the per unit value, so multiply by the
     # population and the * with values does an element wise multiplication
     # With different tempos, this will be across all d dimensions
 
-    LOG.debug("Population Total Demand\n%s", model.population.total_demand_pn_df)
+    LOG.debug(
+        "Population Total Demand\n%s", model.population.total_demand_pn_df
+    )
 
     LOG.debug("Population by level\n%s", model.population.level_pl_df)
 
-    LOG.debug("Cost per resource by population level\n%s", model.resource.cost_ln_df)
+    LOG.debug(
+        "Cost per resource by population level\n%s", model.resource.cost_ln_df
+    )
 
     model.population.level_total_cost(model.resource.cost_ln_df)
     LOG.debug(
-        "Population by level Total cost\n%s", model.population.level_total_cost_ln_df
+        "Population by level Total cost\n%s",
+        model.population.level_total_cost_ln_df,
     )
 
     return model

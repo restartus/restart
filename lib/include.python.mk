@@ -46,6 +46,16 @@ help: $(MAKEFILE_LIST)
 ##
 ## pipenv based running (for debugging)
 ## ------------------------------------
+## main: run in pipenv
+.PHONY: main
+main:
+	pipenv run python $(MAIN)
+
+## debug: run with debugging outputs on
+.PHONY: debug
+debug:
+	pipenv run python -d $(MAIN)
+
 ## web: use streamlit to run the graphical interface
 .PHONY: web
 web:
@@ -66,45 +76,46 @@ pypi:
 	pipenv run python setup.py register -r pypi
 	pipenv run python setup.py sdit upload -r pypi
 
-## test: run static tests
-.PHONY: test
-test:
+## lint: run static tests
+.PHONY: lint
+lint:
 	pipenv check
-	pipenv run flake8
+	# pipenv run flake8
 	pipenv run bandit -r $(MAIN)
 	pipenv run bandit -r $(WEB)
 	# pipenv run black -l 79 *.py
 	@echo if you want destructive formatting run black *.py
-	@echo or for pipenv black -l 79 *.py
 
-##
-## The bare metal python and conda work is deprecated, please use pipenv
-## ---------------------------------------------------------------------
-## main: run locally with python to test components from main (deprecated use pipenv)
-.PHONY: main
-main:
-	python $(MAIN)
+## format: reformat python code to standard
+.PHONY: format
+format: 
+	# the default is 88 but pyflakes wants 79
+	pipenv run black -l 79 *.py
 
 # https://docs.python.org/3/library/pdb.html
 ## pdb: run locally with python to test components from main (depreceated use pipenv)
 .PHONY: pdb
 pdb:
-	python -m pdb $(MAIN)
+	pipenv run python -m pdb $(MAIN)
 
 ## web-pdb: run web interface in debugger
 web-pdb:
-	python -m pdb $(WEB)
+	pipenv run python -m pdb $(WEB)
 
 
 ## requirements: Freeze Python requirements in bare machine (deprecated use pipenv)
-.PHONY: requirments
+
+##
+## The bare metal python and conda work is deprecated, please use pipenv
+## ---------------------------------------------------------------------
+.PHONY: requirements
 requirements:
 	pip freeze > requirements.txt
 
 ## bare: install the python packages natively (not recommended (deprecated use pipoenv)
 # https://note.nkmk.me/en/python-pip-install-requirements/
-.PHONY: bare
-bare:
+.PHONY: bare-install
+bare-install:
 	pip install -r requirements.txt
 
 ##
@@ -114,7 +125,7 @@ bare:
 conda:
 	@echo this installation is note working
 	conda env create -f environment.yml
-	conda enc --list
+	conda env --list
 
 ## conda-activate: run the python environment for model
 .PHONY: conda-activate
@@ -191,8 +202,8 @@ shell: push pull stop
 	docker pull $(image)
 	docker run -it $(flags) --name $(container) $(image) bash
 
-## debug: interactive but do not pull for use offline
-debug: stop
+## docker-debug: interactive but do not pull for use offline
+docker-debug: stop
 	@docker run -it $(flags) --name $(container) $(image) bash
 
 

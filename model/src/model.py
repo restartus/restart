@@ -9,7 +9,7 @@ from base import Base
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.WARNING)
 # https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
-LOG.debug('in %s', __name__)
+LOG.debug("in %s", __name__)
 
 
 class Model(Base):
@@ -36,27 +36,38 @@ class Model(Base):
         protection protection: m types of resource consumption
         population levels: l levels maps population down to a fewer levels
     """
+
     # https://satran.in/b/python--dangerous-default-value-as-argument
     # https://stackoverflow.com/questions/2…
     # do not do default assignment, it remembers it on eash call
     def __init__(self, name, label: Dict[str, List[str]] = None):
-        '''Initialize the model
-        '''
+        """Initialize the model
+        """
         # the long description of each
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__()
 
         if label is None:
-            label = {"Resource": ["N95", "ASTM3"],
-                     "Res Attribute": ["Units", "Dimensions"],
-                     "Res Supply": ["Days"],
-                     "Population": ["Healthcare workers",
-                                    "Non-heathcare employees"],
-                     "Pop Detail": ["People"],
-                     "Pop Protection": ['WA0', 'WA1', 'WA2', 'WA3',
-                                        'WA4', 'WA5', 'WA6'],
-                     "Pop Level": ["Essential", "Non-essential"]
-                     }
+            label = {
+                "Resource": ["N95", "ASTM3"],
+                "Res Attribute": ["Units", "Dimensions"],
+                "Res Supply": ["Days"],
+                "Population": [
+                    "Healthcare workers",
+                    "Non-heathcare employees",
+                ],
+                "Pop Detail": ["People"],
+                "Pop Protection": [
+                    "WA0",
+                    "WA1",
+                    "WA2",
+                    "WA3",
+                    "WA4",
+                    "WA5",
+                    "WA6",
+                ],
+                "Pop Level": ["Essential", "Non-essential"],
+            }
 
         self.name: str = name
         self.label: Dict[str, List[str]] = label
@@ -64,11 +75,12 @@ class Model(Base):
         # These are just as convenience functions for dimensions
         # and for type checking this is ugly should make it
         # for look for assign because we are just mapping label
-        self.dim: Dict[str, int] = {'n': len(self.label['Resource']),
-                                    'a': len(self.label['Res Attribute']),
-                                    's': len(self.label['Res Supply']),
-                                    'p': len(self.label['Population']),
-                                    'd': len(self.label['Pop Detail']),
-                                    'm': len(self.label['Pop Protection']),
-                                    'l': len(self.label['Pop Level']),
-                                    }
+        self.dim: Dict[str, int] = {
+            "n": len(self.label["Resource"]),
+            "a": len(self.label["Res Attribute"]),
+            "s": len(self.label["Res Supply"]),
+            "p": len(self.label["Population"]),
+            "d": len(self.label["Pop Detail"]),
+            "m": len(self.label["Pop Protection"]),
+            "l": len(self.label["Pop Level"]),
+        }

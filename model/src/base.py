@@ -6,8 +6,11 @@ from typing import Dict
 
 
 class Base:
-    '''Base for all model classes
-    '''
+    """Base for all model classes
+    """
+
     # https://stackoverflow.com/questions/9056957/correct-way-to-define-class-variables-in-python
     def __init__(self):
-        self.description: Dict[str: str] = {}
+        """init
+        """
+        self.description: Dict[str, str] = {}

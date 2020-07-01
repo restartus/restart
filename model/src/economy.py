@@ -1,8 +1,8 @@
 """ https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 """
 import logging
-import pandas as pd
-import numpy as np
+import pandas as pd  # type:ignore
+import numpy as np  # type:ignore
 from base import Base
 from model import Model
 
@@ -20,6 +20,7 @@ class Economy(Base):
     Uses a modified standard project
     Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
     """
+
     def __init__(self, model: Model):
         """Initialize the Economy object
 

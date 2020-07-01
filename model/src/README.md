@@ -39,7 +39,6 @@ make python
 make web
 ```
 
-
 ## Running with Pipenv
 
 Right now there is some sort of bug in conda that keeps it from installing, so
@@ -68,7 +67,7 @@ make docker
 make docker-run
 ```
 
-# Modules, Packages and testing
+# Modules
 
 This include `__init__`.py so that you can just include this a  module if you
 are using to connect to other code
@@ -81,7 +80,20 @@ your_resource = Resource(your_model)
 your_behavior = Resrouce(your_model
 ```
 
-## PIP package (not done)
+# Testing and linting
+We use some standard tools:
+
+2. [black](https://flake8.pycqa.org/en/latest/manpage.html). This is opinionated reformatting. It complies with pycodestyle 
+so if you run this with `make black` you won't get errors
+
+Then with `make test` you will get these tests and if you use `install-vim.sh`
+you will get them as real-time checks in vi.
+
+1. [bandit](https://pypi.org/project/bandit/). This is for security testing
+3. [flake8](https://flake8.pycqa.org/en/latest/manpage.html). This includes
+   pyflakes, pycodestyle and mccabe
+
+# PIP package (not done)
 There are two flavors here. A source distribution which is meant so that you can
 easily include it on other machines.
 
@@ -241,3 +253,4 @@ log.setLevel(logging.DEBUG)
 The main thing is that you should not run `logging.basicConfig` when you also
 doing this `getLogger`, this causes duplicates because logging.basicConfig means
 that that you create two streams
+

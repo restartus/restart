@@ -1,11 +1,12 @@
 """
-Population class
+Population class.
+
 Main the class
 """
 from typing import Dict
 import logging
-import numpy as np
-import pandas as pd
+import numpy as np  # type:ignore
+import pandas as pd  # type:ignore
 from base import Base
 from model import Model
 
@@ -15,7 +16,9 @@ LOG.debug("In %s", __name__)
 
 
 class Population(Base):
-    """ Population objects are created here
+    """
+    Population objects are created here.
+
     It has a default model in it for testing which is the Bharat model
     You should override it with a new child class
 
@@ -55,13 +58,17 @@ class Population(Base):
     but for now it is a dictionary
     """
 
-    def __init__(self,
-                 model: Model,
-                 attr_pd_df: pd.DataFrame = None,
-                 protection_pm_df: pd.DataFrame = None,
-                 prot_demand_mn_df: pd.DataFrame = None,
-                 level_pl_df: pd.DataFrame = None,
-                 ):
+    def __init__(
+        self,
+        model: Model,
+        attr_pd_df: pd.DataFrame = None,
+        protection_pm_df: pd.DataFrame = None,
+        res_demand_mn_df: pd.DataFrame = None,
+        level_pl_df: pd.DataFrame = None,
+    ):
+        """Initialize all variables.
+        All initialization here
+        """
 
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__()
@@ -72,23 +79,26 @@ class Population(Base):
         if attr_pd_df is None:
             attr_pd_arr = np.array([735.2, 7179.6])
             attr_pd_df = pd.DataFrame(
-                                     attr_pd_arr,
-                                     index=model.label["Population"],
-                                     columns=model.label["Pop Detail"],
-                                     )
+                attr_pd_arr,
+                index=model.label["Population"],
+                columns=model.label["Pop Detail"],
+            )
 
         self.attr_pd_df = attr_pd_df
         LOG.debug("self.attr_pd\n%s", self.attr_pd_df)
 
-        self.description['attr_pd_df'] = '''
+        self.description[
+            "attr_pd_df"
+        ] = """
 ## Population Details (pd)
 There are p Populations in the model and each population
 can have d details about them such as their degree of age,
 ethnicity, attitudes and awareness behaviors
-                   '''
+                   """
         # redundent description for compatibility
-        model.description["population.attr_pd_df"] =  \
-            self.description['attr_pd_df']
+        model.description["population.attr_pd_df"] = self.description[
+            "attr_pd_df"
+        ]
 
         # set the population by demand levels
         if protection_pm_df is None:
@@ -98,55 +108,80 @@ ethnicity, attitudes and awareness behaviors
             protection_pm_arr[1, 1] = 1.0
             LOG.debug("protection_pm_arr %s", protection_pm_arr)
             protection_pm_df = pd.DataFrame(
-                    protection_pm_arr,
-                    index=model.label["Population"],
-                    columns=model.label["Pop Protection"],
-                    )
+                protection_pm_arr,
+                index=model.label["Population"],
+                columns=model.label["Pop Protection"],
+            )
         # https://docs.python.org/3/library/pdb.html
         self.protection_pm_df = protection_pm_df
         LOG.debug("self.protection_pm_df %s", self.protection_pm_df)
-        self.description["protection_pm_df"] = '''
+        self.description[
+            "protection_pm_df"
+        ] = """
 ## Population Protection Level (pm)
 There are p Populations in the model and each protection
 level for the burn rates
-                   '''
-        model.description["population.protection_pm_df"] = \
-            self.description["protection_pm_df"]
+                   """
+        model.description["population.protection_pm_df"] = self.description[
+            "protection_pm_df"
+        ]
 
         # note these are defaults for testing
         # this is the protection level and the burn rates for each PPE
-        if prot_demand_mn_df is None:
-            prot_demand_mn_arr = np.array(
-                    [
-                        [0, 1],
-                        [0, 2],
-                        [0, 2],
-                        [0.1, 3],
-                        [0.2, 4],
-                        [0.3, 6],
-                        [1.18, 0],
-                        ]
-                    )
-            LOG.debug("prot_demand_mn_arr %s", prot_demand_mn_arr)
-            prot_demand_mn_df = pd.DataFrame(
-                    prot_demand_mn_arr,
-                    index=model.label["Pop Protection"],
-                    columns=model.label["Resource"],
-                    )
-        self.prot_demand_mn_df = prot_demand_mn_df
+        if res_demand_mn_df is None:
+            res_demand_mn_arr = np.array(
+                [
+                    [0, 1],
+                    [0, 2],
+                    [0, 2],
+                    [0.1, 3],
+                    [0.2, 4],
+                    [0.3, 6],
+                    [1.18, 0],
+                ]
+            )
+            LOG.debug("res_demand_mn_arr %s", res_demand_mn_arr)
+            res_demand_mn_df = pd.DataFrame(
+                res_demand_mn_arr,
+                index=model.label["Pop Protection"],
+                columns=model.label["Resource"],
+            )
+        self.res_demand_mn_df = res_demand_mn_df
+        self.description[
+            "res_demand_mn_df"
+        ] = """
+        ## Population demand for Resources (mn)
+        The burn rates per capita for resources
 
-        self.demand_pn_df = self.protection_pm_df @ self.prot_demand_mn_df
+        For example, 1.18 would mean you need 1.18 N95 masks per day for a given
+        population
+        """
+        model.description["population.res_demand_mn_df"] = self.description[
+            "res_demand_mn_df"
+        ]
+
+        self.demand_pn_df = self.protection_pm_df @ self.res_demand_mn_df
         LOG.debug("population.demand_pn_df %s", self.demand_pn_df)
+        self.description[
+            "demand_pn_df"
+        ] = """
+        ## Population demand
+        This is the total demand for a give population so this is not the per
+        capita deman but the demand for an entire population row
+        """
+        model.description["population.demand_pn_df"] = self.description[
+            "demand_pn_df"
+        ]
 
-        # now get the conversion from the many p populations to the much smaller
-        # l levels that are easier to understand
+        # now get the conversion from the many p populations to the much
+        # smaller l levels that are easier to understand
         if level_pl_df is None:
             assert model.dim["p"] == model.dim["l"]
             level_pl_df = pd.DataFrame(
-                    np.eye((model.dim["p"])),
-                    index=model.label["Population"],
-                    columns=model.label["Pop Level"],
-                    )
+                np.eye((model.dim["p"])),
+                index=model.label["Population"],
+                columns=model.label["Pop Level"],
+            )
         self.level_pl_df = level_pl_df
         LOG.debug("level_pl_df\n%s", self.level_pl_df)
 
@@ -155,17 +190,17 @@ level for the burn rates
 
         # now to the total for population
         self.total_demand_pn_df = (
-                self.demand_pn_df * self.attr_pd_df["People"].values
-                )
+            self.demand_pn_df * self.attr_pd_df["People"].values
+        )
         LOG.debug("total_demand_pn_df\n%s", self.total_demand_pn_df)
         # convert to demand by levels note we have to transpose
 
         self.level_total_demand_ln_df = (
-                self.level_pl_df.T @ self.total_demand_pn_df
-                )
+            self.level_pl_df.T @ self.total_demand_pn_df
+        )
         LOG.debug(
-                "level_total_demand_ln_df\n%s", self.level_total_demand_ln_df
-                )
+            "level_total_demand_ln_df\n%s", self.level_total_demand_ln_df
+        )
 
         # set to null to make pylint happy
         self.level_total_cost_ln_df = None
@@ -174,6 +209,6 @@ level for the burn rates
         """Calculate the total cost of resource for a population level
         """
         self.level_total_cost_ln_df = (
-                self.level_total_demand_ln_df * cost_ln_df.values
-                )
+            self.level_total_demand_ln_df * cost_ln_df.values
+        )
         LOG.debug("level_total_cost_ln_df\n%s", self.level_total_cost_ln_df)

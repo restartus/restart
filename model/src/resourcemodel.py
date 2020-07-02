@@ -5,9 +5,10 @@ import logging
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
 from base import Base
+from util import setLogger
 
-LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.WARNING)
+log = setLogger(__name__)
+log.setLevel(logging.WARNING)
 
 
 class Resource(Base):
@@ -39,11 +40,14 @@ class Resource(Base):
         eoc_ln_df=None,
         safety_stock_ln_df=None,
     ):
+        # to pick up the description
+        super().__init__()
+
         """Initialize the Resource object
         This uses the Frame object and populates it with default data unless yo
         override it
         """
-        LOG.debug("in %s", __name__)
+        log.debug("in %s", __name__)
         # initial inventory defaults to zero
         # need labels for later
         self.dim = model.dim
@@ -59,13 +63,17 @@ class Resource(Base):
             )
         self.attr_na_arr = attr_na_df.values
         self.attr_na_df = attr_na_df
-        LOG.debug("self.attr_na_df\n%s", self.attr_na_df)
+        log.debug(f"{self.attr_na_df=}")
+        self.setDescription(
+            model,
+            f"{self.attr_na_df=}".split("=")[0],
+            """
+        ## Resource Attributes
+        For all n Resources, these are the a Attributes
+        of each resource.
+        """,
+        )
 
-        """Maps population to the essential levels for simpler analysis
-        The first is a cost matrix for essential level what is their cost for
-        each of n items or e x n This is essential stockpile by essential level
-        so which tells you how many days of stockpile you need
-        """
         if cost_ln_df is None:
             cost_ln_arr = np.array([[3, 0.5], [4.5, 0.75]])
             cost_ln_df = pd.DataFrame(
@@ -73,10 +81,18 @@ class Resource(Base):
                 index=self.label["Pop Level"],
                 columns=self.label["Resource"],
             )
-
         self.cost_ln_arr = cost_ln_df.values
         self.cost_ln_df = cost_ln_df
-        LOG.debug("self.cost_ln_df\n%s", self.cost_ln_df)
+        log.debug("self.cost_ln_df\n%s", self.cost_ln_df)
+        self.setDescription(
+            model,
+            f"{cost_ln_df=}".split("=")[0],
+            """
+        ## For Each Summary Level, the cost of Resoures
+        For each of l summary levels, get the per capita cost for each of n
+        Resources.
+        """,
+        )
 
         if initial_inventory_ln_df is None:
             initial_inventory_ln_df = pd.DataFrame(
@@ -85,23 +101,50 @@ class Resource(Base):
                 columns=self.label["Resource"],
             )
         self.inventory_ln_df = initial_inventory_ln_df
-        LOG.debug("self.inventory_ln_df\n%s", self.inventory_ln_df)
+        log.debug("self.inventory_ln_df\n%s", self.inventory_ln_df)
+        self.setDescription(
+            model,
+            f"{self.inventory_ln_df=}".split("=")[0],
+            """
+        ## Inventory by Population Summary Levels
+        For each summarized population level l, this gives for every resource n
+        the current inventory of each.
+        """,
+        )
 
         if eoc_ln_df is None:
             # default eoc is 2
             eoc_ln_arr = np.ones((self.dim["l"], self.dim["n"])) * 2
-            LOG.debug("eoc_ln_arr\n%s", eoc_ln_arr)
+            log.debug("eoc_ln_arr\n%s", eoc_ln_arr)
             eoc_ln_df = pd.DataFrame(
                 eoc_ln_arr,
                 index=self.label["Pop Level"],
                 columns=self.label["Resource"],
             )
         self.eoc_ln_df = eoc_ln_df
-        LOG.debug("self.eoc_ln_df\n%s", self.eoc_ln_df)
+        log.debug("self.eoc_ln_df\n%s", self.eoc_ln_df)
+        self.setDescription(
+            model,
+            f"{self.eoc_ln_df=}".split("=")[0],
+            """
+        ## Economic Order Quantity
+        For each summarized population level l, this gives for every resource n
+        the economic order quantity for reordering.
+        """,
+        )
 
         if safety_stock_ln_df is None:
             safety_stock_ln_df = initial_inventory_ln_df
         self.safety_stock(safety_stock_ln_df)
+        self.setDescription(
+            model,
+            f"{ self.eoc_ln_df=}".split("=")[0],
+            """
+        ## Safety Stock
+        For each summarized population level l, this gives for every resource n
+        the economic order quantity for reordering.
+        """,
+        )
 
     def stockpile(self, level_total_demand_ln_df, safety_stock_days_df=None):
         """Set a stock pile in days of demand
@@ -114,23 +157,23 @@ class Resource(Base):
                 index=self.label["Pop Level"],
                 columns=self.label["Resource"],
             )
-            LOG.debug("Safety_stock_days_ln_df\n%s", safety_stock_days_ln_df)
+            log.debug("Safety_stock_days_ln_df\n%s", safety_stock_days_ln_df)
 
-        LOG.debug(
+        log.debug(
             "Population Level Total Demand\n%s", level_total_demand_ln_df
         )
         # need to do a dot product
         self.total_safety_stock_ln_df = (
             level_total_demand_ln_df * safety_stock_days_ln_df.values
         )
-        LOG.debug("Total safety stock %s", self.total_safety_stock_ln_df)
+        log.debug("Total safety stock %s", self.total_safety_stock_ln_df)
         self.safety_stock(self.total_safety_stock_ln_df)
 
     def safety_stock(self, safety_stock_ln_df):
         """set or reset safety stock
         Triggers a reorder if needed
         """
-        LOG.debug("set safety_stock to\n%s", safety_stock_ln_df)
+        log.debug("set safety_stock to\n%s", safety_stock_ln_df)
         self.safety_stock_ln_df = safety_stock_ln_df
         self.supply_order()
 
@@ -146,7 +189,7 @@ class Resource(Base):
         order_ln_df[order_ln_df < 0] = 0
         # now gross up the order to the economic order quantity
         order_ln_df = self.round_up_to_eoc(order_ln_df)
-        LOG.debug("supply order\n%s", order_ln_df)
+        log.debug("supply order\n%s", order_ln_df)
         self.fulfill(order_ln_df)
 
     # https://stackoverflow.com/questions/2272149/round-to-5-or-other-number-in-python
@@ -161,9 +204,9 @@ class Resource(Base):
         """Fulfill an order form supplier
         This is a stub in that all orders are immediatley fulfilled
         """
-        LOG.debug("fulfilled immediately\n%s", order_ln_df)
+        log.debug("fulfilled immediately\n%s", order_ln_df)
         self.inventory_ln_df += order_ln_df
-        LOG.debug("inventory\n%s", self.inventory_ln_df)
+        log.debug("inventory\n%s", self.inventory_ln_df)
 
     def demand(self, demand_ln_df):
         """Demand for resources

@@ -26,6 +26,28 @@ brew install python
 echo '[[ $PATH =~ /usr/local/opt/python/libexec/bin ]] || export PATH="/usr/local/opt/python/libexec/bin:$PATH"' > ~/.bash_profile
 ```
 
+## Note that we actually use Python 3.8 
+To get this and it is already installed with `brew install python`
+To use it in this environment. If you need to use 3.8 for the awesome f-strings,
+then you also need the latest flake8 and it detects the python version and
+installs the right one or you will get errors like F-string errors with older
+version of Flake like [E999](https://gitlab.com/pycqa/flake8/-/issues/421)
+
+```
+pipenv install --python /usr/local/opt/python@3.8/bin/python3
+# Need to get the right linters
+pipenv install --dev flake8 mypy bandit black
+# get the latest
+hash -r
+```
+
+And you may have to fix `PipFile` and bump the version to 3.8
+
+## using it all with Vi
+
+Make sure that you are using the local files in the pipenv, so you want to run
+and edit in `pipenv shell`
+
 ## Natively (not recommended)
 You can just install with the requirements.txt. But beware this can pollute your
 machine with conflicts. it is the easiest way to just get going if you don't

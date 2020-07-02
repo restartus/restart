@@ -1,13 +1,15 @@
 """ https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 """
-import logging
-import pandas as pd  # type:ignore
-import numpy as np  # type:ignore
+# https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html
+# note that the type ignor and noqa lines are space sensitive
+import logging  # noqa: F401
+import pandas as pd  # type: ignore # noqa: F401
+import numpy as np  # type: ignore # noqa: F401
 from base import Base
 from model import Model
+from util import setLogger
 
-LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.WARNING)
+log = setLogger(__name__)
 
 
 class Economy(Base):

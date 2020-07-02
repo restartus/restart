@@ -17,7 +17,7 @@ import pandas as pd  # type:ignore
 import altair as alt  # type:ignore
 import streamlit as st  # type:ignore
 from base import Base
-from start import start
+from main import main
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 # logging.basicConfig(level=logging.DEBUG,
@@ -44,7 +44,7 @@ def dashboard():
         columns=["N95", "Mask"],
     )
 
-    model = start()
+    model = main()
     # https://stackoverflow.com/questions/1398022/looping-over-all-member-variables-of-a-class-in-python
     log.debug(vars(model))
     log.debug(vars(model.population))
@@ -75,7 +75,7 @@ def dashboard():
     )
 
     stockpile = st.sidebar.slider("Stockpile", max_value=120, value=30)
-    log.debug(f'stockpile = {stockpile}')
+    log.debug(f"stockpile = {stockpile}")
 
     if page == "Homepage":
         homepage(model)

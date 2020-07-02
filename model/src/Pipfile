@@ -11,14 +11,15 @@ tox = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-xdist = "*"
-data-science-types = "*"
+mypy = "*"
 
 [packages]
 streamlit = "*"
 altair = "*"
+pandas = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
 
 [pipenv]
 allow_prereleases = true

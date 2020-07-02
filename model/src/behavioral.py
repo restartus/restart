@@ -1,13 +1,13 @@
 """ Behavioral
 """
-import logging
-import pandas as pd  # type: ignore
-import numpy as np  # type: ignore
+import logging  # noqa: F401
+import pandas as pd  # type: ignore # noqa: F401
+import numpy as np  # type: ignore # noqa: F401
 from base import Base
 from model import Model
+from util import setLogger
 
-LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.ERROR)
+log = setLogger(__name__)
 
 
 class Behavioral(Base):

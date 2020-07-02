@@ -3,13 +3,14 @@ MOdel definition
 https://www.w3schools.com/python/python_classes.asp
 """
 from typing import List, Dict
-import logging
 from base import Base
 
-LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.WARNING)
+import logging  # noqa: F401
+from util import setLogger
+
+log = setLogger(__name__)
 # https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
-LOG.debug("in %s", __name__)
+log.debug("in %s", __name__)
 
 
 class Model(Base):

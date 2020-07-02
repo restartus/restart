@@ -64,11 +64,15 @@ web:
 # https://pipenv.pypa.io/en/latest/install/
 # https://realpython.com/pipenv-guide/
 # install everything including things just needed for edevelopment
-## pipenv: Install with pipenv as virtual environment
+## pipenv: Install with pipenv as virtual environment 
 .PHONY: pipenv
 pipenv:
 	@echo you should install with pip install pipenv and then pipenv shell
-	pipenv install --dev
+	pipenv install --dev flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox
+
+## Install python 3.8 for bleeding edge features
+.PHONY: python3.8
+	pipenv install --python /usr/local/opt/python@3.8/bin/python3
 
 ## pypi: push the package to the Python library
 .PHONY: pypi
@@ -80,7 +84,10 @@ pypi:
 .PHONY: lint
 lint:
 	pipenv check
-	# pipenv run flake8
+	# mypy finds more errors than flake8
+	pipenv run mypy $(MAIN)
+	pipenv run mypy $(WEB)
+	pipenv run flake8
 	pipenv run bandit -r $(MAIN)
 	pipenv run bandit -r $(WEB)
 	# pipenv run black -l 79 *.py

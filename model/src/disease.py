@@ -1,12 +1,14 @@
 # https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
-import logging
-import pandas as pd  # type: ignore
-import numpy as np  # type: ignore
+# note the noqa: and type: are space sensitive
+# https://stackoverflow.com/questions/51179109/set-pyflake-and-mypy-ignore-same-line
+import logging  # noqa: F401
+import pandas as pd  # type: ignore # noqa: F401
+import numpy as np  # type: ignore # noqa: F401
 from base import Base
 from model import Model
+from util import setLogger
 
-LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.WARNING)
+LOG = setLogger(__name__)
 
 
 class Disease(Base):

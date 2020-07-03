@@ -30,7 +30,8 @@ from util import setLogger
 # https://www.programcreek.com/python/example/192/logging.Formatter
 # the confit now seems to work
 
-log = setLogger(__name__, level=logging.DEBUG)
+# log = setLogger(__name__, level=logging.DEBUG)
+log = setLogger(__name__)
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 log.debug(f"name {__name__}")

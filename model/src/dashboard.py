@@ -71,18 +71,21 @@ def dashboard():
     """
     )
     page = st.sidebar.selectbox(
-        "Choose page", ["Tables", "Homepage", "Testhome", "Exploration"]
+        "Choose page", ["Tables", "Home", "Test Home", "Exploration",
+                        "Test Tables"]
     )
 
     stockpile = st.sidebar.slider("Stockpile", max_value=120, value=30)
     log.debug(f"stockpile = {stockpile}")
 
-    if page == "Homepage":
-        homepage(model)
+    if page == "Home":
+        homePage(model)
     elif page == "Tables":
         tables(model)
+    elif page == "Test Tables":
+        testTables(model)
     elif page == "Testhome":
-        testhome(data_df)
+        testHome(data_df)
     elif page == "Exploration":
         st.title("Data Exploration")
         # https://docs.streamlit.io/en/latest/api.html
@@ -92,21 +95,20 @@ def dashboard():
         # Not that write uses Markdown
 
 
-def homepage(model):
+def homePage(model):
     """Home page
     """
-    st.write(
-        """
+
+    """
     # COVID-19 Decision Dashboard
     ## Restart.us
     Use caution when interpreting these numbers
     """
-    )
 
 
 # uses the literal magic in Streamlit 0.62
 # note that just putting an expression automatically wraps an st.write
-def tables(model):
+def testTables(model):
     """Tables
     The full graphical display of all tables use for debugging mainly
     """
@@ -131,7 +133,7 @@ def tables(model):
     footprint"""
     model.resource.attr_na_df
 
-    model.description["population.attr_pd_df"]
+    model.description["Population.attr_pd_df"]
     model.population.attr_pd_df
 
     """# Population summarized by protection levels pl
@@ -141,10 +143,25 @@ def tables(model):
     as a crosstab.t"""
     model.population.level_pl_df
 
+
+def tables(model):
+    """Table Exploration
+
+    Automatically reads from model.description a markdown string
+    then displays the data found in the model by traversing the entire object
+    looking for Pandas DataFrames
+    """
     # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
     log.debug("look for all population items")
     # eventually just go through all the model classes and keep going
     # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
+
+    """
+    # COVID-19 Data Table Exploration
+
+    Use this section to look through the data. This include the descriptions
+    that are included with it.
+    """
 
     # http://net-informations.com/python/iq/instance.htm
     log.debug(f"{model} is {vars(model)}")
@@ -153,26 +170,27 @@ def tables(model):
         # if issubclass(value, Base):
         if isinstance(model_value, Base):
             log.debug(
-                f"object {model_key} holds {model_value} subclass of Base"
+                f"object {model_key=} holds {model_value=} subclass of Base"
             )
             for name, value in vars(model_value).items():
                 # https://stackoverflow.com/questions/14808945/check-if-variable-is-dataframe
                 if not isinstance(value, pd.DataFrame):
                     log.debug(f"{value} is not a DataFrame")
                     continue
-                description_key = name + "_description"
                 # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
                 # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
-                if description_key in model_value.description:
+                if name in model_value.description:
                     log.debug("found description")
-                    st.write(name.description[description_key])
+                    st.write(model_value.description[name])
                 else:
                     st.header(name)
-                    st.write("Description found for variable")
-                st.write(value)
+                    st.write(f"No description found for {name=}")
+                # https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
+                # https://pbpython.com/styling-pandas.html
+                st.write(value.style.format("{0:,.2f}"))
 
 
-def testhome(data_df):
+def testHome(data_df):
     """Test drawing
     """
     st.write(

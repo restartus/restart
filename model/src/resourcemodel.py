@@ -126,8 +126,7 @@ class Resource(Base):
         self.setDescription(
             model,
             f"{self.eoc_ln_df=}".split("=")[0],
-            """
-        ## Economic Order Quantity
+            """## Economic Order Quantity
         For each summarized population level l, this gives for every resource n
         the economic order quantity for reordering.
         """,
@@ -138,9 +137,8 @@ class Resource(Base):
         self.safety_stock(safety_stock_ln_df)
         self.setDescription(
             model,
-            f"{ self.eoc_ln_df=}".split("=")[0],
-            """
-        ## Safety Stock
+            f"{self.safety_stock_ln_df=}".split("=")[0],
+            """## Safety Stock
         For each summarized population level l, this gives for every resource n
         the economic order quantity for reordering.
         """,
@@ -163,11 +161,11 @@ class Resource(Base):
             "Population Level Total Demand\n%s", level_total_demand_ln_df
         )
         # need to do a dot product
-        self.total_safety_stock_ln_df = (
+        new_safety_stock_ln_df = (
             level_total_demand_ln_df * safety_stock_days_ln_df.values
         )
-        log.debug("Total safety stock %s", self.total_safety_stock_ln_df)
-        self.safety_stock(self.total_safety_stock_ln_df)
+        log.debug("safety stock %s", new_safety_stock_ln_df)
+        self.safety_stock(new_safety_stock_ln_df)
 
     def safety_stock(self, safety_stock_ln_df):
         """set or reset safety stock

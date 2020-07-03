@@ -12,7 +12,7 @@ from model import Model
 import logging
 from util import setLogger
 
-log = setLogger(__name__, level=logging.DEBUG)
+log = setLogger(__name__)
 log.debug("In %s", __name__)
 
 

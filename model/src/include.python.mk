@@ -1,1 +1,1 @@
-../../lib/include.python.mk
+../lib/include.python.mk

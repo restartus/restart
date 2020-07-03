@@ -31,6 +31,9 @@ user ?= $$USER
 MAIN ?= main.py
 WEB ?= dashboard.py
 flags ?= -p 8501:8501
+PIP ?= streamlit altair pandas
+PIP_DEV ?= --pre flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox
+
 
 .DEFAULT_GOAL := help
 
@@ -64,15 +67,35 @@ web:
 # https://pipenv.pypa.io/en/latest/install/
 # https://realpython.com/pipenv-guide/
 # install everything including things just needed for edevelopment
-## pipenv: Install with pipenv as virtual environment 
-.PHONY: pipenv
-pipenv:
+## pipenv-recreate: Install with pipenv as virtual environment from scratch
+# Note that black is still prelease so need --pre
+# pipenv clean removes all packages not in the virtual environment
+.PHONY: pipenv-recreate
+pipenv-recreate:
 	@echo you should install with pip install pipenv and then pipenv shell
-	pipenv install --dev flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox
+	pipenv install --dev $(PIP_DEV)
+	pipenv install $(PIP)
+	pipenv lock
 
-## Install python 3.8 for bleeding edge features
-.PHONY: python3.8
-	pipenv install --python /usr/local/opt/python@3.8/bin/python3
+## pipenv: craete pipenv from the existing Pipfile
+pipenv:
+	pipenv install
+
+## latest: Install latest python 3.x for bleeding edge features
+.PHONY: latest
+latest:	pipenv-clean
+	@echo lastet is currently python 3.8
+	@echo note do not use requirements.txt as it will read it by default
+	PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --python /usr/local/opt/python@3.8/bin/python3
+	pipenv clean
+
+## pipenv-clean: cleans the pipenv completely
+# note pipenv --rm will fail if there is nothing there so ignore that
+# do not do a pipenv clean until later otherwise it creats an environment
+# Same with the remove if the files are not there
+pipenv-clean:
+	pipenv --rm || true
+	rm Pipfile* || true
 
 ## pypi: push the package to the Python library
 .PHONY: pypi
@@ -86,12 +109,16 @@ lint:
 	pipenv check
 	# mypy finds more errors than flake8
 	pipenv run mypy $(MAIN)
-	pipenv run mypy $(WEB)
 	pipenv run flake8
 	pipenv run bandit -r $(MAIN)
+	@echo if you want destructive formatting run make format
+
+## lint-web: run for web interface
+.PHONY: lint-web
+lint-web:
+	pipenv run mypy $(WEB)
 	pipenv run bandit -r $(WEB)
-	# pipenv run black -l 79 *.py
-	@echo if you want destructive formatting run black *.py
+
 
 ## format: reformat python code to standard
 .PHONY: format
@@ -117,6 +144,7 @@ web-pdb:
 ## ---------------------------------------------------------------------
 .PHONY: requirements
 requirements:
+	@echo WARNING requirements not compatible with pipenv so do not create if using pipenv
 	pip freeze > requirements.txt
 
 ## bare: install the python packages natively (not recommended (deprecated use pipoenv)

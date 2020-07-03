@@ -10,9 +10,9 @@ from base import Base
 from model import Model
 
 import logging
+from util import setLogger
 
-log = logging.getLogger(__name__)
-log.setLevel(logging.WARNING)
+log = setLogger(__name__, level=logging.DEBUG)
 log.debug("In %s", __name__)
 
 

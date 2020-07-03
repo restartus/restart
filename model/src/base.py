@@ -6,7 +6,7 @@ from util import setLogger
 import logging
 
 log = setLogger(__name__, level=logging.DEBUG)
-log.debug("{__name__=}")
+log.debug(f"{__name__=}")
 
 
 class Base:
@@ -17,6 +17,7 @@ class Base:
     def __init__(self):
         """init
         """
+        print('in init')
         log.debug("run base")
         log.debug(f"{self=}")
         self.description: Dict[str, str] = {}

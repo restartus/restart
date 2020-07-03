@@ -1,13 +1,12 @@
 """ Behavioral
 """
-import logging  # noqa: F401
+import logging
 import pandas as pd  # type: ignore # noqa: F401
 import numpy as np  # type: ignore # noqa: F401
 from base import Base
 from model import Model
-from util import set_logger
 
-log = set_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 class Behavioral(Base):
@@ -28,3 +27,15 @@ class Behavioral(Base):
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__()
+
+        # create a sublogger if a root exists in the model
+        self.log = log
+        self.model = model
+        if model.log_root is not None:
+            self.log = model.log_root.class_log(self)
+
+        # the sample code to move up the logging for a period and then turn it
+        # off
+        self.model.log_root.con.setLevel(logging.DEBUG)
+        self.log.debug('testing move to debug to console')
+        self.model.log_root.con.setLevel(logging.WARNING)

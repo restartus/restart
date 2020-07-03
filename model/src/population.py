@@ -10,9 +10,8 @@ from base import Base
 from model import Model
 
 import logging  # noqa: F401
-from util import set_logger
 
-log = set_logger(__name__)
+log = logging.getLogger(__name__)
 log.debug("In %s", __name__)
 
 
@@ -75,6 +74,11 @@ class Population(Base):
         # to pick up the description
         super().__init__()
 
+        # create a sublogger if a root exists in the model
+        self.log = log
+        if model.log_root is not None:
+            self.log = model.log_root.class_log(self)
+
         # set the arrays of values should be a column vector
         # https://kite.com/python/answers/how-to-make-a-numpy-array-a-column-vector-in-python
         # A shortcut
@@ -88,6 +92,7 @@ class Population(Base):
 
         self.attr_pd_df = attr_pd_df
         log.debug("self.attr_pd\n%s", self.attr_pd_df)
+        self.log.debug("self.attr_pd\n%s", self.attr_pd_df)
 
         self.set_description(
             model,
@@ -115,6 +120,7 @@ ethnicity, attitudes and awareness behaviors
         # https://docs.python.org/3/library/pdb.html
         self.protection_pm_df = protection_pm_df
         log.debug("self.protection_pm_df %s", self.protection_pm_df)
+        self.log.debug("self.protection_pm_df %s", self.protection_pm_df)
         self.set_description(
             model,
             f"{self.protection_pm_df=}".split("=")[0],
@@ -161,7 +167,7 @@ level for the burn rates
         )
 
         self.demand_pn_df = self.protection_pm_df @ self.res_demand_mn_df
-        log.debug("population.demand_pn_df %s", self.demand_pn_df)
+        self.log.debug("population.demand_pn_df %s", self.demand_pn_df)
 
         self.set_description(
             model,
@@ -183,7 +189,7 @@ level for the burn rates
                 columns=model.label["Pop Level"],
             )
         self.level_pl_df = level_pl_df
-        log.debug("level_pl_df\n%s", self.level_pl_df)
+        self.log.debug("level_pl_df\n%s", self.level_pl_df)
 
         self.set_description(
             model,
@@ -201,7 +207,7 @@ level for the burn rates
 
         self.level_demand_ln_df = self.level_pl_df.T @ self.demand_pn_df
         name = "level_demand_ln_df"
-        log.debug(f"{name}\n%s", self.level_demand_ln_df)
+        self.log.debug(f"{name}\n%s", self.level_demand_ln_df)
 
         self.set_description(
             model,
@@ -218,7 +224,7 @@ level for the burn rates
         self.total_demand_pn_df = (
             self.demand_pn_df * self.attr_pd_df["People"].values
         )
-        log.debug("total_demand_pn_df\n%s", self.total_demand_pn_df)
+        self.log.debug("total_demand_pn_df\n%s", self.total_demand_pn_df)
         # convert to demand by levels note we have to transpose
         self.set_description(
             model,
@@ -233,7 +239,7 @@ level for the burn rates
         self.level_total_demand_ln_df = (
             self.level_pl_df.T @ self.total_demand_pn_df
         )
-        log.debug(
+        self.log.debug(
             "level_total_demand_ln_df\n%s", self.level_total_demand_ln_df
         )
         self.set_description(
@@ -264,4 +270,6 @@ level for the burn rates
         self.level_total_cost_ln_df = (
             self.level_total_demand_ln_df * cost_ln_df.values
         )
-        log.debug("level_total_cost_ln_df\n%s", self.level_total_cost_ln_df)
+        self.log.debug(
+            "level_total_cost_ln_df\n%s", self.level_total_cost_ln_df
+        )

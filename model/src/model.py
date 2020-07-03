@@ -2,15 +2,14 @@
 MOdel definition
 https://www.w3schools.com/python/python_classes.asp
 """
-from typing import List, Dict
+from typing import List, Dict, Any
 from base import Base
 
 import logging  # noqa: F401
-from util import set_logger
 
-log = set_logger(__name__)
+log = logging.getLogger(__name__)
 # https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
-log.debug("in %s", __name__)
+log.debug(f"in {__name__=}")
 
 
 class Model(Base):
@@ -41,12 +40,20 @@ class Model(Base):
     # https://satran.in/b/python--dangerous-default-value-as-argument
     # https://stackoverflow.com/questions/2…
     # do not do default assignment, it remembers it on eash call
-    def __init__(self, name, label: Dict[str, List[str]] = None):
+    # https://docs.python.org/3/library/typing.html
+    def __init__(
+        self, name, label: Dict[str, List[str]] = None, log_root: Any = None
+    ):
         """Initialize the model
         """
         # the long description of each
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__()
+
+        self.log = log
+        if log_root is not None:
+            self.log_root = log_root
+            self.log = log_root.class_log(self)
 
         if label is None:
             label = {
@@ -72,6 +79,10 @@ class Model(Base):
 
         self.name: str = name
         self.label: Dict[str, List[str]] = label
+
+        print(f"{self.name=} {self.label=}")
+        log.debug(f"{self.name=} {self.label=}")
+        self.log.debug(f"{self.name=} {self.label=}")
 
         # These are just as convenience functions for dimensions
         # and for type checking this is ugly should make it

@@ -254,6 +254,23 @@ jobs:
 We define logging somewhat magically by using the same variable name and this
 links all the logging togehter [Stackoverflow](https://stackoverflow.com/questions/40495083/using-python-logging-from-multiple-modules-with-writing-to-a-file-and-rotatingfi)
 
+@e use a utility to handle this which correctly deals with the root logger that
+uses the same name as the model. Then each class has a logger with it's own
+identifier to make it easy to create logs. 
+
+We do not use module logging although this is available.
+
+All logging goes to `test.log` and if you want to see it on the console then you
+just need a one liner in the __init__ module or which every method you are
+debugging that looks like which turns up the logging that goes to the console or
+just consult the test.log:
+
+```
+self.model.log_root.con.setLevel(logging.DEBUG)
+self.log.debug("big error in here")
+self.model.log_root.con.setLevel(logging.WARNING)
+```
+
 What this does is to create a logger with a different name from `__name__` in
 each
 

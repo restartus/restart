@@ -1,18 +1,19 @@
 """hello
 """
 from typing import Dict, Any
-from util import set_logger
-import pdb  # noqa: F401
 
 import logging
 
-log = set_logger(__name__, level=logging.DEBUG)
+log = logging.getLogger(__name__)
 log.debug(f"{__name__=}")
 
 
 class Base:
     """Base for all model classes
     """
+
+    description: Dict[str, str] = {}
+    log: Any = None
 
     # https://stackoverflow.com/questions/9056957/correct-way-to-define-class-variables-in-python
     def __init__(self):
@@ -21,7 +22,6 @@ class Base:
         #         print("in init")
         log.debug("run base")
         log.debug(f"{self=}")
-        self.description: Dict[str, str] = {}
 
     def set_description(self, model: Any, name: str, description: str):
         """Set the variable description

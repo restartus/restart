@@ -17,6 +17,7 @@ import logging  # noqa:F401
 
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
+from util import Log
 from model import Model
 from resourcemodel import Resource
 from population import Population
@@ -24,14 +25,13 @@ from economy import Economy
 from disease import Disease
 from behavioral import Behavioral
 from base import Base
-from util import set_logger
 
 # This is the only way to get it to work needs to be in main
 # https://www.programcreek.com/python/example/192/logging.Formatter
 # the confit now seems to work
 
 # log = set_logger(__name__, level=logging.DEBUG)
-log = set_logger(__name__)
+log = logging.getLogger(__name__)
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 log.debug(f"name {__name__}")
@@ -60,18 +60,27 @@ def main():
     And if you make a change to any, the model will automatically recalc
     everything
     """
+    name = "test"
+    # set up the logging
+    log_root = Log(name)
+    new_log = log_root.log
+    log_root.test_log(new_log)
 
     # Static typing for custom classes
-    model: Model = Model("test")
+    model: Model = Model(name, log_root=log_root)
+    new_log.debug("creating Population")
     log.debug("creating Population")
     model.population: Population = Population(model)
     log.debug("creating Resource")
+    new_log.debug("creating Resource")
     model.resource: Resource = Resource(model)
-    log.debug("creating Economy")
+    new_log.debug("creating Economy")
     model.economy: Economy = Economy(model)
     log.debug("creating Disease")
+    new_log.debug("creating Disease")
     model.disease: Disease = Disease(model)
     log.debug("creating Behavioral")
+    new_log.debug("creating Behavioral")
     model.behavioral: Behavioral = Behavioral(model)
 
     # http://net-informations.com/python/iq/instance.htm
@@ -84,9 +93,11 @@ def main():
 
     model.resource.set_stockpile(model.population.level_total_demand_ln_df)
     log.debug("Safety stock\n%s", model.resource.safety_stock_ln_df)
+    new_log.debug("Safety stock\n%s", model.resource.safety_stock_ln_df)
 
     # create the resource object that is p populations and n items
     log.debug("resource attributes\n%s", model.resource.attr_na_df)
+    new_log.debug("resource attributes\n%s", model.resource.attr_na_df)
 
     # This is a population p by d dimension, eventually the second column
     # should be a call back that calculates consumption based
@@ -95,10 +106,12 @@ def main():
     # And other tempo data like number of runs so
     # eventually this is d dimensinoal
     log.debug("Population\n%s", model.population.attr_pd_df)
+    new_log.debug("Population\n%s", model.population.attr_pd_df)
 
     # Now bucket population into a set of levels
     # So we have a table is p x l
     log.debug("Population by level\n%s", model.population.level_pl_df)
+    new_log.debug("Population by level\n%s", model.population.level_pl_df)
 
     # This is rows that are levels adn then usage of each resource  or l, n
     # When population become n x d, then there will be a usage
@@ -131,10 +144,10 @@ def main():
     )
 
     for s in [3, 6, 9]:
-        print(f"changing stockpile to {s=}")
+        new_log.info(f"changing stockpile to {s=}")
         model.resource.set_stockpile_days(model, s)
-        print(f"{model.resource.safety_stock_ln_df=}")
-        print(f"{model.resource.inventory_ln_df=}")
+        new_log.info(f"{model.resource.safety_stock_ln_df=}")
+        new_log.info(f"{model.resource.inventory_ln_df=}")
     return model
 
 

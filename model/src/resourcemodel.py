@@ -5,9 +5,8 @@ import logging
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
 from base import Base
-from util import set_logger
 
-log = set_logger(__name__, level=logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 class Resource(Base):
@@ -42,11 +41,16 @@ class Resource(Base):
         # to pick up the description
         super().__init__()
 
+        # create a sublogger if a root exists in the model
+        self.log = log
+        if model.log_root is not None:
+            self.log = model.log_root.class_log(self)
+
         """Initialize the Resource object
         This uses the Frame object and populates it with default data unless yo
         override it
         """
-        log.debug("in %s", __name__)
+        self.log.debug("in %s", __name__)
         # initial inventory defaults to zero
         # need labels for later
         self.dim = model.dim
@@ -62,7 +66,7 @@ class Resource(Base):
             )
         self.attr_na_arr = attr_na_df.values
         self.attr_na_df = attr_na_df
-        log.debug(f"{self.attr_na_df=}")
+        self.log.debug(f"{self.attr_na_df=}")
         self.set_description(
             model,
             f"{self.attr_na_df=}".split("=")[0],
@@ -82,7 +86,7 @@ class Resource(Base):
             )
         self.cost_ln_arr = cost_ln_df.values
         self.cost_ln_df = cost_ln_df
-        log.debug("self.cost_ln_df\n%s", self.cost_ln_df)
+        self.log.debug("self.cost_ln_df\n%s", self.cost_ln_df)
         self.set_description(
             model,
             f"{cost_ln_df=}".split("=")[0],
@@ -100,7 +104,7 @@ class Resource(Base):
                 columns=self.label["Resource"],
             )
         self.inventory_ln_df = initial_inventory_ln_df
-        log.debug("self.inventory_ln_df\n%s", self.inventory_ln_df)
+        self.log.debug("self.inventory_ln_df\n%s", self.inventory_ln_df)
         self.set_description(
             model,
             f"{self.inventory_ln_df=}".split("=")[0],
@@ -114,7 +118,7 @@ class Resource(Base):
         if eoc_ln_df is None:
             # default eoc is 2
             eoc_ln_arr = np.ones((self.dim["l"], self.dim["n"])) * 100
-            log.debug("eoc_ln_arr\n%s", eoc_ln_arr)
+            self.log.debug("eoc_ln_arr\n%s", eoc_ln_arr)
             eoc_ln_df = pd.DataFrame(
                 eoc_ln_arr,
                 index=self.label["Pop Level"],
@@ -125,7 +129,7 @@ class Resource(Base):
         eoc_ln_df[eoc_ln_df < 1] = 1
         self.eoc_ln_df = eoc_ln_df
 
-        log.debug("self.eoc_ln_df\n%s", self.eoc_ln_df)
+        self.log.debug("self.eoc_ln_df\n%s", self.eoc_ln_df)
         self.set_description(
             model,
             f"{self.eoc_ln_df=}".split("=")[0],
@@ -161,9 +165,11 @@ class Resource(Base):
             index=self.label["Pop Level"],
             columns=self.label["Resource"],
         )
-        log.debug(f"{safety_stock_days_ln_df=}")
-        self.set_stockpile(model.population.level_total_demand_ln_df,
-                           safety_stock_days_ln_df=safety_stock_days_ln_df)
+        self.log.debug(f"{safety_stock_days_ln_df=}")
+        self.set_stockpile(
+            model.population.level_total_demand_ln_df,
+            safety_stock_days_ln_df=safety_stock_days_ln_df,
+        )
 
     def set_stockpile(
         self,
@@ -180,23 +186,25 @@ class Resource(Base):
                 index=self.label["Pop Level"],
                 columns=self.label["Resource"],
             )
-            log.debug("Safety_stock_days_ln_df\n%s", safety_stock_days_ln_df)
+            self.log.debug(
+                "Safety_stock_days_ln_df\n%s", safety_stock_days_ln_df
+            )
 
-        log.debug(
+        self.log.debug(
             "Population Level Total Demand\n%s", level_total_demand_ln_df
         )
         # need to do a dot product
         new_safety_stock_ln_df = (
             level_total_demand_ln_df * safety_stock_days_ln_df.values
         )
-        log.debug("safety stock %s", new_safety_stock_ln_df)
+        self.log.debug("safety stock %s", new_safety_stock_ln_df)
         self.safety_stock(new_safety_stock_ln_df)
 
     def safety_stock(self, safety_stock_ln_df):
         """set or reset safety stock
         Triggers a reorder if needed
         """
-        log.debug("set safety_stock to\n%s", safety_stock_ln_df)
+        self.log.debug("set safety_stock to\n%s", safety_stock_ln_df)
         self.safety_stock_ln_df = safety_stock_ln_df
         self.supply_order()
 
@@ -212,7 +220,7 @@ class Resource(Base):
         order_ln_df[order_ln_df < 0] = 0
         # now gross up the order to the economic order quantity
         order_ln_df = self.round_up_to_eoc(order_ln_df)
-        log.debug("supply order\n%s", order_ln_df)
+        self.log.debug("supply order\n%s", order_ln_df)
         self.fulfill(order_ln_df)
 
     # https://stackoverflow.com/questions/2272149/round-to-5-or-other-number-in-python
@@ -231,9 +239,9 @@ class Resource(Base):
         """Fulfill an order form supplier
         This is a stub in that all orders are immediatley fulfilled
         """
-        log.debug("fulfilled immediately\n%s", order_ln_df)
+        self.log.debug("fulfilled immediately\n%s", order_ln_df)
         self.inventory_ln_df += order_ln_df
-        log.debug("inventory\n%s", self.inventory_ln_df)
+        self.log.debug("inventory\n%s", self.inventory_ln_df)
 
     def demand(self, demand_ln_df):
         """Demand for resources

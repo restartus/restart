@@ -2,14 +2,13 @@
 """
 # https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html
 # note that the type ignor and noqa lines are space sensitive
-import logging  # noqa: F401
+import logging
 import pandas as pd  # type: ignore # noqa: F401
 import numpy as np  # type: ignore # noqa: F401
 from base import Base
 from model import Model
-from util import set_logger
 
-log = set_logger(__name__)
+log = logging.getLogger(__name__)
 
 
 class Economy(Base):
@@ -31,3 +30,8 @@ class Economy(Base):
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__()
+
+        # create a sublogger if a root exists in the model
+        self.log = log
+        if model.log_root is not None:
+            self.log = model.log_root.class_log(self)

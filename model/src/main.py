@@ -130,7 +130,7 @@ def main():
         model.population.level_total_cost_ln_df,
     )
 
-    for s in [30, 60, 90]:
+    for s in [3, 6, 9]:
         print(f"changing stockpile to {s=}")
         model.resource.set_stockpile_days(model, s)
         print(f"{model.resource.safety_stock_ln_df=}")

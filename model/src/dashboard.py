@@ -69,10 +69,10 @@ def dashboard():
         ["Tables", "Home", "Test Home", "Exploration", "Test Tables"],
     )
 
-    stockpile = st.sidebar.slider("Stockpile", max_value=120, value=30)
-    log.debug(f"{stockpile=}")
+    stockpile_days = st.sidebar.slider("Stockpile", max_value=120, value=30)
+    log.debug(f"{stockpile_days=}")
 
-    model.resource.stockpileDays(stockpile)
+    model.resource.set_stockpile_days(model, stockpile_days)
 
     if page == "Home":
         homePage(model)

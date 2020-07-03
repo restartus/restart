@@ -6,9 +6,9 @@ import pandas as pd  # type: ignore # noqa: F401
 import numpy as np  # type: ignore # noqa: F401
 from base import Base
 from model import Model
-from util import setLogger
+from util import set_logger
 
-LOG = setLogger(__name__)
+LOG = set_logger(__name__)
 
 
 class Disease(Base):

@@ -5,7 +5,7 @@ import logging
 
 
 # https://stackoverflow.com/questions/40387735/why-does-not-logging-of-debug-level-output-anything
-def setLogger(name: str, level=logging.WARNING):
+def set_logger(name: str, level=logging.WARNING):
     """Set logging parameters
     So they are just right and then set the logging level too
     """

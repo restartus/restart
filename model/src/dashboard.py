@@ -10,7 +10,7 @@
 # has more ways to do selects and tables
 #
 """
-import logging
+import logging  # noqa: F401
 
 # https://mypy.readthedocs.io/en/latest/existing_code.html
 import pandas as pd  # type:ignore
@@ -18,17 +18,11 @@ import altair as alt  # type:ignore
 import streamlit as st  # type:ignore
 from base import Base
 from main import main
+from util import set_logger
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 # logging.basicConfig(level=logging.DEBUG,
-log = logging.getLogger(__name__)
-log.setLevel(logging.WARNING)
-# log.setLevel(logging.DEBUG)
-stream = logging.StreamHandler()
-# stream.setLevel(logging.DEBUG)
-fmt = logging.Formatter("{filename}:{lineno} {message}", style="{")
-stream.setFormatter(fmt)
-log.addHandler(stream)
+log = set_logger(__name__)
 
 log.debug("test")
 
@@ -71,12 +65,14 @@ def dashboard():
     """
     )
     page = st.sidebar.selectbox(
-        "Choose page", ["Tables", "Home", "Test Home", "Exploration",
-                        "Test Tables"]
+        "Choose page",
+        ["Tables", "Home", "Test Home", "Exploration", "Test Tables"],
     )
 
     stockpile = st.sidebar.slider("Stockpile", max_value=120, value=30)
-    log.debug(f"stockpile = {stockpile}")
+    log.debug(f"{stockpile=}")
+
+    model.resource.stockpileDays(stockpile)
 
     if page == "Home":
         homePage(model)

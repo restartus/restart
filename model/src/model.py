@@ -6,9 +6,9 @@ from typing import List, Dict
 from base import Base
 
 import logging  # noqa: F401
-from util import setLogger
+from util import set_logger
 
-log = setLogger(__name__)
+log = set_logger(__name__)
 # https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
 log.debug("in %s", __name__)
 

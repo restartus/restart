@@ -24,14 +24,14 @@ from economy import Economy
 from disease import Disease
 from behavioral import Behavioral
 from base import Base
-from util import setLogger
+from util import set_logger
 
 # This is the only way to get it to work needs to be in main
 # https://www.programcreek.com/python/example/192/logging.Formatter
 # the confit now seems to work
 
-# log = setLogger(__name__, level=logging.DEBUG)
-log = setLogger(__name__)
+# log = set_logger(__name__, level=logging.DEBUG)
+log = set_logger(__name__)
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 log.debug(f"name {__name__}")
@@ -82,7 +82,7 @@ def main():
         if isinstance(value, Base):
             log.debug(f"object {name} holds {value} subclass of Base")
 
-    model.resource.stockpile(model.population.level_total_demand_ln_df)
+    model.resource.set_stockpile(model.population.level_total_demand_ln_df)
     log.debug("Safety stock\n%s", model.resource.safety_stock_ln_df)
 
     # create the resource object that is p populations and n items
@@ -130,6 +130,11 @@ def main():
         model.population.level_total_cost_ln_df,
     )
 
+    for s in [30, 60, 90]:
+        print(f"changing stockpile to {s=}")
+        model.resource.set_stockpile_days(model, s)
+        print(f"{model.resource.safety_stock_ln_df=}")
+        print(f"{model.resource.inventory_ln_df=}")
     return model
 
 

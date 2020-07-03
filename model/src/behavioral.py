@@ -5,9 +5,9 @@ import pandas as pd  # type: ignore # noqa: F401
 import numpy as np  # type: ignore # noqa: F401
 from base import Base
 from model import Model
-from util import setLogger
+from util import set_logger
 
-log = setLogger(__name__)
+log = set_logger(__name__)
 
 
 class Behavioral(Base):

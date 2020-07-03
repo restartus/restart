@@ -9,10 +9,10 @@ import pandas as pd  # type:ignore
 from base import Base
 from model import Model
 
-import logging
-from util import setLogger
+import logging  # noqa: F401
+from util import set_logger
 
-log = setLogger(__name__)
+log = set_logger(__name__)
 log.debug("In %s", __name__)
 
 
@@ -89,7 +89,7 @@ class Population(Base):
         self.attr_pd_df = attr_pd_df
         log.debug("self.attr_pd\n%s", self.attr_pd_df)
 
-        self.setDescription(
+        self.set_description(
             model,
             f"{attr_pd_df=}".split("=")[0],
             """
@@ -115,7 +115,7 @@ ethnicity, attitudes and awareness behaviors
         # https://docs.python.org/3/library/pdb.html
         self.protection_pm_df = protection_pm_df
         log.debug("self.protection_pm_df %s", self.protection_pm_df)
-        self.setDescription(
+        self.set_description(
             model,
             f"{self.protection_pm_df=}".split("=")[0],
             """
@@ -148,7 +148,7 @@ level for the burn rates
         self.res_demand_mn_df = res_demand_mn_df
         # for compatiblity both the model and the object hold the same
         # description
-        self.setDescription(
+        self.set_description(
             model,
             f"{res_demand_mn_df=}".split("=")[0],
             """
@@ -163,7 +163,7 @@ level for the burn rates
         self.demand_pn_df = self.protection_pm_df @ self.res_demand_mn_df
         log.debug("population.demand_pn_df %s", self.demand_pn_df)
 
-        self.setDescription(
+        self.set_description(
             model,
             f"{self.demand_pn_df=}".split("=")[0],
             """
@@ -185,7 +185,7 @@ level for the burn rates
         self.level_pl_df = level_pl_df
         log.debug("level_pl_df\n%s", self.level_pl_df)
 
-        self.setDescription(
+        self.set_description(
             model,
             f"{level_pl_df=}".split("=")[0],
             """
@@ -203,7 +203,7 @@ level for the burn rates
         name = "level_demand_ln_df"
         log.debug(f"{name}\n%s", self.level_demand_ln_df)
 
-        self.setDescription(
+        self.set_description(
             model,
             f"{self.level_demand_ln_df=}".split("=")[0],
             """
@@ -220,7 +220,7 @@ level for the burn rates
         )
         log.debug("total_demand_pn_df\n%s", self.total_demand_pn_df)
         # convert to demand by levels note we have to transpose
-        self.setDescription(
+        self.set_description(
             model,
             f"{self.total_demand_pn_df=}".split("=")[0],
             """
@@ -236,7 +236,7 @@ level for the burn rates
         log.debug(
             "level_total_demand_ln_df\n%s", self.level_total_demand_ln_df
         )
-        self.setDescription(
+        self.set_description(
             model,
             f"{self.level_total_demand_ln_df=}".split("=")[0],
             """
@@ -248,7 +248,7 @@ level for the burn rates
 
         # set to null to make pylint happy and instatiate the variable
         self.level_total_cost_ln_df = None
-        self.setDescription(
+        self.set_description(
             model,
             f"{self.level_total_cost_ln_df=}".split("=")[0],
             """

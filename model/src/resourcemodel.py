@@ -5,10 +5,9 @@ import logging
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
 from base import Base
-from util import setLogger
+from util import set_logger
 
-log = setLogger(__name__)
-log.setLevel(logging.WARNING)
+log = set_logger(__name__, level=logging.DEBUG)
 
 
 class Resource(Base):
@@ -64,7 +63,7 @@ class Resource(Base):
         self.attr_na_arr = attr_na_df.values
         self.attr_na_df = attr_na_df
         log.debug(f"{self.attr_na_df=}")
-        self.setDescription(
+        self.set_description(
             model,
             f"{self.attr_na_df=}".split("=")[0],
             """
@@ -84,7 +83,7 @@ class Resource(Base):
         self.cost_ln_arr = cost_ln_df.values
         self.cost_ln_df = cost_ln_df
         log.debug("self.cost_ln_df\n%s", self.cost_ln_df)
-        self.setDescription(
+        self.set_description(
             model,
             f"{cost_ln_df=}".split("=")[0],
             """
@@ -102,7 +101,7 @@ class Resource(Base):
             )
         self.inventory_ln_df = initial_inventory_ln_df
         log.debug("self.inventory_ln_df\n%s", self.inventory_ln_df)
-        self.setDescription(
+        self.set_description(
             model,
             f"{self.inventory_ln_df=}".split("=")[0],
             """
@@ -114,16 +113,20 @@ class Resource(Base):
 
         if eoc_ln_df is None:
             # default eoc is 2
-            eoc_ln_arr = np.ones((self.dim["l"], self.dim["n"])) * 2
+            eoc_ln_arr = np.ones((self.dim["l"], self.dim["n"])) * 100
             log.debug("eoc_ln_arr\n%s", eoc_ln_arr)
             eoc_ln_df = pd.DataFrame(
                 eoc_ln_arr,
                 index=self.label["Pop Level"],
                 columns=self.label["Resource"],
             )
+        # EOC must be one or more
+        # you can not do this
+        eoc_ln_df[eoc_ln_df < 1] = 1
         self.eoc_ln_df = eoc_ln_df
+
         log.debug("self.eoc_ln_df\n%s", self.eoc_ln_df)
-        self.setDescription(
+        self.set_description(
             model,
             f"{self.eoc_ln_df=}".split("=")[0],
             """## Economic Order Quantity
@@ -135,7 +138,7 @@ class Resource(Base):
         if safety_stock_ln_df is None:
             safety_stock_ln_df = initial_inventory_ln_df
         self.safety_stock(safety_stock_ln_df)
-        self.setDescription(
+        self.set_description(
             model,
             f"{self.safety_stock_ln_df=}".split("=")[0],
             """## Safety Stock
@@ -144,10 +147,32 @@ class Resource(Base):
         """,
         )
 
-    def stockpile(self, level_total_demand_ln_df, safety_stock_days_df=None):
+    def set_stockpile_days(self, model, days: int):
+        """Set stockpile days for all resources
+        A helper function which spreads the days across all populations nad all
+        columns
+        """
+        # new in Python 3.6
+        safety_stock_days_ln_df = pd.DataFrame(
+            days
+            * np.ones(
+                (len(self.label["Pop Level"]), len(self.label["Resource"]))
+            ),
+            index=self.label["Pop Level"],
+            columns=self.label["Resource"],
+        )
+        log.debug(f"{safety_stock_days_ln_df=}")
+        self.set_stockpile(model.population.level_total_demand_ln_df,
+                           safety_stock_days_ln_df=safety_stock_days_ln_df)
+
+    def set_stockpile(
+        self,
+        level_total_demand_ln_df,
+        safety_stock_days_ln_df: pd.DataFrame = None,
+    ):
         """Set a stock pile in days of demand
         """
-        if safety_stock_days_df is None:
+        if safety_stock_days_ln_df is None:
             # place holder just 30 days for essential
             safety_stock_days_ln_arr = np.array([[30, 30], [0, 0]])
             safety_stock_days_ln_df = pd.DataFrame(
@@ -196,6 +221,10 @@ class Resource(Base):
         """
         # So take the order and then get the distance to the eoc
         # by using modulo
+        # https://stackoverflow.com/questions/50767452/check-if-dataframe-has-a-zero-element
+        # https://numpy.org/doc/stable/reference/generated/numpy.any.html
+        assert np.any(self.eoc_ln_df > 0), "EOC should never be less than 1"
+        assert np.any(order_ln_df >= 0), "Orders should be never be negative"
         return order_ln_df + (self.eoc_ln_df - order_ln_df) % self.eoc_ln_df
 
     def fulfill(self, order_ln_df):

@@ -158,11 +158,45 @@ Then you can use `pytest-cov` to make sure you are covering all branches.
 If you install tox then you can have multiple runners which will be faster. 
 
 
-### Passive test tools
+### Passive test tools: Linting
 
 These are really easy to add as part of a github actions, they are and to a
-CD/CI pipeline
+CD/CI pipeline. But first some notes on linting
 
+[Real Python](https://realpython.com/python-code-quality/) explains the
+differences
+  - PEP 8 are the coding conventions
+  - PEP 257 covers docstrings (which can then generate document with pydocs)
+
+The main linters are
+  - Flake8 -  Includes pyflakes, pycodestyle, Mccabe
+  - Pylama - Include pycodestytle, pydocstyle, PyFlakes, Mccabe, Pylint, Radon,
+    gslint
+  - MyPy - Adds static typing checking
+  - Bandit - check for common security issues
+  - Mccabe - calculates code complexity
+  - Black - Reformatter
+
+In vim if you are using this [Syntastic](https://github.com/vim-syntastic/syntastic) then
+you can use a bunch of different
+[linters](https://github.com/vim-syntastic/syntastic/tree/master/syntax_checkers/python)
+at development time.
+  - bandit - security check
+  - flake8  - See above
+  - frosted - 
+  - mypy - 
+  - pep257 - 
+  - pep8 -
+  - prospector -
+  - py3kwarn -
+  - pycodestyle -
+  - pydocstyle -
+  - pyflakes -
+  - pylama -
+  - pylint -
+  - python -
+
+### Running linters
 ```
 # looks in CWD for all python files
 # if using pipenv

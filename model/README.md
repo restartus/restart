@@ -12,6 +12,8 @@ This is the visual display demo using streamlit. Filled with dummy data
 - [model](model) The current v2 model
 - [logging](logging). Experiments in building a robust logging system that works
   across streamlit and command line
+- [altair](altair). Studies of using the Altair plotting interface to Vegas-lite
+  
 
 ## Model that is the real python model first using streamlit as a demo v0.1
 

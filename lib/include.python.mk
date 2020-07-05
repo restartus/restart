@@ -105,8 +105,19 @@ pipenv-existing:
 .PHONY: doc
 doc:
 	@# cd .. && PYTHONPATH="." pdoc --html src --output-dir docs
-	pipenv run pdoc --html --output $(DOC) $(MAIN)
-	pipenv run pdoc --html --output $(DOC)/web $(WEB)
+	pipenv run pdoc --force --html --output $(DOC) $(MAIN)
+	pipenv run pdoc --force --html --output $(DOC)/web $(WEB)
+
+## doc-debug: run web server to look at docs (uses pipenv)
+.PHONY: doc-debug
+doc-debug: 
+	@echo browse to http://localhost:8080 and CTRL-C when done
+	pipenv run pdoc --http : $(DOC)
+## doc-web-debug: run web server to look at web app docs (uses pipenv)
+.PHONY: doc-debug-web
+doc-debug-web:
+	@echo browse to http://localhost:8080 and CTRL-C when done
+	pipenv run pdoc --http : $(WEB)
 
 ## lint: run static tests (uses pipenv)
 .PHONY: lint

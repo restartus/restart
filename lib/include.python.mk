@@ -1,5 +1,7 @@
 #
-# mainMinimal include (does not include docker commands
+## Python Makefile template (install python 3.8 and test tools)
+## Configure by setting PIP for pip packages and optionally name
+## 
 #
 # Remember makefile *must* use tabs instead of spaces so use this vim line
 #
@@ -8,11 +10,11 @@
 # If you want to refer to shell variables, you must make it one virtual line
 # http://stackoverflow.com/questions/10121182/multiline-bash-commands-in-makefile
 #
-# The makefiles are self documenting, you use two leading ## for make help to
-# produce output
+# The makefiles are self documenting, you use two leading
+# for make help to produce output
 #
 # These should be overridden in the makefile that includes this, but this sets
-# defaults use ## to add comments when running make help
+# defaults use to add comments when running make help
 # 
 # Two entry points in MAIN and WEB
 repo ?= restartus
@@ -32,7 +34,8 @@ MAIN ?= main.py
 WEB ?= dashboard.py
 flags ?= -p 8501:8501
 PIP ?= streamlit altair pandas
-PIP_DEV ?= --pre flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox
+PIP_DEV ?= --pre pdoc3 flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox
+DOC ?= doc
 
 
 .DEFAULT_GOAL := help
@@ -40,16 +43,13 @@ PIP_DEV ?= --pre flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox
 .PHONY: help
 # https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html does not
 # work because we use an include file
-# https://swcarpentry.github.io/make-novice/08-self-doc/ is simpler just need ##
+# https://swcarpentry.github.io/make-novice/08-self-doc/ is simpler just need
 # and it dumpes them out relies on the variable MAKEFILE_LIST which is a list of
 # all files note we do not just use $< because this is an include.mk file 
 help: $(MAKEFILE_LIST)
 	@sed -n 's/^##//p' $(MAKEFILE_LIST)
 
-##
-## pipenv based running (for debugging)
-## ------------------------------------
-## main: run in pipenv
+## main: run in pipenv 
 .PHONY: main
 main:
 	pipenv run python $(MAIN)
@@ -67,25 +67,22 @@ web:
 # https://pipenv.pypa.io/en/latest/install/
 # https://realpython.com/pipenv-guide/
 # install everything including things just needed for edevelopment
-## pipenv-recreate: Install with pipenv as virtual environment from scratch
+## pipenv: Install with pipenv as virtual environment (runs pipenv-clean first)
 # Note that black is still prelease so need --pre
 # pipenv clean removes all packages not in the virtual environment
-.PHONY: pipenv-recreate
-pipenv-recreate:
-	@echo you should install with pip install pipenv and then pipenv shell
+.PHONY: pipenv
+pipenv: pipenv-python
 	pipenv install --dev $(PIP_DEV)
 	pipenv install $(PIP)
 	pipenv lock
 
-## pipenv: craete pipenv from the existing Pipfile
-pipenv:
-	pipenv install
-
-## latest: Install latest python 3.x for bleeding edge features
-.PHONY: latest
-latest:	pipenv-clean
-	@echo lastet is currently python 3.8
+## pipenv-python: Install latest python 3.x for bleeding edge features
+.PHONY: pipenv-python
+pipenv-python:	pipenv-clean
+	@echo python is currently python 3.8
 	@echo note do not use requirements.txt as it will read it by default
+	@echo get the latest python
+	brew upgrade python@3.8
 	PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --python /usr/local/opt/python@3.8/bin/python3
 	pipenv clean
 
@@ -97,13 +94,21 @@ pipenv-clean:
 	pipenv --rm || true
 	rm Pipfile* || true
 
-## pypi: push the package to the Python library
-.PHONY: pypi
-pypi:
-	pipenv run python setup.py register -r pypi
-	pipenv run python setup.py sdit upload -r pypi
+## pipenv-existing: bootstart from existing Pipfile in directory
+.PHONY: pipenv-existing
+pipenv-existing:
+	pipenv install
 
-## lint: run static tests
+# https://medium.com/@Tankado95/how-to-generate-a-documentation-for-python-code-using-pdoc-60f681d14d6e
+# https://medium.com/@peterkong/comparison-of-python-documentation-generators-660203ca3804
+## doc: make the documentation for the Python project (uses pipenv)
+.PHONY: doc
+doc:
+	@# cd .. && PYTHONPATH="." pdoc --html src --output-dir docs
+	pipenv run pdoc --html --output $(DOC) $(MAIN)
+	pipenv run pdoc --html --output $(DOC)/web $(WEB)
+
+## lint: run static tests (uses pipenv)
 .PHONY: lint
 lint:
 	pipenv check
@@ -113,21 +118,21 @@ lint:
 	pipenv run bandit -r $(MAIN)
 	@echo if you want destructive formatting run make format
 
-## lint-web: run for web interface
+## lint-web: run for web interface (uses pipenv)
 .PHONY: lint-web
 lint-web:
 	pipenv run mypy $(WEB)
 	pipenv run bandit -r $(WEB)
 
 
-## format: reformat python code to standard
+## format: reformat python code to standard (uses pipenv)
 .PHONY: format
 format: 
 	# the default is 88 but pyflakes wants 79
 	pipenv run black -l 79 *.py
 
 # https://docs.python.org/3/library/pdb.html
-## pdb: run locally with python to test components from main (depreceated use pipenv)
+## pdb: run locally with python to test components from main (uses pipenv)
 .PHONY: pdb
 pdb:
 	pipenv run python -m pdb $(MAIN)
@@ -137,11 +142,15 @@ web-pdb:
 	pipenv run python -m pdb $(WEB)
 
 
-## requirements: Freeze Python requirements in bare machine (deprecated use pipenv)
+## pypi: push the package to the Python library (uses pipenv)
+.PHONY: pypi
+pypi:
+	pipenv run python setup.py register -r pypi
+	pipenv run python setup.py sdit upload -r pypi
 
 ##
-## The bare metal python and conda work is deprecated, please use pipenv
-## ---------------------------------------------------------------------
+## The bare metal python and conda work is deprecated, please use pipenv:
+## requirements: Freeze Python requirements in bare machine (deprecated use pipenv)
 .PHONY: requirements
 requirements:
 	@echo WARNING requirements not compatible with pipenv so do not create if using pipenv
@@ -168,8 +177,7 @@ conda-activate:
 	@echo run \"conda activate model\"
 
 ##
-## docker installation (for deployments)
-## -------------------------------------
+## docker installation (for deployments):
 ## docker: pull docker image and builds locally along with tag with git sha
 docker: 
 	docker build --pull --build-arg USER=$(user) -f $(Dockerfile) -t $(image) .
@@ -250,11 +258,3 @@ resume:
 ## rm-images: remove docker images
 rm-images:
 	$(for_containers) $(container) exec find $(data) -type f -delete
-
-##
-# https://medium.com/@Tankado95/how-to-generate-a-documentation-for-python-code-using-pdoc-60f681d14d6e
-## doc: make the documentation for the Python project
-##
-.PHONY: doc
-doc:
-	cd .. && PYTHONPATH="." pdoc --html src --output-dir docs

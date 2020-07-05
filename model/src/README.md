@@ -7,6 +7,12 @@ container
 
 https://realpython.com/pipenv-guide/
 
+# A note on usage
+
+If you are editing with an editor like vim which uses the external python
+environment for checking, make sure you run `pipenv shell` so that you get the
+correct version of python. 
+
 # Installation
 
 Here are the notes on installation, there are three ways to run this project.

@@ -4,6 +4,7 @@ Main the class
 """
 
 # Note that pip install data-science-types caused errors
+from typing import List
 import numpy as np  # type:ignore
 import pandas as pd  # type:ignore
 from base import Base
@@ -58,6 +59,23 @@ class Population(Base):
     but for now it is a dictionary
     """
 
+    # These are the default structures
+    attr_pd_arr = np.array([735.2, 7179.6])
+    protection_pm_arr = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5],
+                                  [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
+
+    res_demand_mn_arr = np.array(
+                [
+                    [0, 1],
+                    [0, 2],
+                    [0, 2],
+                    [0.1, 3],
+                    [0.2, 4],
+                    [0.3, 6],
+                    [1.18, 0],
+                ]
+            )
+
     def __init__(
         self,
         model: Model,
@@ -83,16 +101,15 @@ class Population(Base):
         # https://kite.com/python/answers/how-to-make-a-numpy-array-a-column-vector-in-python
         # A shortcut
         if attr_pd_df is None:
-            attr_pd_arr = np.array([735.2, 7179.6])
             attr_pd_df = pd.DataFrame(
-                attr_pd_arr,
+                self.attr_pd_arr,
                 index=model.label["Population"],
                 columns=model.label["Pop Detail"],
             )
-
         self.attr_pd_df = attr_pd_df
-        log.debug("self.attr_pd\n%s", self.attr_pd_df)
-        self.log.debug("self.attr_pd\n%s", self.attr_pd_df)
+        self.attr_pd_arr = self.attr_pd_df.values
+
+        self.log.debug(f"{self.attr_pd_df=}")
 
         self.set_description(
             model,
@@ -107,19 +124,15 @@ ethnicity, attitudes and awareness behaviors
 
         # set the population by demand levels
         if protection_pm_df is None:
-            protection_pm_arr = np.zeros((model.dim["p"], model.dim["m"]))
-            protection_pm_arr[0, -1] = 0.5
-            protection_pm_arr[0, -2] = 0.5
-            protection_pm_arr[1, 1] = 1.0
-            log.debug("protection_pm_arr %s", protection_pm_arr)
-            protection_pm_df = pd.DataFrame(
-                protection_pm_arr,
+            self.log.debug(f"no protection_pm_df using {self.protection_pm_arr=}")
+            self.protection_pm_df = pd.DataFrame(
+                self.protection_pm_arr,
                 index=model.label["Population"],
                 columns=model.label["Pop Protection"],
             )
         # https://docs.python.org/3/library/pdb.html
         self.protection_pm_df = protection_pm_df
-        log.debug("self.protection_pm_df %s", self.protection_pm_df)
+        self.protection_pm_arr = self.protection_pm_df.values
         self.log.debug("self.protection_pm_df %s", self.protection_pm_df)
         self.set_description(
             model,
@@ -134,24 +147,15 @@ level for the burn rates
         # note these are defaults for testing
         # this is the protection level and the burn rates for each PPE
         if res_demand_mn_df is None:
-            res_demand_mn_arr = np.array(
-                [
-                    [0, 1],
-                    [0, 2],
-                    [0, 2],
-                    [0.1, 3],
-                    [0.2, 4],
-                    [0.3, 6],
-                    [1.18, 0],
-                ]
-            )
-            log.debug("res_demand_mn_arr %s", res_demand_mn_arr)
+            self.log.debug("no res_demand_mn_df using {res_demand_mn_arr=}")
             res_demand_mn_df = pd.DataFrame(
-                res_demand_mn_arr,
+                self.res_demand_mn_arr,
                 index=model.label["Pop Protection"],
                 columns=model.label["Resource"],
             )
         self.res_demand_mn_df = res_demand_mn_df
+        self.res_demand_mn_arr = self.res_demand_mn_df.values
+
         # for compatiblity both the model and the object hold the same
         # description
         self.set_description(
@@ -273,3 +277,18 @@ level for the burn rates
         self.log.debug(
             "level_total_cost_ln_df\n%s", self.level_total_cost_ln_df
         )
+
+    # this works because python is call by assignment
+    # so immutables are call by value but mutales like dataframes and numpy
+    # arrays are call by reference
+    def set_dataframe(self, input_df: pd.DataFrame,
+                      default_arr: np.array,
+                      index: List[str] = None,
+                      columns: List[str] = None) -> pd.DataFrame:
+        if input_df is None:
+            self.log.debug(f"no input_df, using {default_arr=}")
+            input_df = pd.DataFrame(default_arr,
+                                     index=index,
+                                     columns=columns,
+                                     )
+        return input_df, input_df.values

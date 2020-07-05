@@ -1,0 +1,26 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+flake8 = "*"
+mypy = "*"
+bandit = "*"
+black = "*"
+tox = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-xdist = "*"
+
+[packages]
+streamlit = "*"
+altair = "*"
+pandas = "*"
+pdoc3 = "*"
+
+[requires]
+python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true

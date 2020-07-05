@@ -17,6 +17,8 @@
 # defaults use to add comments when running make help
 # 
 # Two entry points in MAIN and WEB
+# https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
+SHELL :- /bin/bash
 repo ?= restartus
 name ?= $$(basename "$(PWD)")
 Dockerfile ?= Dockerfile
@@ -33,8 +35,8 @@ user ?= $$USER
 MAIN ?= main.py
 WEB ?= dashboard.py
 flags ?= -p 8501:8501
-PIP ?= streamlit altair pandas
-PIP_DEV ?= --pre pdoc3 flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox
+PIP ?= streamlit altair pandas pyhaml
+PIP_DEV ?= --pre pdoc3 flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox yamllint
 DOC ?= doc
 
 
@@ -127,6 +129,9 @@ lint:
 	pipenv run mypy $(MAIN)
 	pipenv run flake8
 	pipenv run bandit -r $(MAIN)
+	pydocstyle
+	# lint the yaml config files and kill the error if it doesn't exist
+	find *.yaml && yamllint *.yaml || true
 	@echo if you want destructive formatting run make format
 
 ## lint-web: run for web interface (uses pipenv)

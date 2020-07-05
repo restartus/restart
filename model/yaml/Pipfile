@@ -12,12 +12,15 @@ tox = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-xdist = "*"
+python-language-server = {extras = ["all"], version = "*"}
+yamllint = "*"
 
 [packages]
 streamlit = "*"
 altair = "*"
 pandas = "*"
 pdoc3 = "*"
+pyyaml = "*"
 
 [requires]
 python_version = "3.8"

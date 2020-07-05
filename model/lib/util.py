@@ -70,7 +70,7 @@ class Log:
         log = logging.getLogger(module_log_name)
         return log
 
-    def test_log(self, log):
+    def test(self, log):
         """Test all log messages emitted.
 
         Testing code run this to make sure all levels are used

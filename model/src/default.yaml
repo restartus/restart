@@ -24,14 +24,16 @@ Label:
   "Resource Attributes_a":
     - Units
     - Volume
-  "Population Details_d":
-    - Count
+  "Population Details_d:"
+    - Size
     - Cases
+
 ---
 # http://yaml4r.sourceforge.net/doc/page/collections_in_yaml.htm
 # https://pyyaml.org/wiki/PyYAMLDocumentation
-Resource:
-  Attribute_pa:
+resource:
+  attribute_pa:
+  attribute_pa:
     - - 1
       - 3
       - 1.5

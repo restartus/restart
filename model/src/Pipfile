@@ -4,6 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pdoc3 = "*"
 flake8 = "*"
 mypy = "*"
 bandit = "*"
@@ -12,6 +13,7 @@ tox = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-xdist = "*"
+yamllint = "*"
 
 [packages]
 streamlit = "*"

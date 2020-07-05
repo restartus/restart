@@ -1,9 +1,12 @@
-"""
-MOdel definition
+"""Define Model definition.
+
+The model shape is configured here.
 https://www.w3schools.com/python/python_classes.asp
 """
-from typing import List, Dict, Any
+from typing import Dict, Optional
 from base import Base
+from util import Log
+from config import Config
 
 import logging  # noqa: F401
 
@@ -41,10 +44,10 @@ class Model(Base):
     # https://stackoverflow.com/questions/2…
     # do not do default assignment, it remembers it on eash call
     # https://docs.python.org/3/library/typing.html
-    def __init__(
-        self, name, label: Dict[str, List[str]] = None, log_root: Any = None
-    ):
-        """Initialize the model
+    def __init__(self, name, config: Config, log_root: Optional[Log] = None):
+        """Initialize the model.
+
+        Use the config dictionary to configure the most
         """
         # the long description of each
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
@@ -55,30 +58,8 @@ class Model(Base):
             self.log_root = log_root
             self.log = log_root.class_log(self)
 
-        if label is None:
-            label = {
-                "Resource": ["N95", "ASTM3"],
-                "Res Attribute": ["Units", "Dimensions"],
-                "Res Supply": ["Days"],
-                "Population": [
-                    "Healthcare workers",
-                    "Non-heathcare employees",
-                ],
-                "Pop Detail": ["People"],
-                "Pop Protection": [
-                    "WA0",
-                    "WA1",
-                    "WA2",
-                    "WA3",
-                    "WA4",
-                    "WA5",
-                    "WA6",
-                ],
-                "Pop Level": ["Essential", "Non-essential"],
-            }
-
         self.name: str = name
-        self.label: Dict[str, List[str]] = label
+        self.label = config.model["Label"]
 
         print(f"{self.name=} {self.label=}")
         log.debug(f"{self.name=} {self.label=}")

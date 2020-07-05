@@ -18,6 +18,7 @@ import logging  # noqa:F401
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
 from util import Log
+from config import Config
 from model import Model
 from resourcemodel import Resource
 from population import Population
@@ -60,14 +61,21 @@ def main():
     And if you make a change to any, the model will automatically recalc
     everything
     """
-    name = "test"
+    name = "bharat"
     # set up the logging
     log_root = Log(name)
-    new_log = log_root.log
-    log_root.test_log(new_log)
+    # Set all the loggers the same
+    log = new_log = log_root.log
+    # test that logging works
+    log_root.test(log)
+
+    # run the configuration load
+    config = Config()
+    log.debug(f"{config.parm=}")
+    log.debug(f"{config.model=}")
 
     # Static typing for custom classes
-    model: Model = Model(name, log_root=log_root)
+    model: Model = Model(name, config, log_root=log_root)
     new_log.debug("creating Population")
     log.debug("creating Population")
     model.population: Population = Population(model)

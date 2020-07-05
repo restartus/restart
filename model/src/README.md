@@ -13,6 +13,7 @@ If you are editing with an editor like vim which uses the external python
 environment for checking, make sure you run `pipenv shell` so that you get the
 correct version of python. 
 
+
 # Installation
 
 Here are the notes on installation, there are three ways to run this project.
@@ -49,6 +50,16 @@ hash -r
 
 And you may have to fix `PipFile` and bump the version to 3.8
 
+
+# Setting configuration files
+We have converted from inline to using configuration files
+
+[config.yaml](config.yaml) is the overall configuration
+[model.yaml](model.yaml) is the default place where you can place the entire
+model
+[default.yaml](default.yaml) is the location of the default configuration used
+for testing
+
 ## using it all with Vi
 
 Make sure that you are using the local files in the pipenv, so you want to run
@@ -76,9 +87,10 @@ another deterent so to get this running:
 ```
 brew install pipenv
 make pipenv
-make python
+main line
+make main
 make web
-```
+````
 
 ## Running in a Docker container
 

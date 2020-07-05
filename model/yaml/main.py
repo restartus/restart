@@ -5,11 +5,13 @@ http://zetcode.com/python/yaml/
 """
 import logging
 import yaml
-from typing import Optional, Dict, Iterator
+from typing import Optional, Dict, Generator, Iterator
+
 from util import Log
 
-log = logging.getLogger(__name__)
+old_log = logging.getLogger(__name__)
 root_log = Log(None)
+log = root_log.log
 
 
 def main():
@@ -17,13 +19,16 @@ def main():
 
     Figure out how to make YAML reading work
     """
-    print('hello world')
+    log.debug('hello world')
     log.critical(f'log.critical {__name__=}')
     c: Dict = config()
-    root_log.log.info(f'rootlog info hello {c=}')
-    model_data: Iterator = load_model()
-    for item in model_data:
-        root_log.log.debug(f'{item=}')
+    log.info(f'config returned {c=}')
+    model_data: Generator = load_model()
+    log.debug(f'returned {model_data=}')
+
+    for key, value in model_data.items():
+        log.critical(f'{key=} {value=}')
+        log.critical(f'{model_data[key]=}')
 
 
 def config(filename: Optional[str] = None) -> Optional[Dict]:
@@ -55,19 +60,21 @@ def load_model(filename: Optional[str] = None) -> Optional[Iterator]:
         filename = 'model.yaml'
     try:
         # https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
+        log.debug(f'opening {filename=}')
         with open(filename, 'r') as f:
             # model_data = yaml.load(f, Loader=yaml.FullLoader)
-            model_data = yaml.safe_load_all(f)
-            root_log.log.debug(f'{model_data=}')
+            model_data: Iterator = yaml.safe_load_all(f)
+            log.debug(f'{model_data=}')
             for d in model_data:
-                root_log.log.debug(f'{d=}')
+                log.debug(f'{d=}')
+            log.debug(f'{model_data[0]=}')
             return model_data
 
     except yaml.YAMLError as err:
-        root_log.log.debug(f'yaml error {err=} for {filename=}')
+        log.debug(f'yaml error {err=} for {filename=}')
         return None
     except IOError:
-        root_log.log.critical(f'No {filename=} exists')
+        log.critical(f'No {filename=} exists')
         return None
 
 

@@ -1,0 +1,6 @@
+# http://www.pydocstyle.org/en/5.0.2/usage.html
+# Use the google pydoc convention
+# you can skip all checks with the same notation as flake8 which is with noqa
+# https://numpydoc.readthedocs.io/en/latest/format.html
+[pydocstyle]
+convention = google

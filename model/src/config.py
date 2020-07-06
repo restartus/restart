@@ -1,4 +1,4 @@
-"""Read YAML files to get base configuration
+"""Read YAML files to get base configuration.
 
 Here is a test.
 http://zetcode.com/python/yaml/
@@ -24,7 +24,6 @@ class Config:
 
         Figure out how to make YAML reading work
         """
-
         self.root_log = Log(__name__)
         # override the local logger with the global one
         log = self.root_log.log
@@ -33,7 +32,7 @@ class Config:
         self.parm: Optional[Dict] = self.load(config_file)
         log.debug(f"{self.parm=}")
 
-        self.model: Optional[Dict] = self.load(model_file)
+        self.model = self.load(model_file)
         log.debug(f"{self.model=}")
 
     def load(self, filename: str) -> Optional[Dict]:

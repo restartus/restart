@@ -6,7 +6,6 @@ https://www.w3schools.com/python/python_classes.asp
 from typing import Dict, Optional
 from base import Base
 from util import Log
-from config import Config
 
 import logging  # noqa: F401
 
@@ -16,7 +15,8 @@ log.debug(f"in {__name__=}")
 
 
 class Model(Base):
-    """ Main model for planning
+    """Main model for planning.
+
     It sets the dimensionality of the problem and also the names of all the
     elements. Each subsystem will take the dimensions and names as inputs.
 
@@ -44,7 +44,7 @@ class Model(Base):
     # https://stackoverflow.com/questions/2…
     # do not do default assignment, it remembers it on eash call
     # https://docs.python.org/3/library/typing.html
-    def __init__(self, name, config: Config, log_root: Optional[Log] = None):
+    def __init__(self, name, config, log_root: Optional[Log] = None):
         """Initialize the model.
 
         Use the config dictionary to configure the most
@@ -56,14 +56,14 @@ class Model(Base):
         self.log = log
         if log_root is not None:
             self.log_root = log_root
-            self.log = log_root.class_log(self)
+            self.log = log_root.log_class(self)
+
+        log.debug(f"{config.model=}")
 
         self.name: str = name
-        self.label = config.model["Label"]
-
-        print(f"{self.name=} {self.label=}")
+        breakpoint()
+        self.label = config.model['Label']
         log.debug(f"{self.name=} {self.label=}")
-        self.log.debug(f"{self.name=} {self.label=}")
 
         # These are just as convenience functions for dimensions
         # and for type checking this is ugly should make it

@@ -36,7 +36,7 @@ MAIN ?= main.py
 WEB ?= dashboard.py
 flags ?= -p 8501:8501
 PIP ?= streamlit altair pandas pyhaml
-PIP_DEV ?= --pre pdoc3 flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox yamllint
+PIP_DEV ?= --pre pydocstyle pdoc3 flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox yamllint
 DOC ?= doc
 
 

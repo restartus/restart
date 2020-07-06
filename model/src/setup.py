@@ -1,7 +1,7 @@
 """Setuptools info for the model pip package
 """
 # https://micropyramid.com/blog/publishing-python-modules-with-pip-via-pypi/
-import setuptools
+import setuptools # noqa:
 
 with open("README.md", "r") as f:
     long_description = f.read()

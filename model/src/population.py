@@ -1,10 +1,10 @@
-"""
-Population class.
+"""Population class.
+
 Main the class
 """
 
 # Note that pip install data-science-types caused errors
-from typing import List
+from typing import List, Optional
 import numpy as np  # type:ignore
 import pandas as pd  # type:ignore
 from base import Base
@@ -17,8 +17,7 @@ log.debug("In %s", __name__)
 
 
 class Population(Base):
-    """
-    Population objects are created here.
+    """Population objects are created here.
 
     It has a default model in it for testing which is the Bharat model
     You should override it with a new child class
@@ -69,21 +68,21 @@ class Population(Base):
     )
 
     res_demand_mn_arr = np.array(
-        [[0, 1], [0, 2], [0, 2], [0.1, 3], [0.2, 4], [0.3, 6], [1.18, 0],]
+        [[0, 1], [0, 2], [0, 2], [0.1, 3], [0.2, 4], [0.3, 6], [1.18, 0]]
     )
 
     def __init__(
         self,
         model: Model,
-        attr_pd_df: pd.DataFrame = None,
-        protection_pm_df: pd.DataFrame = None,
-        res_demand_mn_df: pd.DataFrame = None,
-        level_pl_df: pd.DataFrame = None,
+        attr_pd_df: Optional[pd.DataFrame] = None,
+        protection_pm_df: Optional[pd.DataFrame] = None,
+        res_demand_mn_df: Optional[pd.DataFrame] = None,
+        level_pl_df: Optional[pd.DataFrame] = None,
     ):
         """Initialize all variables.
+
         All initialization here
         """
-
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         # to pick up the description
         super().__init__()
@@ -91,7 +90,7 @@ class Population(Base):
         # create a sublogger if a root exists in the model
         self.log = log
         if model.log_root is not None:
-            self.log = model.log_root.class_log(self)
+            self.log = model.log_root.log_class(self)
 
         # set the arrays of values should be a column vector
         # https://kite.com/python/answers/how-to-make-a-numpy-array-a-column-vector-in-python
@@ -123,14 +122,14 @@ ethnicity, attitudes and awareness behaviors
             self.log.debug(
                 f"no protection_pm_df using {self.protection_pm_arr=}"
             )
-            self.protection_pm_df = pd.DataFrame(
+            protection_pm_df = pd.DataFrame(
                 self.protection_pm_arr,
                 index=model.label["Population"],
                 columns=model.label["Pop Protection"],
             )
         # https://docs.python.org/3/library/pdb.html
-        self.protection_pm_df = protection_pm_df
-        self.protection_pm_arr = self.protection_pm_df.values
+        self.protection_pm_df: pd.DataFrame = protection_pm_df
+        self.protection_pm_arr = self.protection_pm_df.value
         self.log.debug("self.protection_pm_df %s", self.protection_pm_df)
         self.set_description(
             model,
@@ -267,7 +266,9 @@ level for the burn rates
         )
 
     def level_total_cost(self, cost_ln_df):
-        """Calculate the total cost of resource for a population level
+        """Calculate the total cost of resource for a population level.
+
+        The total cost of resources
         """
         self.level_total_cost_ln_df = (
             self.level_total_demand_ln_df * cost_ln_df.values
@@ -286,6 +287,10 @@ level for the burn rates
         index: List[str] = None,
         columns: List[str] = None,
     ) -> pd.DataFrame:
+        """Set the dataframe up.
+
+        Does the setup
+        """
         if input_df is None:
             self.log.debug(f"no input_df, using {default_arr=}")
             input_df = pd.DataFrame(default_arr, index=index, columns=columns,)

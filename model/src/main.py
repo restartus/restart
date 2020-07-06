@@ -1,9 +1,9 @@
-""" Restart.us Main Module
+"""Restart.us Main Module.
 
- Eventually this will become a class and we will
- keep the constants like names as private class variables
+Eventually this will become a class and we will
+keep the constants like names as private class variables
 
- https://stackoverflow.com/questions/20309456/call-a-function-from-another-file-in-python
+https://stackoverflow.com/questions/20309456/call-a-function-from-another-file-in-python
 
 """
 
@@ -40,7 +40,8 @@ log.info("hello world")
 
 
 def main():
-    """ Bootstrap the whole model creating all objects
+    """Bootstrap the whole model creating all objects.
+
     Bootstrap where each modules successively knows more about the world
     Population defines Pop_details[p,d], Pop_levels[p,l]
 

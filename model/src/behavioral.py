@@ -1,4 +1,6 @@
-""" Behavioral
+"""Behavioral Model.
+
+Behaviral modeling
 """
 import logging
 import pandas as pd  # type: ignore # noqa: F401
@@ -10,7 +12,7 @@ log = logging.getLogger(__name__)
 
 
 class Behavioral(Base):
-    """Governs how we act
+    """Governs how we act.
 
     This contains
     This uses https://realpython.com/documenting-python-code/
@@ -20,7 +22,7 @@ class Behavioral(Base):
     """
 
     def __init__(self, model: Model):
-        """Initialize the Economy object
+        """Initialize the Economy object.
 
         This uses the Frame object and populates it with default data unless yo
         override it
@@ -32,8 +34,7 @@ class Behavioral(Base):
         self.log = log
         self.model = model
         if model.log_root is not None:
-            self.log = model.log_root.class_log(self)
-
+            self.log = model.log_root.log_class(self)
         # the sample code to move up the logging for a period and then turn it
         # off
         self.model.log_root.con.setLevel(logging.DEBUG)

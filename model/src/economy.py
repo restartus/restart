@@ -1,5 +1,8 @@
-""" https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
+"""Econometric model.
+
+The main way we integrate economic activity.
 """
+# https://numpydoc.readthedocs.io/en/latest/format.html
 # https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html
 # note that the type ignor and noqa lines are space sensitive
 import logging
@@ -12,7 +15,8 @@ log = logging.getLogger(__name__)
 
 
 class Economy(Base):
-    """Economy - Manages the economy
+    """Economy - Manages the economy.
+
     This creates for all r resources, the list of attributes a
 
     This contains
@@ -23,7 +27,7 @@ class Economy(Base):
     """
 
     def __init__(self, model: Model):
-        """Initialize the Economy object
+        """Initialize the Economy object.
 
         This uses the Frame object and populates it with default data unless yo
         override it
@@ -34,4 +38,4 @@ class Economy(Base):
         # create a sublogger if a root exists in the model
         self.log = log
         if model.log_root is not None:
-            self.log = model.log_root.class_log(self)
+            self.log = model.log_root.log_class(self)

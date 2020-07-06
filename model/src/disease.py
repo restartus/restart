@@ -1,3 +1,8 @@
+"""Disease model.
+
+The disease model work.
+"""
+
 # https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 # note the noqa: and type: are space sensitive
 # https://stackoverflow.com/questions/51179109/set-pyflake-and-mypy-ignore-same-line
@@ -11,7 +16,8 @@ log = logging.getLogger(__name__)
 
 
 class Disease(Base):
-    """Resource - Manages all the resources that are used in the model
+    """Resource - Manages all the resources that are used in the model.
+
     This creates for all r resources, the list of attributes a
 
     This contains
@@ -22,7 +28,7 @@ class Disease(Base):
     """
 
     def __init__(self, model: Model):
-        """Initialize the Disease object
+        """Initialize the Disease object.
 
         This uses the Frame object and populates it with default data unless yo
         override it
@@ -33,4 +39,4 @@ class Disease(Base):
         # create a sublogger if a root exists in the model
         self.log = log
         if model.log_root is not None:
-            self.log = model.log_root.class_log(self)
+            self.log = model.log_root.log_class(self)

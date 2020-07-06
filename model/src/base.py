@@ -1,7 +1,8 @@
-"""hello
+"""Base for all Classes.
+
+Base mainly includes the description fields
 """
 from typing import Dict, Any
-
 import logging
 
 log = logging.getLogger(__name__)
@@ -9,7 +10,9 @@ log.debug(f"{__name__=}")
 
 
 class Base:
-    """Base for all model classes
+    """Base for all model classes.
+
+    Base stringsa.
     """
 
     description: Dict[str, str] = {}
@@ -17,14 +20,19 @@ class Base:
 
     # https://stackoverflow.com/questions/9056957/correct-way-to-define-class-variables-in-python
     def __init__(self):
-        """init
+        """Set base varabiles.
+
+        Mainly the descriptions
         """
         #         print("in init")
         log.debug("run base")
         log.debug(f"{self=}")
 
     def set_description(self, model: Any, name: str, description: str):
-        """Set the variable description
+        """Set the variable description.
+
+        The descriptions are carried in each class so they are self documenting
+        May change this to centralized at some point.
         """
         # https://stackoverflow.com/questions/18425225/getting-the-name-of-a-variable-as-a-string/58451182#58451182
         # Using Python 3.8 f strings

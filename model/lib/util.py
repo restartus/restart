@@ -7,7 +7,7 @@ import os
 from typing import Optional
 
 
-class Log:
+class Log():
     """Log helper class.
 
     Logging setting simplified
@@ -47,10 +47,10 @@ class Log:
         )
         self.fh.setFormatter(self.fh_format)
         self.log.addHandler(self.fh)
-        self.mylog = self.class_log(self)
+        self.mylog = self.log_class(self)
         self.mylog.debug(f"{self.mylog=}")
 
-    def class_log(self, object):
+    def log_class(self, object):
         """Class Logger.
 
         Creates a custom logger just for a class
@@ -61,7 +61,7 @@ class Log:
         log = logging.getLogger(class_log_name)
         return log
 
-    def module_log(self, name: str):
+    def log_module(self, name: str):
         """Create a logger for a module.
 
         Creates a logger specficaly for a file (a module in Python speak)

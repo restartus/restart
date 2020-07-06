@@ -1,4 +1,6 @@
-"""
+"""The Resource Model.
+
+What resources are and how they are consumed
 https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 """
 import logging
@@ -10,7 +12,8 @@ log = logging.getLogger(__name__)
 
 
 class Resource(Base):
-    """Resource - Manages all the resources that are used in the model
+    """Resource - Manages all the resources that are used in the model.
+
     This creates for all r resources, the list of attributes a
 
     This contains
@@ -38,6 +41,10 @@ class Resource(Base):
         eoc_ln_df=None,
         safety_stock_ln_df=None,
     ):
+        """Initialize the Resources.
+
+        Does a read in
+        """
         # to pick up the description
         super().__init__()
 
@@ -152,7 +159,8 @@ class Resource(Base):
         )
 
     def set_stockpile_days(self, model, days: int):
-        """Set stockpile days for all resources
+        """Set stockpile days for all resources.
+
         A helper function which spreads the days across all populations nad all
         columns
         """
@@ -176,7 +184,9 @@ class Resource(Base):
         level_total_demand_ln_df,
         safety_stock_days_ln_df: pd.DataFrame = None,
     ):
-        """Set a stock pile in days of demand
+        """Set a stock pile in days of demand.
+
+        Stockpile set
         """
         if safety_stock_days_ln_df is None:
             # place holder just 30 days for essential
@@ -201,7 +211,8 @@ class Resource(Base):
         self.safety_stock(new_safety_stock_ln_df)
 
     def safety_stock(self, safety_stock_ln_df):
-        """set or reset safety stock
+        """Set or reset safety stock.
+
         Triggers a reorder if needed
         """
         self.log.debug("set safety_stock to\n%s", safety_stock_ln_df)
@@ -209,7 +220,8 @@ class Resource(Base):
         self.supply_order()
 
     def supply_order(self):
-        """Order from supplier
+        """Order from supplier.
+
         Always order up to the safety stock
         Does not calculate economic order quantity yet
         """
@@ -225,7 +237,9 @@ class Resource(Base):
 
     # https://stackoverflow.com/questions/2272149/round-to-5-or-other-number-in-python
     def round_up_to_eoc(self, order_ln_df):
-        """Round order up the economic order quantity
+        """Round order up the economic order quantity.
+
+        Roundup
         """
         # So take the order and then get the distance to the eoc
         # by using modulo
@@ -236,7 +250,8 @@ class Resource(Base):
         return order_ln_df + (self.eoc_ln_df - order_ln_df) % self.eoc_ln_df
 
     def fulfill(self, order_ln_df):
-        """Fulfill an order form supplier
+        """Fulfill an order form supplier.
+
         This is a stub in that all orders are immediatley fulfilled
         """
         self.log.debug("fulfilled immediately\n%s", order_ln_df)
@@ -244,7 +259,8 @@ class Resource(Base):
         self.log.debug("inventory\n%s", self.inventory_ln_df)
 
     def demand(self, demand_ln_df):
-        """Demand for resources
+        """Demand for resources.
+
         Take the demand and then return what you can
         In this simple model which you can override
 

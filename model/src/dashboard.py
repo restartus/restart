@@ -1,14 +1,13 @@
-"""Dashboard for COVID
-# vi:se ts=4 sw=4 et:
-# Stock demo
-# https://towardsdatascience.com/how-to-build-a-data-science-web-app-in-python-61d1bed65020
-##
-# From https://github.com/restartus/demo-self-driving/blob/master/app.py
-# Use a main and a well formed way to run things
-#
-# https://towardsdatascience.com/streamlit-101-an-in-depth-introduction-fc8aad9492f2
-# has more ways to do selects and tables
-#
+"""Dashboard for COVID.
+
+## Stock demo
+https://towardsdatascience.com/how-to-build-a-data-science-web-app-in-python-61d1bed65020
+From https://github.com/restartus/demo-self-driving/blob/master/app.py
+Use a main and a well formed way to run things
+
+https://towardsdatascience.com/streamlit-101-an-in-depth-introduction-fc8aad9492f2
+has more ways to do selects and tables
+
 """
 import logging  # noqa: F401
 
@@ -18,15 +17,18 @@ import altair as alt  # type:ignore
 import streamlit as st  # type:ignore
 from base import Base
 from main import main
+from util import Log
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 # logging.basicConfig(level=logging.DEBUG,
-log = logging.getLogger(__name__)
+log = Log.module_log(__name__)
+
 log.debug("test")
 
 
 def dashboard():
-    """Display the decision dashboard
+    """Display the decision dashboard.
+    Streamlit dashboard
     """
 
     # sample test data
@@ -90,10 +92,8 @@ def dashboard():
 
 
 def homePage(model):
-    """Home page
-    """
+    """Home page.
 
-    """
     # COVID-19 Decision Dashboard
     ## Restart.us
     Use caution when interpreting these numbers
@@ -103,9 +103,9 @@ def homePage(model):
 # uses the literal magic in Streamlit 0.62
 # note that just putting an expression automatically wraps an st.write
 def testTables(model):
-    """Tables
+    """Tables.
+
     The full graphical display of all tables use for debugging mainly
-    """
     """
     # COVID-19 Decision Tool
     ## Restart.us
@@ -118,7 +118,8 @@ def testTables(model):
     variable letters so you can keep it all straight in detailed data analysis.
     """
 
-    """# Resource safety Stock ln
+    """Resource safety Stock ln.
+
     The supply of resource needs"""
     model.resource.safety_stock_ln_df
 
@@ -139,7 +140,7 @@ def testTables(model):
 
 
 def tables(model):
-    """Table Exploration
+    """Table Exploration.
 
     Automatically reads from model.description a markdown string
     then displays the data found in the model by traversing the entire object

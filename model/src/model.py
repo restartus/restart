@@ -6,6 +6,7 @@ https://www.w3schools.com/python/python_classes.asp
 from typing import Dict, Optional
 from base import Base
 from util import Log
+from config import Config
 
 import logging  # noqa: F401
 
@@ -44,7 +45,7 @@ class Model(Base):
     # https://stackoverflow.com/questions/2…
     # do not do default assignment, it remembers it on eash call
     # https://docs.python.org/3/library/typing.html
-    def __init__(self, name, config, log_root: Optional[Log] = None):
+    def __init__(self, name, config: Config, log_root: Optional[Log] = None):
         """Initialize the model.
 
         Use the config dictionary to configure the most
@@ -57,11 +58,24 @@ class Model(Base):
             self.log_root = log_root
             self.log = log_root.log_class(self)
             log = self.log
-        log.debug(f"{config.model=}")
+
+        log.debug(f"{config.dict=}")
 
         self.name: str = name
         log.debug(f"{self.name=}")
 
+        # https://realpython.com/python-keyerror/
+        self.config: Optional[Dict] = self.config.dict.get("Config")
+        log.debug(f"{self.dict=}")
+
+        self.label: Optional[Dict] = self.raw.get("Label")
+        log.debug(f"{self.label=}")
+
+        self.description: Optional[Dict] = self.raw.get("Description")
+        log.debug(f"{self.description=}")
+
+        self.data: Optional[Dict] = self.raw.get("Data")
+        log.debug(f"{self.data=}")
         # model arity
         self.label = config.model
         log.debug(f"{self.label=}")

@@ -71,9 +71,12 @@ def main():
     log_root.test(log)
 
     # run the configuration load
-    config = Config(log_root=log_root)
-    log.debug(f"{config.parm=}")
-    log.debug(f"{config.model=}")
+    config = Config('config.yaml',
+                    'data.yaml'
+                    'model.yaml',
+                    'description.yaml',
+                    log_root=log_root)
+    log.debug(f"{config.dict=}")
 
     # Static typing for custom classes
     log.info("creating Model")
@@ -103,7 +106,6 @@ def main():
 
     # create the resource object that is p populations and n items
     log.debug("resource attributes\n%s", model.resource.attr_na_df)
-    new_log.debug("resource attributes\n%s", model.resource.attr_na_df)
 
     # This is a population p by d dimension, eventually the second column
     # should be a call back that calculates consumption based

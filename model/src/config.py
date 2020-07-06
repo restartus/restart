@@ -16,18 +16,18 @@ class Config:
 
     Model configuration from YAML files
     """
+    dict: Dict
 
     def __init__(
         self,
+        *files,
         log_root: Optional[Log] = None,
-        config_file: str = "config.yaml",
-        model_file: str = "model.yaml",
-        description_file: str = 'description.yaml',
-        data_file: str = "data.yaml",
     ):
         """Let's get started.
 
         Figure out how to make YAML reading work
+        note that this causes the latest dictionary to overwrite prior
+        entries so order matters if you have duplicates
         """
         # replace the standalone logger if asked
         if log_root is not None:
@@ -36,24 +36,15 @@ class Config:
             log = self.log
         log.debug(f"module {__name__=}")
 
-        self.parm: Optional[Dict] = self.load(config_file)
-        if self.parm is not None:
-            self.parm = self.parm["Config"]
-        log.debug(f"{self.parm=}")
-
-        self.label: Optional[Dict] = self.load(model_file)
-        if self.label is not None:
-            self.label = self.label["Label"]
-        log.debug(f"{self.label=}")
-
-        self.description: Optional[Dict] = self.load(
-            description_file)
-        if self.description is not None:
-            self.description = self.description["Description"]
-        log.debug(f"{self.description=}")
-
-        self.data: Optional[Dict] = self.load(model_file)
-        log.debug(f"{self.data=}")
+        # https://gist.github.com/treyhunner/f35292e676efa0be1728
+        # https://www.geeksforgeeks.org/packing-and-unpacking-arguments-in-python/
+        # Unpacking works in Python 3.6+
+        for file in files:
+            dict: Optional[Dict] = self.load(file)
+            if dict is not None:
+                # TODO: the second arg wants Mapping, got Dict
+                self.dict = {**self.raw, **dict}  # type:ignore
+        log.debug(f"{self.dict=}")
 
     def load(self, filename: str) -> Optional[Dict]:
         """Load configuration.

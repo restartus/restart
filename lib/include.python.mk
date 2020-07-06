@@ -129,7 +129,7 @@ lint:
 	pipenv run mypy $(MAIN)
 	pipenv run flake8
 	pipenv run bandit -r $(MAIN)
-	pydocstyle
+	pydocstyle --convention=google
 	# lint the yaml config files and kill the error if it doesn't exist
 	find *.yaml && yamllint *.yaml || true
 	@echo if you want destructive formatting run make format

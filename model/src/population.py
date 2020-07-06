@@ -4,14 +4,14 @@ Main the class
 """
 
 # Note that pip install data-science-types caused errors
-from typing import List, Optional
+from typing import List
 import numpy as np  # type:ignore
 import pandas as pd  # type:ignore
 from base import Base
 from model import Model
 
 import logging  # noqa: F401
-
+# The default logger if you don't get a root logger
 log = logging.getLogger(__name__)
 log.debug("In %s", __name__)
 
@@ -71,13 +71,14 @@ class Population(Base):
         [[0, 1], [0, 2], [0, 2], [0.1, 3], [0.2, 4], [0.3, 6], [1.18, 0]]
     )
 
+    # No need for initialization get it from model.data
+    #        attr_pd_df: Optional[pd.DataFrame] = None,
+    #        protection_pm_df: Optional[pd.DataFrame] = None,
+    #        res_demand_mn_df: Optional[pd.DataFrame] = None,
+    #        level_pl_df: Optional[pd.DataFrame] = None,
     def __init__(
         self,
         model: Model,
-        attr_pd_df: Optional[pd.DataFrame] = None,
-        protection_pm_df: Optional[pd.DataFrame] = None,
-        res_demand_mn_df: Optional[pd.DataFrame] = None,
-        level_pl_df: Optional[pd.DataFrame] = None,
     ):
         """Initialize all variables.
 
@@ -88,38 +89,30 @@ class Population(Base):
         super().__init__()
 
         # create a sublogger if a root exists in the model
-        self.log = log
         if model.log_root is not None:
-            self.log = model.log_root.log_class(self)
+            log = self.log = model.log_root.log_class(self)
 
         # set the arrays of values should be a column vector
         # https://kite.com/python/answers/how-to-make-a-numpy-array-a-column-vector-in-python
         # A shortcut
-        if attr_pd_df is None:
-            attr_pd_df = pd.DataFrame(
+        self.attr_pd_arr = model.data["Data"]["Population p"]["Attributes pd"]
+        self.attr_pd_df = pd.DataFrame(
                 self.attr_pd_arr,
                 index=model.label["Population p"],
                 columns=model.label["Pop Detail d"],
             )
-        self.attr_pd_df = attr_pd_df
-        self.attr_pd_arr = self.attr_pd_df.values
 
-        self.log.debug(f"{self.attr_pd_df=}")
+        log.debug(f"{self.attr_pd_df=}")
 
         self.set_description(
             model,
-            f"{attr_pd_df=}".split("=")[0],
-            """
-## Population Details (pd)
-There are p Populations in the model and each population
-can have d details about them such as their degree of age,
-ethnicity, attitudes and awareness behaviors
-         """,
+            f"{self.attr_pd_df=}".split("=")[0],
+            model.description["Population p"]["Attributers pd"]çkj
         )
 
         # set the population by demand levels
         if protection_pm_df is None:
-            self.log.debug(
+            log.debug(
                 f"no protection_pm_df using {self.protection_pm_arr=}"
             )
             protection_pm_df = pd.DataFrame(
@@ -130,7 +123,7 @@ ethnicity, attitudes and awareness behaviors
         # https://docs.python.org/3/library/pdb.html
         self.protection_pm_df: pd.DataFrame = protection_pm_df
         self.protection_pm_arr = self.protection_pm_df.value
-        self.log.debug("self.protection_pm_df %s", self.protection_pm_df)
+        log.debug("self.protection_pm_df %s", self.protection_pm_df)
         self.set_description(
             model,
             f"{self.protection_pm_df=}".split("=")[0],
@@ -144,7 +137,7 @@ level for the burn rates
         # note these are defaults for testing
         # this is the protection level and the burn rates for each PPE
         if res_demand_mn_df is None:
-            self.log.debug("no res_demand_mn_df using {res_demand_mn_arr=}")
+            log.debug("no res_demand_mn_df using {res_demand_mn_arr=}")
             res_demand_mn_df = pd.DataFrame(
                 self.res_demand_mn_arr,
                 index=model.label["Pop Protection"],
@@ -168,7 +161,7 @@ level for the burn rates
         )
 
         self.demand_pn_df = self.protection_pm_df @ self.res_demand_mn_df
-        self.log.debug("population.demand_pn_df %s", self.demand_pn_df)
+        log.debug("population.demand_pn_df %s", self.demand_pn_df)
 
         self.set_description(
             model,
@@ -190,7 +183,7 @@ level for the burn rates
                 columns=model.label["Pop Level"],
             )
         self.level_pl_df = level_pl_df
-        self.log.debug("level_pl_df\n%s", self.level_pl_df)
+        log.debug("level_pl_df\n%s", self.level_pl_df)
 
         self.set_description(
             model,
@@ -208,7 +201,7 @@ level for the burn rates
 
         self.level_demand_ln_df = self.level_pl_df.T @ self.demand_pn_df
         name = "level_demand_ln_df"
-        self.log.debug(f"{name}\n%s", self.level_demand_ln_df)
+        log.debug(f"{name}\n%s", self.level_demand_ln_df)
 
         self.set_description(
             model,
@@ -225,7 +218,7 @@ level for the burn rates
         self.total_demand_pn_df = (
             self.demand_pn_df * self.attr_pd_df["People"].values
         )
-        self.log.debug("total_demand_pn_df\n%s", self.total_demand_pn_df)
+        log.debug("total_demand_pn_df\n%s", self.total_demand_pn_df)
         # convert to demand by levels note we have to transpose
         self.set_description(
             model,
@@ -240,7 +233,7 @@ level for the burn rates
         self.level_total_demand_ln_df = (
             self.level_pl_df.T @ self.total_demand_pn_df
         )
-        self.log.debug(
+        log.debug(
             "level_total_demand_ln_df\n%s", self.level_total_demand_ln_df
         )
         self.set_description(
@@ -273,7 +266,7 @@ level for the burn rates
         self.level_total_cost_ln_df = (
             self.level_total_demand_ln_df * cost_ln_df.values
         )
-        self.log.debug(
+        log.debug(
             "level_total_cost_ln_df\n%s", self.level_total_cost_ln_df
         )
 
@@ -292,6 +285,6 @@ level for the burn rates
         Does the setup
         """
         if input_df is None:
-            self.log.debug(f"no input_df, using {default_arr=}")
+            log.debug(f"no input_df, using {default_arr=}")
             input_df = pd.DataFrame(default_arr, index=index, columns=columns,)
         return input_df, input_df.values

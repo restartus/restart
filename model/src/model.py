@@ -60,18 +60,29 @@ class Model(Base):
         log.debug(f"{config.model=}")
 
         self.name: str = name
-        self.label = config.model['Label']
-        log.debug(f"{self.name=} {self.label=}")
+        log.debug(f"{self.name=}")
+
+        # model arity
+        self.label = config.model
+        log.debug(f"{self.label=}")
+
+        # the actual data
+        self.data = config.data
+        log.debug(f"{self.data=}")
+
+        self.description = config.description
+        log.debug(f"{self.description}")
 
         # These are just as convenience functions for dimensions
         # and for type checking this is ugly should make it
         # for look for assign because we are just mapping label
+        # TODO: with the new labeling, this is easy to make a loop
         self.dim: Dict[str, int] = {
             "n": len(self.label["Resource n"]),
             "a": len(self.label["Res Attribute a"]),
             "p": len(self.label["Population p"]),
             "d": len(self.label["Pop Detail d"]),
-            "m": len(self.label["Demand m"]),
+            "m": len(self.label["Protection m"]),
             "l": len(self.label["Pop Level l"]),
             "s": len(self.label["Res Safety Stock s"]),
         }

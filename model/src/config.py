@@ -18,8 +18,12 @@ class Config:
     """
 
     def __init__(
-        self, log_root: Optional[Log] = None,
-        config_file: str = "config.yaml", model_file: str = "model.yaml"
+        self,
+        log_root: Optional[Log] = None,
+        config_file: str = "config.yaml",
+        model_file: str = "model.yaml",
+        description_file: str = 'description.yaml',
+        data_file: str = "data.yaml",
     ):
         """Let's get started.
 
@@ -33,10 +37,23 @@ class Config:
         log.debug(f"module {__name__=}")
 
         self.parm: Optional[Dict] = self.load(config_file)
+        if self.parm is not None:
+            self.parm = self.parm["Config"]
         log.debug(f"{self.parm=}")
 
-        self.model = self.load(model_file)
-        log.debug(f"{self.model=}")
+        self.label: Optional[Dict] = self.load(model_file)
+        if self.label is not None:
+            self.label = self.label["Label"]
+        log.debug(f"{self.label=}")
+
+        self.description: Optional[Dict] = self.load(
+            description_file)
+        if self.description is not None:
+            self.description = self.description["Description"]
+        log.debug(f"{self.description=}")
+
+        self.data: Optional[Dict] = self.load(model_file)
+        log.debug(f"{self.data=}")
 
     def load(self, filename: str) -> Optional[Dict]:
         """Load configuration.

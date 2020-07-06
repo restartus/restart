@@ -98,8 +98,8 @@ class Population(Base):
         if attr_pd_df is None:
             attr_pd_df = pd.DataFrame(
                 self.attr_pd_arr,
-                index=model.label["Population"],
-                columns=model.label["Pop Detail"],
+                index=model.label["Population p"],
+                columns=model.label["Pop Detail d"],
             )
         self.attr_pd_df = attr_pd_df
         self.attr_pd_arr = self.attr_pd_df.values

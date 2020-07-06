@@ -70,10 +70,10 @@ class Model(Base):
         self.dim: Dict[str, int] = {
             "n": len(self.label["Resource n"]),
             "a": len(self.label["Res Attribute a"]),
-            "p": len(self.label["Population_p"]),
-            "d": len(self.label["Pop Detail_d"]),
-            "m": len(self.label["Pop Protection"]),
-            "l": len(self.label["Pop Level"]),
-            "s": len(self.label["Res Supply_s"]),
+            "p": len(self.label["Population p"]),
+            "d": len(self.label["Pop Detail d"]),
+            "m": len(self.label["Demand m"]),
+            "l": len(self.label["Pop Level l"]),
+            "s": len(self.label["Res Safety Stock s"]),
         }
         log.debug(f"{self.dim=}")

@@ -7,13 +7,13 @@ Label:
     - "Non procedural Mask"
     - "Cloth Mask"
     - "Gloves"
-  Population_p:
+  "Population p":
     - "Healthcare Workers"
     - "Non-Heathcare Worker"
-  Level_l:
+  "Pop Level l":
     - Essential
     - Non-essential
-  Demand_m:
+  "Demand m":
     - WA0
     - WA1
     - WA2
@@ -21,12 +21,16 @@ Label:
     - WA4
     - WA5
     - WA6
-  "Res Attributes a":
+  "Res Attribute a":
     - Units
     - Volume
-  "Pop Details d":
+  "Pop Detail d":
     - Size
     - Cases
+  "Res Safety Stock s":
+    - High
+    - Mid
+    - Low
 
 # http://yaml4r.sourceforge.net/doc/page/collections_in_yaml.htm
 # https://pyyaml.org/wiki/PyYAMLDocumentation

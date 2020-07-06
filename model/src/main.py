@@ -71,25 +71,22 @@ def main():
     log_root.test(log)
 
     # run the configuration load
-    config = Config()
+    config = Config(log_root=log_root)
     log.debug(f"{config.parm=}")
     log.debug(f"{config.model=}")
 
     # Static typing for custom classes
+    log.info("creating Model")
     model: Model = Model(name, config, log_root=log_root)
-    new_log.debug("creating Population")
-    log.debug("creating Population")
+    log.info("creating Population")
     model.population: Population = Population(model)
     log.debug("creating Resource")
-    new_log.debug("creating Resource")
     model.resource: Resource = Resource(model)
-    new_log.debug("creating Economy")
+    log.debug("creating Economy")
     model.economy: Economy = Economy(model)
     log.debug("creating Disease")
-    new_log.debug("creating Disease")
     model.disease: Disease = Disease(model)
     log.debug("creating Behavioral")
-    new_log.debug("creating Behavioral")
     model.behavioral: Behavioral = Behavioral(model)
 
     # http://net-informations.com/python/iq/instance.htm

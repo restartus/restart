@@ -1,3 +1,34 @@
+Label: 
+  4   "Resource n":
+  5   ¦ - "N95 Surgical"
+  6   ¦ - "ASTM Mask"
+  7   ¦ - "Non procedural Mask"
+  8   ¦ - "Cloth Mask"
+  9   ¦ - "Gloves"
+ 10   "Population p":
+ 11   ¦ - "Healthcare Workers"
+ 12   ¦ - "Non-Heathcare Worker"
+ 13   "Pop Level l":
+ 14   ¦ - Essential
+ 15   ¦ - Non-essential
+ 16   "Demand m":
+ 17   ¦ - WA0
+ 18   ¦ - WA1
+ 19   ¦ - WA2
+ 20   ¦ - WA3
+ 21   ¦ - WA4
+ 22   ¦ - WA5
+ 23   ¦ - WA6
+ 24   "Res Attribute a":
+ 25   ¦ - Units
+ 26   ¦ - Volume
+ 27   "Pop Detail d":
+ 28   ¦ - Size
+ 29   ¦ - Cases
+ 30   "Res Safety Stock s":
+ 31   ¦ - High
+ 32   ¦ - Mid
+ 33   ¦ - Low
 # Default test configuration
 ---
 Label:

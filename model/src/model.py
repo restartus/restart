@@ -11,7 +11,7 @@ import logging  # noqa: F401
 
 log = logging.getLogger(__name__)
 # https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
-log.debug(f"in {__name__=}")
+log.debug(f"{__name__=}")
 
 
 class Model(Base):
@@ -53,11 +53,10 @@ class Model(Base):
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__()
 
-        self.log = log
         if log_root is not None:
             self.log_root = log_root
             self.log = log_root.log_class(self)
-
+            log = self.log
         log.debug(f"{config.model=}")
 
         self.name: str = name

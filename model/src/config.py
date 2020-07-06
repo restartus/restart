@@ -18,15 +18,18 @@ class Config:
     """
 
     def __init__(
-        self, config_file: str = "config.yaml", model_file: str = "model.yaml"
+        self, log_root: Optional[Log] = None,
+        config_file: str = "config.yaml", model_file: str = "model.yaml"
     ):
         """Let's get started.
 
         Figure out how to make YAML reading work
         """
-        self.root_log = Log(__name__)
-        # override the local logger with the global one
-        log = self.root_log.log
+        # replace the standalone logger if asked
+        if log_root is not None:
+            self.root_log = log_root
+            self.log = log_root.log_class(self)
+            log = self.log
         log.debug(f"module {__name__=}")
 
         self.parm: Optional[Dict] = self.load(config_file)

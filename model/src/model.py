@@ -61,7 +61,6 @@ class Model(Base):
         log.debug(f"{config.model=}")
 
         self.name: str = name
-        breakpoint()
         self.label = config.model['Label']
         log.debug(f"{self.name=} {self.label=}")
 
@@ -69,11 +68,12 @@ class Model(Base):
         # and for type checking this is ugly should make it
         # for look for assign because we are just mapping label
         self.dim: Dict[str, int] = {
-            "n": len(self.label["Resource"]),
-            "a": len(self.label["Res Attribute"]),
-            "s": len(self.label["Res Supply"]),
-            "p": len(self.label["Population"]),
-            "d": len(self.label["Pop Detail"]),
+            "n": len(self.label["Resource n"]),
+            "a": len(self.label["Res Attribute a"]),
+            "p": len(self.label["Population_p"]),
+            "d": len(self.label["Pop Detail_d"]),
             "m": len(self.label["Pop Protection"]),
             "l": len(self.label["Pop Level"]),
+            "s": len(self.label["Res Supply_s"]),
         }
+        log.debug(f"{self.dim=}")

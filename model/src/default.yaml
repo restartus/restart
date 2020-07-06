@@ -1,7 +1,7 @@
 # Default test configuration
 ---
 Label:
-  Resource_n:
+  "Resource n":
     - "N95 Surgical"
     - "ASTM Mask"
     - "Non procedural Mask"
@@ -21,10 +21,10 @@ Label:
     - WA4
     - WA5
     - WA6
-  "Resource Attributes_a":
+  "Res Attributes a":
     - Units
     - Volume
-  "Population Details_d":
+  "Pop Details d":
     - Size
     - Cases
 

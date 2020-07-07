@@ -195,7 +195,8 @@ class Population(Base):
         # across all the values
         self.total_demand_pn_df = (
             # self.demand_pn_df * self.attr_pd_df["Size"].values
-            self.demand_pn_df * self.attr_pd_arr
+            self.demand_pn_df
+            * self.attr_pd_arr
         )
         log.debug(f"{self.total_demand_pn_df=}")
         # convert to demand by levels note we have to transpose

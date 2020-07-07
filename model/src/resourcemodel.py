@@ -85,31 +85,33 @@ class Resource(Base):
 
         self.set_description(
             f"{self.attr_na_df=}",
-            model.description["Resource n"]["Res Detail na"]
+            model.description["Resource n"]["Res Detail na"],
         )
 
         self.cost_ln_arr = model.data["Resource n"]["Pop Level Res Cost ln"]
         self.cost_ln_df = pd.DataFrame(
-                self.cost_ln_arr,
-                index=self.label["Pop Level l"],
-                columns=self.label["Resource n"],
-            )
+            self.cost_ln_arr,
+            index=self.label["Pop Level l"],
+            columns=self.label["Resource n"],
+        )
         log.debug(f"{self.cost_ln_df=}")
         self.set_description(
             f"{cost_ln_df=}",
-            model.description["Resource n"]["Pop Level Res Cost ln"]
+            model.description["Resource n"]["Pop Level Res Cost ln"],
         )
 
-        self.inv_initial_ln_arr = model.data["Resource n"]["Res Inventory Initial ln"]
+        self.inv_initial_ln_arr = model.data["Resource n"][
+            "Res Inventory Initial ln"
+        ]
         self.inv_initial_ln_df = pd.DataFrame(
-                self.inv_initial_ln_arr,
-                index=self.label["Pop Level l"],
-                columns=self.label["Resource n"],
-            )
+            self.inv_initial_ln_arr,
+            index=self.label["Pop Level l"],
+            columns=self.label["Resource n"],
+        )
         log.debug(f"{self.inv_initial_ln_df=}")
         self.set_description(
             f"{self.inv_initial_ln_df=}".split("=")[0],
-            model.description["Resource n"]["Res Inventory Initial ln"]
+            model.description["Resource n"]["Res Inventory Initial ln"],
         )
         log.debug(f"{self.description['inv_initial_ln_df']}")
 
@@ -119,17 +121,17 @@ class Resource(Base):
         self.inv_eoc_ln_arr = model.data["Resource n"]["Res Inventory EOC ln"]
         log.debug(f"{self.inv_eoc_ln_arr=}")
         self.inv_eoc_ln_df = pd.DataFrame(
-                self.inv_eoc_ln_arr,
-                index=self.label["Pop Level l"],
-                columns=self.label["Resource n"],
-            )
+            self.inv_eoc_ln_arr,
+            index=self.label["Pop Level l"],
+            columns=self.label["Resource n"],
+        )
         # ensure we don't have any negatives
         self.inv_eoc_ln_df[self.inv_eoc_ln_df < 1] = 1
         log.debug(f"{self.inv_eoc_ln_df=}")
 
         self.set_description(
             f"{self.inv_eoc_ln_df=}",
-            model.description["Resource n"]["Res Inventory EOC ln"]
+            model.description["Resource n"]["Res Inventory EOC ln"],
         )
         log.debug(f"{self.description['inv_eoc_ln_df']}")
 
@@ -138,7 +140,7 @@ class Resource(Base):
         self.safety_stock(safety_stock_ln_df)
         self.set_description(
             f"{self.safety_stock_ln_df=}",
-            model.description["Resource n"]["Res Inventory Initial ln"]
+            model.description["Resource n"]["Res Inventory Initial ln"],
         )
 
     def set_stockpile_days(self, model, days: int):
@@ -151,10 +153,10 @@ class Resource(Base):
         safety_stock_days_ln_df = pd.DataFrame(
             days
             * np.ones(
-                (len(self.label["Pop Level"]), len(self.label["Resource"]))
+                (len(self.label["Pop Level l"]), len(self.label["Resource n"]))
             ),
-            index=self.label["Pop Level"],
-            columns=self.label["Resource"],
+            index=self.label["Pop Level l"],
+            columns=self.label["Resource n"],
         )
         self.log.debug(f"{safety_stock_days_ln_df=}")
         self.set_stockpile(
@@ -178,8 +180,8 @@ class Resource(Base):
             safety_stock_days_ln_arr = np.array([[30, 30], [0, 0]])
             safety_stock_days_ln_df = pd.DataFrame(
                 safety_stock_days_ln_arr,
-                index=self.label["Pop Level"],
-                columns=self.label["Resource"],
+                index=self.label["Pop Level l"],
+                columns=self.label["Resource n"],
             )
             self.log.debug(
                 "Safety_stock_days_ln_df\n%s", safety_stock_days_ln_df
@@ -242,7 +244,10 @@ class Resource(Base):
                 f"Orders should be never be negative {order_ln_df=}"
             )
 
-        return order_ln_df + (self.inv_eoc_ln_df - order_ln_df) % self.inv_eoc_ln_df
+        return (
+            order_ln_df
+            + (self.inv_eoc_ln_df - order_ln_df) % self.inv_eoc_ln_df
+        )
 
     def fulfill(self, order_ln_df):
         """Fulfill an order form supplier.

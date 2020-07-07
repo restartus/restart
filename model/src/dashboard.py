@@ -9,7 +9,7 @@ https://towardsdatascience.com/streamlit-101-an-in-depth-introduction-fc8aad9492
 has more ways to do selects and tables
 
 """
-import logging  # noqa: F401
+# import logging  # noqa: F401
 
 # https://mypy.readthedocs.io/en/latest/existing_code.html
 import pandas as pd  # type:ignore
@@ -18,51 +18,56 @@ import streamlit as st  # type:ignore
 from base import Base
 from main import main
 from util import Log
+import os
 
 # https://docs.python.org/3/howto/logging-cookbook.html
-# logging.basicConfig(level=logging.DEBUG,
-log = Log.module_log(__name__)
+# logging.basicConfig(level=logging.DEBUG
+# https://www.w3resource.com/python-exercises/python-basic-exercise-46.php
+# https://www.geeksforgeeks.org/python-os-path-basename-method/
+name = os.path.basename(__file__).split('.')[0]
+log_root = Log(name)
+log = log_root.log
 
 log.debug("test")
 
 
 def dashboard():
     """Display the decision dashboard.
+
     Streamlit dashboard
     """
-
     # sample test data
     data_df = pd.DataFrame(
         [[0, 123], [12, 23]],
         index=["healthcare", "Non-healthcare"],
         columns=["N95", "Mask"],
     )
-
     model = main()
     # https://stackoverflow.com/questions/1398022/looping-over-all-member-variables-of-a-class-in-python
-    log.debug(vars(model))
-    log.debug(vars(model.population))
+    log.debug(f'{log=}')
+    log.debug(f'{vars(model)=}')
+    log.debug(f'{vars(model.population)}=')
     # https://stackoverflow.com/questions/11637293/iterate-over-object-attributes-in-python
     # this gives all kinds of things that are hidden functions;
-    log.debug(dir(model.population))
+    log.debug(f'{dir(model.population)=}')
     for name, value in vars(model).items():
         log.debug(name)
         log.debug(value)
         # http://notesbyanerd.com/2017/12/26/check-in-python-if-a-value-is-instance-of-a-custom-class/
         if isinstance(value, Base):
-            log.debug(f"found ${value} is Base")
+            log.debug(f"found ${value=} is Base")
 
     # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
     for name, value in vars(model.population).items():
-        log.debug(name)
-        log.debug(value)
+        log.debug(f'{name=}')
+        log.debug(f'{value=}')
 
     # Simple selection
     st.sidebar.markdown(
         """
-    ## Pages
-    Choose the page you want from here
-    """
+        ## Pages
+        Choose the page you want from here
+        """
     )
     page = st.sidebar.selectbox(
         "Choose page",
@@ -107,6 +112,7 @@ def testTables(model):
 
     The full graphical display of all tables use for debugging mainly
     """
+    """
     # COVID-19 Decision Tool
     ## Restart.us
     The main data table in the model for your viewing please.
@@ -116,22 +122,25 @@ def testTables(model):
 
     When you are using these, as a hint, the row and column have distinct
     variable letters so you can keep it all straight in detailed data analysis.
+
+    ###Resource safety Stock ln.
+
+    The supply of resource needs
     """
-
-    """Resource safety Stock ln.
-
-    The supply of resource needs"""
     model.resource.safety_stock_ln_df
 
-    """# Resource Attributes  na
+    """
+    # Resource Attributes  na
     Resources main attribute is their count, but will later have volume and
-    footprint"""
-    model.resource.attr_na_df
+    footprint
+    """
 
+    model.resource.attr_na_df
     model.description["Population.attr_pd_df"]
     model.population.attr_pd_df
 
-    """# Population summarized by protection levels pl
+    """
+    # Population summarized by protection levels pl
     Population main attribute is their count, but will later have things like
     how often they are out doing work and will keep track of things like social
     mobility and columns will have characteristics like age, ethnicity, gender
@@ -186,16 +195,19 @@ def tables(model):
 
 
 def testHome(data_df):
-    """Test drawing
+    """Test drawing.
+
+    Test for dashboard
     """
     st.write(
         """
-    # COVID-19 Decision Dashboard
-    ## Restart.us
-    Use caution when interpreting these numbers and consult experts on use.
-    Numbers are 000s except *$0s*
-    """
+        # COVID-19 Decision Dashboard
+        ## Restart.us
+        Use caution when interpreting these numbers and consult experts on use.
+        Numbers are 000s except *$0s*
+        """
     )
+
     print(data_df)
     st.write(
         """
@@ -229,6 +241,10 @@ def testHome(data_df):
 
 
 def visualize_data(df, x_axis, y_axis):
+    """Visualize data.
+
+    Charting for the dashboard
+    """
     print(df)
     print("x_axis", x_axis)
     print("y_axis", y_axis)

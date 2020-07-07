@@ -34,7 +34,7 @@ build_path ?= .
 user ?= $$USER
 MAIN ?= main.py
 WEB ?= dashboard.py
-NOT_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
+NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
 flags ?= -p 8501:8501
 PIP ?= streamlit altair pandas pyhaml
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
@@ -128,31 +128,29 @@ doc-debug-web:
 ## lint: run static tests (uses pipenv)
 # Flake8 does not handle streamlit correctly so exclude it
 # Nor does pydocstyle
+# If the web can pass then you can use these lines
+# pipenv run flake8 --exclude $(WEB)
+#	pipenv run mypy $(NO_WEB)
+#	pipenv run pydocstyle --convention=google --match='(?!$(WEB))'
 .PHONY: lint
 lint:
 	pipenv check
 	# mypy finds more errors than flake8
-	pipenv run mypy $(MAIN)
-	pipenv run flake8 --exclude $(WEB)
-	pipenv run bandit $(NOT_WEB)
-	pydocstyle --convention=google --match='(?!$(WEB))'
+#	pipenv run mypy $(NO_WEB)
+	pipenv run flake8
+	find *.py && pipenv run bandit *.py || true
+	find *.py && pipenv run pydocstyle --convention=google *.py || true
 	# lint the yaml config files and kill the error if it doesn't exist
 	find *.yaml && pipenv run yamllint *.yaml || true
 	@echo if you want destructive formatting run make format
 
-## lint-web: run for web interface (uses pipenv)
-.PHONY: lint-web
-lint-web:
-	pipenv run mypy $(WEB)
-	pipenv run bandit -r $(WEB)
-
-
 ## format: reformat python code to standard (uses pipenv)
-# exclude web black does not grok streamlit
+# exclude web black does not grok streamlit but not conformas
+# pipenv run black -l 79 $(NO_WEB)
 .PHONY: format
 format: 
 	# the default is 88 but pyflakes wants 79
-	pipenv run black -l 79 $(NOT_WEB)
+	pipenv run black -l 79 *.py
 
 # https://docs.python.org/3/library/pdb.html
 ## pdb: run locally with python to test components from main (uses pipenv)

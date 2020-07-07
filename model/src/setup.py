@@ -1,7 +1,9 @@
-"""Setuptools info for the model pip package
+"""Setuptools info for the model pip package.
+
+Not yet tested
 """
 # https://micropyramid.com/blog/publishing-python-modules-with-pip-via-pypi/
-import setuptools  # noqa:
+import setuptools  # type:ignore # noqa:
 
 with open("README.md", "r") as f:
     long_description = f.read()

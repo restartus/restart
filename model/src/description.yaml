@@ -23,7 +23,7 @@ Description:
       ## Population Demand for each of n Resources (pn)
       This is the per capita demand for a give population so this is not the per
       capita demand but for every n Resource for ever subpopulation p
-    "Population to Level pl" |
+    "Population to Level pl": |
       ## Population's mapped into Summary Levels (pl)
       This maps every population p into any number of summary levels l
       summarized by the l Level level used. In this model higher
@@ -37,14 +37,16 @@ Description:
       summarized by the l Summary Level used. It provides a view of demand
       aggregated by the summary level.
     "Population Total Demand pn": |
-      ## Population Demand Resource pn 
+      ## Population Demand Resource pn
       This is the total demand for all p sub-Population for every resource n
-    "Level Total Demand ln" : |
+    "Level Total Demand ln": |
       ## Total Demand for all Population Summary Levels for Resources (ln)
-      For all L population summary levels, the total demand for a set of n resources
-    "Level Total Cost ln" : |
+      For all L population summary levels, the total demand for a set
+      of n resources
+    "Level Total Cost ln": |
         ## Population Demand Total Cost by N Summary Levels
-        For all L population summary levels, the total cost for a set of n resources
+        For all L population summary levels, the total cost for a set of
+        n resources
   "Resource n":
     "Resource Attribute na":
       - [1, 3, 1.5]

@@ -34,6 +34,7 @@ build_path ?= .
 user ?= $$USER
 MAIN ?= main.py
 WEB ?= dashboard.py
+NOT_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
 flags ?= -p 8501:8501
 PIP ?= streamlit altair pandas pyhaml
 PIP_DEV ?= --pre pydocstyle pdoc3 flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox yamllint
@@ -122,16 +123,18 @@ doc-debug-web:
 	pipenv run pdoc --http : $(WEB)
 
 ## lint: run static tests (uses pipenv)
+# Flake8 does not handle streamlit correctly so exclude it
+# Nor does pydocstyle
 .PHONY: lint
 lint:
 	pipenv check
 	# mypy finds more errors than flake8
 	pipenv run mypy $(MAIN)
-	pipenv run flake8
-	pipenv run bandit -r $(MAIN)
-	pydocstyle --convention=google
+	pipenv run flake8 --exclude $(WEB)
+	pipenv run bandit $(NOT_WEB)
+	pydocstyle --convention=google --match='(?!$(WEB))'
 	# lint the yaml config files and kill the error if it doesn't exist
-	find *.yaml && yamllint *.yaml || true
+	find *.yaml && pipenv run yamllint *.yaml || true
 	@echo if you want destructive formatting run make format
 
 ## lint-web: run for web interface (uses pipenv)
@@ -142,10 +145,11 @@ lint-web:
 
 
 ## format: reformat python code to standard (uses pipenv)
+# exclude web black does not grok streamlit
 .PHONY: format
 format: 
 	# the default is 88 but pyflakes wants 79
-	pipenv run black -l 79 *.py
+	pipenv run black -l 79 $(NOT_WEB)
 
 # https://docs.python.org/3/library/pdb.html
 ## pdb: run locally with python to test components from main (uses pipenv)

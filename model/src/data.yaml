@@ -4,19 +4,19 @@
 # https://yaml-online-parser.appspot.com
 ---
 Data:
-  "Population p": 
+  "Population p":
     "Attributes pd":
       - 735.2
       - 7179.6
     "Protection pm":
       - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
       - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    "Resource Demand mn"
+    "Resource Demand mn":
       [[0, 1], [0, 2], [0, 2], [0.1, 3], [0.2, 4], [0.3, 6], [1.18, 0]]
-  "Resource n":
-    "Resource Attribute na"
-      - [1,  3 , 1.5]
-      - [1,  2,  0.7]
-  "Pop to Level pl"
+    "Pop to Level pl":
       - [1, 0]
       - [0, 1]
+  "Resource n":
+    "Resource Attribute na":
+      - [1, 3, 1.5]
+      - [1, 2, 0.7]

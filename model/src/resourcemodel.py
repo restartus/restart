@@ -245,8 +245,18 @@ class Resource(Base):
         # by using modulo
         # https://stackoverflow.com/questions/50767452/check-if-dataframe-has-a-zero-element
         # https://numpy.org/doc/stable/reference/generated/numpy.any.html
-        assert np.any(self.eoc_ln_df > 0), "EOC should never be less than 1"
-        assert np.any(order_ln_df >= 0), "Orders should be never be negative"
+        # https://softwareengineering.stackexchange.com/questions/225956/python-assert-vs-if-return
+        # do not use asserts they are stripped with optimization, raise errors
+        if np.any(self.eoc_ln_df > 0):
+            raise ValueError(
+                f"EOC should never be less than 1 {self.eoc_ln_df=}"
+            )
+
+        if np.any(order_ln_df >= 0):
+            raise ValueError(
+                f"Orders should be never be negative {order_ln_df=}"
+            )
+
         return order_ln_df + (self.eoc_ln_df - order_ln_df) % self.eoc_ln_df
 
     def fulfill(self, order_ln_df):

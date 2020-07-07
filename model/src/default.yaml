@@ -1,6 +1,7 @@
 # Dimensions the model
 # Note each of these yaml files has an overall label, so you can copy and concat
 # as needed
+---
 Label:
   "Resource n":
     - "N95 Surgical"

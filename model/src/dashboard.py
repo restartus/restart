@@ -18,7 +18,6 @@ import altair as alt  # type:ignore
 import streamlit as st  # type:ignore
 from base import Base
 from main import main
-from util import Log
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 # logging.basicConfig(level=logging.DEBUG,

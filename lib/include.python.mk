@@ -37,7 +37,10 @@ WEB ?= dashboard.py
 NOT_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
 flags ?= -p 8501:8501
 PIP ?= streamlit altair pandas pyhaml
-PIP_DEV ?= --pre pydocstyle pdoc3 flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox yamllint
+# https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
+# https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
+PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
+					 black tox pytest pytest-cov pytest-xdist tox yamllint 
 DOC ?= doc
 
 

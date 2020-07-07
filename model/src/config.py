@@ -60,7 +60,7 @@ class Config:
         if self.log is not log:
             log = self.log
             raise ValueError(f"{self.log=} {log=}")
-        log.debug(f'{filename=}')
+        log.debug(f"{filename=}")
         try:
             with open(filename, "r") as f:
                 # bandit says use the safe loader

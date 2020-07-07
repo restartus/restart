@@ -63,7 +63,7 @@ def main():
     everything
     """
     global log
-    name = "bharat"
+    name = "main"
     # set up the logging
     log_root = Log(name)
     # Set all the loggers the same

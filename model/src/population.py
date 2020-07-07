@@ -9,6 +9,7 @@ import numpy as np  # type:ignore
 import pandas as pd  # type:ignore
 from base import Base
 from model import Model
+from population_data import PopulationData
 
 import logging  # noqa: F401
 
@@ -96,8 +97,11 @@ class Population(Base):
         # set the arrays of values should be a column vector
         # https://kite.com/python/answers/how-to-make-a-numpy-array-a-column-vector-in-python
         # A shortcut
+        log.debug(f"{model.label=}")
         log.debug(f"{model.data=}")
-        self.attr_pd_arr = model.data["Population p"]["Attribute pd"]
+
+        # manual insert of population
+        self.attr_pd_arr = model.data["Population p"]["Pop Detail d"]
         self.attr_pd_df = pd.DataFrame(
             self.attr_pd_arr,
             index=model.label["Population p"],
@@ -105,40 +109,56 @@ class Population(Base):
         )
         log.debug(f"{self.attr_pd_df=}")
 
+        # new population class, so it can be replaced in a class
+        population_data = PopulationData(
+            model,
+            source=model.data["Population p"]["Pop Detail d"],
+            index=model.label["Population p"],
+            columns=model.label["Pop Detail d"],
+        )
+        log.debug(f"{population_data.data_arr=}")
+        log.debug(f"{population_data.data_df=}")
+        if population_data.data_arr is None or population_data.data_df is None:
+            raise ValueError(f"no population data {population_data.data_arr=}")
+        self.attr_pd_arr = population_data.data_arr
+        self.attr_pd_df = population_data.data_df
+        log.debug(f"{self.attr_pd_df=}")
+
         self.set_description(
             f"{self.attr_pd_df=}",
-            model.description["Population p"]["Attributers pd"],
+            model.description["Population p"]["Pop Detail pd"],
         )
+        log.debug(f"{self=}")
+        log.debug(f"{self.description=}")
+        log.debug(f"{self.description['attr_pd_df']=}")
 
         # set the population by demand levels
-        self.level_pm_arr = model.data["Population p"]["Protection m"]
+        self.level_pm_arr = model.data["Population p"]["Protection pm"]
         self.level_pm_df = pd.DataFrame(
             self.level_pm_arr,
             index=model.label["Population p"],
-            columns=model.label["Protection Category m"],
+            columns=model.label["Pop Protection m"],
         )
         log.debug(f"{self.level_pm_df=}")
         self.set_description(
             f"{self.level_pm_df=}",
-            model.description["Population p"]["Protection Category m"],
+            model.description["Population p"]["Protection pm"],
         )
+        log.debug(f"{self.description['level_pm_df']=}")
 
         # note these are defaults for testing
         # this is the protection level and the burn rates for each PPE
-        self.res_demand_mn_arr = model.data["Population p"][
-            "Protection Demand mn"
-        ]
+        self.res_demand_mn_arr = model.data["Resource Demand mn"]
         self.res_demand_mn_df = pd.DataFrame(
             self.res_demand_mn_arr,
-            index=model.label[" Level n"],
-            columns=model.label["Protection Demand mn"],
+            index=model.label["Pop Protection m"],
+            columns=model.label["Resource n"],
         )
         log.debug(f"{self.res_demand_mn_df=}")
         # for compatiblity both the model and the object hold the same
         # description
         self.set_description(
-            f"{self.res_demand_mn_df=}",
-            model.description["Population p"]["Protection Demand mn"],
+            f"{self.res_demand_mn_df=}", model.description["Res Demand mn"],
         )
 
         self.demand_pn_df = self.level_pm_df @ self.res_demand_mn_df
@@ -173,7 +193,8 @@ class Population(Base):
         # TODO: eventually demand will be across pdn so
         # across all the values
         self.total_demand_pn_df = (
-            self.demand_pn_df * self.attr_pd_df["People"].values
+            # self.demand_pn_df * self.attr_pd_df["Size"].values
+            self.demand_pn_df * self.attr_pd_arr
         )
         log.debug(f"{self.total_demand_pn_df=}")
         # convert to demand by levels note we have to transpose

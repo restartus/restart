@@ -6,16 +6,15 @@ Label:
   "Resource n":
     - "N95 Surgical"
     - "ASTM Mask"
-    - "Non procedural Mask"
-    - "Cloth Mask"
-    - "Gloves"
   "Population p":
     - "Healthcare Workers"
     - "Non-Heathcare Worker"
+  "Pop Detail d":
+    - Size
   "Pop Level l":
     - Essential
     - Non-essential
-  "Protection Category m":
+  "Pop Protection m":
     - WA0
     - WA1
     - WA2
@@ -26,9 +25,6 @@ Label:
   "Res Attribute a":
     - Units
     - Volume
-  "Pop Detail d":
-    - Size
-    - Cases
   "Res Safety Stock s":
     - High
     - Mid

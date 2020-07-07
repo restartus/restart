@@ -15,6 +15,7 @@ pytest-cov = "*"
 pytest-xdist = "*"
 yamllint = "*"
 pydocstyle = "*"
+nptyping = "*"
 
 [packages]
 streamlit = "*"

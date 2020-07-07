@@ -1,6 +1,6 @@
 """Behavioral Model.
 
-Behaviral modeling
+Behavioral modeling
 """
 import logging
 import pandas as pd  # type: ignore # noqa: F401
@@ -38,5 +38,5 @@ class Behavioral(Base):
         # the sample code to move up the logging for a period and then turn it
         # off
         self.model.log_root.con.setLevel(logging.DEBUG)
-        log.debug("testing move to debug to console")
+        log.debug(f"in {__name__=}")
         self.model.log_root.con.setLevel(logging.WARNING)

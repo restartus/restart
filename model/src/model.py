@@ -100,7 +100,7 @@ class Model(Base):
             "a": len(self.label["Res Attribute a"]),
             "p": len(self.label["Population p"]),
             "d": len(self.label["Pop Detail d"]),
-            "m": len(self.label["Protection Category m"]),
+            "m": len(self.label["Pop Protection m"]),
             "l": len(self.label["Pop Level l"]),
             "s": len(self.label["Res Safety Stock s"]),
         }

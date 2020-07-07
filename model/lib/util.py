@@ -40,7 +40,7 @@ class Log:
         self.log.addHandler(self.con)
         # create a file handler to dump stuff make sure to gitignore it
         # https://www.programcreek.com/python/example/472/logging.FileHandler
-        self.fh = logging.FileHandler("test.log")
+        self.fh = logging.FileHandler(name + ".log")
         self.fh.setLevel(logging.DEBUG)
         # https://stackoverflow.com/questions/533048/how-to-log-source-file-name-and-line-number-in-python
         # https://note.nkmk.me/en/python-long-string/

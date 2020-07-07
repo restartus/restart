@@ -1,4 +1,5 @@
-"""Restartus Model
+"""Restartus Model.
+
 For module definitions
 
 This is a dummy file because of a current bug in mypy

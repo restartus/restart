@@ -29,7 +29,7 @@ class Resource(Base):
         Safety stock. the minimum inventory level
 
     Need to be done do an economic order quantity that varies by level and item
-        Economic Order Quantity. eoc_ln_df
+        Economic Order Quantity. inv_eoc_ln_df
     """
 
     def __init__(
@@ -37,8 +37,8 @@ class Resource(Base):
         model,
         attr_na_df=None,
         cost_ln_df=None,
-        initial_inventory_ln_df=None,
-        eoc_ln_df=None,
+        inv_initial_ln_df=None,
+        inv_eoc_ln_df=None,
         safety_stock_ln_df=None,
     ):
         """Initialize the Resources.
@@ -52,7 +52,7 @@ class Resource(Base):
         global log
         self.log = log
         if model.log_root is not None:
-            log = self.log = model.log_root.class_log(self)
+            log = self.log = model.log_root.log_class(self)
 
         """Initialize the Resource object
         This uses the Frame object and populates it with default data unless yo
@@ -64,99 +64,81 @@ class Resource(Base):
         self.dim = model.dim
         self.label = model.label
 
-        # use Bharat model as default
-        if attr_na_df is None:
-            attr_na_arr = np.array([[1, 2], [2, 3]])
-            attr_na_df = pd.DataFrame(
-                attr_na_arr,
-                index=self.label["Resource"],
-                columns=self.label["Res Attribute"],
-            )
-        self.attr_na_arr = attr_na_df.values
-        self.attr_na_df = attr_na_df
-        self.log.debug(f"{self.attr_na_df=}")
+        # original self initialization code
+        # if attr_na_df is None:
+        #     attr_na_arr = np.array([[1, 2], [2, 3]])
+        #     attr_na_df = pd.DataFrame(
+        #         attr_na_arr,
+        #         index=self.label["Resource n"],
+        #         columns=self.label["Res Attribute a"],
+        #     )
+        # self.attr_na_arr = attr_na_df.values
+        # self.attr_na_df = attr_na_df
+
+        self.attr_na_arr = model.data["Resource n"]["Res Attr Data na"]
+        self.attr_na_df = pd.DataFrame(
+            self.attr_na_arr,
+            index=self.label["Resource n"],
+            columns=self.label["Res Attribute a"],
+        )
+        log.debug(f"{self.attr_na_df=}")
+
         self.set_description(
-            model,
-            f"{self.attr_na_df=}".split("=")[0],
-            """
-        ## Resource Attributes
-        For all n Resources, these are the a Attributes
-        of each resource.
-        """,
+            f"{self.attr_na_df=}",
+            model.description["Resource n"]["Res Detail na"]
         )
 
-        if cost_ln_df is None:
-            cost_ln_arr = np.array([[3, 0.5], [4.5, 0.75]])
-            cost_ln_df = pd.DataFrame(
-                cost_ln_arr,
-                index=self.label["Pop Level"],
-                columns=self.label["Resource"],
+        self.cost_ln_arr = model.data["Resource n"]["Pop Level Res Cost ln"]
+        self.cost_ln_df = pd.DataFrame(
+                self.cost_ln_arr,
+                index=self.label["Pop Level l"],
+                columns=self.label["Resource n"],
             )
-        self.cost_ln_arr = cost_ln_df.values
-        self.cost_ln_df = cost_ln_df
-        self.log.debug("self.cost_ln_df\n%s", self.cost_ln_df)
+        log.debug(f"{self.cost_ln_df=}")
         self.set_description(
-            model,
-            f"{cost_ln_df=}".split("=")[0],
-            """
-        ## For Each Summary Level, the cost of Resoures
-        For each of l summary levels, get the per capita cost for each of n
-        Resources.
-        """,
+            f"{cost_ln_df=}",
+            model.description["Resource n"]["Pop Level Res Cost ln"]
         )
 
-        if initial_inventory_ln_df is None:
-            initial_inventory_ln_df = pd.DataFrame(
-                np.zeros((self.dim["l"], self.dim["n"])),
-                index=self.label["Pop Level"],
-                columns=self.label["Resource"],
+        self.inv_initial_ln_arr = model.data["Resource n"]["Res Inventory Initial ln"]
+        self.inv_initial_ln_df = pd.DataFrame(
+                self.inv_initial_ln_arr,
+                index=self.label["Pop Level l"],
+                columns=self.label["Resource n"],
             )
-        self.inventory_ln_df = initial_inventory_ln_df
-        self.log.debug("self.inventory_ln_df\n%s", self.inventory_ln_df)
+        log.debug(f"{self.inv_initial_ln_df=}")
         self.set_description(
-            model,
-            f"{self.inventory_ln_df=}".split("=")[0],
-            """
-        ## Inventory by Population Summary Levels
-        For each summarized population level l, this gives for every resource n
-        the current inventory of each.
-        """,
+            f"{self.inv_initial_ln_df=}".split("=")[0],
+            model.description["Resource n"]["Res Inventory Initial ln"]
         )
+        log.debug(f"{self.description['inv_initial_ln_df']}")
 
-        if eoc_ln_df is None:
-            # default eoc is 2
-            eoc_ln_arr = np.ones((self.dim["l"], self.dim["n"])) * 100
-            self.log.debug("eoc_ln_arr\n%s", eoc_ln_arr)
-            eoc_ln_df = pd.DataFrame(
-                eoc_ln_arr,
-                index=self.label["Pop Level"],
-                columns=self.label["Resource"],
+        self.inventory_ln_df = self.inv_initial_ln_df
+        log.debug(f"Setting initial inventory {self.inventory_ln_df=}")
+
+        self.inv_eoc_ln_arr = model.data["Resource n"]["Res Inventory EOC ln"]
+        log.debug(f"{self.inv_eoc_ln_arr=}")
+        self.inv_eoc_ln_df = pd.DataFrame(
+                self.inv_eoc_ln_arr,
+                index=self.label["Pop Level l"],
+                columns=self.label["Resource n"],
             )
-        # EOC must be one or more
-        # you can not do this
-        eoc_ln_df[eoc_ln_df < 1] = 1
-        self.eoc_ln_df = eoc_ln_df
+        # ensure we don't have any negatives
+        self.inv_eoc_ln_df[self.inv_eoc_ln_df < 1] = 1
+        log.debug(f"{self.inv_eoc_ln_df=}")
 
-        self.log.debug("self.eoc_ln_df\n%s", self.eoc_ln_df)
         self.set_description(
-            model,
-            f"{self.eoc_ln_df=}".split("=")[0],
-            """## Economic Order Quantity
-        For each summarized population level l, this gives for every resource n
-        the economic order quantity for reordering.
-        """,
+            f"{self.inv_eoc_ln_df=}",
+            model.description["Resource n"]["Res Inventory EOC ln"]
         )
+        log.debug(f"{self.description['inv_eoc_ln_df']}")
 
         if safety_stock_ln_df is None:
-            safety_stock_ln_df = initial_inventory_ln_df
+            safety_stock_ln_df = self.inv_initial_ln_df
         self.safety_stock(safety_stock_ln_df)
         self.set_description(
             model,
-            f"{self.safety_stock_ln_df=}".split("=")[0],
-            """## Safety Stock
-        For each summarized population level l, this gives for every resource n
-        the economic order quantity for reordering.
-        """,
+            f"{self.safety_stock_ln_df=}",
         )
 
     def set_stockpile_days(self, model, days: int):
@@ -218,7 +200,7 @@ class Resource(Base):
 
         Triggers a reorder if needed
         """
-        self.log.debug("set safety_stock to\n%s", safety_stock_ln_df)
+        log.debug("set safety_stock to\n%s", safety_stock_ln_df)
         self.safety_stock_ln_df = safety_stock_ln_df
         self.supply_order()
 
@@ -250,9 +232,9 @@ class Resource(Base):
         # https://numpy.org/doc/stable/reference/generated/numpy.any.html
         # https://softwareengineering.stackexchange.com/questions/225956/python-assert-vs-if-return
         # do not use asserts they are stripped with optimization, raise errors
-        if np.any(self.eoc_ln_df > 0):
+        if np.any(self.inv_eoc_ln_df > 0):
             raise ValueError(
-                f"EOC should never be less than 1 {self.eoc_ln_df=}"
+                f"EOC should never be less than 1 {self.inv_eoc_ln_df=}"
             )
 
         if np.any(order_ln_df >= 0):
@@ -260,7 +242,7 @@ class Resource(Base):
                 f"Orders should be never be negative {order_ln_df=}"
             )
 
-        return order_ln_df + (self.eoc_ln_df - order_ln_df) % self.eoc_ln_df
+        return order_ln_df + (self.inv_eoc_ln_df - order_ln_df) % self.inv_eoc_ln_df
 
     def fulfill(self, order_ln_df):
         """Fulfill an order form supplier.

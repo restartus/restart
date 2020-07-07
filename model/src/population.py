@@ -101,7 +101,8 @@ class Population(Base):
         log.debug(f"{model.data=}")
 
         # manual insert of population
-        self.attr_pd_arr = model.data["Population p"]["Pop Detail d"]
+        self.attr_pd_arr = model.data["Population p"]["Pop Detail Data pd"]
+        log.debug(f"{self.attr_pd_arr=}")
         self.attr_pd_df = pd.DataFrame(
             self.attr_pd_arr,
             index=model.label["Population p"],
@@ -112,7 +113,7 @@ class Population(Base):
         # new population class, so it can be replaced in a class
         population_data = PopulationData(
             model,
-            source=model.data["Population p"]["Pop Detail d"],
+            source=model.data["Population p"]["Pop Detail Data pd"],
             index=model.label["Population p"],
             columns=model.label["Pop Detail d"],
         )

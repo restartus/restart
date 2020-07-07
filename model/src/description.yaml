@@ -42,12 +42,29 @@ Description:
         ## Population Demand Total Cost by N Summary Levels
         For all L population summary levels, the total cost for a set of
         n resources
-  "Resource n":
-    "Resource Attribute na":
-      - [1, 3, 1.5]
-      - [1, 2, 0.7]
   "Res Demand mn": |
     ## Protection by Level Demand for Resources aka Burn Rate (mn)
     The burn rates per capita for resources
     For example, 1.18 would mean you need 1.18 N95 masks per day for a
     given population
+  "Resource n":
+    "Res Detail na": |
+        ## Resource Details (pa)
+        For all n Resources, these are the figures for each of the a Attributes
+        of each resource.
+    "Pop Level Res Cost ln": |
+        ## For Each Summary Level, the cost of Resoures
+        For each of l summary levels, get the per capita cost for each of n
+        Resources.
+    "Res Inventory Initial ln": |
+        ## Inventory by Population Summary Levels
+        For each summarized population level l, this gives for every resource n
+        the current inventory of each.
+    "Res Inventory EOC ln": |
+        ## Economic Order Quantity
+        For each summarized population level l, this gives for every resource n
+        the economic order quantity for reordering.
+    "Res Inventory Safety Stock ln": |
+        ## Safety Stock
+        For each summarized population level l, this gives for every resource n
+        the economic order quantity for reordering.

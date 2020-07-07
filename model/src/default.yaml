@@ -25,6 +25,7 @@ Label:
   "Res Attribute a":
     - Units
     - Volume
+    - Area
   "Res Safety Stock s":
     - High
     - Mid

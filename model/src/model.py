@@ -65,28 +65,28 @@ class Model(Base):
         log.debug(f"{self.name=}")
 
         # https://realpython.com/python-keyerror/
-        self.config: Optional[Dict] = self.config.dict.get("Config")
-        log.debug(f"{self.dict=}")
+        cfg: Optional[Dict] = config.dict.get("Config")
+        if cfg is not None:
+            self.config = cfg
+        log.debug(f"{self.config=}")
 
-        self.label: Optional[Dict] = self.raw.get("Label")
-        log.debug(f"{self.label=}")
-
-        self.description: Optional[Dict] = self.raw.get("Description")
+        description: Optional[Dict] = config.dict.get("Description")
+        if description is not None:
+            self.description = description
         log.debug(f"{self.description=}")
 
-        self.data: Optional[Dict] = self.raw.get("Data")
+        data: Optional[Dict] = config.dict.get("Data")
+        if data is not None:
+            self.data = data
         log.debug(f"{self.data=}")
-        # model arity
-        self.label = config.model
+
+        label: Optional[Dict] = config.dict.get("Label")
+        if label is None:
+            log.warning(f'No label in {config.dict=}')
+            return
+        self.label = label
+
         log.debug(f"{self.label=}")
-
-        # the actual data
-        self.data = config.data
-        log.debug(f"{self.data=}")
-
-        self.description = config.description
-        log.debug(f"{self.description}")
-
         # These are just as convenience functions for dimensions
         # and for type checking this is ugly should make it
         # for look for assign because we are just mapping label

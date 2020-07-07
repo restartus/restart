@@ -4,6 +4,7 @@ Base mainly includes the description fields
 """
 from typing import Dict, Any
 import logging
+from model import Model
 
 log = logging.getLogger(__name__)
 log.debug(f"{__name__=}")
@@ -12,7 +13,7 @@ log.debug(f"{__name__=}")
 class Base:
     """Base for all model classes.
 
-    Base stringsa.
+    Base strings.
     """
 
     description: Dict[str, str] = {}
@@ -28,11 +29,13 @@ class Base:
         log.debug("run base")
         log.debug(f"{self=}")
 
-    def set_description(self, model: Any, name: str, description: str):
+    def set_description(self, model: Model, name: str, description: str):
         """Set the variable description.
 
         The descriptions are carried in each class so they are self documenting
         May change this to centralized at some point.
+        Gets rid of the equal sign if it is there from a f string
+        Also only uses the last member name
         """
         # https://stackoverflow.com/questions/18425225/getting-the-name-of-a-variable-as-a-string/58451182#58451182
         # Using Python 3.8 f strings
@@ -48,7 +51,7 @@ class Base:
         # https://stackoverflow.com/questions/599953/how-to-remove-the-left-part-of-a-string
         # clean up the name so you only get the basename after the period
         # https://www.tutorialspoint.com/How-to-get-the-last-element-of-a-list-in-Python
-        name = name.split(".")[-1]
+        name = name.split("=")[0].split(".")[-1]
         model_name = class_name + "." + name
         log.debug(f"{model_name=} {name=}")
         # log.debug(f'set model.description[{model_name}]')

@@ -10,11 +10,41 @@ Description:
       There are p Populations in the model and each population
       can have d details about them such as their degree of age,
       ethnicity, attitudes and awareness behaviors
-    "Protection pm":
-      - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
-      - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    "Resource Demand mn":
-      [[0, 1], [0, 2], [0, 2], [0.1, 3], [0.2, 4], [0.3, 6], [1.18, 0]]
+    "Protection pm": |
+      ## Population to Protection Level (pm)
+      For each p Populations falls into which protection
+      category m for the burn rates
+    "Protection Demand mn": |
+      ## Population by Level demand for Resources (mn)
+      The burn rates per capita for resources
+      For example, 1.18 would mean you need 1.18 N95 masks per day for a
+      given population
+    "Population Demand pn": |
+      ## Population Demand for each of n Resources (pn)
+      This is the per capita demand for a give population so this is not the per
+      capita demand but for every n Resource for ever subpopulation p
+    "Population to Level pl" |
+      ## Population's mapped into Summary Levels (pl)
+      This maps every population p into any number of summary levels l
+      summarized by the l Level level used. In this model higher
+      levels mean more protection by convention, but that isn't necessary.
+      You can also a given population row spread across different levels
+      so that for instance a percentage of a population could go into
+      different rows
+    "Level Demand ln": |
+      ## Population Demand by Summary Level for Resources (ln)
+      This is the per capita demand for a set of n resources
+      summarized by the l Summary Level used. It provides a view of demand
+      aggregated by the summary level.
+    "Population Total Demand pn": |
+      ## Population Demand Resource pn 
+      This is the total demand for all p sub-Population for every resource n
+    "Level Total Demand ln" : |
+      ## Total Demand for all Population Summary Levels for Resources (ln)
+      For all L population summary levels, the total demand for a set of n resources
+    "Level Total Cost ln" : |
+        ## Population Demand Total Cost by N Summary Levels
+        For all L population summary levels, the total cost for a set of n resources
   "Resource n":
     "Resource Attribute na":
       - [1, 3, 1.5]

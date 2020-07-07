@@ -137,8 +137,8 @@ class Resource(Base):
             safety_stock_ln_df = self.inv_initial_ln_df
         self.safety_stock(safety_stock_ln_df)
         self.set_description(
-            model,
             f"{self.safety_stock_ln_df=}",
+            model.description["Resource n"]["Res Inventory Initial ln"]
         )
 
     def set_stockpile_days(self, model, days: int):
@@ -232,12 +232,12 @@ class Resource(Base):
         # https://numpy.org/doc/stable/reference/generated/numpy.any.html
         # https://softwareengineering.stackexchange.com/questions/225956/python-assert-vs-if-return
         # do not use asserts they are stripped with optimization, raise errors
-        if np.any(self.inv_eoc_ln_df > 0):
+        if np.any(self.inv_eoc_ln_df < 1):
             raise ValueError(
                 f"EOC should never be less than 1 {self.inv_eoc_ln_df=}"
             )
 
-        if np.any(order_ln_df >= 0):
+        if np.any(order_ln_df < 0):
             raise ValueError(
                 f"Orders should be never be negative {order_ln_df=}"
             )

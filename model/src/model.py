@@ -40,6 +40,7 @@ class Model(Base):
         protection protection: m types of resource consumption
         population levels: l levels maps population down to a fewer levels
     """
+
     data: Dict = {}
 
     # https://satran.in/b/python--dangerous-default-value-as-argument
@@ -54,7 +55,8 @@ class Model(Base):
         # the long description of each
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__()
-
+        global log
+        self.log = log
         if log_root is not None:
             self.log_root = log_root
             self.log = log_root.log_class(self)
@@ -98,7 +100,7 @@ class Model(Base):
             "a": len(self.label["Res Attribute a"]),
             "p": len(self.label["Population p"]),
             "d": len(self.label["Pop Detail d"]),
-            "m": len(self.label["Protection m"]),
+            "m": len(self.label["Protection Category m"]),
             "l": len(self.label["Pop Level l"]),
             "s": len(self.label["Res Safety Stock s"]),
         }

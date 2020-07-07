@@ -31,12 +31,12 @@ class Behavioral(Base):
         super().__init__()
 
         # create a sublogger if a root exists in the model
-        self.log = log
+        global log
         self.model = model
         if model.log_root is not None:
-            self.log = model.log_root.log_class(self)
+            log = self.log = model.log_root.log_class(self)
         # the sample code to move up the logging for a period and then turn it
         # off
         self.model.log_root.con.setLevel(logging.DEBUG)
-        self.log.debug("testing move to debug to console")
+        log.debug("testing move to debug to console")
         self.model.log_root.con.setLevel(logging.WARNING)

@@ -8,6 +8,8 @@ import yaml
 from typing import Optional, Dict, Iterator, Any
 from util import Log
 
+# TODO: the scoping doesn't work, log here cannot be
+# changed by __init__
 log = logging.getLogger(__name__)
 
 
@@ -22,17 +24,19 @@ class Config:
     def __init__(
         self, *files, log_root: Optional[Log] = None,
     ):
-        """Let's get started.
+        """Read Configuration YAML.
 
         Figure out how to make YAML reading work
         note that this causes the latest dictionary to overwrite prior
         entries so order matters if you have duplicates
         """
+        global log
         # replace the standalone logger if asked
         if log_root is not None:
             self.root_log = log_root
-            self.log = log_root.log_class(self)
-            log = self.log
+            log = self.log = log_root.log_class(self)
+            log.debug(f"{self.log=} {log=}")
+
         log.debug(f"module {__name__=}")
 
         # https://gist.github.com/treyhunner/f35292e676efa0be1728
@@ -50,6 +54,13 @@ class Config:
 
         Load a Yaml file with one
         """
+        # TODO: not clear why this is not true
+        # https://www.flake8rules.com/rules/F823.html
+        global log
+        if self.log is not log:
+            log = self.log
+            raise ValueError(f"{self.log=} {log=}")
+        log.debug(f'{filename=}')
         try:
             with open(filename, "r") as f:
                 # bandit says use the safe loader

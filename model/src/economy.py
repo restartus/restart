@@ -36,6 +36,7 @@ class Economy(Base):
         super().__init__()
 
         # create a sublogger if a root exists in the model
+        global log
         self.log = log
         if model.log_root is not None:
-            self.log = model.log_root.log_class(self)
+            log = self.log = model.log_root.log_class(self)

@@ -33,7 +33,7 @@ class Log:
         self.con = logging.StreamHandler()
         self.con.setLevel(logging.CRITICAL)
         self.con_format = logging.Formatter(
-            "%(name)s - %(levelname)s - %(message)s"
+            "%(levelname)-8s [%(filename)s:%(lineno)d] %(message)s"
         )
         self.con.setFormatter(self.con_format)
         # this is where you can bind as many handlers as you want
@@ -42,8 +42,12 @@ class Log:
         # https://www.programcreek.com/python/example/472/logging.FileHandler
         self.fh = logging.FileHandler("test.log")
         self.fh.setLevel(logging.DEBUG)
+        # https://stackoverflow.com/questions/533048/how-to-log-source-file-name-and-line-number-in-python
+        # https://note.nkmk.me/en/python-long-string/
         self.fh_format = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(module)s - %(message)s"
+            "%(asctime)s %(levelname)-8s "
+            "[%(name)s:%(filename)s:%(lineno)d] %(message)s",
+            datefmt="%Y-%m-%d:%H:%M:%S",
         )
         self.fh.setFormatter(self.fh_format)
         self.log.addHandler(self.fh)

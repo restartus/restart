@@ -60,17 +60,17 @@ class Population(Base):
     """
 
     # These are the default structures
-    attr_pd_arr = np.array([735.2, 7179.6])
-    level_pm_arr = np.array(
-        [
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5],
-            [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        ]
-    )
+    # attr_pd_arr = np.array([735.2, 7179.6])
+    # level_pm_arr = np.array(
+    #     [
+    #         [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5],
+    #         [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    #     ]
+    # )
 
-    res_demand_mn_arr = np.array(
-        [[0, 1], [0, 2], [0, 2], [0.1, 3], [0.2, 4], [0.3, 6], [1.18, 0]]
-    )
+    # res_demand_mn_arr = np.array(
+    #     [[0, 1], [0, 2], [0, 2], [0.1, 3], [0.2, 4], [0.3, 6], [1.18, 0]]
+    # )
 
     # No need for initialization get it from model.data
     #        attr_pd_df: Optional[pd.DataFrame] = None,
@@ -87,7 +87,8 @@ class Population(Base):
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         # to pick up the description
         super().__init__()
-
+        global log
+        self.log = log
         # create a sublogger if a root exists in the model
         if model.log_root is not None:
             log = self.log = model.log_root.log_class(self)
@@ -95,7 +96,8 @@ class Population(Base):
         # set the arrays of values should be a column vector
         # https://kite.com/python/answers/how-to-make-a-numpy-array-a-column-vector-in-python
         # A shortcut
-        self.attr_pd_arr = model.data["Population p"]["Attributes pd"]
+        log.debug(f"{model.data=}")
+        self.attr_pd_arr = model.data["Population p"]["Attribute pd"]
         self.attr_pd_df = pd.DataFrame(
             self.attr_pd_arr,
             index=model.label["Population p"],
@@ -104,7 +106,6 @@ class Population(Base):
         log.debug(f"{self.attr_pd_df=}")
 
         self.set_description(
-            model,
             f"{self.attr_pd_df=}",
             model.description["Population p"]["Attributers pd"],
         )
@@ -118,7 +119,6 @@ class Population(Base):
         )
         log.debug(f"{self.level_pm_df=}")
         self.set_description(
-            model,
             f"{self.level_pm_df=}",
             model.description["Population p"]["Protection Category m"],
         )
@@ -137,7 +137,6 @@ class Population(Base):
         # for compatiblity both the model and the object hold the same
         # description
         self.set_description(
-            model,
             f"{self.res_demand_mn_df=}",
             model.description["Population p"]["Protection Demand mn"],
         )
@@ -145,7 +144,6 @@ class Population(Base):
         self.demand_pn_df = self.level_pm_df @ self.res_demand_mn_df
         log.debug(f"{self.demand_pn_df=}")
         self.set_description(
-            model,
             f"{self.demand_pn_df=}",
             model.description["Population p"]["Population Demand pn"],
         )
@@ -160,7 +158,6 @@ class Population(Base):
         )
         log.debug(f"{self.level_pl_df=}")
         self.set_description(
-            model,
             f"{self.level_pl_df=}",
             model.description["Population p"]["Pop to Level pl"],
         )
@@ -168,7 +165,6 @@ class Population(Base):
         self.level_demand_ln_df = self.level_pl_df.T @ self.demand_pn_df
         log.debug(f"{self.level_demand_ln_df=}")
         self.set_description(
-            model,
             f"{self.level_demand_ln_df=}",
             model.description["Population p"]["Level Demand ln"],
         )
@@ -182,7 +178,6 @@ class Population(Base):
         log.debug(f"{self.total_demand_pn_df=}")
         # convert to demand by levels note we have to transpose
         self.set_description(
-            model,
             f"{self.total_demand_pn_df=}",
             model.description["Population p"]["Population Total Demand pn"],
         )
@@ -192,7 +187,6 @@ class Population(Base):
         )
         log.debug(f"{self.level_total_demand_ln_df=}")
         self.set_description(
-            model,
             f"{self.level_total_demand_ln_df=}",
             model.description["Population p"]["Level Total Demand ln"],
         )
@@ -200,7 +194,6 @@ class Population(Base):
         # set to null to make pylint happy and instatiate the variable
         self.level_total_cost_ln_df = None
         self.set_description(
-            model,
             f"{self.level_total_cost_ln_df=}",
             model.description["Population p"]["Level Total Cost ln"],
         )

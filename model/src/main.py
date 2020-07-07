@@ -62,18 +62,20 @@ def main():
     And if you make a change to any, the model will automatically recalc
     everything
     """
+    global log
     name = "bharat"
     # set up the logging
     log_root = Log(name)
     # Set all the loggers the same
-    log = new_log = log_root.log
+    log = log_root.log
     # test that logging works
     log_root.test(log)
 
     # run the configuration load
     config = Config(
         "config.yaml",
-        "data.yaml" "model.yaml",
+        "data.yaml",
+        "model.yaml",
         "description.yaml",
         log_root=log_root,
     )
@@ -103,7 +105,6 @@ def main():
 
     model.resource.set_stockpile(model.population.level_total_demand_ln_df)
     log.debug("Safety stock\n%s", model.resource.safety_stock_ln_df)
-    new_log.debug("Safety stock\n%s", model.resource.safety_stock_ln_df)
 
     # create the resource object that is p populations and n items
     log.debug("resource attributes\n%s", model.resource.attr_na_df)
@@ -115,12 +116,10 @@ def main():
     # And other tempo data like number of runs so
     # eventually this is d dimensinoal
     log.debug("Population\n%s", model.population.attr_pd_df)
-    new_log.debug("Population\n%s", model.population.attr_pd_df)
 
     # Now bucket population into a set of levels
     # So we have a table is p x l
     log.debug("Population by level\n%s", model.population.level_pl_df)
-    new_log.debug("Population by level\n%s", model.population.level_pl_df)
 
     # This is rows that are levels adn then usage of each resource  or l, n
     # When population become n x d, then there will be a usage
@@ -153,10 +152,10 @@ def main():
     )
 
     for s in [3, 6, 9]:
-        new_log.info(f"changing stockpile to {s=}")
+        log.info(f"changing stockpile to {s=}")
         model.resource.set_stockpile_days(model, s)
-        new_log.info(f"{model.resource.safety_stock_ln_df=}")
-        new_log.info(f"{model.resource.inventory_ln_df=}")
+        log.info(f"{model.resource.safety_stock_ln_df=}")
+        log.info(f"{model.resource.inventory_ln_df=}")
     return model
 
 

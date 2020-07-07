@@ -49,9 +49,10 @@ class Resource(Base):
         super().__init__()
 
         # create a sublogger if a root exists in the model
+        global log
         self.log = log
         if model.log_root is not None:
-            self.log = model.log_root.class_log(self)
+            log = self.log = model.log_root.class_log(self)
 
         """Initialize the Resource object
         This uses the Frame object and populates it with default data unless yo
@@ -188,6 +189,8 @@ class Resource(Base):
 
         Stockpile set
         """
+        if log is not self.log:
+            raise ValueError(f"{log=} is not {self.log=}")
         if safety_stock_days_ln_df is None:
             # place holder just 30 days for essential
             safety_stock_days_ln_arr = np.array([[30, 30], [0, 0]])

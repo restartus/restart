@@ -24,7 +24,6 @@ class Base:
 
         Mainly the descriptions
         """
-        #         print("in init")
         log.debug("run base")
         log.debug(f"{self=}")
 

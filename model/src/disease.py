@@ -35,8 +35,8 @@ class Disease(Base):
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__()
-
         # create a sublogger if a root exists in the model
+        global log
         self.log = log
         if model.log_root is not None:
-            self.log = model.log_root.log_class(self)
+            log = self.log = model.log_root.log_class(self)

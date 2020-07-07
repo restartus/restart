@@ -40,6 +40,7 @@ class Model(Base):
         protection protection: m types of resource consumption
         population levels: l levels maps population down to a fewer levels
     """
+    data: Dict = {}
 
     # https://satran.in/b/python--dangerous-default-value-as-argument
     # https://stackoverflow.com/questions/2…
@@ -76,6 +77,7 @@ class Model(Base):
         log.debug(f"{self.description=}")
 
         data: Optional[Dict] = config.dict.get("Data")
+        log.debug(f"{data=}")
         if data is not None:
             self.data = data
         log.debug(f"{self.data=}")

@@ -17,7 +17,7 @@ class Config:
     Model configuration from YAML files
     """
 
-    dict: Dict
+    dict: Dict = {}
 
     def __init__(
         self, *files, log_root: Optional[Log] = None,
@@ -42,7 +42,7 @@ class Config:
             dict: Optional[Dict] = self.load(file)
             if dict is not None:
                 # TODO: the second arg wants Mapping, got Dict
-                self.dict = {**self.raw, **dict}  # type:ignore
+                self.dict = {**self.dict, **dict}
         log.debug(f"{self.dict=}")
 
     def load(self, filename: str) -> Optional[Dict]:

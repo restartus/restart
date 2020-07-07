@@ -4,7 +4,6 @@ Base mainly includes the description fields
 """
 from typing import Dict, Any
 import logging
-from model import Model
 
 log = logging.getLogger(__name__)
 log.debug(f"{__name__=}")
@@ -29,7 +28,7 @@ class Base:
         log.debug("run base")
         log.debug(f"{self=}")
 
-    def set_description(self, model: Model, name: str, description: str):
+    def set_description(self, name: str, description: str):
         """Set the variable description.
 
         The descriptions are carried in each class so they are self documenting
@@ -55,4 +54,4 @@ class Base:
         model_name = class_name + "." + name
         log.debug(f"{model_name=} {name=}")
         # log.debug(f'set model.description[{model_name}]')
-        model.description[model_name] = self.description[name] = description
+        self.description[name] = description

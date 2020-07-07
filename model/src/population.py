@@ -11,6 +11,7 @@ from base import Base
 from model import Model
 
 import logging  # noqa: F401
+
 # The default logger if you don't get a root logger
 log = logging.getLogger(__name__)
 log.debug("In %s", __name__)
@@ -77,8 +78,7 @@ class Population(Base):
     #        res_demand_mn_df: Optional[pd.DataFrame] = None,
     #        level_pl_df: Optional[pd.DataFrame] = None,
     def __init__(
-        self,
-        model: Model,
+        self, model: Model,
     ):
         """Initialize all variables.
 
@@ -97,47 +97,49 @@ class Population(Base):
         # A shortcut
         self.attr_pd_arr = model.data["Population p"]["Attributes pd"]
         self.attr_pd_df = pd.DataFrame(
-                self.attr_pd_arr,
-                index=model.label["Population p"],
-                columns=model.label["Pop Detail d"],
-            )
+            self.attr_pd_arr,
+            index=model.label["Population p"],
+            columns=model.label["Pop Detail d"],
+        )
         log.debug(f"{self.attr_pd_df=}")
 
         self.set_description(
             model,
             f"{self.attr_pd_df=}",
-            model.description["Population p"]["Attributers pd"]
+            model.description["Population p"]["Attributers pd"],
         )
 
         # set the population by demand levels
         self.level_pm_arr = model.data["Population p"]["Protection m"]
         self.level_pm_df = pd.DataFrame(
-                self.level_pm_arr,
-                index=model.label["Population p"],
-                columns=model.label["Protection Category m"],
-            )
+            self.level_pm_arr,
+            index=model.label["Population p"],
+            columns=model.label["Protection Category m"],
+        )
         log.debug(f"{self.level_pm_df=}")
         self.set_description(
             model,
             f"{self.level_pm_df=}",
-            model.description["Population p"]["Protection Category m"]
+            model.description["Population p"]["Protection Category m"],
         )
 
         # note these are defaults for testing
         # this is the protection level and the burn rates for each PPE
-        self.res_demand_mn_arr = model.data["Population p"]["Protection Demand mn"]
+        self.res_demand_mn_arr = model.data["Population p"][
+            "Protection Demand mn"
+        ]
         self.res_demand_mn_df = pd.DataFrame(
-                self.res_demand_mn_arr,
-                index=model.label[" Level n"],
-                columns=model.label["Protection Demand mn"],
-            )
+            self.res_demand_mn_arr,
+            index=model.label[" Level n"],
+            columns=model.label["Protection Demand mn"],
+        )
         log.debug(f"{self.res_demand_mn_df=}")
         # for compatiblity both the model and the object hold the same
         # description
         self.set_description(
             model,
             f"{self.res_demand_mn_df=}",
-            model.description["Population p"]["Protection Demand mn"]
+            model.description["Population p"]["Protection Demand mn"],
         )
 
         self.demand_pn_df = self.level_pm_df @ self.res_demand_mn_df
@@ -145,22 +147,22 @@ class Population(Base):
         self.set_description(
             model,
             f"{self.demand_pn_df=}",
-            model.description["Population p"]["Population Demand pn"]
+            model.description["Population p"]["Population Demand pn"],
         )
 
         # now get the conversion from the many p populations to the much
         # smaller l levels that are easier to understand
         self.level_pl_arr = model.data["Population p"]["Pop to Level pl"]
         self.level_pl_df = pd.DataFrame(
-                self.level_pl_arr,
-                index=model.label["Population p"],
-                columns=model.label["Pop Level l"],
-            )
+            self.level_pl_arr,
+            index=model.label["Population p"],
+            columns=model.label["Pop Level l"],
+        )
         log.debug(f"{self.level_pl_df=}")
         self.set_description(
             model,
             f"{self.level_pl_df=}",
-            model.description["Population p"]["Pop to Level pl"]
+            model.description["Population p"]["Pop to Level pl"],
         )
 
         self.level_demand_ln_df = self.level_pl_df.T @ self.demand_pn_df
@@ -168,7 +170,7 @@ class Population(Base):
         self.set_description(
             model,
             f"{self.level_demand_ln_df=}",
-            model.description["Population p"]["Level Demand ln"]
+            model.description["Population p"]["Level Demand ln"],
         )
 
         # now to the total for population
@@ -182,7 +184,7 @@ class Population(Base):
         self.set_description(
             model,
             f"{self.total_demand_pn_df=}",
-            model.description["Population p"]["Population Total Demand pn"]
+            model.description["Population p"]["Population Total Demand pn"],
         )
 
         self.level_total_demand_ln_df = (
@@ -192,7 +194,7 @@ class Population(Base):
         self.set_description(
             model,
             f"{self.level_total_demand_ln_df=}",
-            model.description["Population p"]["Level Total Demand ln"]
+            model.description["Population p"]["Level Total Demand ln"],
         )
 
         # set to null to make pylint happy and instatiate the variable
@@ -200,7 +202,7 @@ class Population(Base):
         self.set_description(
             model,
             f"{self.level_total_cost_ln_df=}",
-            model.description["Population p"]["Level Total Cost ln"]
+            model.description["Population p"]["Level Total Cost ln"],
         )
 
     def level_total_cost(self, cost_ln_df):
@@ -211,9 +213,7 @@ class Population(Base):
         self.level_total_cost_ln_df = (
             self.level_total_demand_ln_df * cost_ln_df.values
         )
-        log.debug(
-            "level_total_cost_ln_df\n%s", self.level_total_cost_ln_df
-        )
+        log.debug("level_total_cost_ln_df\n%s", self.level_total_cost_ln_df)
 
     # this works because python is call by assignment
     # so immutables are call by value but mutales like dataframes and numpy

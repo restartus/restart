@@ -16,7 +16,7 @@ class Base:
     Base strings.
     """
 
-    description: Dict[str, str] = {}
+    description: Dict = {}
     log: Any = None
 
     # https://stackoverflow.com/questions/9056957/correct-way-to-define-class-variables-in-python

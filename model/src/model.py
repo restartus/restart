@@ -82,7 +82,7 @@ class Model(Base):
 
         label: Optional[Dict] = config.dict.get("Label")
         if label is None:
-            log.warning(f'No label in {config.dict=}')
+            log.warning(f"No label in {config.dict=}")
             return
         self.label = label
 

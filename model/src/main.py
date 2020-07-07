@@ -71,11 +71,12 @@ def main():
     log_root.test(log)
 
     # run the configuration load
-    config = Config('config.yaml',
-                    'data.yaml'
-                    'model.yaml',
-                    'description.yaml',
-                    log_root=log_root)
+    config = Config(
+        "config.yaml",
+        "data.yaml" "model.yaml",
+        "description.yaml",
+        log_root=log_root,
+    )
     log.debug(f"{config.dict=}")
 
     # Static typing for custom classes

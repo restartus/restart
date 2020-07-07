@@ -16,12 +16,11 @@ class Config:
 
     Model configuration from YAML files
     """
+
     dict: Dict
 
     def __init__(
-        self,
-        *files,
-        log_root: Optional[Log] = None,
+        self, *files, log_root: Optional[Log] = None,
     ):
         """Let's get started.
 

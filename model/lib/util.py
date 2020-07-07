@@ -7,7 +7,7 @@ import os
 from typing import Optional
 
 
-class Log():
+class Log:
     """Log helper class.
 
     Logging setting simplified

@@ -34,9 +34,10 @@ build_path ?= .
 user ?= $$USER
 MAIN ?= main.py
 WEB ?= dashboard.py
+LIB ?= lib
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
 flags ?= -p 8501:8501
-PIP ?= streamlit altair pandas pyhaml
+PIP ?= streamlit altair pandas pyyaml
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
@@ -134,17 +135,22 @@ doc-debug-web:
 # pipenv run flake8 --exclude $(WEB)
 #	pipenv run mypy $(NO_WEB)
 #	pipenv run pydocstyle --convention=google --match='(?!$(WEB))'
+#
+all_py = $$(find . -name "*.py")
+all_yaml = $$(find . -name "*.yaml")
+
 .PHONY: lint
 lint:
 	pipenv check
 	# mypy finds more errors than flake and we are using namespace
 	# https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports
-	find *.py >/dev/null && pipenv run mypy --namespace-packages *.py
+	# note this has a bug if there are no yaml or python files
 	pipenv run flake8
-	find *.py && pipenv run bandit *.py || true
-	find *.py && pipenv run pydocstyle --convention=google *.py || true
+	pipenv run mypy --namespace-packages $(all_py)
+	pipenv run bandit $(all_py)
+	pipenv run pydocstyle --convention=google $(all_py)
 	# lint the yaml config files and kill the error if it doesn't exist
-	find *.yaml && pipenv run yamllint *.yaml || true
+	pipenv run yamllint $(all_yaml)
 	@echo if you want destructive formatting run make format
 
 ## format: reformat python code to standard (uses pipenv)

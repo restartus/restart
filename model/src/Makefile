@@ -3,6 +3,6 @@
 #
 # overriding the name
 name=model
-PIP = streamlit altair pandas
+LIB = population loader
 
 include include.python.mk

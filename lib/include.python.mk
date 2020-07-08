@@ -88,7 +88,7 @@ pipenv-python:	pipenv-clean
 	@echo python is currently python 3.8
 	@echo note do not use requirements.txt as it will read it by default
 	@echo get the latest python
-	brew upgrade python@3.8
+	brew upgrade python@3.8 pipenv
 	PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --python /usr/local/opt/python@3.8/bin/python3
 	pipenv clean
 
@@ -135,8 +135,9 @@ doc-debug-web:
 .PHONY: lint
 lint:
 	pipenv check
-	# mypy finds more errors than flake8
-#	pipenv run mypy $(NO_WEB)
+	# mypy finds more errors than flake and we are using namespace
+	# https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports
+	find *.py >/dev/null && pipenv run mypy --namespace-packages *.py
 	pipenv run flake8
 	find *.py && pipenv run bandit *.py || true
 	find *.py && pipenv run pydocstyle --convention=google *.py || true

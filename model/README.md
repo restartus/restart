@@ -14,6 +14,7 @@ This is the visual display demo using streamlit. Filled with dummy data
   across streamlit and command line
 - [altair](altair). Studies of using the Altair plotting interface to Vegas-lite
 - [yaml](yaml). Experiments in using YAML as model input
+- [namespace](namespace). Testing of multiple packages in the same namespace
 
 ## Model that is the real python model first using streamlit as a demo v0.1
 

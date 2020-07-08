@@ -1,20 +1,38 @@
 # Model v2
-This reimplements the surge model with simple dummy data
+This reimplements the surge model with simple dummy data This uses Pipenv for managing packages because conda didn't install correctly an does not deal with streamlit properly. Eventually we will move this to a docker container. Here are the basic things we are doing:
 
-This uses Pipenv for managing packages because conda didn't install correctly an
-does not deal with streamlit properly. Eventually we will move this to a docker
-container
+1. A decision workbench so that in one click you can get every data source and
+   code base in the world on your desktop.
+2. A set of layers for gathering data sources
+3. A set of new data sources that uses these layers
+4. A core model that integrates all of this into something
 
-https://realpython.com/pipenv-guide/
+The main goal is to:
 
-# A note on usage
+1. For developers provide a one click stop to load *every* data source and
+   *every* code base for COVID-19 pandemics
+2. For decision support staff, that is the Excel model builders who are
+   preparing these analyses to help people.
+3. For business decision-makers, it's the way that they can count on making
+   decisions with the best decisions available.
+
+## The model structure
+
+The main model elements:
+
+1. [Load](loader). These are the low level classes that handle basic reading.
+   The first two are load_yaml and load_csv that know how to bring raw data into
+   dataframes. 
+   2. 
+
+
+# A note on usage and environment
 
 If you are editing with an editor like vim which uses the external python
 environment for checking, make sure you run `pipenv shell` so that you get the
-correct version of python. 
+correct version of python and pipenv
 
-
-# Installation
+## Installation
 
 Here are the notes on installation, there are three ways to run this project.
 All of these are done with the make file. To see available commands use `make

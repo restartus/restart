@@ -6,4 +6,3 @@ Config:
   dashboard: true
   stockpile: 30
   stockpile_high: 90
-

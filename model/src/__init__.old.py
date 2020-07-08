@@ -4,6 +4,8 @@ For module definitions
 
 This is a dummy file because of a current bug in mypy
 https://github.com/python/mypy/issues/8944
+
+No longer used doing implicit namespace packages instead
 """
 
 

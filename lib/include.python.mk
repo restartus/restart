@@ -83,6 +83,7 @@ pipenv: pipenv-python
 	pipenv lock
 
 ## pipenv-python: Install latest python 3.x for bleeding edge features
+# also add to the python path
 .PHONY: pipenv-python
 pipenv-python:	pipenv-clean
 	@echo python is currently python 3.8
@@ -90,7 +91,8 @@ pipenv-python:	pipenv-clean
 	@echo get the latest python
 	brew upgrade python@3.8 pipenv
 	PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --python /usr/local/opt/python@3.8/bin/python3
-	pipenv clean
+	@echo use .env to ensure we can see all packages
+	[[ ! -e .env ]] && echo "PYTHONPATH=$${PWD}" > .env
 
 ## pipenv-clean: cleans the pipenv completely
 # note pipenv --rm will fail if there is nothing there so ignore that

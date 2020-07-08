@@ -208,19 +208,19 @@ def testHome(data_df):
         """
     )
 
-    print(data_df)
+    log.debug(f"{data_df=}")
     st.write(
         """
-    ### All Resource Burn Rate Table
-    """
-    )
+        ### All Resource Burn Rate Table
+        """
+        )
 
     st.dataframe(data_df.head())
     st.write(
         """
-    ### Select Resource for Filtered Burn Rate Table
-    """
-    )
+        ### Select Resource for Filtered Burn Rate Table
+        """
+        )
 
     # do a multiselect to pick relevant items
     data_ms = st.multiselect(
@@ -231,9 +231,9 @@ def testHome(data_df):
     st.dataframe(filtered_data_df.head(10))
     st.write(
         """
-    ### Histogram of uses
-    """
-    )
+        ### Histogram of uses
+        """
+        )
     st.bar_chart(filtered_data_df)
     # It's so easy to chart with builtin types
     # And labelsa re just more markdown
@@ -245,9 +245,15 @@ def visualize_data(df, x_axis, y_axis):
 
     Charting for the dashboard
     """
-    print(df)
-    print("x_axis", x_axis)
-    print("y_axis", y_axis)
+    breakpoint()
+    f"""
+    ## Debug
+    {log=}
+    {df=}
+    {x_axis=}
+    {y_axis=}
+    """
+
     # Since this was published, there are more parameters for interactive v4
     # https://towardsdatascience.com/quickly-build-and-deploy-an-application-with-streamlit-988ca08c7e83
     # https://towardsdatascience.com/interactive-election-visualisations-with-altair-85c4c3a306f9

@@ -93,8 +93,8 @@ pipenv-python:	pipenv-clean
 	brew upgrade python@3.8 pipenv
 	PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --python /usr/local/opt/python@3.8/bin/python3
 	pipenv clean
-	# @echo use .env to ensure we can see all packages
-	# [[ ! -e .env ]] && echo "PYTHONPATH=$${PWD}" > .env
+	 @echo use .env to ensure we can see all packages
+	 [[ ! -e .env ]] && echo "PYTHONPATH=${PWD}" > .env
 
 ## pipenv-clean: cleans the pipenv completely
 # note pipenv --rm will fail if there is nothing there so ignore that

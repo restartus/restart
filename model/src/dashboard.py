@@ -71,7 +71,11 @@ def dashboard():
     )
     page = st.sidebar.selectbox(
         "Choose page",
-        ["Tables", "Home", "Test Home", "Exploration", "Test Tables"],
+        ["Exploration",
+         "Tables",
+         "Home",
+         "Test Home",
+         "Test Tables"],
     )
 
     stockpile_days = st.sidebar.slider("Stockpile", max_value=120, value=30)
@@ -245,14 +249,22 @@ def visualize_data(df, x_axis, y_axis):
 
     Charting for the dashboard
     """
-    breakpoint()
-    f"""
-    ## Debug
-    {log=}
-    {df=}
-    {x_axis=}
-    {y_axis=}
+    # F strings do not work with streamlit so just put variables i
+    # so use st.write to get them
     """
+    ## Debug
+    """
+    st.write(f"{x_axis=} {y_axis=}")
+    df
+    df.index.name = "Level"
+    df
+    # first rest the index to get it to be a column
+    # using melt to get column form
+    df_reset = df.reset_index()
+    df_reset
+
+    # you can also use breakpoint
+    # breakpoint()
 
     # Since this was published, there are more parameters for interactive v4
     # https://towardsdatascience.com/quickly-build-and-deploy-an-application-with-streamlit-988ca08c7e83

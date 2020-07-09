@@ -4,8 +4,6 @@ Main the class
 """
 
 # Note that pip install data-science-types caused errors
-from typing import List
-import numpy as np  # type:ignore
 import pandas as pd  # type:ignore
 from base import Base
 from model import Model
@@ -15,7 +13,7 @@ from pop.population_oes import PopulationOES
 import logging  # noqa: F401
 
 # The default logger if you don't get a root logger
-log = logging.getLogger(__name__)
+log: logging.Logger = logging.getLogger(__name__)
 log.debug("In %s", __name__)
 
 
@@ -108,6 +106,15 @@ class Population(Base):
             self.attr_pd_arr,
             index=model.label["Population p"],
             columns=model.label["Pop Detail d"],
+        )
+        self.attr_pd_df.index.name = "Population p"
+        self.attr_pd_df.columns.name = "Pop Detail d"
+        log.debug(f"{self.attr_pd_df=}")
+        self.attr_pd_arr, self.attr_pd_df = model.dataframe(
+            data_index="Population p",
+            data_column="Pop Detail Data pd",
+            index="Population p",
+            columns="Pop Detail d",
         )
         log.debug(f"{self.attr_pd_df=}")
 
@@ -234,22 +241,3 @@ class Population(Base):
 
         # method chaining
         return(self)
-
-    # this works because python is call by assignment
-    # so immutables are call by value but mutales like dataframes and numpy
-    # arrays are call by reference this isn't used anymore
-    def set_dataframe(
-        self,
-        input_df: pd.DataFrame,
-        default_arr: np.array,
-        index: List[str] = None,
-        columns: List[str] = None,
-    ) -> pd.DataFrame:
-        """Set the dataframe up.
-
-        Does the setup
-        """
-        if input_df is None:
-            log.debug(f"no input_df, using {default_arr=}")
-            input_df = pd.DataFrame(default_arr, index=index, columns=columns,)
-        return input_df, input_df.values

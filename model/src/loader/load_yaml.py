@@ -5,24 +5,28 @@ http://zetcode.com/python/yaml/
 """
 import logging
 import yaml
-from typing import Optional, Dict, Iterator, Any
+import os
+from typing import Optional, Dict, Iterator, Any, List
 from util import Log
+from loader.load import Load
 
 # TODO: the scoping doesn't work, log here cannot be
 # changed by __init__
 log = logging.getLogger(__name__)
 
 
-class Config:
-    """Configure the model.
+class LoadYAML(Load):
+    """Load YAML Files.
 
     Model configuration from YAML files
     """
-
-    dict: Dict = {}
+    root_log: Optional[Log]
+    log
+    data: Dict = {}
 
     def __init__(
-        self, *files, log_root: Optional[Log] = None,
+        self, *paths,
+        log_root: Optional[Log] = None, ext: List[str] = [".yaml", ".yml"],
     ):
         """Read Configuration YAML.
 
@@ -30,6 +34,7 @@ class Config:
         note that this causes the latest dictionary to overwrite prior
         entries so order matters if you have duplicates
         """
+        super().__init__()
         global log
         # replace the standalone logger if asked
         if log_root is not None:
@@ -42,12 +47,29 @@ class Config:
         # https://gist.github.com/treyhunner/f35292e676efa0be1728
         # https://www.geeksforgeeks.org/packing-and-unpacking-arguments-in-python/
         # Unpacking works in Python 3.6+
-        for file in files:
-            dict: Optional[Dict] = self.load(file)
-            if dict is not None:
-                # TODO: the second arg wants Mapping, got Dict
-                self.dict = {**self.dict, **dict}
-        log.debug(f"{self.dict=}")
+        log.debug(f"{paths=}")
+        for path in paths:
+            log.debug(f"{path=}")
+
+        self.ext = ext
+        for path in paths:
+            log.debug(f"{path=}")
+            # note we are ignoring directories as os.walk gives us
+            #  all the files
+            for parent, dirs, files in os.walk(path):
+                log.debug(f"{files=}")
+                for file in files:
+                    log.debug(f"{file=}")
+                    # https://www.geeksforgeeks.org/python-os-path-splitext-method/
+                    base, ext = os.path.splitext(file)
+                    log.debug(f"{ext=}")
+                    if ext not in self.ext:
+                        log.debug(f"skipping {file=}")
+                        continue
+                    full_path = os.path.join(parent, file)
+                    data: Optional[Dict] = self.load(full_path)
+                    if data is not None:
+                        self.data = {**self.data, **data}
 
     def load(self, filename: str) -> Optional[Dict]:
         """Load configuration.

@@ -9,7 +9,7 @@ import numpy as np  # type:ignore
 import pandas as pd  # type:ignore
 from base import Base
 from model import Model
-from pop.population_data import PopulationData
+from pop.population_wa import PopulationData
 
 import logging  # noqa: F401
 

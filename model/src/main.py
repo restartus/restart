@@ -14,11 +14,13 @@ https://stackoverflow.com/questions/20309456/call-a-function-from-another-file-i
 # Before we move to full modules, just import locally
 # https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
 import logging  # noqa:F401
+import os
 
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
 from util import Log
-from config import Config
+# from config import Config
+from loader.load_yaml import LoadYAML
 from model import Model
 from resourcemodel import Resource
 from population import Population
@@ -71,19 +73,16 @@ def main():
     # test that logging works
     log_root.test(log)
 
-    # run the configuration load
-    config = Config(
-        "config.yaml",
-        "data.yaml",
-        "model.yaml",
-        "description.yaml",
+    # run the loader and put everything into a super dictionary
+    loaded = LoadYAML(
+        os.path.abspath("washington"),
         log_root=log_root,
     )
-    log.debug(f"{config.dict=}")
+    log.debug(f"{loaded.data=}")
 
     # Static typing for custom classes
     log.info("creating Model")
-    model: Model = Model(name, config, log_root=log_root)
+    model: Model = Model(name, loaded, log_root=log_root)
     log.info("creating Population")
     model.population: Population = Population(model)
     log.debug("creating Resource")

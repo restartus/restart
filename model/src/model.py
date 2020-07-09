@@ -6,7 +6,7 @@ https://www.w3schools.com/python/python_classes.asp
 from typing import Dict, Optional
 from base import Base
 from util import Log
-from config import Config
+from loader.load import Load
 
 import logging  # noqa: F401
 
@@ -47,10 +47,10 @@ class Model(Base):
     # https://stackoverflow.com/questions/2…
     # do not do default assignment, it remembers it on eash call
     # https://docs.python.org/3/library/typing.html
-    def __init__(self, name, config: Config, log_root: Optional[Log] = None):
+    def __init__(self, name, loaded: Load, log_root: Optional[Log] = None):
         """Initialize the model.
 
-        Use the config dictionary to configure the most
+        Use the data dictionary load data
         """
         # the long description of each
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
@@ -62,31 +62,31 @@ class Model(Base):
             self.log = log_root.log_class(self)
             log = self.log
 
-        log.debug(f"{config.dict=}")
+        log.debug(f"{loaded.data=}")
 
         self.name: str = name
         log.debug(f"{self.name=}")
 
         # https://realpython.com/python-keyerror/
-        cfg: Optional[Dict] = config.dict.get("Config")
+        cfg: Optional[Dict] = loaded.data.get("Config")
         if cfg is not None:
             self.config = cfg
         log.debug(f"{self.config=}")
 
-        description: Optional[Dict] = config.dict.get("Description")
+        description: Optional[Dict] = loaded.data.get("Description")
         if description is not None:
             self.description = description
         log.debug(f"{self.description=}")
 
-        data: Optional[Dict] = config.dict.get("Data")
+        data: Optional[Dict] = loaded.data.get("Data")
         log.debug(f"{data=}")
         if data is not None:
             self.data = data
         log.debug(f"{self.data=}")
 
-        label: Optional[Dict] = config.dict.get("Label")
+        label: Optional[Dict] = loaded.data.get("Label")
         if label is None:
-            log.warning(f"No label in {config.dict=}")
+            log.warning(f"No label in {loaded.data=}")
             return
         self.label = label
 

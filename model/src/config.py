@@ -73,6 +73,9 @@ class Config:
             log.error("No {filename=} exists")
             return None
 
+        # method chaining
+        return(self)
+
     def load_all(self, filename: str) -> Optional[Iterator[Any]]:
         """Load multiple documents from a single YAML file.
 

@@ -83,3 +83,6 @@ class Log:
         log.warning("warning")
         log.error("error")
         log.critical("critical")
+
+        # method chaining
+        return self

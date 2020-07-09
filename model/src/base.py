@@ -54,3 +54,6 @@ class Base:
         log.debug(f"{model_name=} {name=}")
         # log.debug(f'set model.description[{model_name}]')
         self.description[name] = description
+
+        # method chaining
+        return(self)

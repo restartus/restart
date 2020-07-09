@@ -82,7 +82,8 @@ def main():
     )
     log.debug(f"{loaded.data=}")
 
-    # Static typing for custom classes
+    # TODO: refactor with method chaining but this does require a single class
+    # https://www.tutorialspoint.com/Explain-Python-class-method-chaining
     log.info("creating Model")
     model: Model = Model(name, loaded, log_root=log_root)
     log.info("creating Population")

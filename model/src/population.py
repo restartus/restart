@@ -231,6 +231,9 @@ class Population(Base):
         )
         log.debug("level_total_cost_ln_df\n%s", self.level_total_cost_ln_df)
 
+        # method chaining
+        return(self)
+
     # this works because python is call by assignment
     # so immutables are call by value but mutales like dataframes and numpy
     # arrays are call by reference this isn't used anymore

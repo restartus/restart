@@ -9,7 +9,7 @@ import numpy as np  # type:ignore
 import pandas as pd  # type:ignore
 from base import Base
 from model import Model
-from pop.population_wa import PopulationData
+from pop.population_dict import PopulationDict
 
 import logging  # noqa: F401
 
@@ -111,7 +111,7 @@ class Population(Base):
         log.debug(f"{self.attr_pd_df=}")
 
         # new population class, so it can be replaced in a class
-        population_data = PopulationData(
+        population_data = PopulationDict(
             model,
             source=model.data["Population p"]["Pop Detail Data pd"],
             index=model.label["Population p"],

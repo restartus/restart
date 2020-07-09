@@ -1,6 +1,6 @@
 """Population Data Read.
 
-Read in the population data. This is a stub that just reads from a dictionary
+Read in the population from the model dictionary
 """
 import logging
 import pandas as pd  # type: ignore # noqa: F401
@@ -13,7 +13,7 @@ from typing import Dict, Optional
 log = logging.getLogger(__name__)
 
 
-class PopulationData(Base):
+class PopulationDict(Base):
     """Population Data Readers.
 
     Reads the population data. The default is to read from the model.data

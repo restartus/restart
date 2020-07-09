@@ -1,7 +1,7 @@
 #
 ## Python Makefile template (install python 3.8 and test tools)
 ## Configure by setting PIP for pip packages and optionally name
-## 
+##
 #
 # Remember makefile *must* use tabs instead of spaces so use this vim line
 #
@@ -15,7 +15,7 @@
 #
 # These should be overridden in the makefile that includes this, but this sets
 # defaults use to add comments when running make help
-# 
+#
 # Two entry points in MAIN and WEB
 # https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
 SHELL :- /bin/bash
@@ -37,11 +37,11 @@ WEB ?= dashboard.py
 LIB ?= lib
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
 flags ?= -p 8501:8501
-PIP ?= streamlit altair pandas pyyaml
+PIP ?= streamlit altair pandas pyyaml xlrd
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
-					 black tox pytest pytest-cov pytest-xdist tox yamllint 
+					 black tox pytest pytest-cov pytest-xdist tox yamllint
 DOC ?= doc
 
 
@@ -52,11 +52,11 @@ DOC ?= doc
 # work because we use an include file
 # https://swcarpentry.github.io/make-novice/08-self-doc/ is simpler just need
 # and it dumpes them out relies on the variable MAKEFILE_LIST which is a list of
-# all files note we do not just use $< because this is an include.mk file 
+# all files note we do not just use $< because this is an include.mk file
 help: $(MAKEFILE_LIST)
 	@sed -n 's/^##//p' $(MAKEFILE_LIST)
 
-## main: run in pipenv 
+## main: run in pipenv
 .PHONY: main
 main:
 	pipenv run python $(MAIN)
@@ -92,8 +92,9 @@ pipenv-python:	pipenv-clean
 	@echo get the latest python
 	brew upgrade python@3.8 pipenv
 	PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --python /usr/local/opt/python@3.8/bin/python3
-	@echo use .env to ensure we can see all packages
-	[[ ! -e .env ]] && echo "PYTHONPATH=$${PWD}" > .env
+	pipenv clean
+	# @echo use .env to ensure we can see all packages
+	# [[ ! -e .env ]] && echo "PYTHONPATH=$${PWD}" > .env
 
 ## pipenv-clean: cleans the pipenv completely
 # note pipenv --rm will fail if there is nothing there so ignore that
@@ -119,7 +120,7 @@ doc:
 
 ## doc-debug: run web server to look at docs (uses pipenv)
 .PHONY: doc-debug
-doc-debug: 
+doc-debug:
 	@echo browse to http://localhost:8080 and CTRL-C when done
 	pipenv run pdoc --http : $(DOC)
 ## doc-web-debug: run web server to look at web app docs (uses pipenv)
@@ -157,7 +158,7 @@ lint:
 # exclude web black does not grok streamlit but not conformas
 # pipenv run black -l 79 $(NO_WEB)
 .PHONY: format
-format: 
+format:
 	# the default is 88 but pyflakes wants 79
 	pipenv run black -l 79 *.py
 
@@ -209,12 +210,12 @@ conda-activate:
 ##
 ## docker installation (for deployments):
 ## docker: pull docker image and builds locally along with tag with git sha
-docker: 
+docker:
 	docker build --pull --build-arg USER=$(user) -f $(Dockerfile) -t $(image) .
 	docker tag $(image) $(image):$$(git rev-parse HEAD)
 
 ## push: after a build will push the image up
-push: build  
+push: build
 	# need to push and pull to make sure the entire cluster has the right images
 	docker push $(image)
 
@@ -235,7 +236,7 @@ for_containers = bash -c 'for container in $$(docker ps -a | grep "$$0" | awk "{
 ## stop: halts all running containers
 stop:
 	@$(for_containers) $(container) stop
-	@$(for_containers) $(container) "rm -v" 
+	@$(for_containers) $(container) "rm -v"
 
 ## pull: pulls the latest image
 pull:
@@ -250,7 +251,7 @@ pull:
 #  To restart a dead container with interactive, you need `docker start -ai
 #  $(container)
 #  -t means assign a consoler tty to it, -i means keep it interactive and attach
-#  stdin and stdout 
+#  stdin and stdout
 # when deploying we do not want to stop running containers
 # And we want to use random names with a two digit extension
 # Make sure to use the -t so you can stop it
@@ -281,7 +282,7 @@ docker-debug: stop
 
 
 ## resume: keep running an existing container
-resume: 
+resume:
 	docker start -ai $(container)
 
 # Note we say only the type file because otherwise it tries to delete $(data) itself

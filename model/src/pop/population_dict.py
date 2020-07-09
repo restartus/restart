@@ -8,7 +8,7 @@ import numpy as np  # type: ignore
 # https://www.python.org/dev/peps/pep-0420/
 from base import Base
 from model import Model
-from typing import Dict, Optional
+from typing import Optional
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class PopulationDict(Base):
     def __init__(
         self,
         model: Model,
-        source: Optional[Dict] = None,
+        source=None,  # TODO: Figure out typing for this
         index: Optional[str] = None,
         columns: Optional[str] = None,
     ):
@@ -52,7 +52,7 @@ class PopulationDict(Base):
         log.debug(f"{type(self.data_arr)=}")
 
         if source is not None:
-            self.data_arr = source
+            self.data_arr = np.array(source['Size'])  # TODO: Don't hardcode
         if index is not None and columns is not None:
             self.data_df = pd.DataFrame(
                 self.data_arr, index=index, columns=columns,

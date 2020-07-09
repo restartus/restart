@@ -4,10 +4,6 @@ import pandas as pd
 from loader.load import Load
 from typing import List
 
-OES_PATH = '../../../../../data/ingestion/all_data_M_2019.xlsx'
-CODE_PATH = '../../../../../data/ingestion/list1_2020.xls'
-POP_PATH = '../../../../../data/ingestion/co-est2019-alldata.csv'
-
 
 class LoaderCSV(Load):
     """Converts Excel and CSV files into dataframe objects. If you give

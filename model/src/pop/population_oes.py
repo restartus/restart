@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from typing import Optional
 from model import Model
-from pop.population_wa import PopulationData
+from pop.population_dict import PopulationDict
 from loader.load_csv import LoaderCSV
 
 OES_PATH = '../../../../../data/ingestion/all_data_M_2019.p'
@@ -11,7 +11,7 @@ CODE_PATH = '../../../../../data/ingestion/list1_2020.p'
 POP_PATH = '../../../../../data/ingestion/co-est2019-alldata.p'
 
 
-class PopulationOES(PopulationData):
+class PopulationOES(PopulationDict):
     """Transforms OES data into a format compatible with the model. Performs
        calculations to give us an estimate of population distributions on
        a county-wide basis.

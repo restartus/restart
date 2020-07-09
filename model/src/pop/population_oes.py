@@ -1,7 +1,7 @@
 import pickle
 import pandas as pd
 import numpy as np
-from typing import Optional
+from typing import Optional, Tuple
 from model import Model
 from pop.population_dict import PopulationDict
 from loader.load_csv import LoaderCSV
@@ -28,6 +28,8 @@ class PopulationOES(PopulationDict):
     def __init__(
         self,
         model: Model,
+        cty_name: Optional[str] = None,
+        state_name: Optional[str] = None,
         index: Optional[str] = None,
         columns: Optional[str] = None,
         oes_path: str = OES_PATH,
@@ -42,9 +44,6 @@ class PopulationOES(PopulationDict):
         for fname in self.p_list:
             df_list.append(self.load_df(fname))
 
-        # OES dataframe
-        df_list[0] = self.format_oes(df_list[0])
-
         # MSA code dataframe
         df_list[1] = self.format_code(df_list[1])
 
@@ -53,22 +52,25 @@ class PopulationOES(PopulationDict):
         self.code_df = df_list[1]
         self.pop_df = df_list[2]
 
-        # County/statenames
-        self.cty_name = 'Los Angeles County'
-        self.state_name = 'California'
+        # Defaults for testing
+        if cty_name is None and state_name is None:
+            self.state_name = 'California'
+            self.df = self.create_state_df()
 
-        # Perform the dataframe transformations on OES data
-        self.df = self.create_df()
+        # Calculate for entire state
+        if cty_name is None and state_name is not None:
+            self.state_name = state_name
+            self.df = self.create_state_df()
 
-        # Calculate total population
+        # Calculate for specified county
+        elif cty_name is not None and state_name is not None:
+            self.cty_name = cty_name
+            self.state_name = state_name
+            self.df = self.create_county_df()
+
         self.tot_pop = np.sum(self.df['tot_emp'])
-
-        # Healthcare worker vs. non-healthcare worker breakdown
         self.health = self.healthcare_filter()
-
-        # Breakdown of all OCC codes
         self.occ = self.df.drop(['occ_code'], axis=1)
-
         super().__init__(model,
                          source=self.health,
                          index=index,
@@ -125,19 +127,6 @@ class PopulationOES(PopulationDict):
 
         return df
 
-    def format_oes(self, df: pd.DataFrame) -> pd.DataFrame:
-        """The OES data uses ** to denote unavailable data. Convert these to
-           0 so that we can deal with uncounted populations mathematically.
-
-        Args:
-            df: A dataframe containing OES data
-
-        Returns:
-            The reformatted dataframe
-        """
-
-        return df.replace(to_replace='**', value=0)
-
     def find_code(self) -> int:
         """Finds the MSA code of given county
 
@@ -183,9 +172,19 @@ class PopulationOES(PopulationDict):
         # Divide individual county population by total MSA population
         return populations[self.cty_name] / total_pop
 
-    def create_df(self) -> pd.DataFrame:
+    def load_county(self) -> Tuple[float, pd.DataFrame]:
+        """Slice the OES data by county for further processing downstream
 
-        # Find county MSA code
+        Args:
+            None
+
+        Returns:
+            proportion: Float corresponding to proportion of residents from
+                        MSA code living in given county
+            df: Sliced OES dataframe
+        """
+
+        # Find county MSA CODE
         code = self.find_code()
 
         # Calculate proportion of MSA code's residents living in county
@@ -195,18 +194,46 @@ class PopulationOES(PopulationDict):
         df = self.oes_df[self.oes_df['area'] == code][['occ_code', 'occ_title',
                                                        'o_group', 'tot_emp']]
 
-        # Split into 'major' and 'detailed' OCC categories
-        major = df[df['o_group'] == 'major'].copy()
-        detailed = df[df['o_group'] == 'detailed'].copy()
+        # Replace placeholders with 0
+        df = df.replace(to_replace='**', value=0)
 
-        # Generate a list of strings containing the major OCC codes
+        return proportion, df
+
+    def load_state(self) -> pd.DataFrame:
+        """Slice the OES data by state for further processing downstream
+
+        Args:
+            None
+
+        Returns:
+            df: Sliced OES dataframe
+        """
+
+        # Slice OES dataframe by state
+        df = self.oes_df[(self.oes_df['area_title'] == self.state_name)][
+                ['occ_code', 'occ_title', 'o_group', 'tot_emp']]
+
+        # Replace placeholders with 0
+        df = df.replace(to_replace='**', value=0)
+
+        return df
+
+    def fill_uncounted(self, major: pd.DataFrame,
+                       detailed: pd.DataFrame) -> pd.DataFrame:
+        """Create special categories for uncounted employees
+
+        Args:
+            major: Dataframe containing totals for major OCC categories
+            detailed: Dataframe containing totals for detailed OCC categories
+
+        Returns:
+            The detailed dataframe with extra categories to account for
+            uncounted workers
+        """
+
         code_list = list(major['occ_code'])
 
-        # Some deatiled categories don't have information availble - remove
-        # these and place into "Uncounted" category
         for code in code_list:
-
-            # Search by code prefix (e.g "11-")
             pat = code[0:3]
             filt = detailed[detailed['occ_code'].str.startswith(pat)]
 
@@ -216,20 +243,82 @@ class PopulationOES(PopulationDict):
             det_total = np.sum(filt['tot_emp'])
             delta = total - det_total
 
-            # Create a dataframe row and append to detailed dataframe
+            # Create dataframe row and append to detailed dataframe
             name = list(major[major['occ_code'] == code]['occ_title'])[0]
             add_lst = [[pat + 'XXXX', 'Uncounted ' + name, 'detailed', delta]]
             add_df = pd.DataFrame(add_lst, columns=list(major.columns))
             detailed = detailed.append(add_df, ignore_index=True)
+
+        return detailed
+
+    def format_output(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Format dataframe to fit the model by dropping some columns
+
+        Args:
+            df: The dataframe we want to format
+
+        Returns:
+            The formatted dataframe
+        """
+
+        df = df.drop(df[df['tot_emp'] == 0].index)
+        df = df.drop(['o_group'], axis=1)
+        df = df.reset_index(drop=True)
+
+        return df
+
+    def create_county_df(self) -> pd.DataFrame:
+        """Generate dataframe containing processed OES data by county
+
+        Args:
+            None
+
+        Returns:
+            The processed dataframe
+        """
+
+        # Load in sliced dataframe
+        proportion, df = self.load_county()
+
+        # Split into 'major' and 'detailed' OCC categories
+        major = df[df['o_group'] == 'major'].copy()
+        detailed = df[df['o_group'] == 'detailed'].copy()
+
+        # Some detailed categories don't have information availble - remove
+        # these and place into "Uncounted" category
+        detailed = self.fill_uncounted(major, detailed)
 
         # Adjust 'tot_emp' columns by MSA code proportion
         detailed['tot_emp'] = detailed['tot_emp'].apply(
                                 lambda x: int(x * proportion))
 
         # Format to fit model
-        detailed.drop(detailed[detailed['tot_emp'] == 0].index, inplace=True)
-        detailed.drop(['o_group'], axis=1, inplace=True)
-        detailed.reset_index(drop=True, inplace=True)
+        detailed = self.format_output(detailed)
+
+        return detailed
+
+    def create_state_df(self) -> pd.DataFrame:
+        """Generate dataframe containing processed OES data by state
+
+        Args:
+            None
+
+        Returns:
+            The processed dataframe
+        """
+
+        # Load in sliced dataframe
+        df = self.load_state()
+
+        major = df[df['o_group'] == 'major'].copy()
+        detailed = df[df['o_group'] == 'detailed'].copy()
+
+        # Some detailed categories don't have information available - remove
+        # these and place into "Uncounted" category
+        detailed = self.fill_uncounted(major, detailed)
+
+        # Format to fit model
+        detailed = self.format_output(detailed)
 
         return detailed
 
@@ -264,8 +353,3 @@ class PopulationOES(PopulationDict):
         health_df = health_df.append(non_health_df, ignore_index=True)
 
         return health_df
-
-
-if __name__ == '__main__':
-    pop = PopulationOES()
-    print(pop.health)

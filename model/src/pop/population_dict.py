@@ -10,7 +10,7 @@ from base import Base
 from model import Model
 from typing import Optional
 
-log = logging.getLogger(__name__)
+log: logging.Logger = logging.getLogger(__name__)
 
 
 class PopulationDict(Base):
@@ -40,19 +40,21 @@ class PopulationDict(Base):
 
         global log
         # create a sublogger if a root exists in the model
-        self.model = model
+        self.model: Model = model
         if model.log_root is not None:
-            log = self.log = model.log_root.log_class(self)
+            log = model.log_root.log_class(self)
+            self.log: logging.Logger = log
         # the sample code to move up the logging for a period and then turn it
         # off
         self.model.log_root.con.setLevel(logging.DEBUG)
         log.debug(f"in {__name__=}")
         self.model.log_root.con.setLevel(logging.WARNING)
 
-        log.debug(f"{type(self.data_arr)=}")
+        log.debug(f"{source=}")
 
         if source is not None:
             self.data_arr = np.array(source['Size'])  # TODO: Don't hardcode
+            log.debug(f"{type(self.data_arr)=}")
         if index is not None and columns is not None:
             self.data_df = pd.DataFrame(
                 self.data_arr, index=index, columns=columns,

@@ -1,29 +1,37 @@
+"""Loader CSV.
+
+The loader for the CSV
+"""
 import os
 import pickle
-import pandas as pd
+import pandas as pd  # type:ignore
 from loader.load import Load
 from typing import List
 
 
 class LoaderCSV(Load):
-    """Converts Excel and CSV files into dataframe objects. If you give
-           it files with a .xlsx, .xls, or .csv extension, it will read
-           their data into a dataframe, and then safe the dataframe as
-           a pickle-file with the extension .p. If you feed this class
-           a pickle-file, it will simply pass through this class. This is
-           done so that we can minimize the amount of times the Excel/CSV
-           data must be processed - for larger files, it can be lengthy.
+    """Converts Excel and CSV files into dataframe objects.
 
-        Attributes:
-            splitpaths: List of tuples with format (path/to/file, extension)
-            p_list: A list that becomes populated with the names of
-                    pickle-files containing the input-data in dataframe form.
+    If you give it files with a .xlsx, .xls, or .csv extension, it will read
+    their data into a dataframe, and then save the dataframe as
+    a pickle-file with the extension .p. If you feed this class
+    a pickle-file, it will simply pass through this class. This is
+    done so that we can minimize the amount of times the Excel/CSV
+    data must be processed - for larger files, it can be lengthy.
+
+    Attributes:
+        splitpaths: List of tuples with format (path/to/file, extension)
+        p_list: A list that becomes populated with the names of
+                pickle-files containing the input-data in dataframe form.
     """
 
     def __init__(self, *paths,
                  excel_ext: List[str] = ['.yaml', 'yml'],
                  csv_ext: List[str] = ['csv']):
+        """Initialize the Loader to read files.
 
+        Reads the files
+        """
         super().__init__()
 
         # Extensions we check for
@@ -69,7 +77,7 @@ class LoaderCSV(Load):
                 p_name = self.store_dataframe(splitpath[0], df)
                 self.p_list.append(p_name)
 
-    def store_dataframe(self, name: str, df: pd.DataFrame):
+    def store_dataframe(self, name: str, df: pd.DataFrame) -> str:
         """Pickles a dataframe.
 
         Args:
@@ -79,7 +87,6 @@ class LoaderCSV(Load):
         Returns:
             Name of the file that has been pickled
         """
-
         name = name + '.p'
         picklefile = open(name, 'ab')
         pickle.dump(df, picklefile)

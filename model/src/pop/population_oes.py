@@ -1,6 +1,10 @@
+"""Population reading from OES data.
+
+Population is working
+"""
 import pickle
-import pandas as pd
-import numpy as np
+import pandas as pd  # type: ignore
+import numpy as np  # type: ignore
 from typing import Optional, Tuple
 from model import Model
 from pop.population_dict import PopulationDict
@@ -12,8 +16,9 @@ POP_PATH = '../../../../../data/ingestion/co-est2019-alldata.p'
 
 
 class PopulationOES(PopulationDict):
-    """Transforms OES data into a format compatible with the model. Performs
-       calculations to give us an estimate of population distributions on
+    """Transforms OES data into a format compatible with the model.
+
+    Performs calculations to give us an estimate of population distributions on
        a county-wide basis.
 
     Attributes:
@@ -24,6 +29,11 @@ class PopulationOES(PopulationDict):
         state_name: Name of a US state
         df: The processed, OES data in a dataframe
     """
+    # note you should declare otherwise type lint fails
+    # as the static module cannot tell the type in init()
+    code_df: pd.DataFrame
+    oes_df: pd.DataFrame
+    pop_df: pd.DataFrame
 
     def __init__(
         self,
@@ -36,7 +46,10 @@ class PopulationOES(PopulationDict):
         code_path: str = CODE_PATH,
         pop_path: str = POP_PATH
     ):
+        """Initialize.
 
+        Read the paths in and create dataframes
+        """
         self.p_list = LoaderCSV(oes_path, code_path, pop_path).p_list
 
         # Format the dataframes
@@ -77,7 +90,7 @@ class PopulationOES(PopulationDict):
                          columns=columns)
 
     def load_df(self, fname: str) -> Optional[pd.DataFrame]:
-        """Load a pickle-file into a dataframe
+        """Load a pickle-file into a dataframe.
 
         Args:
             fname: Name of a pickle-file
@@ -85,7 +98,6 @@ class PopulationOES(PopulationDict):
         Returns:
             The dataframe serialized in the pickle-file
         """
-
         try:
             df = pickle.load(open(fname, 'rb'))
             return df
@@ -95,7 +107,7 @@ class PopulationOES(PopulationDict):
             return None
 
     def format_code(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Perform dataframe transformations specific to list1_2020.xls
+        """Perform dataframe transformations specific to list1_2020.xls.
 
         Args:
             df: A dataframe
@@ -103,7 +115,6 @@ class PopulationOES(PopulationDict):
         Returns:
             A transformed dataframe to match the format needed for this project
         """
-
         # Specify columns to bypass issues with underlining in original excel
         df.columns = ['CBSA Code', 'MDC Code', 'CSA Code', 'CBSA Title',
                       'Metropolitan/Micropolitan Statistical Area',
@@ -128,7 +139,7 @@ class PopulationOES(PopulationDict):
         return df
 
     def find_code(self) -> int:
-        """Finds the MSA code of given county
+        """Finds the MSA code of given county.
 
         Args:
             None
@@ -136,13 +147,16 @@ class PopulationOES(PopulationDict):
         Returns:
             Integer corresponding to the given county's MSA code
         """
-
+        if self.code_df is None:
+            raise ValueError(f"{self.code_df=} should not be Ñone")
         return int(self.code_df[(self.code_df['County Equivalent'] ==
                    self.cty_name) & (self.code_df['State Name'] ==
                                      self.state_name)]['CBSA Code'].iloc[0])
 
     def calculate_proportions(self, code: int) -> float:
-        """Given a US county and state, calculate the ratio of the county's
+        """Calculate Proportion relative to MSA.
+
+        Given a US county and state, calculate the ratio of the county's
            population in relation to its MSA code. Provides a multiplier for
            us to scale OES data by.
 
@@ -153,7 +167,6 @@ class PopulationOES(PopulationDict):
             A float corresponding to the ratio of the county's population in
             relation to its MSA code.
         """
-
         # List the counties in the same MSA code as cty_name
         counties = list(self.code_df[self.code_df['CBSA Code'] == str(code)]
                                     ['County Equivalent'])
@@ -173,7 +186,7 @@ class PopulationOES(PopulationDict):
         return populations[self.cty_name] / total_pop
 
     def load_county(self) -> Tuple[float, pd.DataFrame]:
-        """Slice the OES data by county for further processing downstream
+        """Slice the OES data by county for further processing downstream.
 
         Args:
             None
@@ -183,7 +196,6 @@ class PopulationOES(PopulationDict):
                         MSA code living in given county
             df: Sliced OES dataframe
         """
-
         # Find county MSA CODE
         code = self.find_code()
 
@@ -200,7 +212,7 @@ class PopulationOES(PopulationDict):
         return proportion, df
 
     def load_state(self) -> pd.DataFrame:
-        """Slice the OES data by state for further processing downstream
+        """Slice the OES data by state for further processing downstream.
 
         Args:
             None
@@ -208,7 +220,6 @@ class PopulationOES(PopulationDict):
         Returns:
             df: Sliced OES dataframe
         """
-
         # Slice OES dataframe by state
         df = self.oes_df[(self.oes_df['area_title'] == self.state_name)][
                 ['occ_code', 'occ_title', 'o_group', 'tot_emp']]
@@ -220,7 +231,7 @@ class PopulationOES(PopulationDict):
 
     def fill_uncounted(self, major: pd.DataFrame,
                        detailed: pd.DataFrame) -> pd.DataFrame:
-        """Create special categories for uncounted employees
+        """Create special categories for uncounted employees.
 
         Args:
             major: Dataframe containing totals for major OCC categories
@@ -230,7 +241,6 @@ class PopulationOES(PopulationDict):
             The detailed dataframe with extra categories to account for
             uncounted workers
         """
-
         code_list = list(major['occ_code'])
 
         for code in code_list:
@@ -252,7 +262,7 @@ class PopulationOES(PopulationDict):
         return detailed
 
     def format_output(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Format dataframe to fit the model by dropping some columns
+        """Format dataframe to fit the model by dropping some columns.
 
         Args:
             df: The dataframe we want to format
@@ -260,7 +270,6 @@ class PopulationOES(PopulationDict):
         Returns:
             The formatted dataframe
         """
-
         df = df.drop(df[df['tot_emp'] == 0].index)
         df = df.drop(['o_group'], axis=1)
         df = df.reset_index(drop=True)
@@ -268,7 +277,7 @@ class PopulationOES(PopulationDict):
         return df
 
     def create_county_df(self) -> pd.DataFrame:
-        """Generate dataframe containing processed OES data by county
+        """Generate dataframe containing processed OES data by county.
 
         Args:
             None
@@ -276,7 +285,6 @@ class PopulationOES(PopulationDict):
         Returns:
             The processed dataframe
         """
-
         # Load in sliced dataframe
         proportion, df = self.load_county()
 
@@ -298,7 +306,7 @@ class PopulationOES(PopulationDict):
         return detailed
 
     def create_state_df(self) -> pd.DataFrame:
-        """Generate dataframe containing processed OES data by state
+        """Generate dataframe containing processed OES data by state.
 
         Args:
             None
@@ -306,7 +314,6 @@ class PopulationOES(PopulationDict):
         Returns:
             The processed dataframe
         """
-
         # Load in sliced dataframe
         df = self.load_state()
 
@@ -323,8 +330,7 @@ class PopulationOES(PopulationDict):
         return detailed
 
     def healthcare_filter(self) -> pd.DataFrame:
-        """Project the space of all OCC codes into healthcare vs.
-           non-healthcare workers.
+        """Project OCC code into healthcare vs non-healthcare workers.
 
         Args:
             None
@@ -332,7 +338,6 @@ class PopulationOES(PopulationDict):
         Returns:
             Dataframe giving total healthcare and non-healthcare populations
         """
-
         # 29-NNNN and 31-NNNN are healthcare worker OCC codes
         filt = self.df[(self.df['occ_code'].str.startswith('29-')) |
                        (self.df['occ_code'].str.startswith('31-'))]

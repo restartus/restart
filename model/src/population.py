@@ -7,8 +7,9 @@ Main the class
 import pandas as pd  # type:ignore
 from base import Base
 from model import Model
-# from pop.population_dict import PopulationDict
-from pop.population_oes import PopulationOES
+from pop.population_dict import PopulationDict
+from pop.population_oes import PopulationOES # noqa:
+
 
 import logging  # noqa: F401
 
@@ -119,12 +120,22 @@ class Population(Base):
         log.debug(f"{self.attr_pd_df=}")
 
         # new population class, so it can be replaced in a class
-        population_data = PopulationOES(
+        # not running for rich df is null
+        # population_data_oes = PopulationOES(
+        #     model,
+        #     # source=model.data["Population p"]["Pop Detail Data pd"],
+        #     index=model.label["Population p"],
+        #     columns=model.label["Pop Detail d"],
+        # )
+        # log.debug(f"{population_data_oes=}")
+
+        population_data = PopulationDict(
             model,
-            # source=model.data["Population p"]["Pop Detail Data pd"],
+            source=model.data["Population p"]["Pop Detail Data pd"],
             index=model.label["Population p"],
             columns=model.label["Pop Detail d"],
         )
+
         log.debug(f"{population_data.data_arr=}")
         log.debug(f"{population_data.data_df=}")
         if population_data.data_arr is None or population_data.data_df is None:

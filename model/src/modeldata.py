@@ -20,3 +20,4 @@ class ModelData:
     label: Dict[str, str]
     value: Dict
     description: Dict
+    datapaths: Dict

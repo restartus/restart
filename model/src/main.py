@@ -15,7 +15,7 @@ https://stackoverflow.com/questions/20309456/call-a-function-from-another-file-i
 # https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
 import logging  # noqa:F401
 import os
-
+import argparse
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
 from util import Log
@@ -31,8 +31,6 @@ from behavioral import Behavioral
 from base import Base
 from dashboard import Dashboard
 from typing import Optional
-
-import argparse
 
 
 # This is the only way to get it to work needs to be in main
@@ -70,6 +68,7 @@ def main() -> Model:
     And if you make a change to any, the model will automatically recalc
     everything
     """
+
     global log
     # set up the logging
     name = __name__
@@ -84,7 +83,7 @@ def main() -> Model:
     log.debug(f"{args=}")
 
     if args.load == "yaml":
-        loaded = LoadYAML(os.path.abspath("washington"), log_root=log_root,)
+        loaded = LoadYAML(os.path.abspath("california"), log_root=log_root)
     else:
         raise ValueError("not implemented")
 
@@ -100,6 +99,11 @@ def main() -> Model:
         .set_disease(type=args.disease)
         .set_behavioral(type=args.behavioral)
     )
+    # run the loader and put everything into a super dictionary
+    # To change the model, just replace LoadYAML and the configuration
+    # of it which starts off the entire model
+    loaded = LoadYAML(os.path.abspath("california"), log_root=log_root,)
+    log.debug(f"{loaded.data=}")
 
     model1 = old_model(name, log_root=log_root)
     log.debug(f"{model1=}")

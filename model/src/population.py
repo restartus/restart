@@ -5,7 +5,6 @@ As we need to refer to it from Model and standalone
 """
 
 # Note that pip install data-science-types caused errors
-import pandas as pd  # type:ignore
 from base import Base
 from modeldata import ModelData
 
@@ -112,20 +111,15 @@ class Population(Base):
         log.debug(f"{data.label=}")
         log.debug(f"{data.value=}")
 
-        # new population class, so it can be replaced in a class
-        # not running for rich df is null
-        # population_data_oes = PopulationOES(
-        #     model,
-        #     # source=model.data["Population p"]["Pop Detail Data pd"],
-        #     index=model.label["Population p"],
-        #     columns=model.label["Pop Detail d"],
-        # )
-        # log.debug(f"{population_data_oes=}")
-
         if type == "PopulationOES":
             # This is a placeholder this should instert
-            population_data: PopulationDict = PopulationOES()
-            return
+            population_data: PopulationDict = PopulationOES(
+                    {'County': None, 'State': 'California'},
+                    log_root=self.log_root,
+                    source=data.datapaths['Paths'],
+                    index=data.label["Population p"],
+                    columns=data.label["Pop Detail d"]
+                    )
         else:
             population_data = PopulationDict(
                 log_root=self.log_root,
@@ -133,7 +127,7 @@ class Population(Base):
                 index=data.label["Population p"],
                 columns=data.label["Pop Detail d"],
             )
-
+        '''
         # testing of populationDict functions
         self.attr_pd_arr = data.value["Population p"]["Pop Detail Data pd"]
         log.debug(f"{self.attr_pd_arr=}")
@@ -162,6 +156,19 @@ class Population(Base):
             f"{self.attr_pd_df=}",
             data.description["Population p"]["Pop Detail pd"],
         )
+
+        # new population class, so it can be replaced in a class
+
+        # not running for rich df is null
+        # population_data_oes = PopulationOES(
+        #     model,
+        #     # source=model.data["Population p"]["Pop Detail Data pd"],
+        #     index=model.label["Population p"],
+        #     columns=model.label["Pop Detail d"],
+        # )
+        # log.debug(f"{population_data_oes=}")
+        '''
+        log.debug(f"{population_data=}")
 
         log.debug(f"{population_data.data_arr=}")
         log.debug(f"{population_data.data_df=}")

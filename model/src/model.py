@@ -75,7 +75,7 @@ class Model(Base):
 
         self.name: str = name
         log.debug(f"{self.name=}")
-        self.data: ModelData = ModelData({}, {}, {})
+        self.data: ModelData = ModelData({}, {}, {}, {})
 
     def configure(self, loaded: Load):
         """Configure the Model.
@@ -106,8 +106,15 @@ class Model(Base):
             log.warning(f"No label in {loaded.data=}")
             return
         self.data.label = label
-
         log.debug(f"{self.data.label=}")
+        self.label = label
+        log.debug(f"{self.label=}")
+
+        datapaths: Optional[Dict] = loaded.data.get("Filepaths")
+        if datapaths is not None:
+            self.data.datapaths = datapaths
+        log.debug(f"{self.data.datapaths=}")
+
         # These are just as convenience functions for dimensions
         # and for type checking this is ugly should make it
         # for look for assign because we are just mapping label

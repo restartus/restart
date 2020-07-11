@@ -3,7 +3,7 @@
 The model shape is configured here.
 https://www.w3schools.com/python/python_classes.asp
 """
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 from base import Base
 from util import Log
 from loader.load import Load
@@ -28,7 +28,7 @@ class Model(Base):
 
     Attr:
     name: the friendly string name
-    labels: This is what structures the entire model with a list of labels
+    label: This is what structures the entire model with a list of labels
             The defaults are what give us the simplified Bharat model
 
     These are the name dimensions of each, the length of each is set to
@@ -44,6 +44,7 @@ class Model(Base):
     """
 
     data: Dict = {}
+    label: Dict
 
     # https://satran.in/b/python--dangerous-default-value-as-argument
     # https://stackoverflow.com/questions/2…
@@ -112,16 +113,14 @@ class Model(Base):
     # so goes into the model method
     def dataframe(
         self,
-        data_index: str = None,
-        data_column: str = None,
+        arr: np.ndarray,
         index: str = None,
         columns: str = None,
-    ) -> Tuple[np.ndarray, pd.DataFrame]:
+    ) -> pd.DataFrame:
         """Set the dataframe up.
 
         Using the model data Dictionary and labels
         """
-        arr = self.data[data_index][data_column]
         log.debug(f"{arr=}")
         df = pd.DataFrame(
             arr,
@@ -131,4 +130,4 @@ class Model(Base):
         df.index.name = index
         df.columns.name = columns
         log.debug(f"{df=}")
-        return arr, df
+        return df

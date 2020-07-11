@@ -8,7 +8,8 @@ import numpy as np  # type: ignore
 # https://www.python.org/dev/peps/pep-0420/
 from base import Base
 from model import Model
-from typing import Optional
+from typing import Optional, Dict
+
 
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -26,11 +27,11 @@ class PopulationDict(Base):
     def __init__(
         self,
         model: Model,
-        source=None,  # TODO: Figure out typing for this
+        source: Dict = None,
         index: Optional[str] = None,
         columns: Optional[str] = None,
     ):
-        """Initialize the Economy object.
+        """Initialize the population object.
 
         This uses the Frame object and populates it with default data unless yo
         override it
@@ -52,8 +53,9 @@ class PopulationDict(Base):
 
         log.debug(f"{source=}")
 
+        # we just use one dimension of source
         if source is not None:
-            self.data_arr = np.array(source['Size'])  # TODO: Don't hardcode
+            self.data_arr = np.array(source['Size'])
             log.debug(f"{type(self.data_arr)=}")
         if index is not None and columns is not None:
             self.data_df = pd.DataFrame(

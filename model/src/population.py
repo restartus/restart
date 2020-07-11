@@ -100,7 +100,7 @@ class Population(Base):
         log.debug(f"{model.label=}")
         log.debug(f"{model.data=}")
 
-        # manual insert of population
+        # manual insert of population and description as a test
         self.attr_pd_arr = model.data["Population p"]["Pop Detail Data pd"]
         log.debug(f"{self.attr_pd_arr=}")
         self.attr_pd_df = pd.DataFrame(
@@ -111,13 +111,22 @@ class Population(Base):
         self.attr_pd_df.index.name = "Population p"
         self.attr_pd_df.columns.name = "Pop Detail d"
         log.debug(f"{self.attr_pd_df=}")
-        self.attr_pd_arr, self.attr_pd_df = model.dataframe(
-            data_index="Population p",
-            data_column="Pop Detail Data pd",
+        self.set_description(
+            f"{self.attr_pd_df=}",
+            model.description["Population p"]["Pop Detail pd"],
+        )
+
+        # the same thing in a function less code duplication
+        self.attr_pd_df = model.dataframe(
+            arr=model.data["Population p"]["Pop Detail Data pd"],
             index="Population p",
             columns="Pop Detail d",
         )
         log.debug(f"{self.attr_pd_df=}")
+        self.set_description(
+            f"{self.attr_pd_df=}",
+            model.description["Population p"]["Pop Detail pd"],
+        )
 
         # new population class, so it can be replaced in a class
         # not running for rich df is null
@@ -143,7 +152,6 @@ class Population(Base):
         self.attr_pd_arr = population_data.data_arr
         self.attr_pd_df = population_data.data_df
         log.debug(f"{self.attr_pd_df=}")
-
         self.set_description(
             f"{self.attr_pd_df=}",
             model.description["Population p"]["Pop Detail pd"],
@@ -153,26 +161,15 @@ class Population(Base):
         log.debug(f"{self.description['attr_pd_df']=}")
 
         # set the population by demand levels
-        self.level_pm_arr = model.data["Population p"]["Protection pm"]
-        self.level_pm_df = pd.DataFrame(
-            self.level_pm_arr,
-            index=model.label["Population p"],
-            columns=model.label["Pop Protection m"],
-        )
-        log.debug(f"{self.level_pm_df=}")
-        self.set_description(
-            f"{self.level_pm_df=}",
-            model.description["Population p"]["Protection pm"],
-        )
-        log.debug(f"{self.description['level_pm_df']=}")
 
+        # the same thing in a function less code duplication
         # note these are defaults for testing
         # this is the protection level and the burn rates for each PPE
         self.res_demand_mn_arr = model.data["Resource Demand mn"]
-        self.res_demand_mn_df = pd.DataFrame(
+        self.res_demand_mn_df = model.dataframe(
             self.res_demand_mn_arr,
-            index=model.label["Pop Protection m"],
-            columns=model.label["Resource n"],
+            index="Pop Protection m",
+            columns="Resource n",
         )
         log.debug(f"{self.res_demand_mn_df=}")
         # for compatiblity both the model and the object hold the same
@@ -181,8 +178,23 @@ class Population(Base):
             f"{self.res_demand_mn_df=}", model.description["Res Demand mn"],
         )
 
+        self.level_pm_arr = model.data["Population p"]["Protection pm"]
+        self.level_pm_df = model.dataframe(
+            self.level_pm_arr,
+            index="Population p",
+            columns="Pop Protection m",
+        )
+        log.debug(f"{self.level_pm_df=}")
+        self.set_description(
+            f"{self.level_pm_df=}",
+            model.description["Population p"]["Protection pm"],
+        )
+        log.debug(f"{self.description['level_pm_df']=}")
+
         self.demand_pn_df = self.level_pm_df @ self.res_demand_mn_df
         log.debug(f"{self.demand_pn_df=}")
+        self.demand_pn_df.index.name = "Population p"
+        self.demand_pn_df.columns.name = "Resource n"
         self.set_description(
             f"{self.demand_pn_df=}",
             model.description["Population p"]["Population Demand pn"],
@@ -191,10 +203,10 @@ class Population(Base):
         # now get the conversion from the many p populations to the much
         # smaller l levels that are easier to understand
         self.level_pl_arr = model.data["Population p"]["Pop to Level pl"]
-        self.level_pl_df = pd.DataFrame(
+        self.level_pl_df = model.dataframe(
             self.level_pl_arr,
-            index=model.label["Population p"],
-            columns=model.label["Pop Level l"],
+            index="Population p",
+            columns="Pop Level l",
         )
         log.debug(f"{self.level_pl_df=}")
         self.set_description(

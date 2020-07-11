@@ -19,6 +19,7 @@ import os
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
 from util import Log
+
 # from config import Config
 from loader.load_yaml import LoadYAML
 from model import Model
@@ -76,10 +77,7 @@ def main():
     # run the loader and put everything into a super dictionary
     # To change the model, just replace LoadYAML and the configuration
     # of it which starts off the entire model
-    loaded = LoadYAML(
-        os.path.abspath("washington"),
-        log_root=log_root,
-    )
+    loaded = LoadYAML(os.path.abspath("washington"), log_root=log_root,)
     log.debug(f"{loaded.data=}")
 
     # TODO: refactor with method chaining but this does require a single class
@@ -152,6 +150,10 @@ def main():
         "Population by level Total cost\n%s",
         model.population.level_total_cost_ln_df,
     )
+
+    # test iteration
+    for obj in model:
+        log.debug(f"{obj=}")
 
     for s in [3, 6, 9]:
         log.info(f"changing stockpile to {s=}")

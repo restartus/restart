@@ -8,7 +8,7 @@ import pandas as pd  # type:ignore
 from base import Base
 from model import Model
 from pop.population_dict import PopulationDict
-from pop.population_oes import PopulationOES # noqa:
+from pop.population_oes import PopulationOES  # noqa:
 
 
 import logging  # noqa: F401
@@ -207,9 +207,7 @@ class Population(Base):
         # smaller l levels that are easier to understand
         self.level_pl_arr = model.data["Population p"]["Pop to Level pl"]
         self.level_pl_df = model.dataframe(
-            self.level_pl_arr,
-            index="Population p",
-            columns="Pop Level l",
+            self.level_pl_arr, index="Population p", columns="Pop Level l",
         )
         log.debug(f"{self.level_pl_df=}")
         self.set_description(
@@ -266,4 +264,4 @@ class Population(Base):
         log.debug("level_total_cost_ln_df\n%s", self.level_total_cost_ln_df)
 
         # method chaining
-        return(self)
+        return self

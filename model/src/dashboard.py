@@ -20,14 +20,13 @@ from main import main
 from util import Log
 from model import Model
 import os
-from typing import Callable
 import logging
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 # logging.basicConfig(level=logging.DEBUG
 # https://www.w3resource.com/python-exercises/python-basic-exercise-46.php
 # https://www.geeksforgeeks.org/python-os-path-basename-method/
-name: str = os.path.basename(__file__).split('.')[0]
+name: str = os.path.basename(__file__).split(".")[0]
 log_root: Log = Log(name)
 log: logging.Logger = log_root.log
 
@@ -49,12 +48,12 @@ def dashboard():
     data_df.columns.name = "Resource n"
     model = main()
     # https://stackoverflow.com/questions/1398022/looping-over-all-member-variables-of-a-class-in-python
-    log.debug(f'{log=}')
-    log.debug(f'{vars(model)=}')
-    log.debug(f'{vars(model.population)}=')
+    log.debug(f"{log=}")
+    log.debug(f"{vars(model)=}")
+    log.debug(f"{vars(model.population)}=")
     # https://stackoverflow.com/questions/11637293/iterate-over-object-attributes-in-python
     # this gives all kinds of things that are hidden functions;
-    log.debug(f'{dir(model.population)=}')
+    log.debug(f"{dir(model.population)=}")
     for name, value in vars(model).items():
         log.debug(name)
         log.debug(value)
@@ -64,8 +63,8 @@ def dashboard():
 
     # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
     for name, value in vars(model.population).items():
-        log.debug(f'{name=}')
-        log.debug(f'{value=}')
+        log.debug(f"{name=}")
+        log.debug(f"{value=}")
 
     # Simple selection
     st.sidebar.markdown(
@@ -76,11 +75,7 @@ def dashboard():
     )
     page = st.sidebar.selectbox(
         "Choose page",
-        ["Exploration",
-         "Tables",
-         "Home",
-         "Test Home",
-         "Test Tables"],
+        ["Exploration", "Tables", "Home", "Test Home", "Test Tables"],
     )
 
     stockpile_days = st.sidebar.slider("Stockpile", max_value=120, value=30)
@@ -224,14 +219,14 @@ def testHome(data_df):
         """
         ### All Resource Burn Rate Table
         """
-        )
+    )
 
     st.dataframe(data_df.head())
     st.write(
         """
         ### Select Resource for Filtered Burn Rate Table
         """
-        )
+    )
 
     # do a multiselect to pick relevant items
     data_ms = st.multiselect(
@@ -244,7 +239,7 @@ def testHome(data_df):
         """
         ### Histogram of uses
         """
-        )
+    )
     st.bar_chart(filtered_data_df)
     # It's so easy to chart with builtin types
     # And labelsa re just more markdown
@@ -296,7 +291,8 @@ def visualize_model(model: Model):
 
     Uses an existing model
     """
-
+    for base in model:
+        print(f"{base=}")
 
 
 # you start this by detecting a magic variable

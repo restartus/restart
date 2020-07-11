@@ -15,6 +15,7 @@ class Base:
 
     Base strings.
     """
+
     # do not put variable here unless you want them the same
     # across all classes see https://docs.python.org/3/tutorial/classes.html
 
@@ -57,4 +58,4 @@ class Base:
         self.description[name] = description
 
         # method chaining
-        return(self)
+        return self

@@ -25,6 +25,7 @@ class Economy(Base):
     Uses a modified standard project
     Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
     """
+
     # no variable here unless you want them the same across all classes
     # see https://docs.python.org/3/tutorial/classes.html
 

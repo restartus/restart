@@ -18,6 +18,7 @@ class Config:
 
     Model configuration from YAML files
     """
+
     # no variables here unless you want them same across all instances
     def __init__(
         self, *files, log_root: Optional[Log] = None,
@@ -73,7 +74,7 @@ class Config:
             return None
 
         # method chaining
-        return(self)
+        return self
 
     def load_all(self, filename: str) -> Optional[Iterator[Any]]:
         """Load multiple documents from a single YAML file.

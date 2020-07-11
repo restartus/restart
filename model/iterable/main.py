@@ -54,6 +54,7 @@ class Model0():
 
 class Model():
     """Model objects."""
+
     # Class variables are shared by all instances, so you really want these
     # so you want these to be per instance, you put them in init
     # https://docs.python.org/3/tutorial/classes.html
@@ -64,17 +65,34 @@ class Model():
         self.resource: Base = Base("resource")
         self.demand: Base = Base("demand")
         self.index: int = 0
+        self.name: str = __name__
 
     def __iter__(self):
         """Set up the index."""
+        # this works because after Python 3.6 dictionaries are ordered
+        # so create a list of the right keys and index through them
+        # so make an index of Base objects
+        # use a list comprehension that you can index through
+        # breakpoint()
+        # we need items because this converts a dictionary into a list
+        # where each item is a tuple that is (key, value)
+        self.list = [k for k, v in vars(self).items() if isinstance(v, Base)]
+        log.critical(f"__iter_: {self.list=}")
         self.index = 0
         return self
 
     def __next__(self):
         """Index only through Base Object."""
-        while name, value in vars(self.mode)
+        # https://stackoverflow.com/questions/1398022/looping-over-all-member-variables-of-a-class-in-python
+        # returns a dictionary of the name and the value, so n=2 is returns as
+        # {'n' : 2 }
+        # breakpoint()
+        if self.index >= len(self.list):
+            raise StopIteration
+        obj = vars(self)[self.list[self.index]]
+        log.critical(f"__next__: {self.index=} {obj=}")
         self.index += 1
-        return vars(self.model)[self.index]
+        return obj
 
 
 def main():

@@ -23,8 +23,9 @@ class Base():
         self.name = name
 
 
-class Model():
-    """Model."""
+# test Model with a list
+class Model0():
+    """List Model."""
 
     store: List[Base] = [Base('a'), Base('b')]
     index: int
@@ -49,6 +50,31 @@ class Model():
         if self.index >= len(self.store):
             raise StopIteration
         return self.store[self.index]
+
+
+class Model():
+    """Model objects."""
+    # Class variables are shared by all instances, so you really want these
+    # so you want these to be per instance, you put them in init
+    # https://docs.python.org/3/tutorial/classes.html
+
+    def __init__(self):
+        """NO need to init."""
+        self.population: Base = Base("population")
+        self.resource: Base = Base("resource")
+        self.demand: Base = Base("demand")
+        self.index: int = 0
+
+    def __iter__(self):
+        """Set up the index."""
+        self.index = 0
+        return self
+
+    def __next__(self):
+        """Index only through Base Object."""
+        while name, value in vars(self.mode)
+        self.index += 1
+        return vars(self.model)[self.index]
 
 
 def main():

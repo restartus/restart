@@ -2,10 +2,11 @@
 
 Base mainly includes the description fields
 """
-from typing import Dict, Any
+from typing import Dict
 import logging
 
-log = logging.getLogger(__name__)
+# The deefault
+log: logging.Logger = logging.getLogger(__name__)
 log.debug(f"{__name__=}")
 
 
@@ -14,9 +15,8 @@ class Base:
 
     Base strings.
     """
-
-    description: Dict = {}
-    log: Any = None
+    # do not put variable here unless you want them the same
+    # across all classes see https://docs.python.org/3/tutorial/classes.html
 
     # https://stackoverflow.com/questions/9056957/correct-way-to-define-class-variables-in-python
     def __init__(self):
@@ -24,6 +24,7 @@ class Base:
 
         Mainly the descriptions
         """
+        self.description: Dict = {}
         log.debug("run base")
         log.debug(f"{self=}")
 

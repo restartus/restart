@@ -29,11 +29,6 @@ class PopulationOES(PopulationDict):
         state_name: Name of a US state
         df: The processed, OES data in a dataframe
     """
-    # note you should declare otherwise type lint fails
-    # as the static module cannot tell the type in init()
-    code_df: pd.DataFrame
-    oes_df: pd.DataFrame
-    pop_df: pd.DataFrame
 
     def __init__(
         self,
@@ -50,6 +45,12 @@ class PopulationOES(PopulationDict):
 
         Read the paths in and create dataframes
         """
+        # note you should declare otherwise type lint fails
+        # as the static module cannot tell the type in init()
+        self.code_df: pd.DataFrame
+        self.oes_df: pd.DataFrame
+        self.pop_df: pd.DataFrame
+
         self.p_list = LoaderCSV(oes_path, code_path, pop_path).p_list
 
         # Format the dataframes

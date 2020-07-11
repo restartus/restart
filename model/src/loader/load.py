@@ -8,7 +8,7 @@ from typing import Optional, Dict
 
 # TODO: the scoping doesn't work, log here cannot be
 # changed by __init__
-log = logging.getLogger(__name__)
+log: logging.Logger = logging.getLogger(__name__)
 
 
 class Load():
@@ -16,9 +16,7 @@ class Load():
 
     Base configuration from YAML files
     """
-    root_log: Optional[Log]
-    log
-    data: Dict
+    # no variable unless they are the same across all instances
 
     def __init__(
         self, *paths, log_root: Optional[Log] = None,
@@ -28,6 +26,9 @@ class Load():
         Base class just sets a logger
         """
         super().__init__()
+        self.root_log: Optional[Log]
+        self.data: Dict = {}
+
         global log
         # replace the standalone logger if asked
         if log_root is not None:

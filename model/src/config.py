@@ -18,9 +18,7 @@ class Config:
 
     Model configuration from YAML files
     """
-
-    dict: Dict = {}
-
+    # no variables here unless you want them same across all instances
     def __init__(
         self, *files, log_root: Optional[Log] = None,
     ):
@@ -30,6 +28,7 @@ class Config:
         note that this causes the latest dictionary to overwrite prior
         entries so order matters if you have duplicates
         """
+        self.dict: Dict = {}
         global log
         # replace the standalone logger if asked
         if log_root is not None:

@@ -21,14 +21,15 @@ from util import Log
 from model import Model
 import os
 from typing import Callable
+import logging
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 # logging.basicConfig(level=logging.DEBUG
 # https://www.w3resource.com/python-exercises/python-basic-exercise-46.php
 # https://www.geeksforgeeks.org/python-os-path-basename-method/
-name = os.path.basename(__file__).split('.')[0]
-log_root = Log(name)
-log = log_root.log
+name: str = os.path.basename(__file__).split('.')[0]
+log_root: Log = Log(name)
+log: logging.Logger = log_root.log
 
 log.debug("test")
 

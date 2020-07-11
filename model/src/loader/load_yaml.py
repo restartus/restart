@@ -12,7 +12,7 @@ from loader.load import Load
 
 # TODO: the scoping doesn't work, log here cannot be
 # changed by __init__
-log = logging.getLogger(__name__)
+log: logging.Logger = logging.getLogger(__name__)
 
 
 class LoadYAML(Load):
@@ -20,9 +20,8 @@ class LoadYAML(Load):
 
     Model configuration from YAML files
     """
-    root_log: Optional[Log]
-    log
-    data: Dict = {}
+
+    # no variable here unless you want them the same across all instances
 
     def __init__(
         self, *paths,
@@ -35,6 +34,8 @@ class LoadYAML(Load):
         entries so order matters if you have duplicates
         """
         super().__init__()
+        self.root_log: Optional[Log]
+        self.data: Dict = {}
         global log
         # replace the standalone logger if asked
         if log_root is not None:

@@ -32,6 +32,9 @@ class Resource(Base):
         Economic Order Quantity. inv_eoc_ln_df
     """
 
+    # no variables here unless you want class variables the same across all
+    # instances
+
     def __init__(
         self,
         model,

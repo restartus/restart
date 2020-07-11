@@ -20,9 +20,7 @@ class PopulationDict(Base):
     Reads the population data. The default is to read from the model.data
     """
 
-    # https://stackoverflow.com/questions/35328286/how-to-use-numpy-in-optional-typing
-    data_arr: Optional[np.ndarray] = None
-    data_df: Optional[pd.DataFrame] = None
+    # no variable here unless you want them the same across all instances
 
     def __init__(
         self,
@@ -38,6 +36,10 @@ class PopulationDict(Base):
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__()
+
+        # https://stackoverflow.com/questions/35328286/how-to-use-numpy-in-optional-typing
+        self.data_arr: Optional[np.ndarray] = None
+        self.data_df: Optional[pd.DataFrame] = None
 
         global log
         # create a sublogger if a root exists in the model

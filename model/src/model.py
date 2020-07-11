@@ -43,11 +43,9 @@ class Model(Base):
         population levels: l levels maps population down to a fewer levels
     """
 
-    data: Dict = {}
-    label: Dict
-
     # https://satran.in/b/python--dangerous-default-value-as-argument
     # https://stackoverflow.com/questions/2…
+
     # do not do default assignment, it remembers it on eash call
     # https://docs.python.org/3/library/typing.html
     def __init__(self, name, loaded: Load, log_root: Optional[Log] = None):
@@ -59,7 +57,9 @@ class Model(Base):
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__()
         global log
-        self.log = log
+        self.log: logging.Logger = log
+        self.data: Dict = {}
+        self.label: Dict = {}
         if log_root is not None:
             self.log_root = log_root
             self.log = log_root.log_class(self)

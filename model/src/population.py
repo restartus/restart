@@ -60,6 +60,9 @@ class Population(Base):
     but for now it is a dictionary
     """
 
+    # https://satran.in/b/python--dangerous-default-value-as-argument
+    # https://stackoverflow.com/questions/2…
+
     # These are the default structures
     # attr_pd_arr = np.array([735.2, 7179.6])
     # level_pm_arr = np.array(

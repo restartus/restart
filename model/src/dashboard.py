@@ -18,7 +18,9 @@ import streamlit as st  # type:ignore
 from base import Base
 from main import main
 from util import Log
+from model import Model
 import os
+from typing import Callable
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 # logging.basicConfig(level=logging.DEBUG
@@ -42,6 +44,8 @@ def dashboard():
         index=["healthcare", "Non-healthcare"],
         columns=["N95", "Mask"],
     )
+    data_df.index.name = "Level l"
+    data_df.columns.name = "Resource n"
     model = main()
     # https://stackoverflow.com/questions/1398022/looping-over-all-member-variables-of-a-class-in-python
     log.debug(f'{log=}')
@@ -87,11 +91,13 @@ def dashboard():
         homePage(model)
     elif page == "Tables":
         tables(model)
+    elif page == "Exploration":
+        visualize_model(model)
     elif page == "Test Tables":
         testTables(model)
-    elif page == "Testhome":
+    elif page == "Test Home":
         testHome(data_df)
-    elif page == "Exploration":
+    elif page == "Test Exploration":
         st.title("Data Exploration")
         # https://docs.streamlit.io/en/latest/api.html
         x_axis = st.selectbox("Choose x-axis", data_df.columns, index=0)
@@ -256,8 +262,8 @@ def visualize_data(df, x_axis, y_axis):
     """
     st.write(f"{x_axis=} {y_axis=}")
     df
-    df.index.name = "Level"
-    df
+    df.index.name
+    df.index.name = "Label" if None else df.index.name
     # first rest the index to get it to be a column
     # using melt to get column form
     df_reset = df.reset_index()
@@ -277,6 +283,19 @@ def visualize_data(df, x_axis, y_axis):
         .interactive()
     )
     st.write(graph)
+
+
+def visualize_model(model: Model):
+    """Visualize Model.
+
+    Simple visualization
+    """
+    """
+    # Model Visualization
+
+    Uses an existing model
+    """
+
 
 
 # you start this by detecting a magic variable

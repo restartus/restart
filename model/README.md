@@ -15,6 +15,8 @@ This is the visual display demo using streamlit. Filled with dummy data
 - [altair](altair). Studies of using the Altair plotting interface to Vegas-lite
 - [yaml](yaml). Experiments in using YAML as model input
 - [namespace](namespace). Testing of multiple packages in the same namespace
+- [iterator](iterator). Learn how to Model to iterate against all Base classes
+    inside of it
 
 ## Model that is the real python model first using streamlit as a demo v0.1
 

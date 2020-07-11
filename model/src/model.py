@@ -131,3 +131,43 @@ class Model(Base):
         df.columns.name = columns
         log.debug(f"{df=}")
         return df
+
+    
+    # https://stackoverflow.com/questions/37835179/how-can-i-specify-the-function-type-in-my-type-hints
+    # https://www.datacamp.com/community/tutorials/python-iterator-tutorial
+    # https://towardsdatascience.com/how-to-loop-through-your-own-objects-in-python-1609c81e11ff
+    # So we want the iterable to be the Base Class
+    # The iterator is Model which can return all the Base classes
+    def __iter__(self):
+        return jk
+
+    # https://thispointer.com/python-how-to-make-a-class-iterable-create-iterator-class-for-it/
+    def iterate(model: Model, display: Callable):
+        """Iterate through the model running display 
+        """
+        # TODO: This should become a called function with script
+        # http://net-informations.com/python/iq/instance.htm
+        log.debug(f"{model} is {vars(model)}")
+        for model_key, model_value in vars(model).items():
+            # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
+            # if issubclass(value, Base):
+            if isinstance(model_value, Base):
+                log.debug(
+                    f"object {model_key=} holds {model_value=} subclass of Base"
+                )
+                for name, value in vars(model_value).items():
+                    # https://stackoverflow.com/questions/14808945/check-if-variable-is-dataframe
+                    if not isinstance(value, pd.DataFrame):
+                        log.debug(f"{value} is not a DataFrame")
+                        continue
+                    # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
+                    # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
+                    if name in model_value.description:
+                        log.debug("found description")
+                        st.write(model_value.description[name])
+                    else:
+                        st.header(name)
+                        st.write(f"No description found for {name=}")
+                    # https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
+                    # https://pbpython.com/styling-pandas.html
+                    st.write(value.style.format("{0:,.2f}"))

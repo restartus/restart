@@ -38,6 +38,7 @@ class Resource(Base):
     def __init__(
         self,
         model,
+        type: str = None,
         attr_na_df=None,
         cost_ln_df=None,
         inv_initial_ln_df=None,
@@ -66,6 +67,10 @@ class Resource(Base):
         # need labels for later
         self.dim = model.dim
         self.label = model.label
+
+        if type is not None:
+            # ignoring the type for now but will eventually link
+            log.debug(f"{type=}")
 
         # original self initialization code
         # if attr_na_df is None:

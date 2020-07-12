@@ -10,6 +10,7 @@ import pandas as pd  # type: ignore # noqa: F401
 import numpy as np  # type: ignore # noqa: F401
 from base import Base
 from model import Model
+from typing import Optional
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ class Economy(Base):
     # no variable here unless you want them the same across all classes
     # see https://docs.python.org/3/tutorial/classes.html
 
-    def __init__(self, model: Model):
+    def __init__(self, model: Model, type: Optional[str] = None):
         """Initialize the Economy object.
 
         This uses the Frame object and populates it with default data unless yo
@@ -43,3 +44,6 @@ class Economy(Base):
         self.log = log
         if model.log_root is not None:
             log = self.log = model.log_root.log_class(self)
+
+        if type is not None:
+            log.debug(f"not implemented {type=}")

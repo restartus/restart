@@ -7,6 +7,7 @@ import pandas as pd  # type: ignore # noqa: F401
 import numpy as np  # type: ignore # noqa: F401
 from base import Base
 from model import Model
+from typing import Optional
 
 log = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ class Behavioral(Base):
     Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
     """
 
-    def __init__(self, model: Model):
+    def __init__(self, model: Model, type: Optional[str] = None):
         """Initialize the Economy object.
 
         This uses the Frame object and populates it with default data unless yo
@@ -40,3 +41,6 @@ class Behavioral(Base):
         self.model.log_root.con.setLevel(logging.DEBUG)
         log.debug(f"in {__name__=}")
         self.model.log_root.con.setLevel(logging.WARNING)
+
+        if type is not None:
+            log.debug(f"not implemented {type=}")

@@ -1,6 +1,7 @@
 """Define Model definition.
 
 The model shape is configured here.
+And this uses chained methods as decorators
 https://www.w3schools.com/python/python_classes.asp
 """
 from typing import Dict, Optional, Tuple, List
@@ -9,6 +10,12 @@ from util import Log
 from loader.load import Load
 import numpy as np  # type:ignore
 import pandas as pd  # type:ignore
+from population import Population
+from resourcemodel import Resource
+from economy import Economy
+from disease import Disease
+from behavioral import Behavioral
+from modeldata import ModelData
 
 import logging  # noqa: F401
 
@@ -48,7 +55,7 @@ class Model(Base):
 
     # do not do default assignment, it remembers it on eash call
     # https://docs.python.org/3/library/typing.html
-    def __init__(self, name, loaded: Load, log_root: Optional[Log] = None):
+    def __init__(self, name, log_root: Optional[Log] = None):
         """Initialize the model.
 
         Use the data dictionary load data
@@ -58,17 +65,22 @@ class Model(Base):
         super().__init__()
         global log
         self.log: logging.Logger = log
-        self.data: Dict = {}
-        self.label: Dict = {}
         if log_root is not None:
             self.log_root = log_root
             self.log = log_root.log_class(self)
             log = self.log
 
-        log.debug(f"{loaded.data=}")
-
         self.name: str = name
         log.debug(f"{self.name=}")
+        self.label: Dict = {}
+        self.data: ModelData = ModelData({}, {}, {})
+
+    def configure(self, loaded: Load):
+        """Configure the Model.
+
+        Uses Loaded as a dictionary and puts it into model variables
+        """
+        log.debug(f"{loaded.data=}")
 
         # https://realpython.com/python-keyerror/
         cfg: Optional[Dict] = loaded.data.get("Config")
@@ -78,20 +90,20 @@ class Model(Base):
 
         description: Optional[Dict] = loaded.data.get("Description")
         if description is not None:
-            self.description = description
+            self.data.description = description
         log.debug(f"{self.description=}")
 
         data: Optional[Dict] = loaded.data.get("Data")
         log.debug(f"{data=}")
         if data is not None:
-            self.data = data
+            self.data.value = data
         log.debug(f"{self.data=}")
 
         label: Optional[Dict] = loaded.data.get("Label")
         if label is None:
             log.warning(f"No label in {loaded.data=}")
             return
-        self.label = label
+        self.data.label = label
 
         log.debug(f"{self.label=}")
         # These are just as convenience functions for dimensions
@@ -108,6 +120,52 @@ class Model(Base):
             "s": len(self.label["Res Safety Stock s"]),
         }
         log.debug(f"{self.dim=}")
+        return self
+
+    # TODO: This should be a generated set of methods as they are all identical
+    def set_population(self,
+                       type: str = None):
+        """Create population class for model.
+
+        Population created here
+        """
+        # the super class population uses type to return the exact model
+        self.population = Population(self.data,
+                                     log_root=self.log_root,
+                                     type=type)
+        return self
+
+    def set_resource(self, type: str = None):
+        """Create resource class.
+
+        Resource
+        """
+        self.resource = Resource(self, type)
+        return self
+
+    def set_economy(self, type: str = None):
+        """Create Econometric model.
+
+        Economy creation
+        """
+        self.economy = Economy(self, type)
+        return self
+
+    def set_disease(self, type: str = None):
+        """Create Disease model.
+
+        Disease create
+        """
+        self.disease = Disease(self, type)
+        return self
+
+    def set_behavioral(self, type: str = None):
+        """Create Behavior model.
+
+        Behavior create
+        """
+        self.behavioral = Behavioral(self, type)
+        return self
 
     # sets the frame properly but does need to understand the model
     # so goes into the model method
@@ -153,3 +211,13 @@ class Model(Base):
         log.debug(f"{key=} {value=}")
         self.base_index += 1
         return key, value
+
+    # Use the decorator pattern that Keras and other use with chaining
+    def logger(self, name: str = __name__):
+        """Set Log.
+
+        Setup the root logger and log
+        """
+        self.log_root = Log(name)
+        self.log = self.log_root.log
+        return self

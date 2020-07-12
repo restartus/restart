@@ -1,14 +1,21 @@
 """Population class.
 
-Main the class
+This part of the overall model. Note that we cannot import the Model Class
+As 
 """
 
 # Note that pip install data-science-types caused errors
 import pandas as pd  # type:ignore
 from base import Base
-from model import Model
+from modeldata import ModelData
+
+# Insert the classes of data we support here
+# TODO: this should probably eventually be to look in a directory
+# and pick up everything but hard code for now
 from pop.population_dict import PopulationDict
 from pop.population_oes import PopulationOES  # noqa:
+from typing import Optional, Dict
+from util import Log
 
 
 import logging  # noqa: F401
@@ -82,11 +89,15 @@ class Population(Base):
     #        res_demand_mn_df: Optional[pd.DataFrame] = None,
     #        level_pl_df: Optional[pd.DataFrame] = None,
     def __init__(
-        self, model: Model,
+        self,
+        data: ModelData,
+        log_root: Log = None,
+        type: Optional[str] = None
     ):
         """Initialize all variables.
 
-        All initialization here
+        All initialization here and uses type to determine which method to call
+        The default is PopulationDict which reads from the model.data
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         # to pick up the description
@@ -94,42 +105,15 @@ class Population(Base):
         global log
         self.log = log
         # create a sublogger if a root exists in the model
-        if model.log_root is not None:
-            log = self.log = model.log_root.log_class(self)
+        if log_root is not None:
+            self.log_root = log_root
+            log = self.log = log_root.log_class(self)
 
         # set the arrays of values should be a column vector
         # https://kite.com/python/answers/how-to-make-a-numpy-array-a-column-vector-in-python
         # A shortcut
-        log.debug(f"{model.label=}")
-        log.debug(f"{model.data=}")
-
-        # manual insert of population and description as a test
-        self.attr_pd_arr = model.data["Population p"]["Pop Detail Data pd"]
-        log.debug(f"{self.attr_pd_arr=}")
-        self.attr_pd_df = pd.DataFrame(
-            self.attr_pd_arr,
-            index=model.label["Population p"],
-            columns=model.label["Pop Detail d"],
-        )
-        self.attr_pd_df.index.name = "Population p"
-        self.attr_pd_df.columns.name = "Pop Detail d"
-        log.debug(f"{self.attr_pd_df=}")
-        self.set_description(
-            f"{self.attr_pd_df=}",
-            model.description["Population p"]["Pop Detail pd"],
-        )
-
-        # the same thing in a function less code duplication
-        self.attr_pd_df = model.dataframe(
-            arr=model.data["Population p"]["Pop Detail Data pd"],
-            index="Population p",
-            columns="Pop Detail d",
-        )
-        log.debug(f"{self.attr_pd_df=}")
-        self.set_description(
-            f"{self.attr_pd_df=}",
-            model.description["Population p"]["Pop Detail pd"],
-        )
+        log.debug(f"{data.label=}")
+        log.debug(f"{data.value=}")
 
         # new population class, so it can be replaced in a class
         # not running for rich df is null
@@ -141,11 +125,43 @@ class Population(Base):
         # )
         # log.debug(f"{population_data_oes=}")
 
-        population_data = PopulationDict(
-            model,
-            source=model.data["Population p"]["Pop Detail Data pd"],
-            index=model.label["Population p"],
-            columns=model.label["Pop Detail d"],
+        if type == "PopulationOES":
+            # This is a placeholder this should instert
+            population_data: PopulationDict = PopulationOES()
+            return
+        else:
+            population_data = PopulationDict(
+                log_root=self.log_root,
+                source=data.value["Population p"]["Pop Detail Data pd"],
+                index=data.label["Population p"],
+                columns=data.label["Pop Detail d"],
+            )
+
+        # testing of populationDict functions
+        self.attr_pd_arr = data.value["Population p"]["Pop Detail Data pd"]
+        log.debug(f"{self.attr_pd_arr=}")
+        self.attr_pd_df = pd.DataFrame(
+            self.attr_pd_arr,
+            index=data.label["Population p"],
+            columns=data.label["Pop Detail d"],
+        )
+        self.attr_pd_df.index.name = "Population p"
+        self.attr_pd_df.columns.name = "Pop Detail d"
+        log.debug(f"{self.attr_pd_df=}")
+        self.set_description(
+            f"{self.attr_pd_df=}",
+            data.description["Population p"]["Pop Detail pd"],
+        )
+        # the same thing in a function less code duplication
+        self.attr_pd_df = model.dataframe(
+            arr=data.value["Population p"]["Pop Detail Data pd"],
+            index="Population p",
+            columns="Pop Detail d",
+        )
+        log.debug(f"{self.attr_pd_df=}")
+        self.set_description(
+            f"{self.attr_pd_df=}",
+            model.description["Population p"]["Pop Detail pd"],
         )
 
         log.debug(f"{population_data.data_arr=}")

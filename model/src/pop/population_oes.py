@@ -6,7 +6,7 @@ import pickle
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
 from typing import Optional, Tuple
-from model import Model
+# from model import Model
 from pop.population_dict import PopulationDict
 from loader.load_csv import LoaderCSV
 
@@ -32,14 +32,14 @@ class PopulationOES(PopulationDict):
 
     def __init__(
         self,
-        model: Model,
+        # model: Model,
         cty_name: Optional[str] = None,
         state_name: Optional[str] = None,
         index: Optional[str] = None,
         columns: Optional[str] = None,
-        oes_path: str = OES_PATH,
-        code_path: str = CODE_PATH,
-        pop_path: str = POP_PATH
+        oes_path: Optional[str] = OES_PATH,
+        code_path: Optional[str] = CODE_PATH,
+        pop_path: Optional[str] = POP_PATH
     ):
         """Initialize.
 
@@ -85,7 +85,7 @@ class PopulationOES(PopulationDict):
         self.tot_pop = np.sum(self.df['tot_emp'])
         self.health = self.healthcare_filter()
         self.occ = self.df.drop(['occ_code'], axis=1)
-        super().__init__(model,
+        super().__init__(
                          source=self.health,
                          index=index,
                          columns=columns)

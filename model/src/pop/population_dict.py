@@ -7,8 +7,10 @@ import pandas as pd  # type: ignore # noqa: F401
 import numpy as np  # type: ignore
 # https://www.python.org/dev/peps/pep-0420/
 from base import Base
-from model import Model
+# in this new version we cannot depend on Model to be preformed
+# from model import Model
 from typing import Optional, Dict
+from util import Log
 
 
 log: logging.Logger = logging.getLogger(__name__)
@@ -24,7 +26,8 @@ class PopulationDict(Base):
 
     def __init__(
         self,
-        model: Model,
+        # model: Model,
+        log_root: Optional[Log] = None,
         source: Dict = None,
         index: Optional[str] = None,
         columns: Optional[str] = None,
@@ -43,15 +46,16 @@ class PopulationDict(Base):
 
         global log
         # create a sublogger if a root exists in the model
-        self.model: Model = model
-        if model.log_root is not None:
-            log = model.log_root.log_class(self)
+        # self.model: Model = model
+        if log_root is not None:
+            self.log_root: Log = log_root
+            log = log_root.log_class(self)
             self.log: logging.Logger = log
         # the sample code to move up the logging for a period and then turn it
         # off
-        self.model.log_root.con.setLevel(logging.DEBUG)
+        self.log_root.con.setLevel(logging.DEBUG)
         log.debug(f"in {__name__=}")
-        self.model.log_root.con.setLevel(logging.WARNING)
+        self.log_root.con.setLevel(logging.WARNING)
 
         log.debug(f"{source=}")
 

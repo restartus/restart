@@ -74,18 +74,22 @@ def main():
     # test that logging works
     log_root.test(log)
 
+    # https://www.tutorialspoint.com/Explain-Python-class-method-chaining
+    log.info("creating Model")
+    model: Model = Model(name, log_root=log_root)
+
     # run the loader and put everything into a super dictionary
     # To change the model, just replace LoadYAML and the configuration
     # of it which starts off the entire model
     loaded = LoadYAML(os.path.abspath("washington"), log_root=log_root,)
     log.debug(f"{loaded.data=}")
+    log.info("configure Model")
+    model.configure(loaded)
 
-    # TODO: refactor with method chaining but this does require a single class
-    # https://www.tutorialspoint.com/Explain-Python-class-method-chaining
-    log.info("creating Model")
-    model: Model = Model(name, loaded, log_root=log_root)
+    # note we cannot just past model down to allow chaining to work
     log.info("creating Population")
-    model.population: Population = Population(model)
+    model.population: Population = Population(model.data,
+                                              log_root=model.log_root)
     log.debug("creating Resource")
     model.resource: Resource = Resource(model)
     log.debug("creating Economy")
@@ -94,6 +98,20 @@ def main():
     model.disease: Disease = Disease(model)
     log.debug("creating Behavioral")
     model.behavioral: Behavioral = Behavioral(model)
+
+    loaded = LoadYAML(os.path.abspath("washington"), log_root=log_root,)
+    # refactor with method chaining but this does require a single class
+    # and a set of decorators
+    model1 = (
+        Model(name)
+        .configure(loaded)
+        .set_population()
+        .set_resource()
+        .set_economy()
+        .set_disease()
+        .set_behavioral()
+    )
+    model1
 
     # http://net-informations.com/python/iq/instance.htm
     log.debug(f"{model} is {vars(model)}")

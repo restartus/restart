@@ -152,8 +152,12 @@ def main():
     )
 
     # test iteration
-    for obj in model:
-        log.debug(f"{obj=}")
+    for base_key, base_value in model:
+        log.debug(f"{base_key=}")
+        log.debug(f"{base_value=}")
+        for df_key, df_value in base_value:
+            log.debug(f"{df_key=}")
+            log.debug(f"{df_value=}")
 
     for s in [3, 6, 9]:
         log.info(f"changing stockpile to {s=}")

@@ -175,29 +175,37 @@ def tables(model):
 
     # http://net-informations.com/python/iq/instance.htm
     log.debug(f"{model} is {vars(model)}")
-    for model_key, model_value in vars(model).items():
-        # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
-        # if issubclass(value, Base):
-        if isinstance(model_value, Base):
-            log.debug(
-                f"object {model_key=} holds {model_value=} subclass of Base"
-            )
-            for name, value in vars(model_value).items():
-                # https://stackoverflow.com/questions/14808945/check-if-variable-is-dataframe
-                if not isinstance(value, pd.DataFrame):
-                    log.debug(f"{value} is not a DataFrame")
-                    continue
-                # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
-                # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
-                if name in model_value.description:
-                    log.debug("found description")
-                    st.write(model_value.description[name])
-                else:
-                    st.header(name)
-                    st.write(f"No description found for {name=}")
-                # https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
-                # https://pbpython.com/styling-pandas.html
-                st.write(value.style.format("{0:,.2f}"))
+    # replaced by iteration
+    # for model_value in model:
+    # for model_key, model_value in vars(model).items():
+    # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
+    # if issubclass(value, Base):
+    #     if isinstance(model_value, Base):
+    #         log.debug(
+    #             f"object {model_key=} holds {model_value=} subclass of Base"
+    #         )
+    for base_key, base_value in model:
+        # now using the new model iterator that does through all dataframes in a
+        # Base class
+        for df_name, df_value in base_value:
+            # the above replaced these lines
+            # for name, value in vars(model_value).items():
+            # https://stackoverflow.com/questions/14808945/check-if-variable-is-dataframe
+            # if not isinstance(value, pd.DataFrame):
+            #     log.debug(f"{value} is not a DataFrame")
+            #     continue
+            # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
+            # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
+            # breakpoint()
+            if df_name in base_value.description:
+                log.debug("found description")
+                st.write(base_value.description[df_name])
+            else:
+                st.header(df_name)
+                st.write(f"No description found for {df_name=}")
+            # https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
+            # https://pbpython.com/styling-pandas.html
+            st.write(df_value.style.format("{0:,.2f}"))
 
 
 def testHome(data_df):
@@ -291,8 +299,8 @@ def visualize_model(model: Model):
 
     Uses an existing model
     """
-    for base in model:
-        print(f"{base=}")
+    for obj in model:
+        pass
 
 
 # you start this by detecting a magic variable

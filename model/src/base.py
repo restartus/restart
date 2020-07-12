@@ -2,8 +2,9 @@
 
 Base mainly includes the description fields
 """
-from typing import Dict
+from typing import Dict, Tuple
 import logging
+import pandas as pd  # type:ignore
 
 # The deefault
 log: logging.Logger = logging.getLogger(__name__)
@@ -59,3 +60,27 @@ class Base:
 
         # method chaining
         return self
+
+    def __iter__(self):
+        """Iterate over all Pandas DataFrames.
+
+        Uses a list of all frames
+        """
+        self.df_list = [
+            k for k, v in vars(self).items() if isinstance(v, pd.DataFrame)
+        ]
+        self.df_len = len(self.df_list)
+        self.df_index = 0
+        return self
+
+    def __next__(self) -> Tuple[str, pd.DataFrame]:
+        """Next Pandas DataFrame.
+
+        Iterates through the list of dataframes
+        """
+        if self.df_index >= self.df_len:
+            raise StopIteration
+        key = self.df_list[self.df_index]
+        value = vars(self)[key]
+        self.df_index += 1
+        return key, value

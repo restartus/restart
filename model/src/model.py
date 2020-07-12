@@ -3,7 +3,7 @@
 The model shape is configured here.
 https://www.w3schools.com/python/python_classes.asp
 """
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple, List
 from base import Base
 from util import Log
 from loader.load import Load
@@ -135,20 +135,21 @@ class Model(Base):
     # https://thispointer.com/python-how-to-make-a-class-iterable-create-iterator-class-for-it/
     def __iter__(self):
         """Iterate through the model getting only Base objects."""
-        self.iter_list = [
+        self.base_list: List = [
             k for k, v in vars(self).items() if isinstance(v, Base)
         ]
-        log.debug(f"{self.iter_list=}")
-        self.iter_len = len(self.iter_list)
-        self.iter_index = 0
+        log.debug(f"{self.base_list=}")
+        self.base_len: int = len(self.base_list)
+        self.base_index: int = 0
         return self
 
-    def __next__(self) -> Base:
+    def __next__(self) -> Tuple[str, Base]:
         """Next Base."""
-        if self.iter_index >= self.iter_len:
+        if self.base_index >= self.base_len:
             raise StopIteration
-        log.debug(f"{self.iter_index=}")
-        obj = vars(self)[self.iter_list[self.iter_index]]
-        log.debug(f"{obj=}")
-        self.iter_index += 1
-        return obj
+        log.debug(f"{self.base_index=}")
+        key = self.base_list[self.base_index]
+        value = vars(self)[key]
+        log.debug(f"{key=} {value=}")
+        self.base_index += 1
+        return key, value

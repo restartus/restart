@@ -7,6 +7,9 @@ import logging
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
 from base import Base
+from modeldata import ModelData
+from util import Log, set_dataframe
+from typing import Union
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +29,8 @@ class Resource(Base):
         Resource. Attributes of each
         Costs. Of the resource
         Inventory. The current inventory level
-        Safety stock. the minimum inventory level
+        Safety stock. the minimum inventory level in days
+        Average Demand. This is used for min stockpilg
 
     Need to be done do an economic order quantity that varies by level and item
         Economic Order Quantity. inv_eoc_ln_df
@@ -36,14 +40,7 @@ class Resource(Base):
     # instances
 
     def __init__(
-        self,
-        model,
-        type: str = None,
-        attr_na_df=None,
-        cost_ln_df=None,
-        inv_initial_ln_df=None,
-        inv_eoc_ln_df=None,
-        safety_stock_ln_df=None,
+        self, data: ModelData, log_root: Log = None, type: str = None,
     ):
         """Initialize the Resources.
 
@@ -55,8 +52,9 @@ class Resource(Base):
         # create a sublogger if a root exists in the model
         global log
         self.log = log
-        if model.log_root is not None:
-            log = self.log = model.log_root.log_class(self)
+        if log_root is not None:
+            self.log_root = log_root
+            log = self.log = self.log_root.log_class(self)
 
         """Initialize the Resource object
         This uses the Frame object and populates it with default data unless yo
@@ -64,9 +62,8 @@ class Resource(Base):
         """
         self.log.debug("in %s", __name__)
         # initial inventory defaults to zero
-        # need labels for later
-        self.dim = model.dim
-        self.label = model.label
+        # need labels for later since we do not have access to model
+        self.label = data.label
 
         if type is not None:
             # ignoring the type for now but will eventually link
@@ -83,135 +80,112 @@ class Resource(Base):
         # self.attr_na_arr = attr_na_df.values
         # self.attr_na_df = attr_na_df
 
-        self.attr_na_arr = model.data["Resource n"]["Res Attr Data na"]
-        self.attr_na_df = pd.DataFrame(
+        self.attr_na_arr = data.value["Resource n"]["Res Attr Data na"]
+        self.attr_na_df = set_dataframe(
             self.attr_na_arr,
-            index=self.label["Resource n"],
-            columns=self.label["Res Attribute a"],
+            data.label,
+            index="Resource n",
+            columns="Res Attribute a",
         )
-        log.debug(f"{self.attr_na_df=}")
+        self.attr_na_df.index.name = "Resources n"
+        self.attr_na_df.columns.name = "Res Attr a"
 
+        log.debug(f"{self.attr_na_df=}")
         self.set_description(
             f"{self.attr_na_df=}",
-            model.description["Resource n"]["Res Detail na"],
+            data.description["Resource n"]["Res Attr Data na"],
         )
 
-        self.cost_ln_arr = model.data["Resource n"]["Pop Level Res Cost ln"]
-        self.cost_ln_df = pd.DataFrame(
-            self.cost_ln_arr,
-            index=self.label["Pop Level l"],
-            columns=self.label["Resource n"],
-        )
+        self.cost_ln_arr = data.value["Resource n"]["Pop Level Res Cost ln"]
+        self.cost_ln_df = self.res_dataframe(self.cost_ln_arr)
         log.debug(f"{self.cost_ln_df=}")
         self.set_description(
-            f"{cost_ln_df=}",
-            model.description["Resource n"]["Pop Level Res Cost ln"],
+            f"{self.cost_ln_df=}",
+            data.description["Resource n"]["Pop Level Res Cost ln"],
         )
 
-        self.inv_initial_ln_arr = model.data["Resource n"][
+        self.inv_initial_ln_arr = data.value["Resource n"][
             "Res Inventory Initial ln"
         ]
-        self.inv_initial_ln_df = pd.DataFrame(
-            self.inv_initial_ln_arr,
-            index=self.label["Pop Level l"],
-            columns=self.label["Resource n"],
-        )
+        self.inv_initial_ln_df = self.res_dataframe(self.inv_initial_ln_arr,)
         log.debug(f"{self.inv_initial_ln_df=}")
         self.set_description(
             f"{self.inv_initial_ln_df=}".split("=")[0],
-            model.description["Resource n"]["Res Inventory Initial ln"],
+            data.description["Resource n"]["Res Inventory Initial ln"],
         )
         log.debug(f"{self.description['inv_initial_ln_df']}")
 
-        self.inventory_ln_df = self.inv_initial_ln_df
+        # be careful you want a copy here so inv_initial stays the same
+        self.inventory_ln_df = self.inv_initial_ln_df.copy()
         log.debug(f"Setting initial inventory {self.inventory_ln_df=}")
 
-        self.inv_eoc_ln_arr = model.data["Resource n"]["Res Inventory EOC ln"]
+        self.inv_eoc_ln_arr = data.value["Resource n"]["Res Inventory EOC ln"]
         log.debug(f"{self.inv_eoc_ln_arr=}")
-        self.inv_eoc_ln_df = pd.DataFrame(
-            self.inv_eoc_ln_arr,
-            index=self.label["Pop Level l"],
-            columns=self.label["Resource n"],
-        )
-        # ensure we don't have any negatives
+        self.inv_eoc_ln_df = self.res_dataframe(self.inv_eoc_ln_arr,)
+        # ensure we don't have any non-zero numbers
         self.inv_eoc_ln_df[self.inv_eoc_ln_df < 1] = 1
         log.debug(f"{self.inv_eoc_ln_df=}")
-
         self.set_description(
             f"{self.inv_eoc_ln_df=}",
-            model.description["Resource n"]["Res Inventory EOC ln"],
+            data.description["Resource n"]["Res Inventory EOC ln"],
         )
         log.debug(f"{self.description['inv_eoc_ln_df']}")
 
-        if safety_stock_ln_df is None:
-            safety_stock_ln_df = self.inv_initial_ln_df
-        self.safety_stock(safety_stock_ln_df)
+        safety_stock_ln_arr = data.value["Resource n"][
+            "Res Inventory Safety Stock ln"
+        ]
+        self.safety_stock_ln_df = self.res_dataframe(safety_stock_ln_arr,)
         self.set_description(
             f"{self.safety_stock_ln_df=}",
-            model.description["Resource n"]["Res Inventory Initial ln"],
+            data.description["Resource n"]["Res Inventory Safety Stock ln"],
         )
 
-    def set_stockpile_days(self, model, days: int):
+        self.average_demand_ln_arr = data.value["Resource n"][
+            "Res Inventory Average Demand ln"
+        ]
+        self.average_demand_ln_df = self.res_dataframe(
+            self.average_demand_ln_arr
+        )
+        self.set_description(
+            f"{self.average_demand_ln_df=}",
+            data.description["Resource n"]["Res Inventory Average Demand ln"],
+        )
+
+        self.stockpile_days_ln_arr = data.value["Resource n"][
+            "Res Inventory Stockpile Days ln"
+        ]
+        self.stockpile_days_ln_df = self.res_dataframe(
+            self.stockpile_days_ln_arr
+        )
+        self.set_description(
+            f"{self.stockpile_days_ln_df=}",
+            data.description["Resource n"]["Res Inventory Stockpile Days ln"],
+        )
+
+    def set_stockpile_days(self, days: Union[np.ndarray, int]):
         """Set stockpile days for all resources.
 
         A helper function which spreads the days across all populations nad all
         columns
         """
-        # new in Python 3.6
-        safety_stock_days_ln_df = pd.DataFrame(
-            days
-            * np.ones(
-                (len(self.label["Pop Level l"]), len(self.label["Resource n"]))
-            ),
-            index=self.label["Pop Level l"],
-            columns=self.label["Resource n"],
-        )
-        self.log.debug(f"{safety_stock_days_ln_df=}")
-        self.set_stockpile(
-            model.population.level_total_demand_ln_df,
-            safety_stock_days_ln_df=safety_stock_days_ln_df,
-        )
-
-    def set_stockpile(
-        self,
-        level_total_demand_ln_df,
-        safety_stock_days_ln_df: pd.DataFrame = None,
-    ):
-        """Set a stock pile in days of demand.
-
-        Stockpile set
-        """
-        if log is not self.log:
-            raise ValueError(f"{log=} is not {self.log=}")
-        if safety_stock_days_ln_df is None:
-            # place holder just 30 days for essential
-            safety_stock_days_ln_arr = np.array([[30, 30], [0, 0]])
-            safety_stock_days_ln_df = pd.DataFrame(
-                safety_stock_days_ln_arr,
-                index=self.label["Pop Level l"],
-                columns=self.label["Resource n"],
+        # https://numpy.org/doc/stable/reference/generated/numpy.empty_like.html
+        if type(days) is int:
+            self.stockpile_days_ln_arr = days * np.ones_like(
+                self.inventory_ln_df
             )
-            self.log.debug(
-                "Safety_stock_days_ln_df\n%s", safety_stock_days_ln_df
-            )
+        else:
+            self.stockpile_days_ln_arr = days
+        self.stockpile_days_ln_df[:] = self.stockpile_days_ln_arr
+        log.debug(f"{self.stockpile_days_ln_df=}")
 
-        self.log.debug(
-            "Population Level Total Demand\n%s", level_total_demand_ln_df
-        )
         # need to do a dot product
-        new_safety_stock_ln_df = (
-            level_total_demand_ln_df * safety_stock_days_ln_df.values
+        self.safety_stock_ln_arr = (
+            self.average_demand_ln_arr * self.stockpile_days_ln_arr
         )
-        self.log.debug("safety stock %s", new_safety_stock_ln_df)
-        self.safety_stock(new_safety_stock_ln_df)
+        # https://stackoverflow.com/questions/53375161/use-numpy-array-to-replace-pandas-dataframe-values
+        self.safety_stock_ln_df[:] = self.safety_stock_ln_arr
+        log.debug(f"{self.safety_stock_ln_df=}")
 
-    def safety_stock(self, safety_stock_ln_df):
-        """Set or reset safety stock.
-
-        Triggers a reorder if needed
-        """
-        log.debug("set safety_stock to\n%s", safety_stock_ln_df)
-        self.safety_stock_ln_df = safety_stock_ln_df
         self.supply_order()
 
     def supply_order(self):
@@ -283,3 +257,13 @@ class Resource(Base):
         # now restock
         self.supply_order()
         return deliver_ln_df
+
+    def res_dataframe(self, arr: np.ndarray) -> pd.DataFrame:
+        """Resource Model.
+
+        Dataframe setting
+        """
+        df = set_dataframe(
+            arr, self.label, index="Pop Level l", columns="Resource n"
+        )
+        return df

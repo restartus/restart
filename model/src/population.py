@@ -1,7 +1,7 @@
 """Population class.
 
 This part of the overall model. Note that we cannot import the Model Class
-As 
+As we need to refer to it from Model and standalone
 """
 
 # Note that pip install data-science-types caused errors
@@ -14,8 +14,8 @@ from modeldata import ModelData
 # and pick up everything but hard code for now
 from pop.population_dict import PopulationDict
 from pop.population_oes import PopulationOES  # noqa:
-from typing import Optional, Dict
-from util import Log
+from typing import Optional
+from util import Log, set_dataframe
 
 
 import logging  # noqa: F401
@@ -89,10 +89,7 @@ class Population(Base):
     #        res_demand_mn_df: Optional[pd.DataFrame] = None,
     #        level_pl_df: Optional[pd.DataFrame] = None,
     def __init__(
-        self,
-        data: ModelData,
-        log_root: Log = None,
-        type: Optional[str] = None
+        self, data: ModelData, log_root: Log = None, type: Optional[str] = None
     ):
         """Initialize all variables.
 
@@ -153,15 +150,17 @@ class Population(Base):
             data.description["Population p"]["Pop Detail pd"],
         )
         # the same thing in a function less code duplication
-        self.attr_pd_df = model.dataframe(
-            arr=data.value["Population p"]["Pop Detail Data pd"],
+        self.attr_pd_arr = data.value["Population p"]["Pop Detail Data pd"]
+        self.attr_pd_df = set_dataframe(
+            self.attr_pd_arr,
+            data.label,
             index="Population p",
             columns="Pop Detail d",
         )
         log.debug(f"{self.attr_pd_df=}")
         self.set_description(
             f"{self.attr_pd_df=}",
-            model.description["Population p"]["Pop Detail pd"],
+            data.description["Population p"]["Pop Detail pd"],
         )
 
         log.debug(f"{population_data.data_arr=}")
@@ -173,7 +172,7 @@ class Population(Base):
         log.debug(f"{self.attr_pd_df=}")
         self.set_description(
             f"{self.attr_pd_df=}",
-            model.description["Population p"]["Pop Detail pd"],
+            data.description["Population p"]["Pop Detail pd"],
         )
         log.debug(f"{self=}")
         log.debug(f"{self.description=}")
@@ -184,9 +183,10 @@ class Population(Base):
         # the same thing in a function less code duplication
         # note these are defaults for testing
         # this is the protection level and the burn rates for each PPE
-        self.res_demand_mn_arr = model.data["Resource Demand mn"]
-        self.res_demand_mn_df = model.dataframe(
+        self.res_demand_mn_arr = data.value["Resource Demand mn"]
+        self.res_demand_mn_df = set_dataframe(
             self.res_demand_mn_arr,
+            data.label,
             index="Pop Protection m",
             columns="Resource n",
         )
@@ -194,19 +194,20 @@ class Population(Base):
         # for compatiblity both the model and the object hold the same
         # description
         self.set_description(
-            f"{self.res_demand_mn_df=}", model.description["Res Demand mn"],
+            f"{self.res_demand_mn_df=}", data.description["Res Demand mn"],
         )
 
-        self.level_pm_arr = model.data["Population p"]["Protection pm"]
-        self.level_pm_df = model.dataframe(
+        self.level_pm_arr = data.value["Population p"]["Protection pm"]
+        self.level_pm_df = set_dataframe(
             self.level_pm_arr,
+            data.label,
             index="Population p",
             columns="Pop Protection m",
         )
         log.debug(f"{self.level_pm_df=}")
         self.set_description(
             f"{self.level_pm_df=}",
-            model.description["Population p"]["Protection pm"],
+            data.description["Population p"]["Protection pm"],
         )
         log.debug(f"{self.description['level_pm_df']=}")
 
@@ -216,26 +217,29 @@ class Population(Base):
         self.demand_pn_df.columns.name = "Resource n"
         self.set_description(
             f"{self.demand_pn_df=}",
-            model.description["Population p"]["Population Demand pn"],
+            data.description["Population p"]["Population Demand pn"],
         )
 
         # now get the conversion from the many p populations to the much
         # smaller l levels that are easier to understand
-        self.level_pl_arr = model.data["Population p"]["Pop to Level pl"]
-        self.level_pl_df = model.dataframe(
-            self.level_pl_arr, index="Population p", columns="Pop Level l",
+        self.level_pl_arr = data.value["Population p"]["Pop to Level pl"]
+        self.level_pl_df = set_dataframe(
+            self.level_pl_arr,
+            data.label,
+            index="Population p",
+            columns="Pop Level l",
         )
         log.debug(f"{self.level_pl_df=}")
         self.set_description(
             f"{self.level_pl_df=}",
-            model.description["Population p"]["Pop to Level pl"],
+            data.description["Population p"]["Pop to Level pl"],
         )
 
         self.level_demand_ln_df = self.level_pl_df.T @ self.demand_pn_df
         log.debug(f"{self.level_demand_ln_df=}")
         self.set_description(
             f"{self.level_demand_ln_df=}",
-            model.description["Population p"]["Level Demand ln"],
+            data.description["Population p"]["Level Demand ln"],
         )
 
         # now to the total for population
@@ -250,7 +254,7 @@ class Population(Base):
         # convert to demand by levels note we have to transpose
         self.set_description(
             f"{self.total_demand_pn_df=}",
-            model.description["Population p"]["Population Total Demand pn"],
+            data.description["Population p"]["Population Total Demand pn"],
         )
 
         self.level_total_demand_ln_df = (
@@ -259,14 +263,14 @@ class Population(Base):
         log.debug(f"{self.level_total_demand_ln_df=}")
         self.set_description(
             f"{self.level_total_demand_ln_df=}",
-            model.description["Population p"]["Level Total Demand ln"],
+            data.description["Population p"]["Level Total Demand ln"],
         )
 
         # set to null to make pylint happy and instatiate the variable
         self.level_total_cost_ln_df = None
         self.set_description(
             f"{self.level_total_cost_ln_df=}",
-            model.description["Population p"]["Level Total Cost ln"],
+            data.description["Population p"]["Level Total Cost ln"],
         )
 
     def level_total_cost(self, cost_ln_df):

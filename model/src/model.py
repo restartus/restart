@@ -8,8 +8,9 @@ from typing import Dict, Optional, Tuple, List
 from base import Base
 from util import Log
 from loader.load import Load
-import numpy as np  # type:ignore
-import pandas as pd  # type:ignore
+
+# import numpy as np  # type:ignore
+# import pandas as pd  # type:ignore
 from population import Population
 from resourcemodel import Resource
 from economy import Economy
@@ -65,6 +66,7 @@ class Model(Base):
         super().__init__()
         global log
         self.log: logging.Logger = log
+        self.log_root = None
         if log_root is not None:
             self.log_root = log_root
             self.log = log_root.log_class(self)
@@ -72,7 +74,6 @@ class Model(Base):
 
         self.name: str = name
         log.debug(f"{self.name=}")
-        self.label: Dict = {}
         self.data: ModelData = ModelData({}, {}, {})
 
     def configure(self, loaded: Load):
@@ -105,34 +106,33 @@ class Model(Base):
             return
         self.data.label = label
 
-        log.debug(f"{self.label=}")
+        log.debug(f"{self.data.label=}")
         # These are just as convenience functions for dimensions
         # and for type checking this is ugly should make it
         # for look for assign because we are just mapping label
         # TODO: with the new labeling, this is easy to make a loop
         self.dim: Dict[str, int] = {
-            "n": len(self.label["Resource n"]),
-            "a": len(self.label["Res Attribute a"]),
-            "p": len(self.label["Population p"]),
-            "d": len(self.label["Pop Detail d"]),
-            "m": len(self.label["Pop Protection m"]),
-            "l": len(self.label["Pop Level l"]),
-            "s": len(self.label["Res Safety Stock s"]),
+            "n": len(self.data.label["Resource n"]),
+            "a": len(self.data.label["Res Attribute a"]),
+            "p": len(self.data.label["Population p"]),
+            "d": len(self.data.label["Pop Detail d"]),
+            "m": len(self.data.label["Pop Protection m"]),
+            "l": len(self.data.label["Pop Level l"]),
+            "s": len(self.data.label["Res Safety Stock s"]),
         }
         log.debug(f"{self.dim=}")
         return self
 
     # TODO: This should be a generated set of methods as they are all identical
-    def set_population(self,
-                       type: str = None):
+    def set_population(self, type: str = None):
         """Create population class for model.
 
         Population created here
         """
         # the super class population uses type to return the exact model
-        self.population = Population(self.data,
-                                     log_root=self.log_root,
-                                     type=type)
+        self.population = Population(
+            self.data, log_root=self.log_root, type=type
+        )
         return self
 
     def set_resource(self, type: str = None):
@@ -140,7 +140,7 @@ class Model(Base):
 
         Resource
         """
-        self.resource = Resource(self, type)
+        self.resource = Resource(self.data, log_root=self.log_root, type=type)
         return self
 
     def set_economy(self, type: str = None):
@@ -148,7 +148,7 @@ class Model(Base):
 
         Economy creation
         """
-        self.economy = Economy(self, type)
+        self.economy = Economy(self.data, log_root=self.log_root, type=type)
         return self
 
     def set_disease(self, type: str = None):
@@ -156,7 +156,7 @@ class Model(Base):
 
         Disease create
         """
-        self.disease = Disease(self, type)
+        self.disease = Disease(self.data, log_root=self.log_root, type=type)
         return self
 
     def set_behavioral(self, type: str = None):
@@ -164,26 +164,10 @@ class Model(Base):
 
         Behavior create
         """
-        self.behavioral = Behavioral(self, type)
-        return self
-
-    # sets the frame properly but does need to understand the model
-    # so goes into the model method
-    def dataframe(
-        self, arr: np.ndarray, index: str = None, columns: str = None,
-    ) -> pd.DataFrame:
-        """Set the dataframe up.
-
-        Using the model data Dictionary and labels
-        """
-        log.debug(f"{arr=}")
-        df = pd.DataFrame(
-            arr, index=self.label[index], columns=self.label[columns],
+        self.behavioral = Behavioral(
+            self.data, log_root=self.log_root, type=type
         )
-        df.index.name = index
-        df.columns.name = columns
-        log.debug(f"{df=}")
-        return df
+        return self
 
     # https://stackoverflow.com/questions/37835179/how-can-i-specify-the-function-type-in-my-type-hints
     # https://www.datacamp.com/community/tutorials/python-iterator-tutorial

@@ -16,6 +16,7 @@ class ModelData:
 
     Data separted from the running Model
     """
+
     label: Dict[str, str]
     value: Dict
     description: Dict

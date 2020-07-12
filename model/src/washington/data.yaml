@@ -27,3 +27,9 @@ Data:
       [[0, 0], [0, 0]]
     "Res Inventory EOC ln":
       [[100, 100], [100, 100]]
+    "Res Inventory Safety Stock ln":
+      [[200, 200], [200, 200]]
+    "Res Inventory Stockpile Days ln":
+      [[30, 30], [15, 15]]
+    "Res Inventory Average Demand ln":
+      [[20, 20], [10, 10]]

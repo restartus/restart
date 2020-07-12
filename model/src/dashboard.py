@@ -47,6 +47,7 @@ class Dashboard:
 
     Streamlit dashboard
     """
+
     def __init__(self, model):
         """Display the decision dashboard.
 

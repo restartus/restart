@@ -88,22 +88,26 @@ def main():
 
     # note we cannot just past model down to allow chaining to work
     log.info("creating Population")
-    model.population: Population = Population(model.data,
-                                              log_root=model.log_root)
+    model.population: Population = Population(
+        model.data, log_root=model.log_root
+    )
     log.debug("creating Resource")
-    model.resource: Resource = Resource(model)
+    model.resource: Resource = Resource(model.data, log_root=model.log_root)
     log.debug("creating Economy")
-    model.economy: Economy = Economy(model)
+    model.economy: Economy = Economy(model.data, log_root=model.log_root)
     log.debug("creating Disease")
-    model.disease: Disease = Disease(model)
+    model.disease: Disease = Disease(model.data, log_root=model.log_root)
     log.debug("creating Behavioral")
-    model.behavioral: Behavioral = Behavioral(model)
+    model.behavioral: Behavioral = Behavioral(
+        model.data, log_root=model.log_root
+    )
+    log.debug(f"{model=}")
 
     loaded = LoadYAML(os.path.abspath("washington"), log_root=log_root,)
     # refactor with method chaining but this does require a single class
     # and a set of decorators
     model1 = (
-        Model(name)
+        Model(name, log_root=log_root)
         .configure(loaded)
         .set_population()
         .set_resource()
@@ -121,8 +125,8 @@ def main():
         if isinstance(value, Base):
             log.debug(f"object {name} holds {value} subclass of Base")
 
-    model.resource.set_stockpile(model.population.level_total_demand_ln_df)
-    log.debug("Safety stock\n%s", model.resource.safety_stock_ln_df)
+    # model.resource.set_stockpile(model.population.level_total_demand_ln_df)
+    # log.debug("Safety stock\n%s", model.resource.safety_stock_ln_df)
 
     # create the resource object that is p populations and n items
     log.debug("resource attributes\n%s", model.resource.attr_na_df)
@@ -179,7 +183,7 @@ def main():
 
     for s in [3, 6, 9]:
         log.info(f"changing stockpile to {s=}")
-        model.resource.set_stockpile_days(model, s)
+        model.resource.set_stockpile_days(s)
         log.info(f"{model.resource.safety_stock_ln_df=}")
         log.info(f"{model.resource.inventory_ln_df=}")
     return model

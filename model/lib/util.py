@@ -4,7 +4,24 @@ Main utilities
 """
 import logging
 import os
-from typing import Optional
+from typing import Optional, Dict
+import pandas as pd  # type: ignore
+import numpy as np  # type: ignore
+
+
+# sets the frame properly but does need to understand the model
+# so goes into the model method
+def set_dataframe(
+    arr: np.ndarray, label: Dict, index: str = None, columns: str = None,
+) -> pd.DataFrame:
+    """Set the dataframe up.
+
+    Using the model data Dictionary and labels
+    """
+    df = pd.DataFrame(arr, index=label[index], columns=label[columns],)
+    df.index.name = index
+    df.columns.name = columns
+    return df
 
 
 class Log:

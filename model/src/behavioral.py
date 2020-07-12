@@ -6,7 +6,8 @@ import logging
 import pandas as pd  # type: ignore # noqa: F401
 import numpy as np  # type: ignore # noqa: F401
 from base import Base
-from model import Model
+from modeldata import ModelData
+from util import Log
 from typing import Optional
 
 log = logging.getLogger(__name__)
@@ -22,7 +23,12 @@ class Behavioral(Base):
     Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
     """
 
-    def __init__(self, model: Model, type: Optional[str] = None):
+    def __init__(
+        self,
+        data: ModelData,
+        log_root: Optional[Log] = None,
+        type: Optional[str] = None,
+    ):
         """Initialize the Economy object.
 
         This uses the Frame object and populates it with default data unless yo
@@ -33,14 +39,14 @@ class Behavioral(Base):
 
         # create a sublogger if a root exists in the model
         global log
-        self.model = model
-        if model.log_root is not None:
-            log = self.log = model.log_root.log_class(self)
+        if log_root is not None:
+            self.log_root = log_root
+            log = self.log = self.log_root.log_class(self)
         # the sample code to move up the logging for a period and then turn it
         # off
-        self.model.log_root.con.setLevel(logging.DEBUG)
+        self.log_root.con.setLevel(logging.DEBUG)
         log.debug(f"in {__name__=}")
-        self.model.log_root.con.setLevel(logging.WARNING)
+        self.log_root.con.setLevel(logging.WARNING)
 
         if type is not None:
             log.debug(f"not implemented {type=}")

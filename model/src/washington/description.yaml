@@ -48,8 +48,8 @@ Description:
     For example, 1.18 would mean you need 1.18 N95 masks per day for a
     given population
   "Resource n":
-    "Res Detail na": |
-        ## Resource Details (pa)
+    "Res Attr Data na": |
+        ## Resource Attributes Data (na)
         For all n Resources, these are the figures for each of the a Attributes
         of each resource.
     "Pop Level Res Cost ln": |
@@ -68,3 +68,11 @@ Description:
         ## Safety Stock
         For each summarized population level l, this gives for every resource n
         the economic order quantity for reordering.
+    "Res Inventory Stockpile Days ln": |
+        ## Days of Stockpile
+        For each summaried population level l, this gives the number of periods
+        which are typically days that you have to hold
+    "Res Inventory Average Demand ln": |
+        ## Average Invetory Demand
+        For each summarized population level l, what is the total demand from
+        that level for each resource n

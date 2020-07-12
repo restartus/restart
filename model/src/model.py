@@ -12,7 +12,7 @@ import pandas as pd  # type:ignore
 
 import logging  # noqa: F401
 
-log = logging.getLogger(__name__)
+log: logging.Logger = logging.getLogger(__name__)
 # https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
 log.debug(f"{__name__=}")
 

@@ -68,7 +68,6 @@ def main() -> Model:
     And if you make a change to any, the model will automatically recalc
     everything
     """
-
     global log
     # set up the logging
     name = __name__

@@ -38,6 +38,8 @@ WEB ?= main.py
 LIB ?= lib
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
 FLAGS ?= --load yaml --pop oes
+all_py = $$(find . -name "*.py")
+all_yaml = $$(find . -name "*.yaml")
 flags ?= -p 8501:8501
 PIP ?= streamlit altair pandas pyyaml xlrd tables
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
@@ -118,16 +120,18 @@ pipenv-existing:
 ## doc: make the documentation for the Python project (uses pipenv)
 .PHONY: doc
 doc:
-	@# cd .. && PYTHONPATH="." pdoc --html src --output-dir docs
-	pipenv run pdoc --force --html --output $(DOC) $(MAIN)
-	pipenv run pdoc --force --html --output $(DOC)/web $(WEB)
+	for file in $(all_py); do pipenv run pdoc --force --html --output $(DOC) $$file; done
+
+.PHONY: doc-web
+doc-web:
+	for file in $(all_web); do pipenv run pdoc --force --html --output $(DOC) $$file; done
 
 ## doc-debug: run web server to look at docs (uses pipenv)
 .PHONY: doc-debug
 doc-debug:
 	@echo browse to http://localhost:8080 and CTRL-C when done
-	pipenv run pdoc --http : $(DOC)
-## doc-web-debug: run web server to look at web app docs (uses pipenv)
+	for file in $(all_py); do pipenv run pdoc --http : $(DOC) $$file; done
+
 .PHONY: doc-debug-web
 doc-debug-web:
 	@echo browse to http://localhost:8080 and CTRL-C when done
@@ -141,8 +145,6 @@ doc-debug-web:
 #	pipenv run mypy $(NO_WEB)
 #	pipenv run pydocstyle --convention=google --match='(?!$(WEB))'
 #
-all_py = $$(find . -name "*.py")
-all_yaml = $$(find . -name "*.yaml")
 
 .PHONY: lint
 lint:
@@ -150,12 +152,13 @@ lint:
 	# mypy finds more errors than flake and we are using namespace
 	# https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports
 	# note this has a bug if there are no yaml or python files
+	# the brackets test if they exist at all
 	pipenv run flake8
-	pipenv run mypy --namespace-packages $(all_py)
-	pipenv run bandit $(all_py)
-	pipenv run pydocstyle --convention=google $(all_py)
+	[ $(all_py) ] && pipenv run mypy --namespace-packages $(all_py) || false
+	[ $(all_py) ] && pipenv run bandit $(all_py) || false
+	[ $(all_py) ] && pipenv run pydocstyle --convention=google $(all_py) || false
 	# lint the yaml config files and kill the error if it doesn't exist
-	pipenv run yamllint $(all_yaml)
+	[ $(all_yaml) ] && pipenv run yamllint $(all_yaml) || false
 	@echo if you want destructive formatting run make format
 
 ## format: reformat python code to standard (uses pipenv)

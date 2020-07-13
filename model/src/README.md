@@ -16,17 +16,51 @@ The main goal is to:
 3. For business decision-makers, it's the way that they can count on making
    decisions with the best decisions available.
 
-## The model structure
+## The model structure over view in a nutshell
+In a nutshell, to create any model, you just create a chain with parameters by
+taking a look at [main.py](main.py) as a template but you can with a one liner
+run the entire model. See [doc](doc) for the parameters and model
 
-The main model elements:
+```python
+# instantiate any model this way, set parameters as needed
+# document lives in ./doc
+model = Model(name)
+  .configure(LoadYAML("california"))
+  .set_population()
+  .set_resource()
+  .set_consumption()
+  .set_economy()
+  .set_disease()
+  .set_behavioral()
+# to interactively display and change the model
+Dashboard(model)
+```
+There are host of parameters for each and many options, but this let's you
+create as many models as you want.
 
-1. [Load](loader). These are the low level classes that handle basic reading.
+## The Maintainers
+
+If you have questions about the model, the you can contact:
+
+@richtong - most other others
+@lucathahn - [load](load) and [pop](pop)
+
+## Code structure and documentation
+
+The main model elements and listed and see [doc](doc) for the documentation
+pulled from Docstrings, you should follow the Docstrings recommendation. If you
+want to see any particular entry, the look there for the html file:
+
+1. The main directory has the main modules and classes
+2. Then each subdirectory has a subclasses.
+3. [Load](loader). These are the low level classes that handle basic reading.
    The first two are load_yaml and load_csv that know how to bring raw data into
-   dataframes. 
-   2. 
+   dataframes.
+1. [Pop](Pop). Population modules. These know how to load different datasets.
+   The test one is done in YAML. The real OES data is there as well but is not
+   yet filtered
 
-
-# A note on usage and environment
+# Building your development environment
 
 If you are editing with an editor like vim which uses the external python
 environment for checking, make sure you run `pipenv shell` so that you get the
@@ -41,7 +75,6 @@ help`
 ## Preamble get the latest python and homebrew
 We are assuming you have a Mac and it is naked so from
 [Python](https://docs.python-guide.org/starting/install3/osx/) itself
-
 ```
 # install homebrew as a bootstrap
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -51,13 +84,12 @@ brew install python
 echo '[[ $PATH =~ /usr/local/opt/python/libexec/bin ]] || export PATH="/usr/local/opt/python/libexec/bin:$PATH"' > ~/.bash_profile
 ```
 
-## Note that we actually use Python 3.8 
+## Note that we actually use Python 3.8
 To get this and it is already installed with `brew install python`
 To use it in this environment. If you need to use 3.8 for the awesome f-strings,
 then you also need the latest flake8 and it detects the python version and
 installs the right one or you will get errors like F-string errors with older
 version of Flake like [E999](https://gitlab.com/pycqa/flake8/-/issues/421)
-
 ```
 pipenv install --python /usr/local/opt/python@3.8/bin/python3
 # Need to get the right linters
@@ -65,20 +97,11 @@ pipenv install --dev flake8 mypy bandit black
 # get the latest
 hash -r
 ```
+And you may have to fix `PipFile` and bump the version to 3.8 as we depend on
+3.8 features
 
-And you may have to fix `PipFile` and bump the version to 3.8
 
-
-# Setting configuration files
-We have converted from inline to using configuration files
-
-[config.yaml](config.yaml) is the overall configuration
-[model.yaml](model.yaml) is the default place where you can place the entire
-model
-[default.yaml](default.yaml) is the location of the default configuration used
-for testing
-
-## using it all with Vi
+## A note for VI users
 
 Make sure that you are using the local files in the pipenv, so you want to run
 and edit in `pipenv shell`
@@ -86,7 +109,7 @@ and edit in `pipenv shell`
 ## Natively (not recommended)
 You can just install with the requirements.txt. But beware this can pollute your
 machine with conflicts. it is the easiest way to just get going if you don't
-have any other python projects on your machine. 
+have any other python projects on your machine.
 ```
 # install python package
 make bare
@@ -96,21 +119,29 @@ make python
 make web
 ```
 
-## Running with Pipenv
+## Running with Pipenv (Recommended)
 
 Right now there is some sort of bug in conda that keeps it from installing, so
 this is deprecated. Also streamlit is not yet supported by Conda, so that's
-another deterent so to get this running:
+another deterrent so to get this running:
 
 ```
 brew install pipenv
+# to see the help on the various comamnds
+make
+# to create the environment, make sure homebrew is loaded
 make pipenv
-main line
+# As you debug, you should run make lint
+make lint
+# run this to just get command line output
 make main
+# to run with the debugger
+make pdb
+# to run the visual interface
 make web
 ````
 
-## Running in a Docker container
+## Running in a Docker container (Will eventually be used for deployment)
 
 The pipenv should be enough for casual use, but if you have problems with
 getting it to run, then you can also run this as a docker container
@@ -124,32 +155,84 @@ make docker
 # you can browse to https://locahost:8051 to see it
 make docker-run
 ```
+# Writing code: Logging, static testing and runtime
 
-# Modules
+## Logging
 
-This include `__init__`.py so that you can just include this a  module if you
-are using to connect to other code
+We define logging somewhat magically by using the same variable name and this
+links all the logging together [Stackoverflow](https://stackoverflow.com/questions/40495083/using-python-logging-from-multiple-modules-with-writing-to-a-file-and-rotatingfi)
 
-```python
-from model import Resource, Model, Behavior, Economy, Disease, Population
+We use a utility to handle this which correctly deals with the root logger that
+uses the same name as the model. Then each class has a logger with it's own
+identifier to make it easy to create logs.
 
-your_model = Model() 
-your_resource = Resource(your_model)
-your_behavior = Resrouce(your_model
+We do not use module logging although this is available. We use our own
+opinionated logging tool that dumps logs hierarchically into `main.log`. Each
+module you create should have this in the class __init__() where you should see
+a `log_root` coming in from the main caller.
+
+```
+        # create a sublogger if a root exists in the model
+        global log
+        if log_root is not None:
+            self.log_root = log_root
+            log = self.log = self.log_root.log_class(self)
+        # sample use
+        log.debug(f"{log=}")  # will appear in main.log
+        log.critical("panic stop")   # will appear on the console
+
+
+        # the sample code to move up the logging for a period and then turn it
+        # off so if you are debugging a module and want more on the console
+        self.log_root.con.setLevel(logging.CRITICAL)
+        my_test_function_that_does_not_work()
+        self.log_root.con.setLevel(logging.DEBUG)
 ```
 
-# Testing and linting
-We use some standard tools:
+All logging goes to `main.log` and if you want to see it on the console then you
+just need a one liner in the __init__ module or which every method you are
+debugging that looks like which turns up the logging that goes to the console or
+just consult the test.log:
 
-2. [black](https://flake8.pycqa.org/en/latest/manpage.html). This is opinionated reformatting. It complies with pycodestyle 
-so if you run this with `make black` you won't get errors
+```
+self.model.log_root.con.setLevel(logging.DEBUG)
+self.log.debug("big error in here")
+self.model.log_root.con.setLevel(logging.WARNING)
+```
+
+What this does is to create a logger with a different name from `__name__` in
+each
+
+```
+import logging
+log = logging.getLogger(__name__)
+```
+
+Then in the main executable is where you put the real work. This works because
+the hierarchy means that when a module is called, takes the parameters from the
+parent which is in main.
+
+```
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+```
+
+The main thing is that you should not run `logging.basicConfig` when you also
+doing this `getLogger`, this causes duplicates because logging.basicConfig means
+that that you create two streams
+
+We use some standard tools and these are embedded into `make lint`:
+
+2. [black](https://flake8.pycqa.org/en/latest/manpage.html). This is opinionated reformatting. It complies with pycodestyle
+so if you run this with `make black` you won't get errors. We run this with line
+length of 79.
 
 Then with `make test` you will get these tests and if you use `install-vim.sh`
 you will get them as real-time checks in vi.
 
+2. mypy. This does static type checking
+3. [flake8](https://flake8.pycqa.org/en/latest/manpage.html). This includes pyflakes, pycodestyle and mccabe
 1. [bandit](https://pypi.org/project/bandit/). This is for security testing
-3. [flake8](https://flake8.pycqa.org/en/latest/manpage.html). This includes
-   pyflakes, pycodestyle and mccabe
 
 # PIP package (not done)
 There are two flavors here. A source distribution which is meant so that you can
@@ -191,7 +274,7 @@ Then you can use `pytest-cov` to make sure you are covering all branches.
 
 ### Multitasking with tox
 
-If you install tox then you can have multiple runners which will be faster. 
+If you install tox then you can have multiple runners which will be faster.
 
 
 ### Passive test tools: Linting
@@ -219,9 +302,9 @@ you can use a bunch of different
 at development time.
   - bandit - security check
   - flake8  - See above
-  - frosted - 
-  - mypy - 
-  - pep257 - 
+  - frosted -
+  - mypy -
+  - pep257 -
   - pep8 -
   - prospector -
   - py3kwarn -
@@ -236,7 +319,7 @@ at development time.
 ```
 # looks in CWD for all python files
 # if using pipenv
-pipenv run flake8 
+pipenv run flake8
 # otherwise if running bare metal
 flake8
 ```
@@ -276,13 +359,10 @@ There is another passive utility called bandit that looks for security issues
 pipenv install --dev bandit
 bandit
 ```
+## Github Actions for CD/CI (@lucasthahn)
 
-## Github Actions for CD/CI
-
-Not done yet, but
-[GitHub](https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions)
-explains what to do  but basically you need to install and then make sure to cd
-down to the right directory and then run the checks. 
+Not done yet, but [GitHub](https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions) explains what to do  but basically you need to install and then make sure to cd
+down to the right directory and then run the checks.
 
 ```
 name: Python package
@@ -318,48 +398,3 @@ jobs:
       run: |
         pytest
 ```
-
-## Logging
-
-We define logging somewhat magically by using the same variable name and this
-links all the logging togehter [Stackoverflow](https://stackoverflow.com/questions/40495083/using-python-logging-from-multiple-modules-with-writing-to-a-file-and-rotatingfi)
-
-@e use a utility to handle this which correctly deals with the root logger that
-uses the same name as the model. Then each class has a logger with it's own
-identifier to make it easy to create logs. 
-
-We do not use module logging although this is available.
-
-All logging goes to `test.log` and if you want to see it on the console then you
-just need a one liner in the __init__ module or which every method you are
-debugging that looks like which turns up the logging that goes to the console or
-just consult the test.log:
-
-```
-self.model.log_root.con.setLevel(logging.DEBUG)
-self.log.debug("big error in here")
-self.model.log_root.con.setLevel(logging.WARNING)
-```
-
-What this does is to create a logger with a different name from `__name__` in
-each
-
-```
-import logging
-
-log = logging.getLogger(__name__)
-```
-
-Then in the main executable is where you put the real work. This works because
-the hierarchy means that when a module is called, takes the parameters from the
-parent which is in main.
-
-```
-log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
-```
-
-The main thing is that you should not run `logging.basicConfig` when you also
-doing this `getLogger`, this causes duplicates because logging.basicConfig means
-that that you create two streams
-

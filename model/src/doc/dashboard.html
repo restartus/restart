@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.8.3" />
+<title>dashboard API documentation</title>
+<meta name="description" content="Dashboard for COVID …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js" integrity="sha256-eOgo0OtLL4cdq7RdwRUiGKLX9XsIJ7nGhWEKbohmVAQ=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>dashboard</code></h1>
+</header>
+<section id="section-intro">
+<p>Dashboard for COVID.</p>
+<h2 id="stock-demo">Stock demo</h2>
+<p><a href="https://towardsdatascience.com/how-to-build-a-data-science-web-app-in-python-61d1bed65020">https://towardsdatascience.com/how-to-build-a-data-science-web-app-in-python-61d1bed65020</a>
+From <a href="https://github.com/restartus/demo-self-driving/blob/master/app.py">https://github.com/restartus/demo-self-driving/blob/master/app.py</a>
+Use a main and a well formed way to run things</p>
+<p><a href="https://towardsdatascience.com/streamlit-101-an-in-depth-introduction-fc8aad9492f2">https://towardsdatascience.com/streamlit-101-an-in-depth-introduction-fc8aad9492f2</a>
+has more ways to do selects and tables</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Dashboard for COVID.
+
+## Stock demo
+https://towardsdatascience.com/how-to-build-a-data-science-web-app-in-python-61d1bed65020
+From https://github.com/restartus/demo-self-driving/blob/master/app.py
+Use a main and a well formed way to run things
+
+https://towardsdatascience.com/streamlit-101-an-in-depth-introduction-fc8aad9492f2
+has more ways to do selects and tables
+
+&#34;&#34;&#34;
+# import logging  # noqa: F401
+
+# https://mypy.readthedocs.io/en/latest/existing_code.html
+import pandas as pd  # type:ignore
+import altair as alt  # type:ignore
+import streamlit as st  # type:ignore
+from base import Base
+from model import Model
+import logging
+from typing import Dict
+from util import Log
+
+# https://docs.python.org/3/howto/logging-cookbook.html
+# logging.basicConfig(level=logging.DEBUG
+# https://www.w3resource.com/python-exercises/python-basic-exercise-46.php
+# https://www.geeksforgeeks.org/python-os-path-basename-method/
+# name: str = os.path.basename(__file__).split(&#34;.&#34;)[0]
+
+# backup logger
+log: logging.Logger = logging.getLogger(__name__)
+log.debug(f&#34;{__name__}=&#34;)
+
+
+class Dashboard:
+    &#34;&#34;&#34;Dashboard object.
+
+    Streamlit dashboard
+    &#34;&#34;&#34;
+
+    def __init__(self, model: Model, log_root: Log = None):
+        &#34;&#34;&#34;Display the decision dashboard.
+
+        Streamlit dashboard for a Model
+        &#34;&#34;&#34;
+        super().__init__()
+
+        global log
+        self.log: logging.Logger = log
+        if log_root is not None:
+            log = self.log = log_root.log_class(self)
+
+        # sample test data
+        self.data_df = pd.DataFrame(
+            [[0, 123], [12, 23]],
+            index=[&#34;healthcare&#34;, &#34;Non-healthcare&#34;],
+            columns=[&#34;N95&#34;, &#34;Mask&#34;],
+        )
+        self.data_df.index.name = &#34;Level l&#34;
+        self.data_df.columns.name = &#34;Resource n&#34;
+        # https://stackoverflow.com/questions/1398022/looping-over-all-member-variables-of-a-class-in-python
+        log.debug(f&#34;{log=}&#34;)
+        log.debug(f&#34;{vars(model)=}&#34;)
+        log.debug(f&#34;{vars(model.population)}=&#34;)
+        # https://stackoverflow.com/questions/11637293/iterate-over-object-attributes-in-python
+        # this gives all kinds of things that are hidden functions;
+        log.debug(f&#34;{dir(model.population)=}&#34;)
+        for name, value in vars(model).items():
+            log.debug(f&#34;{name=}&#34;)
+            log.debug(f&#34;{value=}&#34;)
+            # http://notesbyanerd.com/2017/12/26/check-in-python-if-a-value-is-instance-of-a-custom-class/
+            if isinstance(value, Base):
+                log.debug(f&#34;found ${value=} is Base&#34;)
+        # the same thing using the odel iterator
+        for name, value in model:
+            log.debug(f&#34;{name=} {value=}&#34;)
+
+        # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
+        for name, value in vars(model.population).items():
+            log.debug(f&#34;{name=}&#34;)
+            log.debug(f&#34;{value=}&#34;)
+
+        # Simple selection
+        st.sidebar.markdown(
+            &#34;&#34;&#34;
+            ## Pages
+            Choose the page you want from here
+            &#34;&#34;&#34;
+        )
+        self.page = st.sidebar.selectbox(
+            &#34;Choose page&#34;,
+            [&#34;Exploration&#34;, &#34;Tables&#34;, &#34;Home&#34;, &#34;Test Home&#34;, &#34;Test Tables&#34;],
+        )
+
+        stockpile_days = st.sidebar.slider(
+            &#34;Stockpile&#34;, max_value=120, value=30
+        )
+        log.debug(f&#34;{stockpile_days=}&#34;)
+
+        model.resource.set_stockpile_days(stockpile_days)
+
+        if self.page == &#34;Home&#34;:
+            self.homePage(model)
+        elif self.page == &#34;Tables&#34;:
+            self.tables(model)
+        elif self.page == &#34;Exploration&#34;:
+            self.visualize_model(model)
+        elif self.page == &#34;Test Tables&#34;:
+            self.testTables(model)
+        elif self.page == &#34;Test Home&#34;:
+            self.testHome(self.data_df)
+        elif self.page == &#34;Test Exploration&#34;:
+            st.title(&#34;Data Exploration&#34;)
+            # https://docs.streamlit.io/en/latest/api.html
+            self.x_axis = st.selectbox(
+                &#34;Choose x-axis&#34;, self.data_df.columns, index=0
+            )
+            self.y_axis = st.selectbox(
+                &#34;Choose y-axis&#34;, self.data_df.columns, index=1
+            )
+            self.visualize_data(self.data_df, self.x_axis, self.y_axis)
+            # Not that write uses Markdown
+
+    def homePage(self, model):
+        &#34;&#34;&#34;Home page.
+
+        # COVID-19 Decision Dashboard
+        ## Restart.us
+        Use caution when interpreting these numbers
+        &#34;&#34;&#34;
+
+    # uses the literal magic in Streamlit 0.62
+    # note that just putting an expression automatically wraps an st.write
+    def testTables(self, model):
+        &#34;&#34;&#34;Tables.
+
+        The full graphical display of all tables use for debugging mainly
+        &#34;&#34;&#34;
+        &#34;&#34;&#34;
+        # COVID-19 Decision Tool
+        ## Restart.us
+        The main data table in the model for your viewing please.
+        These are all Pandas Dataframes for display. For multi-dimensional
+        data, there will be both a Numpy Array for the tensor and a Multi-Index
+        for display.
+
+        When you are using these, as a hint, the row and column have distinct
+        variable letters so you can keep it all straight in detailed data
+        analysis.
+
+        ###Resource safety Stock ln.
+
+        The supply of resource needs
+        &#34;&#34;&#34;
+        model.resource.safety_stock_ln_df
+
+        &#34;&#34;&#34;
+        # Resource Attributes  na
+        Resources main attribute is their count, but will later have volume and
+        footprint
+        &#34;&#34;&#34;
+
+        model.resource.attr_na_df
+        model.description[&#34;Population.attr_pd_df&#34;]
+        model.population.attr_pd_df
+
+        &#34;&#34;&#34;
+        # Population summarized by protection levels pl
+        Population main attribute is their count, but will later have things
+        like how often they are out doing work and will keep track of things
+        like social mobility and columns will have characteristics like age,
+        ethnicity, gender as a crosstab.t
+        &#34;&#34;&#34;
+        model.population.level_pl_df
+
+    def tables(self, model):
+        &#34;&#34;&#34;Table Exploration.
+
+        Automatically reads from model.description a markdown string
+        then displays the data found in the model by traversing the entire
+        object looking for Pandas DataFrames
+        &#34;&#34;&#34;
+        # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
+        global log
+        log.debug(&#34;look for all population items&#34;)
+        # eventually just go through all the model classes and keep going
+        # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
+
+        &#34;&#34;&#34;
+        # COVID-19 Data Table Exploration
+
+        Use this section to look through the data. This include the
+        descriptions that are included with it.
+        &#34;&#34;&#34;
+
+        # http://net-informations.com/python/iq/instance.htm
+        log.debug(f&#34;{model} is {vars(model)}&#34;)
+        # replaced by iteration
+        # for model_value in model:
+        # for model_key, model_value in vars(model).items():
+        # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
+        # if issubclass(value, Base):
+        #     if isinstance(model_value, Base):
+        #         log.debug(
+        #          f&#34;object {model_key=} holds {model_value=} subclass of Base&#34;
+        #         )
+        for base_key, base_value in model:
+            # now using the new model iterator that does through all dataframes
+            # in a Base class
+            for df_name, df_value in base_value:
+                # the above replaced these lines
+                # for name, value in vars(model_value).items():
+                # https://stackoverflow.com/questions/14808945/check-if-variable-is-dataframe
+                # if not isinstance(value, pd.DataFrame):
+                #     log.debug(f&#34;{value} is not a DataFrame&#34;)
+                #     continue
+                # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
+                # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
+                # breakpoint()
+                self.write_description(df_name, base_value.description)
+                # if df_name in base_value.description:
+                #     log.debug(&#34;found description&#34;)
+                #     st.write(base_value.description[df_name])
+                # else:
+                #     st.header(df_name)
+                #     st.write(f&#34;No description found for {df_name=}&#34;)
+                # https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
+                # https://pbpython.com/styling-pandas.html
+                st.write(df_value.style.format(&#34;{0:,.2f}&#34;))
+
+    def write_description(self, name: str, description: Dict):
+        &#34;&#34;&#34;Write Description.
+
+        Writes the description of a nice message if none found
+        &#34;&#34;&#34;
+        global log
+        if name in description:
+            log.debug(f&#34;found {name=} in {description=}&#34;)
+            st.write(description[name])
+            return
+        st.header(name)
+        st.write(f&#34;No description found for {name=}&#34;)
+
+    def testHome(self, data_df):
+        &#34;&#34;&#34;Test drawing.
+
+        Test for dashboard
+        &#34;&#34;&#34;
+        global log
+        st.write(
+            &#34;&#34;&#34;
+            # COVID-19 Decision Dashboard
+            ## Restart.us
+            Use caution when interpreting these numbers and consult experts on
+            use. Numbers are 000s except *$0s*
+            &#34;&#34;&#34;
+        )
+
+        log.debug(f&#34;{data_df=}&#34;)
+        st.write(
+            &#34;&#34;&#34;
+            ### All Resource Burn Rate Table
+            &#34;&#34;&#34;
+        )
+
+        st.dataframe(data_df.head())
+        st.write(
+            &#34;&#34;&#34;
+            ### Select Resource for Filtered Burn Rate Table
+            &#34;&#34;&#34;
+        )
+
+        # do a multiselect to pick relevant items
+        data_ms = st.multiselect(
+            &#34;Columns&#34;,
+            data_df.columns.tolist(),
+            default=data_df.columns.tolist(),
+        )
+        # now render just those columns and the first 10 rows
+        filtered_data_df = data_df[data_ms]
+        st.dataframe(filtered_data_df.head(10))
+        st.write(
+            &#34;&#34;&#34;
+            ### Histogram of uses
+            &#34;&#34;&#34;
+        )
+        st.bar_chart(filtered_data_df)
+        # It&#39;s so easy to chart with builtin types
+        # And labelsa re just more markdown
+        st.line_chart(data_df)
+
+    def visualize_data(self, df, x_axis, y_axis):
+        &#34;&#34;&#34;Visualize data.
+
+        Charting for the dashboard
+        &#34;&#34;&#34;
+        # F strings do not work with streamlit so just put variables i
+        # so use st.write to get them
+        global log
+        &#34;&#34;&#34;
+        ## Debug
+        &#34;&#34;&#34;
+        st.write(f&#34;{x_axis=} {y_axis=}&#34;)
+        df
+        df.index.name
+        df.index.name = &#34;Label&#34; if None else df.index.name
+        # first rest the index to get it to be a column
+        # using melt to get column form
+        df_reset = df.reset_index()
+        df_reset
+
+        # you can also use breakpoint
+        # breakpoint()
+
+        # Since this was published, there are more parameters for interactive
+        # https://towardsdatascience.com/quickly-build-and-deploy-an-application-with-streamlit-988ca08c7e83
+        # https://towardsdatascience.com/interactive-election-visualisations-with-altair-85c4c3a306f9
+        # https://altair-viz.github.io
+        graph = (
+            alt.Chart(df)
+            .mark_circle(size=60)
+            .encode(x=x_axis, y=y_axis, tooltip=[&#34;N95&#34;, &#34;Mask&#34;], color=&#34;N95&#34;)
+            .interactive()
+        )
+        st.write(graph)
+
+    def visualize_model(self, model: Model):
+        &#34;&#34;&#34;Visualize Model.
+
+        Simple visualization
+        &#34;&#34;&#34;
+        global log
+        &#34;&#34;&#34;
+        # Model Visualization
+
+        Uses an existing model
+        &#34;&#34;&#34;
+        for base_key, base_value in model:
+            # now using the new model iterator that does through all dataframes
+            # in a Base class
+            for df_name, df_value in base_value:
+                self.write_description(df_name, base_value.description)
+
+                self.write_chart(df_name, df_value)
+
+    def write_chart(self, name, df):
+        &#34;&#34;&#34;Write Chart.
+
+        Write out a dataframe as a chart
+        &#34;&#34;&#34;
+        global log
+        indexed_df = df.reset_index()
+        index_name = df.index.name
+        log.debug(f&#34;{df=}&#34;)
+        log.debug(f&#34;{df.index.name=}&#34;)
+        log.debug(f&#34;{df.columns.name=}&#34;)
+        log.debug(f&#34;{indexed_df=}&#34;)
+        indexed_df.rename_axis(index=index_name, inplace=True)
+
+        &#34;&#34;&#34;
+        debug
+        &#34;&#34;&#34;
+        st.write(name)
+        st.write(df)
+        st.write(indexed_df)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="dashboard.Dashboard"><code class="flex name class">
+<span>class <span class="ident">Dashboard</span></span>
+<span>(</span><span>model: model.Model, log_root: util.Log = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dashboard object.</p>
+<p>Streamlit dashboard</p>
+<p>Display the decision dashboard.</p>
+<p>Streamlit dashboard for a Model</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Dashboard:
+    &#34;&#34;&#34;Dashboard object.
+
+    Streamlit dashboard
+    &#34;&#34;&#34;
+
+    def __init__(self, model: Model, log_root: Log = None):
+        &#34;&#34;&#34;Display the decision dashboard.
+
+        Streamlit dashboard for a Model
+        &#34;&#34;&#34;
+        super().__init__()
+
+        global log
+        self.log: logging.Logger = log
+        if log_root is not None:
+            log = self.log = log_root.log_class(self)
+
+        # sample test data
+        self.data_df = pd.DataFrame(
+            [[0, 123], [12, 23]],
+            index=[&#34;healthcare&#34;, &#34;Non-healthcare&#34;],
+            columns=[&#34;N95&#34;, &#34;Mask&#34;],
+        )
+        self.data_df.index.name = &#34;Level l&#34;
+        self.data_df.columns.name = &#34;Resource n&#34;
+        # https://stackoverflow.com/questions/1398022/looping-over-all-member-variables-of-a-class-in-python
+        log.debug(f&#34;{log=}&#34;)
+        log.debug(f&#34;{vars(model)=}&#34;)
+        log.debug(f&#34;{vars(model.population)}=&#34;)
+        # https://stackoverflow.com/questions/11637293/iterate-over-object-attributes-in-python
+        # this gives all kinds of things that are hidden functions;
+        log.debug(f&#34;{dir(model.population)=}&#34;)
+        for name, value in vars(model).items():
+            log.debug(f&#34;{name=}&#34;)
+            log.debug(f&#34;{value=}&#34;)
+            # http://notesbyanerd.com/2017/12/26/check-in-python-if-a-value-is-instance-of-a-custom-class/
+            if isinstance(value, Base):
+                log.debug(f&#34;found ${value=} is Base&#34;)
+        # the same thing using the odel iterator
+        for name, value in model:
+            log.debug(f&#34;{name=} {value=}&#34;)
+
+        # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
+        for name, value in vars(model.population).items():
+            log.debug(f&#34;{name=}&#34;)
+            log.debug(f&#34;{value=}&#34;)
+
+        # Simple selection
+        st.sidebar.markdown(
+            &#34;&#34;&#34;
+            ## Pages
+            Choose the page you want from here
+            &#34;&#34;&#34;
+        )
+        self.page = st.sidebar.selectbox(
+            &#34;Choose page&#34;,
+            [&#34;Exploration&#34;, &#34;Tables&#34;, &#34;Home&#34;, &#34;Test Home&#34;, &#34;Test Tables&#34;],
+        )
+
+        stockpile_days = st.sidebar.slider(
+            &#34;Stockpile&#34;, max_value=120, value=30
+        )
+        log.debug(f&#34;{stockpile_days=}&#34;)
+
+        model.resource.set_stockpile_days(stockpile_days)
+
+        if self.page == &#34;Home&#34;:
+            self.homePage(model)
+        elif self.page == &#34;Tables&#34;:
+            self.tables(model)
+        elif self.page == &#34;Exploration&#34;:
+            self.visualize_model(model)
+        elif self.page == &#34;Test Tables&#34;:
+            self.testTables(model)
+        elif self.page == &#34;Test Home&#34;:
+            self.testHome(self.data_df)
+        elif self.page == &#34;Test Exploration&#34;:
+            st.title(&#34;Data Exploration&#34;)
+            # https://docs.streamlit.io/en/latest/api.html
+            self.x_axis = st.selectbox(
+                &#34;Choose x-axis&#34;, self.data_df.columns, index=0
+            )
+            self.y_axis = st.selectbox(
+                &#34;Choose y-axis&#34;, self.data_df.columns, index=1
+            )
+            self.visualize_data(self.data_df, self.x_axis, self.y_axis)
+            # Not that write uses Markdown
+
+    def homePage(self, model):
+        &#34;&#34;&#34;Home page.
+
+        # COVID-19 Decision Dashboard
+        ## Restart.us
+        Use caution when interpreting these numbers
+        &#34;&#34;&#34;
+
+    # uses the literal magic in Streamlit 0.62
+    # note that just putting an expression automatically wraps an st.write
+    def testTables(self, model):
+        &#34;&#34;&#34;Tables.
+
+        The full graphical display of all tables use for debugging mainly
+        &#34;&#34;&#34;
+        &#34;&#34;&#34;
+        # COVID-19 Decision Tool
+        ## Restart.us
+        The main data table in the model for your viewing please.
+        These are all Pandas Dataframes for display. For multi-dimensional
+        data, there will be both a Numpy Array for the tensor and a Multi-Index
+        for display.
+
+        When you are using these, as a hint, the row and column have distinct
+        variable letters so you can keep it all straight in detailed data
+        analysis.
+
+        ###Resource safety Stock ln.
+
+        The supply of resource needs
+        &#34;&#34;&#34;
+        model.resource.safety_stock_ln_df
+
+        &#34;&#34;&#34;
+        # Resource Attributes  na
+        Resources main attribute is their count, but will later have volume and
+        footprint
+        &#34;&#34;&#34;
+
+        model.resource.attr_na_df
+        model.description[&#34;Population.attr_pd_df&#34;]
+        model.population.attr_pd_df
+
+        &#34;&#34;&#34;
+        # Population summarized by protection levels pl
+        Population main attribute is their count, but will later have things
+        like how often they are out doing work and will keep track of things
+        like social mobility and columns will have characteristics like age,
+        ethnicity, gender as a crosstab.t
+        &#34;&#34;&#34;
+        model.population.level_pl_df
+
+    def tables(self, model):
+        &#34;&#34;&#34;Table Exploration.
+
+        Automatically reads from model.description a markdown string
+        then displays the data found in the model by traversing the entire
+        object looking for Pandas DataFrames
+        &#34;&#34;&#34;
+        # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
+        global log
+        log.debug(&#34;look for all population items&#34;)
+        # eventually just go through all the model classes and keep going
+        # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
+
+        &#34;&#34;&#34;
+        # COVID-19 Data Table Exploration
+
+        Use this section to look through the data. This include the
+        descriptions that are included with it.
+        &#34;&#34;&#34;
+
+        # http://net-informations.com/python/iq/instance.htm
+        log.debug(f&#34;{model} is {vars(model)}&#34;)
+        # replaced by iteration
+        # for model_value in model:
+        # for model_key, model_value in vars(model).items():
+        # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
+        # if issubclass(value, Base):
+        #     if isinstance(model_value, Base):
+        #         log.debug(
+        #          f&#34;object {model_key=} holds {model_value=} subclass of Base&#34;
+        #         )
+        for base_key, base_value in model:
+            # now using the new model iterator that does through all dataframes
+            # in a Base class
+            for df_name, df_value in base_value:
+                # the above replaced these lines
+                # for name, value in vars(model_value).items():
+                # https://stackoverflow.com/questions/14808945/check-if-variable-is-dataframe
+                # if not isinstance(value, pd.DataFrame):
+                #     log.debug(f&#34;{value} is not a DataFrame&#34;)
+                #     continue
+                # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
+                # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
+                # breakpoint()
+                self.write_description(df_name, base_value.description)
+                # if df_name in base_value.description:
+                #     log.debug(&#34;found description&#34;)
+                #     st.write(base_value.description[df_name])
+                # else:
+                #     st.header(df_name)
+                #     st.write(f&#34;No description found for {df_name=}&#34;)
+                # https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
+                # https://pbpython.com/styling-pandas.html
+                st.write(df_value.style.format(&#34;{0:,.2f}&#34;))
+
+    def write_description(self, name: str, description: Dict):
+        &#34;&#34;&#34;Write Description.
+
+        Writes the description of a nice message if none found
+        &#34;&#34;&#34;
+        global log
+        if name in description:
+            log.debug(f&#34;found {name=} in {description=}&#34;)
+            st.write(description[name])
+            return
+        st.header(name)
+        st.write(f&#34;No description found for {name=}&#34;)
+
+    def testHome(self, data_df):
+        &#34;&#34;&#34;Test drawing.
+
+        Test for dashboard
+        &#34;&#34;&#34;
+        global log
+        st.write(
+            &#34;&#34;&#34;
+            # COVID-19 Decision Dashboard
+            ## Restart.us
+            Use caution when interpreting these numbers and consult experts on
+            use. Numbers are 000s except *$0s*
+            &#34;&#34;&#34;
+        )
+
+        log.debug(f&#34;{data_df=}&#34;)
+        st.write(
+            &#34;&#34;&#34;
+            ### All Resource Burn Rate Table
+            &#34;&#34;&#34;
+        )
+
+        st.dataframe(data_df.head())
+        st.write(
+            &#34;&#34;&#34;
+            ### Select Resource for Filtered Burn Rate Table
+            &#34;&#34;&#34;
+        )
+
+        # do a multiselect to pick relevant items
+        data_ms = st.multiselect(
+            &#34;Columns&#34;,
+            data_df.columns.tolist(),
+            default=data_df.columns.tolist(),
+        )
+        # now render just those columns and the first 10 rows
+        filtered_data_df = data_df[data_ms]
+        st.dataframe(filtered_data_df.head(10))
+        st.write(
+            &#34;&#34;&#34;
+            ### Histogram of uses
+            &#34;&#34;&#34;
+        )
+        st.bar_chart(filtered_data_df)
+        # It&#39;s so easy to chart with builtin types
+        # And labelsa re just more markdown
+        st.line_chart(data_df)
+
+    def visualize_data(self, df, x_axis, y_axis):
+        &#34;&#34;&#34;Visualize data.
+
+        Charting for the dashboard
+        &#34;&#34;&#34;
+        # F strings do not work with streamlit so just put variables i
+        # so use st.write to get them
+        global log
+        &#34;&#34;&#34;
+        ## Debug
+        &#34;&#34;&#34;
+        st.write(f&#34;{x_axis=} {y_axis=}&#34;)
+        df
+        df.index.name
+        df.index.name = &#34;Label&#34; if None else df.index.name
+        # first rest the index to get it to be a column
+        # using melt to get column form
+        df_reset = df.reset_index()
+        df_reset
+
+        # you can also use breakpoint
+        # breakpoint()
+
+        # Since this was published, there are more parameters for interactive
+        # https://towardsdatascience.com/quickly-build-and-deploy-an-application-with-streamlit-988ca08c7e83
+        # https://towardsdatascience.com/interactive-election-visualisations-with-altair-85c4c3a306f9
+        # https://altair-viz.github.io
+        graph = (
+            alt.Chart(df)
+            .mark_circle(size=60)
+            .encode(x=x_axis, y=y_axis, tooltip=[&#34;N95&#34;, &#34;Mask&#34;], color=&#34;N95&#34;)
+            .interactive()
+        )
+        st.write(graph)
+
+    def visualize_model(self, model: Model):
+        &#34;&#34;&#34;Visualize Model.
+
+        Simple visualization
+        &#34;&#34;&#34;
+        global log
+        &#34;&#34;&#34;
+        # Model Visualization
+
+        Uses an existing model
+        &#34;&#34;&#34;
+        for base_key, base_value in model:
+            # now using the new model iterator that does through all dataframes
+            # in a Base class
+            for df_name, df_value in base_value:
+                self.write_description(df_name, base_value.description)
+
+                self.write_chart(df_name, df_value)
+
+    def write_chart(self, name, df):
+        &#34;&#34;&#34;Write Chart.
+
+        Write out a dataframe as a chart
+        &#34;&#34;&#34;
+        global log
+        indexed_df = df.reset_index()
+        index_name = df.index.name
+        log.debug(f&#34;{df=}&#34;)
+        log.debug(f&#34;{df.index.name=}&#34;)
+        log.debug(f&#34;{df.columns.name=}&#34;)
+        log.debug(f&#34;{indexed_df=}&#34;)
+        indexed_df.rename_axis(index=index_name, inplace=True)
+
+        &#34;&#34;&#34;
+        debug
+        &#34;&#34;&#34;
+        st.write(name)
+        st.write(df)
+        st.write(indexed_df)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="dashboard.Dashboard.homePage"><code class="name flex">
+<span>def <span class="ident">homePage</span></span>(<span>self, model)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Home page.</p>
+<h1 id="covid-19-decision-dashboard">COVID-19 Decision Dashboard</h1>
+<h2 id="restartus">Restart.us</h2>
+<p>Use caution when interpreting these numbers</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def homePage(self, model):
+    &#34;&#34;&#34;Home page.
+
+    # COVID-19 Decision Dashboard
+    ## Restart.us
+    Use caution when interpreting these numbers
+    &#34;&#34;&#34;</code></pre>
+</details>
+</dd>
+<dt id="dashboard.Dashboard.tables"><code class="name flex">
+<span>def <span class="ident">tables</span></span>(<span>self, model)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Table Exploration.</p>
+<p>Automatically reads from model.description a markdown string
+then displays the data found in the model by traversing the entire
+object looking for Pandas DataFrames</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def tables(self, model):
+    &#34;&#34;&#34;Table Exploration.
+
+    Automatically reads from model.description a markdown string
+    then displays the data found in the model by traversing the entire
+    object looking for Pandas DataFrames
+    &#34;&#34;&#34;
+    # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
+    global log
+    log.debug(&#34;look for all population items&#34;)
+    # eventually just go through all the model classes and keep going
+    # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
+
+    &#34;&#34;&#34;
+    # COVID-19 Data Table Exploration
+
+    Use this section to look through the data. This include the
+    descriptions that are included with it.
+    &#34;&#34;&#34;
+
+    # http://net-informations.com/python/iq/instance.htm
+    log.debug(f&#34;{model} is {vars(model)}&#34;)
+    # replaced by iteration
+    # for model_value in model:
+    # for model_key, model_value in vars(model).items():
+    # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
+    # if issubclass(value, Base):
+    #     if isinstance(model_value, Base):
+    #         log.debug(
+    #          f&#34;object {model_key=} holds {model_value=} subclass of Base&#34;
+    #         )
+    for base_key, base_value in model:
+        # now using the new model iterator that does through all dataframes
+        # in a Base class
+        for df_name, df_value in base_value:
+            # the above replaced these lines
+            # for name, value in vars(model_value).items():
+            # https://stackoverflow.com/questions/14808945/check-if-variable-is-dataframe
+            # if not isinstance(value, pd.DataFrame):
+            #     log.debug(f&#34;{value} is not a DataFrame&#34;)
+            #     continue
+            # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
+            # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
+            # breakpoint()
+            self.write_description(df_name, base_value.description)
+            # if df_name in base_value.description:
+            #     log.debug(&#34;found description&#34;)
+            #     st.write(base_value.description[df_name])
+            # else:
+            #     st.header(df_name)
+            #     st.write(f&#34;No description found for {df_name=}&#34;)
+            # https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
+            # https://pbpython.com/styling-pandas.html
+            st.write(df_value.style.format(&#34;{0:,.2f}&#34;))</code></pre>
+</details>
+</dd>
+<dt id="dashboard.Dashboard.testHome"><code class="name flex">
+<span>def <span class="ident">testHome</span></span>(<span>self, data_df)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Test drawing.</p>
+<p>Test for dashboard</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def testHome(self, data_df):
+    &#34;&#34;&#34;Test drawing.
+
+    Test for dashboard
+    &#34;&#34;&#34;
+    global log
+    st.write(
+        &#34;&#34;&#34;
+        # COVID-19 Decision Dashboard
+        ## Restart.us
+        Use caution when interpreting these numbers and consult experts on
+        use. Numbers are 000s except *$0s*
+        &#34;&#34;&#34;
+    )
+
+    log.debug(f&#34;{data_df=}&#34;)
+    st.write(
+        &#34;&#34;&#34;
+        ### All Resource Burn Rate Table
+        &#34;&#34;&#34;
+    )
+
+    st.dataframe(data_df.head())
+    st.write(
+        &#34;&#34;&#34;
+        ### Select Resource for Filtered Burn Rate Table
+        &#34;&#34;&#34;
+    )
+
+    # do a multiselect to pick relevant items
+    data_ms = st.multiselect(
+        &#34;Columns&#34;,
+        data_df.columns.tolist(),
+        default=data_df.columns.tolist(),
+    )
+    # now render just those columns and the first 10 rows
+    filtered_data_df = data_df[data_ms]
+    st.dataframe(filtered_data_df.head(10))
+    st.write(
+        &#34;&#34;&#34;
+        ### Histogram of uses
+        &#34;&#34;&#34;
+    )
+    st.bar_chart(filtered_data_df)
+    # It&#39;s so easy to chart with builtin types
+    # And labelsa re just more markdown
+    st.line_chart(data_df)</code></pre>
+</details>
+</dd>
+<dt id="dashboard.Dashboard.testTables"><code class="name flex">
+<span>def <span class="ident">testTables</span></span>(<span>self, model)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Tables.</p>
+<p>The full graphical display of all tables use for debugging mainly</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def testTables(self, model):
+    &#34;&#34;&#34;Tables.
+
+    The full graphical display of all tables use for debugging mainly
+    &#34;&#34;&#34;
+    &#34;&#34;&#34;
+    # COVID-19 Decision Tool
+    ## Restart.us
+    The main data table in the model for your viewing please.
+    These are all Pandas Dataframes for display. For multi-dimensional
+    data, there will be both a Numpy Array for the tensor and a Multi-Index
+    for display.
+
+    When you are using these, as a hint, the row and column have distinct
+    variable letters so you can keep it all straight in detailed data
+    analysis.
+
+    ###Resource safety Stock ln.
+
+    The supply of resource needs
+    &#34;&#34;&#34;
+    model.resource.safety_stock_ln_df
+
+    &#34;&#34;&#34;
+    # Resource Attributes  na
+    Resources main attribute is their count, but will later have volume and
+    footprint
+    &#34;&#34;&#34;
+
+    model.resource.attr_na_df
+    model.description[&#34;Population.attr_pd_df&#34;]
+    model.population.attr_pd_df
+
+    &#34;&#34;&#34;
+    # Population summarized by protection levels pl
+    Population main attribute is their count, but will later have things
+    like how often they are out doing work and will keep track of things
+    like social mobility and columns will have characteristics like age,
+    ethnicity, gender as a crosstab.t
+    &#34;&#34;&#34;
+    model.population.level_pl_df</code></pre>
+</details>
+</dd>
+<dt id="dashboard.Dashboard.visualize_data"><code class="name flex">
+<span>def <span class="ident">visualize_data</span></span>(<span>self, df, x_axis, y_axis)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Visualize data.</p>
+<p>Charting for the dashboard</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def visualize_data(self, df, x_axis, y_axis):
+    &#34;&#34;&#34;Visualize data.
+
+    Charting for the dashboard
+    &#34;&#34;&#34;
+    # F strings do not work with streamlit so just put variables i
+    # so use st.write to get them
+    global log
+    &#34;&#34;&#34;
+    ## Debug
+    &#34;&#34;&#34;
+    st.write(f&#34;{x_axis=} {y_axis=}&#34;)
+    df
+    df.index.name
+    df.index.name = &#34;Label&#34; if None else df.index.name
+    # first rest the index to get it to be a column
+    # using melt to get column form
+    df_reset = df.reset_index()
+    df_reset
+
+    # you can also use breakpoint
+    # breakpoint()
+
+    # Since this was published, there are more parameters for interactive
+    # https://towardsdatascience.com/quickly-build-and-deploy-an-application-with-streamlit-988ca08c7e83
+    # https://towardsdatascience.com/interactive-election-visualisations-with-altair-85c4c3a306f9
+    # https://altair-viz.github.io
+    graph = (
+        alt.Chart(df)
+        .mark_circle(size=60)
+        .encode(x=x_axis, y=y_axis, tooltip=[&#34;N95&#34;, &#34;Mask&#34;], color=&#34;N95&#34;)
+        .interactive()
+    )
+    st.write(graph)</code></pre>
+</details>
+</dd>
+<dt id="dashboard.Dashboard.visualize_model"><code class="name flex">
+<span>def <span class="ident">visualize_model</span></span>(<span>self, model: model.Model)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Visualize Model.</p>
+<p>Simple visualization</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def visualize_model(self, model: Model):
+    &#34;&#34;&#34;Visualize Model.
+
+    Simple visualization
+    &#34;&#34;&#34;
+    global log
+    &#34;&#34;&#34;
+    # Model Visualization
+
+    Uses an existing model
+    &#34;&#34;&#34;
+    for base_key, base_value in model:
+        # now using the new model iterator that does through all dataframes
+        # in a Base class
+        for df_name, df_value in base_value:
+            self.write_description(df_name, base_value.description)
+
+            self.write_chart(df_name, df_value)</code></pre>
+</details>
+</dd>
+<dt id="dashboard.Dashboard.write_chart"><code class="name flex">
+<span>def <span class="ident">write_chart</span></span>(<span>self, name, df)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write Chart.</p>
+<p>Write out a dataframe as a chart</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_chart(self, name, df):
+    &#34;&#34;&#34;Write Chart.
+
+    Write out a dataframe as a chart
+    &#34;&#34;&#34;
+    global log
+    indexed_df = df.reset_index()
+    index_name = df.index.name
+    log.debug(f&#34;{df=}&#34;)
+    log.debug(f&#34;{df.index.name=}&#34;)
+    log.debug(f&#34;{df.columns.name=}&#34;)
+    log.debug(f&#34;{indexed_df=}&#34;)
+    indexed_df.rename_axis(index=index_name, inplace=True)
+
+    &#34;&#34;&#34;
+    debug
+    &#34;&#34;&#34;
+    st.write(name)
+    st.write(df)
+    st.write(indexed_df)</code></pre>
+</details>
+</dd>
+<dt id="dashboard.Dashboard.write_description"><code class="name flex">
+<span>def <span class="ident">write_description</span></span>(<span>self, name: str, description: Dict)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Write Description.</p>
+<p>Writes the description of a nice message if none found</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_description(self, name: str, description: Dict):
+    &#34;&#34;&#34;Write Description.
+
+    Writes the description of a nice message if none found
+    &#34;&#34;&#34;
+    global log
+    if name in description:
+        log.debug(f&#34;found {name=} in {description=}&#34;)
+        st.write(description[name])
+        return
+    st.header(name)
+    st.write(f&#34;No description found for {name=}&#34;)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul>
+<li><a href="#stock-demo">Stock demo</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="dashboard.Dashboard" href="#dashboard.Dashboard">Dashboard</a></code></h4>
+<ul class="two-column">
+<li><code><a title="dashboard.Dashboard.homePage" href="#dashboard.Dashboard.homePage">homePage</a></code></li>
+<li><code><a title="dashboard.Dashboard.tables" href="#dashboard.Dashboard.tables">tables</a></code></li>
+<li><code><a title="dashboard.Dashboard.testHome" href="#dashboard.Dashboard.testHome">testHome</a></code></li>
+<li><code><a title="dashboard.Dashboard.testTables" href="#dashboard.Dashboard.testTables">testTables</a></code></li>
+<li><code><a title="dashboard.Dashboard.visualize_data" href="#dashboard.Dashboard.visualize_data">visualize_data</a></code></li>
+<li><code><a title="dashboard.Dashboard.visualize_model" href="#dashboard.Dashboard.visualize_model">visualize_model</a></code></li>
+<li><code><a title="dashboard.Dashboard.write_chart" href="#dashboard.Dashboard.write_chart">write_chart</a></code></li>
+<li><code><a title="dashboard.Dashboard.write_description" href="#dashboard.Dashboard.write_description">write_description</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+</footer>
+</body>
+</html>

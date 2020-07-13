@@ -13,6 +13,7 @@ from loader.load import Load
 # import pandas as pd  # type:ignore
 from population import Population
 from resourcemodel import Resource
+from consumption import Consumption
 from economy import Economy
 from disease import Disease
 from behavioral import Behavioral
@@ -141,6 +142,16 @@ class Model(Base):
         Resource
         """
         self.resource = Resource(self.data, log_root=self.log_root, type=type)
+        return self
+
+    def set_consumption(self, type: str = None):
+        """Set consumption.
+
+        Consumption by population levels l
+        """
+        self.consumption = Consumption(
+            self.data, log_root=self.log_root, type=type
+        )
         return self
 
     def set_economy(self, type: str = None):

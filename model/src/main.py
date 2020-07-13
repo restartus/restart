@@ -32,6 +32,9 @@ from base import Base
 from dashboard import Dashboard
 from typing import Optional
 
+import argparse
+
+
 # This is the only way to get it to work needs to be in main
 # https://www.programcreek.com/python/example/192/logging.Formatter
 # the confit now seems to work
@@ -76,20 +79,30 @@ def main() -> Model:
     # test that logging works
     log_root.test(log)
 
-    loaded = LoadYAML(os.path.abspath("washington"), log_root=log_root,)
+    parser = get_parser()
+    args = parser.parse_args()
+    log.debug(f"{args=}")
+
+    if args.load == "yaml":
+        loaded = LoadYAML(os.path.abspath("washington"), log_root=log_root,)
+    else:
+        raise ValueError("not implemented")
+
     # refactor with method chaining but this does require a single class
     # and a set of decorators
     model = (
         Model(name, log_root=log_root)
         .configure(loaded)
-        .set_population(type="Dict")
-        .set_resource(type="Dict")
-        .set_economy(type="Dict")
-        .set_disease(type="Dict")
-        .set_behavioral(type="Dict")
+        .set_population(type=args.population)
+        .set_resource(type=args.resource)
+        .set_consumption(type=args.consumption)
+        .set_economy(type=args.economy)
+        .set_disease(type=args.disease)
+        .set_behavioral(type=args.behavioral)
     )
 
-    # old_model(name, log_root=log_root)
+    model1 = old_model(name, log_root=log_root)
+    log.debug(f"{model1=}")
 
     # http://net-informations.com/python/iq/instance.htm
     log.debug(f"{model} is {vars(model)}")
@@ -162,9 +175,67 @@ def main() -> Model:
         log.info(f"{model.resource.inventory_ln_df=}")
 
     # run with streamlit run and then this will not return until after
+    # when run as just regular python this doesn't do anything
     Dashboard(model, log_root=log_root)
 
     return model
+
+
+def get_parser():
+    """Set Parser arguments.
+
+    For all the choices
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-l",
+        "--load",
+        choices=["yaml", "csv"],
+        default="yaml",
+        help="Select loader",
+    )
+    parser.add_argument(
+        "-p",
+        "--population",
+        choices=["wa2", "oes"],
+        help="Select population data cube",
+    )
+    parser.add_argument(
+        "-r",
+        "--resource",
+        choices=["eoc", "chelsea"],
+        default="eoc",
+        help="Select Resource model",
+    )
+    parser.add_argument(
+        "-c",
+        "--consumption",
+        choices=["wa-doh", "ensemble"],
+        default="wa-doh",
+        help="Select Resource model",
+    )
+    parser.add_argument(
+        "-e",
+        "--economy",
+        choices=["ml", "ensemble"],
+        default="ml",
+        help="Select Econometric model",
+    )
+    parser.add_argument(
+        "-b",
+        "--behavioral",
+        choices=["apple", "google", "ensemble"],
+        default="ensemble",
+        help="Select Econometric model",
+    )
+    parser.add_argument(
+        "-d",
+        "--disease",
+        choices=["imhe", "ensemble", "jhu"],
+        default="imhe",
+        help="Select Epidemological Disease Model",
+    )
+    return parser
 
 
 def old_model(name, log_root: Optional[Log] = None):
@@ -184,9 +255,7 @@ def old_model(name, log_root: Optional[Log] = None):
     model.configure(loaded)
     # note we cannot just past model down to allow chaining to work
     log.info("creating Population")
-    model.population = Population(
-        model.data, log_root=model.log_root
-    )
+    model.population = Population(model.data, log_root=model.log_root)
     log.debug("creating Resource")
     model.resource = Resource(model.data, log_root=model.log_root)
     log.debug("creating Economy")
@@ -194,9 +263,7 @@ def old_model(name, log_root: Optional[Log] = None):
     log.debug("creating Disease")
     model.disease = Disease(model.data, log_root=model.log_root)
     log.debug("creating Behavioral")
-    model.behavioral = Behavioral(
-        model.data, log_root=model.log_root
-    )
+    model.behavioral = Behavioral(model.data, log_root=model.log_root)
     log.debug(f"{model=}")
 
 

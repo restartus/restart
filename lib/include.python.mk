@@ -37,6 +37,7 @@ MAIN ?= main.py
 WEB ?= main.py
 LIB ?= lib
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
+FLAGS ?= --load yaml
 flags ?= -p 8501:8501
 PIP ?= streamlit altair pandas pyyaml xlrd
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
@@ -60,14 +61,16 @@ help: $(MAKEFILE_LIST)
 ## main: run in pipenv
 .PHONY: main
 main:
-	pipenv run python $(MAIN)
+	pipenv run python $(MAIN) $(FLAGS)
 
 ## debug: run with debugging outputs on
 .PHONY: debug
 debug:
-	pipenv run python -d $(MAIN)
+	pipenv run python -d $(MAIN) $(FLAGS)
 
 ## web: use streamlit to run the graphical interface
+# bug as of July 2020 cannot send flags to python
+# https://discuss.streamlit.io/t/command-line-arguments/386
 .PHONY: web
 web:
 	pipenv run streamlit run $(WEB)

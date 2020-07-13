@@ -15,18 +15,17 @@ log: logging.Logger = logging.getLogger(__name__)
 class LoadCSV(Load):
     """Converts Excel and CSV files into dataframe objects.
 
-    If you give
-    it files with a .xlsx, .xls, or .csv extension, it will read
+    If you give it files with a .xlsx, .xls, or .csv extension, it will read
     their data into a dataframe, and then safe the dataframe as
-    a pickle-file with the extension .p. If you feed this class
-    a pickle-file, it will simply pass through this class. This is
+    a h5 file with extension .h5. If you feed this class
+    a h5 file, it will simply pass through this class. This is
     done so that we can minimize the amount of times the Excel/CSV
     data must be processed - for larger files, it can be lengthy.
 
     Attributes:
-        splitpaths: List of tuples with format (path/to/file, extension)
-        p_list: A list that becomes populated with the names of
-                    pickle-files containing the input-data in dataframe form.
+        excel_ext: list of extensions attached to excel files
+        csv_ext: list of extensions attached to csv files
+        data: dictionary containing names of h5 files
     """
     def __init__(self,
                  source: Dict = None,
@@ -82,13 +81,13 @@ class LoadCSV(Load):
 
                 try:
 
-                    # look for json file in rootdir
-                    if base + '.json' in files:
+                    # look for h5 file in rootdir
+                    if base + '.h5' in files:
                         log.debug(f"preexisting json found for {base=}")
-                        self.data[fname] = base + '.json'
+                        self.data[fname] = base + '.h5'
 
                     else:
-                        log.debug(f"generating json file for {base=}")
+                        log.debug(f"generating h5 file for {base=}")
 
                         # excel to dataframe
                         if ext in self.excel_ext:
@@ -105,29 +104,26 @@ class LoadCSV(Load):
 
                         # store dataframe and overwrite dictionary input
                         self.store_dataframe(fullbase, df)
-                        self.data[fname] = base + '.json'
+                        self.data[fname] = base + '.h5'
 
                 # handle alternate utf encodings
                 except UnicodeDecodeError:
                     log.debug(f"loading {ext=} file with ISO-8859-1 encoding")
                     df = pd.read_csv(fullbase + ext, encoding="ISO-8859-1")
                     self.store_dataframe(fullbase, df)
-                    self.data[fname] = base + '.json'
+                    self.data[fname] = base + '.h5'
 
     def store_dataframe(self, name: str, df: pd.DataFrame) -> None:
-        """Serializes a dataframe in JSON format.
+        """Serializes a dataframe in h5 format.
 
         Args:
-            name: Name of the file we want to save
-            df: Dataframe to be serialized
+            name: name of the file we want to save
 
         Returns:
-            Name of the file that has been serialized
+            None
         """
-        name = name + '.json'
+        name = name + '.h5'
         log.debug(f"{name=}")
-        json = df.to_json(orient='index')
-        with open(name, 'w') as json_file:
-            json_file.write(json)
+        df.to_hdf(name, key='df', mode='w')
 
         return None

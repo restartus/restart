@@ -23,7 +23,6 @@ altair = "*"
 pandas = "*"
 pyyaml = "*"
 xlrd = "*"
-pyarrow = "*"
 tables = "*"
 
 [requires]

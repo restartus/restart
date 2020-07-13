@@ -63,8 +63,9 @@ class PopulationOES(PopulationDict):
             self.source = LoadCSV(source=source).data
             self.oes_df = self.load_df(os.path.join(source['Root'],
                                                     source['OES']))
-            self.code_df = self.load_df(os.path.join(source['Root'],
-                                                     source['CODE']))
+            self.code_df = self.format_code(
+                    self.load_df(os.path.join(source['Root'], source['CODE']))
+                    )
             self.pop_df = self.load_df(os.path.join(source['Root'],
                                                     source['POP']))
 
@@ -95,16 +96,16 @@ class PopulationOES(PopulationDict):
                          columns=columns)
 
     def load_df(self, fname: str) -> Optional[pd.DataFrame]:
-        """Load JSON file into a dataframe.
+        """Load h5 file into a dataframe.
 
         Args:
-            fname: Name of JSON file
+            fname: Name of h5 file
 
         Returns:
-            The dataframe serialized in the JSON file
+            The dataframe serialized in the h5 file
         """
         try:
-            df: pd.DataFrame = pd.read_json(open(fname, 'rb'), orient='index')
+            df: pd.DataFrame = pd.read_hdf(fname, 'df')
             return df
 
         except ValueError:

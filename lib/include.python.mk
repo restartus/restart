@@ -39,7 +39,7 @@ LIB ?= lib
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
 FLAGS ?= --load yaml --pop oes
 flags ?= -p 8501:8501
-PIP ?= streamlit altair pandas pyyaml xlrd pyarrow tables
+PIP ?= streamlit altair pandas pyyaml xlrd tables
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \

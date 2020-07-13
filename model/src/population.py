@@ -115,6 +115,7 @@ class Population(Base):
 
         if self.type == "oes":
             population_data: PopulationDict = PopulationOES(
+                    # TODO: location should be input upstream somewhere
                     {'County': None, 'State': 'California'},
                     log_root=self.log_root,
                     source=data.datapaths['Paths'],

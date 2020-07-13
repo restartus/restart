@@ -3,12 +3,17 @@
 Population is working
 """
 import os
+import math
+import logging
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
 from typing import Optional, Tuple, Dict
 from util import Log
 from population import Population
+from util import Log, datetime_to_code
 from loader.load_csv import LoadCSV
+from pop.population_dict import PopulationDict
+log: logging.Logger = logging.getLogger(__name__)
 
 
 class PopulationOES(Population):
@@ -31,12 +36,10 @@ class PopulationOES(Population):
         location: Dict,
         log_root: Optional[Log] = None,
         source: Optional[Dict] = None,
-        index: Optional[str] = None,
-        columns: Optional[str] = None,
     ):
         """Initialize.
 
-        Read the paths in and create dataframes
+        Read the paths in and create dataframes, generate mappings
         """
         self.root_log: Optional[Log]
         # global log
@@ -55,44 +58,51 @@ class PopulationOES(Population):
         self.code_df: pd.DataFrame
         self.oes_df: pd.DataFrame
         self.pop_df: pd.DataFrame
+        self.data_df: pd.DataFrame
+        self.map_df: pd.DataFrame
 
-        # Extract the dataframes we need from the input files
-        # TODO: source stream handling
+        # extract the dataframes we need from the input files
         if source is not None:
             self.source = LoadCSV(source=source).data
             self.oes_df = self.load_df(os.path.join(source['Root'],
                                                     source['OES']))
-            self.code_df = self.format_code(
-                    self.load_df(os.path.join(source['Root'], source['CODE']))
-                    )
+            self.code_df = self.format_code(self.load_df(
+                os.path.join(source['Root'], source['CODE'])))
             self.pop_df = self.load_df(os.path.join(source['Root'],
                                                     source['POP']))
+            self.map_df = self.format_map(self.load_df(
+                os.path.join(source['Root'], source['MAP'])))
 
-        # Handle location input
+        # handle location input
         self.location = location
         log.debug(f"{self.location=}")
 
-        # Need to specify a state
+        # initialize unsliced dataframe from oes data
         if location["State"] is None:
             raise ValueError(f"invalid {self.location=} must specify state")
-
-        # Looking for a specific county
         if location["County"] is not None and location["State"] is not None:
             self.df = self.create_county_df()
-
-        # Looking for a whole state
         else:
             self.df = self.create_state_df()
 
-        # Slicing for compatibility with rest of model
+        # slice to get just healthcare workers
         self.tot_pop = np.sum(self.df['tot_emp'])
-        self.health = self.healthcare_filter()
-        self.occ = self.df.drop(['occ_code'], axis=1)
+        self.health_df = self.health_df()
 
-        # TODO: this isn't necessary - should probably just be a child of Base
-        super().__init__(
-            log_root=log_root
-            )
+        # mapping of population protection levels
+        self.map_labs, self.map_arr = self.create_map(self.health_df)
+
+        # the actual data passed onto the model
+        self.data_df = self.drop_code(self.health_df)
+        self.data_arr = self.data_df['Size'].to_numpy()
+        self.index = self.data_df['Population p']
+        self.columns = self.data_df['Size']
+
+        super().__init__(log_root=self.log_root,
+                         data_df=self.data_df,
+                         data_arr=self.data_arr,
+                         map_labs=self.map_labs,
+                         map_arr=self.map_arr)
 
     def load_df(self, fname: str) -> Optional[pd.DataFrame]:
         """Load h5 file into a dataframe.
@@ -142,6 +152,64 @@ class PopulationOES(Population):
         df = df.reset_index(drop=True)
 
         return df
+
+    def format_map(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Manually slice the excel model to get protection level mappings for
+           healthcare workers.
+
+        Args:
+            df: The excel model loaded into a dataframe
+
+        Returns:
+            The dataframe sliced to give the mappings
+        """
+        # manually redo indexing and select the rows we need
+        df.columns = df.iloc[2528]
+        df = df.iloc[2529:3303]
+        df = df[['Washington SOT', 'SOC', 'Type', 'Level']]
+
+        # fix datetime objects and drop empty rows
+        df['SOC'] = df['SOC'].apply(datetime_to_code)
+        df = df.dropna(axis='rows').reset_index(drop=True)
+        return df
+
+    def create_map(self, df: pd.DataFrame) -> (list, np.ndarray):
+        """Generate mappings for OCC codes and population levels.
+
+        Args:
+            df: A dataframe that has OCC codes
+
+        Returns:
+            Dictionary of the population level mappings
+        """
+        map_arr = []
+        labels = []
+        for code in df['occ_code']:
+            arr = np.zeros(7)
+            try:
+                ind = self.map_df[self.map_df['SOC'] == code].index[0]
+                level = self.map_df.iloc[ind]['Level']
+            except IndexError:
+                if code.startswith('29-') or code.startswith('31-'):
+                    level = 5.5
+                else:
+                    level = 3
+
+            # assign integer levels
+            if type(level) is int:
+                arr[level] = 1
+
+            # assign multiple levels
+            else:
+                arr[math.floor(level)] = 0.5
+                arr[math.ceil(level)] = 0.5
+
+            # add to dictionary
+            name = list(df[df['occ_code'] == code]['occ_title'])[0]
+            labels.append(name)
+            map_arr.append(arr)
+
+        return labels, np.array(map_arr)
 
     def find_code(self) -> int:
         """Finds the MSA code of given county.
@@ -269,11 +337,15 @@ class PopulationOES(Population):
             det_total = np.sum(filt['tot_emp'])
             delta = total - det_total
 
-            # Create dataframe row and append to detailed dataframe
-            name = list(major[major['occ_code'] == code]['occ_title'])[0]
-            add_lst = [[pat + 'XXXX', 'Uncounted ' + name, 'detailed', delta]]
-            add_df = pd.DataFrame(add_lst, columns=list(major.columns))
-            detailed = detailed.append(add_df, ignore_index=True)
+            # TODO: verify that the oes data indeed does not add up
+            if delta > 0:
+                # create dataframe row and append to detailed dataframe
+                name = list(major[major['occ_code'] == code]['occ_title'])[0]
+                add_lst = [[pat + 'XXXX',
+                            'Uncounted ' + name,
+                            'detailed', delta]]
+                add_df = pd.DataFrame(add_lst, columns=list(major.columns))
+                detailed = detailed.append(add_df, ignore_index=True)
 
         return detailed
 
@@ -289,6 +361,17 @@ class PopulationOES(Population):
         df = df.drop(df[df['tot_emp'] == 0].index)
         df = df.drop(['o_group'], axis=1)
         df = df.reset_index(drop=True)
+
+        return df
+
+    def drop_code(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Drop the OCC code from a dataframe.
+
+        Too lazy to document.
+        """
+        col_labs = ['Population p', 'Size']
+        df = df.drop(['occ_code'], axis=1)
+        df.columns = col_labs
 
         return df
 
@@ -345,6 +428,20 @@ class PopulationOES(Population):
 
         return detailed
 
+    def health_df(self) -> pd.DataFrame:
+        """Return a detailed breakdown of healthcare workers with OCC codes.
+
+        Args:
+            None
+
+        Returns:
+            Dataframe object with the detailed breakdown
+        """
+        # 29-XXXX and 31-XXXX are the healthcare worker codes
+        filt = self.df[(self.df['occ_code'].str.startswith('29-')) |
+                       (self.df['occ_code'].str.startswith('31-'))]
+        return filt
+
     def healthcare_filter(self) -> pd.DataFrame:
         """Project OCC code into healthcare vs non-healthcare workers.
 
@@ -354,15 +451,14 @@ class PopulationOES(Population):
         Returns:
             Dataframe giving total healthcare and non-healthcare populations
         """
-        # 29-NNNN and 31-NNNN are healthcare worker OCC codes
-        filt = self.df[(self.df['occ_code'].str.startswith('29-')) |
-                       (self.df['occ_code'].str.startswith('31-'))]
+        if self.health_breakdown is None:
+            raise ValueError(f"{self.health_breakdown=} should not be None")
 
         # Dataframe labels
         col_labs = ['Population p', 'Size']
 
         # Calculate total number of healthcare workers
-        tot_health = np.sum(filt['tot_emp'])
+        tot_health = np.sum(self.health_breakdown['Size'])
         health = [['Healthcare Workers', tot_health]]
 
         # Calculate total number of non-healthcare workers

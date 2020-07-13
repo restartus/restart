@@ -7,6 +7,12 @@ from typing import Optional, Dict
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
 from pathlib import Path
+import os
+import logging
+import datetime
+import pandas as pd  # type: ignore
+import numpy as np  # type: ignore
+from typing import Optional, Dict, Union
 
 
 def dump_loggers(logging, log: logging.Logger):
@@ -54,6 +60,39 @@ def set_dataframe(
         columns=label[columns] if columns is not None else None,
     )
     df.index.name = index
+    df.columns.name = columns
+    return df
+
+
+def datetime_to_code(code: Union[str, datetime.datetime]) -> str:
+    """Converts datetime objects to valid OCC codes.
+
+    Gets around the problem of Excel automatically converting date-looking
+    strings into datetime objects that can't be undone.
+
+    Args:
+        code: Either a datetime object or string represnting an OCC code
+
+    Returns:
+        The code in valid OCC code format
+    """
+    if type(code) is datetime.datetime:
+        return str(code.month) + '-' + str(code.year)
+    else:
+        return code
+
+
+# TODO: this is lucas doing a hax0r but he will make this better
+def set_custom_dataframe(arr: np.ndarray,
+                         label: Dict,
+                         index: list = None,
+                         columns: str = None) -> pd.DataFrame:
+    """Set the dataframe up.
+
+    Using the model data Dictionary and labels
+    """
+    df = pd.DataFrame(arr, index=index, columns=label[columns])
+    df.index.name = "Population p"
     df.columns.name = columns
     return df
 

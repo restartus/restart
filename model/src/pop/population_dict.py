@@ -33,14 +33,13 @@ class PopulationDict(Population):
     ):
         """Initialize the population object.
 
-        This uses the Frame object and populates it with default data unless yo
-        override it
+        This uses the Frame object and populates it with default data unless
+        you override it
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__(log_root=log_root)
 
         # https://stackoverflow.com/questions/35328286/how-to-use-numpy-in-optional-typing
-
         # create a sublogger if a root exists in the model
         # self.model: Model = model
         if log_root is not None:

@@ -19,7 +19,7 @@ import pandas as pd  # type:ignore
 
 # import pandas as pd  # type:ignore
 
-
+import numpy as np
 import logging  # noqa: F401
 
 
@@ -198,11 +198,17 @@ class Population(Base):
 
         # now get the conversion from the many p populations to the much
         # smaller l levels that are easier to understand
-        self.level_pl_arr = data.value["Population p"]["Pop to Level pl"]
-        self.level_pl_df = set_dataframe(
+        # NOTE: hax0ring this rn with dummy values - i figure that since
+        # we're doing healthcare workers they'll all be essential
+        # self.level_pl_arr = data.value["Population p"]["Pop to Level pl"]
+        self.level_pl_arr = np.hstack(
+                (np.ones((self.attr_pd_df.shape[0], 1)),
+                 np.zeros((self.attr_pd_df.shape[0], 1))))
+        self.level_pl_df = set_custom_dataframe(
             self.level_pl_arr,
             data.label,
-            index="Population p",
+            index=self.level_pm_arr_labs,
+            # index="Population p",
             columns="Pop Level l",
         )
         log.debug(f"{self.level_pl_df=}")
@@ -210,3 +216,69 @@ class Population(Base):
             f"{self.level_pl_df=}",
             data.description["Population p"]["Pop to Level pl"],
         )
+        self.level_demand_ln_df = self.level_pl_df.T @ self.demand_pn_df
+        log.debug(f"{self.level_demand_ln_df=}")
+        self.set_description(
+            f"{self.level_demand_ln_df=}",
+            data.description["Population p"]["Level Demand ln"],
+        )
+
+        # now to the total for population
+        # TODO: eventually demand will be across pdn so
+        # across all the values
+        n95 = np.array(
+                self.demand_pn_df['N95 Surgical'] * self.attr_pd_arr).reshape(
+                        [self.attr_pd_arr.shape[0], 1])
+        astm = np.array(
+                self.demand_pn_df['ASTM Mask'] * self.attr_pd_arr).reshape(
+                        [self.attr_pd_arr.shape[0], 1])
+
+        self.total_demand_pn_arr = np.hstack((n95, astm))
+        self.total_demand_pn_df = set_custom_dataframe(
+            self.total_demand_pn_arr,
+            data.label,
+            index=self.level_pm_arr_labs,
+            columns="Resource n",
+        )
+
+        # self.total_demand_pn_df = (
+        #  #  self.demand_pn_df * self.attr_pd_df["Size"].values
+        #    self.demand_pn_df
+        #    * self.attr_pd_arr
+        # )
+        log.debug(f"{self.total_demand_pn_df=}")
+        # convert to demand by levels note we have to transpose
+        self.set_description(
+            f"{self.total_demand_pn_df=}",
+            data.description["Population p"]["Population Total Demand pn"],
+        )
+
+        self.level_total_demand_ln_df = (
+            self.level_pl_df.T @ self.total_demand_pn_df
+        )
+        log.debug(f"{self.level_total_demand_ln_df=}")
+        self.set_description(
+            f"{self.level_total_demand_ln_df=}",
+            data.description["Population p"]["Level Total Demand ln"],
+        )
+
+        # set to null to make pylint happy and instatiate the variable
+        self.level_total_cost_ln_df = None
+        self.set_description(
+            f"{self.level_total_cost_ln_df=}",
+            data.description["Population p"]["Level Total Cost ln"],
+        )
+
+    def level_total_cost(self, cost_ln_df):
+        """Calculate the total cost of resource for a population level.
+
+        The total cost of resources
+        """
+        log = self.log
+        self.level_total_cost_ln_df = (
+            self.level_total_demand_ln_df * cost_ln_df.values
+        )
+        log.debug("level_total_cost_ln_df\n%s", self.level_total_cost_ln_df)
+
+        # method chaining
+        return self

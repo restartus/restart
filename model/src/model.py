@@ -85,7 +85,7 @@ class Model(Base):
             print(f"{log=} has no handlers")
 
         log.debug(f"{self.name=}")
-        self.data: ModelData = ModelData({}, {}, {}, {})
+        self.data: ModelData = ModelData({}, {}, {}, {}, {})
 
     def set_configure(self, loaded: Load) -> Model:
         """Configure the Model.
@@ -126,6 +126,11 @@ class Model(Base):
         if datapaths is not None:
             self.data.datapaths = datapaths
         log.debug(f"{self.data.datapaths=}")
+
+        levelmaps: Optional[Dict] = loaded.data.get("Map")
+        if levelmaps is not None:
+            self.data.map = levelmaps
+        log.debug(f"{self.data.map=}")
 
         # These are just as convenience functions for dimensions
         # and for type checking this is ugly should make it

@@ -45,7 +45,8 @@ class Log:
         self.name = name
         self.log = logging.getLogger(name)
         # note this is for the logger, each stream has it's own level
-        self.log.setLevel(logging.DEBUG)
+        # note that if name == __main__ you can set all logging too high
+        #  self.log.setLevel(logging.DEBUG)
         # this set console to get warnings from the commandline
         self.con = logging.StreamHandler()
         self.con.setLevel(logging.CRITICAL)
@@ -101,5 +102,4 @@ class Log:
         log.error("error")
         log.critical("critical")
 
-        # method chaining
         return self

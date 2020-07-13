@@ -29,6 +29,8 @@ from economy import Economy
 from disease import Disease
 from behavioral import Behavioral
 from base import Base
+from dashboard import Dashboard
+from typing import Optional
 
 # This is the only way to get it to work needs to be in main
 # https://www.programcreek.com/python/example/192/logging.Formatter
@@ -42,7 +44,7 @@ log.debug(f"name {__name__}")
 log.info("hello world")
 
 
-def main():
+def main() -> Model:
     """Bootstrap the whole model creating all objects.
 
     Bootstrap where each modules successively knows more about the world
@@ -66,8 +68,8 @@ def main():
     everything
     """
     global log
-    name = "main"
     # set up the logging
+    name = __name__
     log_root = Log(name)
     # Set all the loggers the same
     log = log_root.log
@@ -80,12 +82,14 @@ def main():
     model = (
         Model(name, log_root=log_root)
         .configure(loaded)
-        .set_population()
-        .set_resource()
-        .set_economy()
-        .set_disease()
-        .set_behavioral()
+        .set_population(type="Dict")
+        .set_resource(type="Dict")
+        .set_economy(type="Dict")
+        .set_disease(type="Dict")
+        .set_behavioral(type="Dict")
     )
+
+    # old_model(name, log_root=log_root)
 
     # http://net-informations.com/python/iq/instance.htm
     log.debug(f"{model} is {vars(model)}")
@@ -156,10 +160,14 @@ def main():
         model.resource.set_stockpile_days(s)
         log.info(f"{model.resource.safety_stock_ln_df=}")
         log.info(f"{model.resource.inventory_ln_df=}")
+
+    # run with streamlit run and then this will not return until after
+    Dashboard(model, log_root=log_root)
+
     return model
 
 
-def old_model(name, log_root):
+def old_model(name, log_root: Optional[Log] = None):
     """Old Model invocation.
 
     Old Model
@@ -176,17 +184,17 @@ def old_model(name, log_root):
     model.configure(loaded)
     # note we cannot just past model down to allow chaining to work
     log.info("creating Population")
-    model.population: Population = Population(
+    model.population = Population(
         model.data, log_root=model.log_root
     )
     log.debug("creating Resource")
-    model.resource: Resource = Resource(model.data, log_root=model.log_root)
+    model.resource = Resource(model.data, log_root=model.log_root)
     log.debug("creating Economy")
-    model.economy: Economy = Economy(model.data, log_root=model.log_root)
+    model.economy = Economy(model.data, log_root=model.log_root)
     log.debug("creating Disease")
-    model.disease: Disease = Disease(model.data, log_root=model.log_root)
+    model.disease = Disease(model.data, log_root=model.log_root)
     log.debug("creating Behavioral")
-    model.behavioral: Behavioral = Behavioral(
+    model.behavioral = Behavioral(
         model.data, log_root=model.log_root
     )
     log.debug(f"{model=}")

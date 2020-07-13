@@ -76,3 +76,7 @@ Description:
         ## Average Invetory Demand
         For each summarized population level l, what is the total demand from
         that level for each resource n
+    "Res Inventory ln": |
+        ## Current Resource Inventory ln
+        The current inventory held ready for deliver to Population levels l
+        of n resource

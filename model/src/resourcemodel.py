@@ -118,6 +118,10 @@ class Resource(Base):
         # be careful you want a copy here so inv_initial stays the same
         self.inventory_ln_df = self.inv_initial_ln_df.copy()
         log.debug(f"Setting initial inventory {self.inventory_ln_df=}")
+        self.set_description(
+            f"{self.inventory_ln_df=}".split("=")[0],
+            data.description["Resource n"]["Res Inventory ln"],
+        )
 
         self.inv_eoc_ln_arr = data.value["Resource n"]["Res Inventory EOC ln"]
         log.debug(f"{self.inv_eoc_ln_arr=}")

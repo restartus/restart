@@ -33,7 +33,8 @@ user ?= $$USER
 build_path ?= .
 user ?= $$USER
 MAIN ?= main.py
-WEB ?= dashboard.py
+# main.py includes streamlit code that only runs when streamlit invoked
+WEB ?= main.py
 LIB ?= lib
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
 flags ?= -p 8501:8501

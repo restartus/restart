@@ -16,10 +16,10 @@ import pandas as pd  # type:ignore
 import altair as alt  # type:ignore
 import streamlit as st  # type:ignore
 from base import Base
-from main import main
 from model import Model
 import logging
 from typing import Dict
+from util import Log
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 # logging.basicConfig(level=logging.DEBUG
@@ -32,23 +32,13 @@ log: logging.Logger = logging.getLogger(__name__)
 log.debug(f"{__name__}=")
 
 
-def dashboard():
-    """Create Dashboard.
-
-    Streamlit dashboaard
-    """
-    model = main()
-    db = Dashboard(model)
-    log.debug(f"{db=}")
-
-
 class Dashboard:
     """Dashboard object.
 
     Streamlit dashboard
     """
 
-    def __init__(self, model):
+    def __init__(self, model: Model, log_root: Log = None):
         """Display the decision dashboard.
 
         Streamlit dashboard for a Model
@@ -57,8 +47,8 @@ class Dashboard:
 
         global log
         self.log: logging.Logger = log
-        if model.log_root is not None:
-            log = self.log = model.log_root.log_class(self)
+        if log_root is not None:
+            log = self.log = log_root.log_class(self)
 
         # sample test data
         self.data_df = pd.DataFrame(
@@ -107,7 +97,7 @@ class Dashboard:
         )
         log.debug(f"{stockpile_days=}")
 
-        model.resource.set_stockpile_days(model, stockpile_days)
+        model.resource.set_stockpile_days(stockpile_days)
 
         if self.page == "Home":
             self.homePage(model)
@@ -373,8 +363,3 @@ class Dashboard:
         st.write(name)
         st.write(df)
         st.write(indexed_df)
-
-
-# you start this by detecting a magic variable
-if __name__ == "__main__":
-    dashboard()

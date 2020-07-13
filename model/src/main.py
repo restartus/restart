@@ -84,6 +84,8 @@ def main() -> Model:
 
     if args.load == "yaml":
         loaded = LoadYAML(os.path.abspath("california"), log_root=log_root)
+        log.debug(f"{loaded.data=}")
+
     else:
         raise ValueError("not implemented")
 
@@ -102,8 +104,6 @@ def main() -> Model:
     # run the loader and put everything into a super dictionary
     # To change the model, just replace LoadYAML and the configuration
     # of it which starts off the entire model
-    loaded = LoadYAML(os.path.abspath("california"), log_root=log_root,)
-    log.debug(f"{loaded.data=}")
 
     model1 = old_model(name, log_root=log_root)
     log.debug(f"{model1=}")

@@ -111,8 +111,9 @@ class Population(Base):
         log.debug(f"{data.label=}")
         log.debug(f"{data.value=}")
 
-        if type == "PopulationOES":
-            # This is a placeholder this should instert
+        self.type: Optional[str] = type
+
+        if self.type == "oes":
             population_data: PopulationDict = PopulationOES(
                     {'County': None, 'State': 'California'},
                     log_root=self.log_root,
@@ -120,13 +121,24 @@ class Population(Base):
                     index=data.label["Population p"],
                     columns=data.label["Pop Detail d"]
                     )
-        else:
+        elif self.type == "wa2":
             population_data = PopulationDict(
                 log_root=self.log_root,
                 source=data.value["Population p"]["Pop Detail Data pd"],
                 index=data.label["Population p"],
                 columns=data.label["Pop Detail d"],
             )
+        else:
+            population_data = PopulationDict(
+                    log_root=self.log_root,
+                    source=data.value["Population p"]["Pop Detail Data pd"],
+                    index=data.label["Population p"],
+                    columns=data.label["Pop Detail d"],
+            )
+        '''
+        else:
+            raise ValueError(f"{self.type=} not implemented")
+        '''
         '''
         # testing of populationDict functions
         self.attr_pd_arr = data.value["Population p"]["Pop Detail Data pd"]

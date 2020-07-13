@@ -37,7 +37,7 @@ MAIN ?= main.py
 WEB ?= main.py
 LIB ?= lib
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
-FLAGS ?= --load yaml
+FLAGS ?= --load yaml --pop wa2
 flags ?= -p 8501:8501
 PIP ?= streamlit altair pandas pyyaml xlrd
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
@@ -73,7 +73,7 @@ debug:
 # https://discuss.streamlit.io/t/command-line-arguments/386
 .PHONY: web
 web:
-	pipenv run streamlit run $(WEB) -- $(PFLAGS)
+	pipenv run streamlit run $(WEB) -- $(FLAGS)
 
 # https://pipenv.pypa.io/en/latest/install/
 # https://realpython.com/pipenv-guide/

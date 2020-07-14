@@ -4,7 +4,7 @@ Test stub
 """
 
 
-def load_csv():
+def load_test_yaml():
     """Load YAML.
 
     Test packages

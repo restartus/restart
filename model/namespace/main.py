@@ -3,7 +3,7 @@
 hello
 """
 
-from loader.load_csv import LoadCSV
+from loader.load_test_csv import LoadTestCSV
 
 
 def main():

@@ -4,7 +4,7 @@ Test stub
 """
 
 
-class LoadCSV():
+class LoadTestCSV():
     """Load CSV.
 
     Loader test

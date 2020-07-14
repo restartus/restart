@@ -12,7 +12,7 @@ def main():
     here we go
     """
     print('hello world')
-    LoadCSV()
+    LoadTestCSV()
 
 
 if __name__ == "__main__":

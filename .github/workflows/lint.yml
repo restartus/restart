@@ -1,6 +1,7 @@
+---
 name: Lint
 
-on: [push]
+on: push
 
 jobs:
 
@@ -44,5 +45,10 @@ jobs:
       run: |
         pip install yamllint
         yamllint $(find ./model/src/ -name "*.yaml")
+
+    - name: Force formatting with black
+      run: |
+        pip install black
+        black -l 79 $(find ./model/src/ -name "*.py")
 
 

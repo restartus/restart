@@ -81,7 +81,7 @@ def main() -> Model:
     parser = get_parser()
     args = parser.parse_args()
     log.debug(f"{args=}")
-
+    print(f"{args=}")
     if args.load == "yaml":
         loaded = LoadYAML(args.input, log_root=log_root)
         if not loaded.data:

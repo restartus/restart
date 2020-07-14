@@ -16,6 +16,7 @@ from resourcemodel import Resource
 from consumption import Consumption
 from economy import Economy
 from disease import Disease
+from mobility import Mobility
 from behavioral import Behavioral
 from modeldata import ModelData
 
@@ -176,6 +177,16 @@ class Model(Base):
         Disease create
         """
         self.disease = Disease(self.data, log_root=self.log_root, type=type)
+        return self
+
+    def set_mobility(self, type: str = None):
+        """Create Mobility model.
+
+        Mobility create
+        """
+        self.mobility = Mobility(
+            self.data, log_root=self.log_root, type=type
+        )
         return self
 
     def set_behavioral(self, type: str = None):

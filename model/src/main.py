@@ -28,6 +28,7 @@ from population import Population
 from economy import Economy
 from disease import Disease
 from behavioral import Behavioral
+from mobility import Mobility
 from base import Base
 from dashboard import Dashboard
 from typing import Optional
@@ -99,6 +100,7 @@ def main() -> Model:
         .set_consumption(type=args.consumption)
         .set_economy(type=args.economy)
         .set_disease(type=args.disease)
+        .set_mobility(type=args.mobility)
         .set_behavioral(type=args.behavioral)
     )
     # run the loader and put everything into a super dictionary
@@ -234,6 +236,15 @@ def get_parser():
         default="ensemble",
         help="Select Econometric model",
     )
+
+    parser.add_argument(
+        "-m",
+        "--mobility",
+        choices=["apple", "ensemble", "google"],
+        default="ensemble",
+        help="Select Mobility Model",
+    )
+
     parser.add_argument(
         "-d",
         "--disease",
@@ -241,6 +252,7 @@ def get_parser():
         default="imhe",
         help="Select Epidemological Disease Model",
     )
+
     # https://treyhunner.com/2018/12/why-you-should-be-using-pathlib/
     parser.add_argument(
         "input",
@@ -275,6 +287,8 @@ def old_model(name, log_root: Optional[Log] = None):
     model.economy = Economy(model.data, log_root=model.log_root)
     log.debug("creating Disease")
     model.disease = Disease(model.data, log_root=model.log_root)
+    log.debug("creating Mobility")
+    model.mobility = Mobility(model.data, log_root=model.log_root)
     log.debug("creating Behavioral")
     model.behavioral = Behavioral(model.data, log_root=model.log_root)
     log.debug(f"{model=}")

@@ -9,6 +9,16 @@ import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
 
 
+def is_dir_or_file(path):
+    """Is path a directory or a file.
+
+    It's hard to believe this is not a function already
+    """
+    if os.path.isdir(path) or os.path.isfile(path):
+        return path
+    raise ValueError(f"{path=} not file or directory")
+
+
 # sets the frame properly but does need to understand the model
 # so goes into the model method
 def set_dataframe(

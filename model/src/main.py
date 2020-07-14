@@ -14,11 +14,11 @@ https://stackoverflow.com/questions/20309456/call-a-function-from-another-file-i
 # Before we move to full modules, just import locally
 # https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
 import logging  # noqa:F401
-import os
 import argparse
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
 from util import Log
+from pathlib import Path
 
 # from config import Config
 from loader.load_yaml import LoadYAML
@@ -41,7 +41,7 @@ from typing import Optional
 log = logging.getLogger(__name__)
 
 # https://docs.python.org/3/howto/logging-cookbook.html
-log.debug(f"name {__name__}")
+log.debug(f"{__name__=}")
 log.info("hello world")
 
 
@@ -70,7 +70,7 @@ def main() -> Model:
     """
     global log
     # set up the logging
-    name = __name__
+    name = "main"
     log_root = Log(name)
     # Set all the loggers the same
     log = log_root.log
@@ -82,9 +82,10 @@ def main() -> Model:
     log.debug(f"{args=}")
 
     if args.load == "yaml":
-        loaded = LoadYAML(os.path.abspath("california"), log_root=log_root)
+        loaded = LoadYAML(args.input, log_root=log_root)
+        if not loaded.data:
+            raise ValueError("f{args.input=} is empty")
         log.debug(f"{loaded.data=}")
-
     else:
         raise ValueError("not implemented")
 
@@ -189,6 +190,8 @@ def get_parser():
 
     For all the choices
     """
+    # expect a real file
+    # https://docs.python.org/3/library/argparse.html
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-l",
@@ -200,7 +203,7 @@ def get_parser():
     parser.add_argument(
         "-p",
         "--population",
-        choices=["wa2", "oes"],
+        choices=["dict", "oes"],
         help="Select population data cube",
     )
     parser.add_argument(
@@ -238,6 +241,13 @@ def get_parser():
         default="imhe",
         help="Select Epidemological Disease Model",
     )
+    # https://treyhunner.com/2018/12/why-you-should-be-using-pathlib/
+    parser.add_argument(
+        "input",
+        nargs='?',  # one argument
+        type=Path,
+        default=Path("washington").absolute()
+    )
     return parser
 
 
@@ -252,7 +262,7 @@ def old_model(name, log_root: Optional[Log] = None):
     # run the loader and put everything into a super dictionary
     # To change the model, just replace LoadYAML and the configuration
     # of it which starts off the entire model
-    loaded = LoadYAML(os.path.abspath("washington"), log_root=log_root,)
+    loaded = LoadYAML(Path("washington").absolute(), log_root=log_root,)
     log.debug(f"{loaded.data=}")
     log.info("configure Model")
     model.configure(loaded)

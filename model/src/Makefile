@@ -3,6 +3,6 @@
 #
 # overriding the name
 name=model
-LIB = population loader
+FLAGS = --load yaml --pop dict
 
 include include.python.mk

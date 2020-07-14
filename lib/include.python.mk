@@ -154,11 +154,11 @@ lint:
 	# note this has a bug if there are no yaml or python files
 	# the brackets test if they exist at all
 	pipenv run flake8
-	[ $(all_py) ] && pipenv run mypy --namespace-packages $(all_py) || false
-	[ $(all_py) ] && pipenv run bandit $(all_py) || false
-	[ $(all_py) ] && pipenv run pydocstyle --convention=google $(all_py) || false
+	[[ -n $(all_py) ]] && pipenv run mypy --namespace-packages $(all_py) || false
+	[[ -n $(all_py) ]] && pipenv run bandit $(all_py) || false
+	[[ -n $(all_py) ]] && pipenv run pydocstyle --convention=google $(all_py) || false
 	# lint the yaml config files and kill the error if it doesn't exist
-	[ $(all_yaml) ] && pipenv run yamllint $(all_yaml) || false
+	[[ -n $(all_yaml) ]] && pipenv run yamllint $(all_yaml) || false
 	@echo if you want destructive formatting run make format
 
 ## format: reformat python code to standard (uses pipenv)

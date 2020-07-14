@@ -86,25 +86,26 @@ class Model(Base):
 
         # https://realpython.com/python-keyerror/
         cfg: Optional[Dict] = loaded.data.get("Config")
-        if cfg is not None:
-            self.config = cfg
+        if cfg is None:
+            log.warning(f"no config in {loaded.data=}")
+        self.config = cfg
         log.debug(f"{self.config=}")
 
         description: Optional[Dict] = loaded.data.get("Description")
-        if description is not None:
-            self.data.description = description
+        if description is None:
+            raise ValueError(f"no description in {loaded.data=}")
+        self.data.description = description
         log.debug(f"{self.description=}")
 
         data: Optional[Dict] = loaded.data.get("Data")
-        log.debug(f"{data=}")
-        if data is not None:
-            self.data.value = data
+        if data is None:
+            raise ValueError(f"no data in {loaded.data=}")
+        self.data.value = data
         log.debug(f"{self.data=}")
 
         label: Optional[Dict] = loaded.data.get("Label")
         if label is None:
-            log.warning(f"No label in {loaded.data=}")
-            return
+            raise ValueError(f"No label in {loaded.data=}")
         self.data.label = label
         log.debug(f"{self.data.label=}")
         self.label = label

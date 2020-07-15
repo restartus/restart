@@ -21,4 +21,3 @@ class ModelData:
     value: Dict
     description: Dict
     datapaths: Dict
-    map: Dict

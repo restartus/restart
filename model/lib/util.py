@@ -3,15 +3,10 @@
 Main utilities
 """
 import logging
-from typing import Optional, Dict
-import pandas as pd  # type: ignore
-import numpy as np  # type: ignore
-from pathlib import Path
-import os
-import logging
 import datetime
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
+from pathlib import Path
 from typing import Optional, Dict, Union
 
 
@@ -77,24 +72,9 @@ def datetime_to_code(code: Union[str, datetime.datetime]) -> str:
         The code in valid OCC code format
     """
     if type(code) is datetime.datetime:
-        return str(code.month) + '-' + str(code.year)
+        return str(code.month) + '-' + str(code.year)  # type: ignore
     else:
-        return code
-
-
-# TODO: this is lucas doing a hax0r but he will make this better
-def set_custom_dataframe(arr: np.ndarray,
-                         label: Dict,
-                         index: list = None,
-                         columns: str = None) -> pd.DataFrame:
-    """Set the dataframe up.
-
-    Using the model data Dictionary and labels
-    """
-    df = pd.DataFrame(arr, index=index, columns=label[columns])
-    df.index.name = "Population p"
-    df.columns.name = columns
-    return df
+        return str(code)
 
 
 class Log:

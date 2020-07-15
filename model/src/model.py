@@ -85,7 +85,7 @@ class Model(Base):
             print(f"{log=} has no handlers")
 
         log.debug(f"{self.name=}")
-        self.data: ModelData = ModelData({}, {}, {}, {}, {})
+        self.data: ModelData = ModelData({}, {}, {}, {})
 
     def set_configure(self, loaded: Load) -> Model:
         """Configure the Model.
@@ -127,11 +127,6 @@ class Model(Base):
             self.data.datapaths = datapaths
         log.debug(f"{self.data.datapaths=}")
 
-        levelmaps: Optional[Dict] = loaded.data.get("Map")
-        if levelmaps is not None:
-            self.data.map = levelmaps
-        log.debug(f"{self.data.map=}")
-
         # These are just as convenience functions for dimensions
         # and for type checking this is ugly should make it
         # for look for assign because we are just mapping label
@@ -163,13 +158,12 @@ class Model(Base):
         self.population: Population
         if type == "oes":
             self.population = PopulationOES(
-                location={},
+                # TODO: This belongs in filter
+                location={'County': None, 'State': 'California'},
                 log_root=self.log_root,
                 source=self.data.datapaths["Paths"],
-                index=self.data.label["Population p"],
-                columns=self.data.label["Pop Detail d"],
             )
-        elif type == "wa2":
+        elif type == "dict":
             # change this to the the naming of columns
             self.population = PopulationDict(
                 data=self.data,
@@ -180,16 +174,7 @@ class Model(Base):
                 columns="Pop Detail d",
             )
         else:
-            self.population = PopulationDict(
-                data=self.data,
-                log_root=self.log_root,
-                source=self.data.value["Population p"]["Pop Detail Data pd"],
-                label=self.data.label,
-                index="Population p",
-                columns="Pop Detail d",
-            )
-        # else:
-        #    raise ValueError(f"{self.type=} not implemented")
+            raise ValueError(f"{type=} not implemented")
         # calculate the rest
         self.population.calc(self.data)
         return self

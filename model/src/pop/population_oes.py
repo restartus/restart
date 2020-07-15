@@ -4,16 +4,12 @@ Population is working
 """
 import os
 import math
-import logging
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
 from typing import Optional, Tuple, Dict
-from util import Log
 from population import Population
 from util import Log, datetime_to_code
 from loader.load_csv import LoadCSV
-from pop.population_dict import PopulationDict
-log: logging.Logger = logging.getLogger(__name__)
 
 
 class PopulationOES(Population):
@@ -33,7 +29,7 @@ class PopulationOES(Population):
 
     def __init__(
         self,
-        location: Dict,
+        location: Dict = None,
         log_root: Optional[Log] = None,
         source: Optional[Dict] = None,
     ):
@@ -60,6 +56,7 @@ class PopulationOES(Population):
         self.pop_df: pd.DataFrame
         self.data_df: pd.DataFrame
         self.map_df: pd.DataFrame
+        self.health_df: pd.DataFrame
 
         # extract the dataframes we need from the input files
         if source is not None:
@@ -87,22 +84,16 @@ class PopulationOES(Population):
 
         # slice to get just healthcare workers
         self.tot_pop = np.sum(self.df['tot_emp'])
-        self.health_df = self.health_df()
+        self.health_df = self.health_dataframe()
 
         # mapping of population protection levels
         self.map_labs, self.map_arr = self.create_map(self.health_df)
 
         # the actual data passed onto the model
-        self.data_df = self.drop_code(self.health_df)
-        self.data_arr = self.data_df['Size'].to_numpy()
-        self.index = self.data_df['Population p']
-        self.columns = self.data_df['Size']
-
-        super().__init__(log_root=self.log_root,
-                         data_df=self.data_df,
-                         data_arr=self.data_arr,
-                         map_labs=self.map_labs,
-                         map_arr=self.map_arr)
+        self.attr_pd_df = self.drop_code(self.health_df)
+        self.data_pd_arr = self.attr_pd_df['Size'].to_numpy()
+        self.index = self.attr_pd_df['Population p']
+        self.columns = self.attr_pd_df['Size']
 
     def load_df(self, fname: str) -> Optional[pd.DataFrame]:
         """Load h5 file into a dataframe.
@@ -154,8 +145,7 @@ class PopulationOES(Population):
         return df
 
     def format_map(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Manually slice the excel model to get protection level mappings for
-           healthcare workers.
+        """Manually slice the excel model to get protection level mappings.
 
         Args:
             df: The excel model loaded into a dataframe
@@ -173,7 +163,7 @@ class PopulationOES(Population):
         df = df.dropna(axis='rows').reset_index(drop=True)
         return df
 
-    def create_map(self, df: pd.DataFrame) -> (list, np.ndarray):
+    def create_map(self, df: pd.DataFrame) -> Tuple[list, np.ndarray]:
         """Generate mappings for OCC codes and population levels.
 
         Args:
@@ -367,7 +357,7 @@ class PopulationOES(Population):
     def drop_code(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop the OCC code from a dataframe.
 
-        Too lazy to document.
+        So that it has the right format for the model.
         """
         col_labs = ['Population p', 'Size']
         df = df.drop(['occ_code'], axis=1)
@@ -428,7 +418,7 @@ class PopulationOES(Population):
 
         return detailed
 
-    def health_df(self) -> pd.DataFrame:
+    def health_dataframe(self) -> pd.DataFrame:
         """Return a detailed breakdown of healthcare workers with OCC codes.
 
         Args:
@@ -451,14 +441,14 @@ class PopulationOES(Population):
         Returns:
             Dataframe giving total healthcare and non-healthcare populations
         """
-        if self.health_breakdown is None:
-            raise ValueError(f"{self.health_breakdown=} should not be None")
+        if self.data_df is None:
+            raise ValueError(f"{self.data_df=} should not be None")
 
         # Dataframe labels
         col_labs = ['Population p', 'Size']
 
         # Calculate total number of healthcare workers
-        tot_health = np.sum(self.health_breakdown['Size'])
+        tot_health = np.sum(self.data_df['Size'])
         health = [['Healthcare Workers', tot_health]]
 
         # Calculate total number of non-healthcare workers

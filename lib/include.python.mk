@@ -42,7 +42,7 @@ FLAGS ?=
 all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 flags ?= -p 8501:8501
-PIP ?= streamlit altair pandas pyyaml xlrd tables
+PIP ?= streamlit altair pandas pyyaml xlrd tables apache-airflow
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
@@ -212,6 +212,11 @@ airflow-install:
 	pipenv install apache-airflow
 	pipenv install mysqlclient
 	pushd "$(airflow_data) && AIRFLOW_HOME="$(airflow_data) airflow initdb
+
+## airflow: initialize an airflow db
+.PHONY: airflow
+airflow:
+	airflow initdb
 
 ##
 ## docker installation (for deployments):

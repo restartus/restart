@@ -3,7 +3,7 @@
 #
 # overriding the name
 name=model
-FLAGS = --load yaml --pop dict
+FLAGS = california --load yaml --pop oes
 MAIN = main.py
 
 include include.python.mk

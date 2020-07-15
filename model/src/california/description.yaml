@@ -1,0 +1,82 @@
+# http://yaml4r.sourceforge.net/doc/page/collections_in_yaml.htm
+# https://pyyaml.org/wiki/PyYAMLDocumentation
+# https://stackoverflow.com/questions/1721735/how-to-express-int-array6-in-yam
+# https://yaml-online-parser.appspot.com
+---
+Description:
+  "Population p":
+    "Pop Detail pd": |
+      ## Population Details (pd)
+      There are p Populations in the model and each population
+      can have d details about them such as their degree of age,
+      ethnicity, attitudes and awareness behaviors
+    "Protection pm": |
+      ## Population to Protection Level (pm)
+      For each p Populations falls into which protection
+      category m for the burn rates
+    "Population Demand pn": |
+      ## Population Demand for each of n Resources (pn)
+      This is the per capita demand for a give population so this is not the per
+      capita demand but for every n Resource for ever subpopulation p
+    "Pop to Level pl": |
+      ## Population's mapped into Summary Levels (pl)
+      This maps every population p into any number of summary levels l
+      summarized by the l Level level used. In this model higher
+      levels mean more protection by convention, but that isn't necessary.
+      You can also a given population row spread across different levels
+      so that for instance a percentage of a population could go into
+      different rows
+    "Level Demand ln": |
+      ## Population Demand by Summary Level for Resources (ln)
+      This is the per capita demand for a set of n resources
+      summarized by the l Summary Level used. It provides a view of demand
+      aggregated by the summary level.
+    "Population Total Demand pn": |
+      ## Population Demand Resource pn
+      This is the total demand for all p sub-Population for every resource n
+    "Level Total Demand ln": |
+      ## Total Demand for all Population Summary Levels for Resources (ln)
+      For all L population summary levels, the total demand for a set
+      of n resources
+    "Level Total Cost ln": |
+        ## Population Demand Total Cost by N Summary Levels
+        For all L population summary levels, the total cost for a set of
+        n resources
+  "Res Demand mn": |
+    ## Protection by Level Demand for Resources aka Burn Rate (mn)
+    The burn rates per capita for resources
+    For example, 1.18 would mean you need 1.18 N95 masks per day for a
+    given population
+  "Resource n":
+    "Res Attr Data na": |
+        ## Resource Attributes Data (na)
+        For all n Resources, these are the figures for each of the a Attributes
+        of each resource.
+    "Pop Level Res Cost ln": |
+        ## For Each Summary Level, the cost of Resoures
+        For each of l summary levels, get the per capita cost for each of n
+        Resources.
+    "Res Inventory Initial ln": |
+        ## Inventory by Population Summary Levels
+        For each summarized population level l, this gives for every resource n
+        the current inventory of each.
+    "Res Inventory EOC ln": |
+        ## Economic Order Quantity
+        For each summarized population level l, this gives for every resource n
+        the economic order quantity for reordering.
+    "Res Inventory Safety Stock ln": |
+        ## Safety Stock
+        For each summarized population level l, this gives for every resource n
+        the economic order quantity for reordering.
+    "Res Inventory Stockpile Days ln": |
+        ## Days of Stockpile
+        For each summaried population level l, this gives the number of periods
+        which are typically days that you have to hold
+    "Res Inventory Average Demand ln": |
+        ## Average Invetory Demand
+        For each summarized population level l, what is the total demand from
+        that level for each resource n
+    "Res Inventory ln": |
+        ## Current Resource Inventory ln
+        The current inventory held ready for deliver to Population levels l
+        of n resource

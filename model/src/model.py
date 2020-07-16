@@ -12,6 +12,8 @@ from loader.load import Load
 # import numpy as np  # type:ignore
 # import pandas as pd  # type:ignore
 from population import Population
+from pop.population_dict import PopulationDict
+from pop.population_oes import PopulationOES
 from resourcemodel import Resource
 from consumption import Consumption
 from economy import Economy
@@ -141,10 +143,17 @@ class Model(Base):
 
         Population created here
         """
+        # the old method
+        # self.population = Population(
+        #    self.data, log_root=self.log_root, type=type
+        #)
         # the super class population uses type to return the exact model
-        self.population = Population(
-            self.data, log_root=self.log_root, type=type
-        )
+        if type == "OES":
+            self.population = PopulationOES(
+                self.data, log_root=self.log_root)
+        else:
+            self.population = PopulationDict(
+                self.data, log_root=self.log_root)
         return self
 
     def set_resource(self, type: str = None):

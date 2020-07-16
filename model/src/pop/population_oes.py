@@ -7,11 +7,11 @@ import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
 from typing import Optional, Tuple, Dict
 from util import Log
-from pop.population_dict import PopulationDict
+from population import Population
 from loader.load_csv import LoadCSV
 
 
-class PopulationOES(PopulationDict):
+class PopulationOES(Population):
     """Transforms OES data into a format compatible with the model.
 
     Performs calculations to give us an estimate of population distributions on

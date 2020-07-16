@@ -16,6 +16,8 @@ from pop.population_oes import PopulationOES  # noqa:
 from typing import Optional
 from util import Log, set_dataframe
 
+# import pandas as pd  # type:ignore
+
 
 import logging  # noqa: F401
 
@@ -114,7 +116,7 @@ class Population(Base):
 
         if self.type == "oes":
             population_data: PopulationDict = PopulationOES(
-                # TODO: location should be input upstream somewhere
+                # TODO: The location should be set by a filter I think
                 {"County": None, "State": "California"},
                 log_root=self.log_root,
                 source=data.datapaths["Paths"],
@@ -122,39 +124,40 @@ class Population(Base):
                 columns=data.label["Pop Detail d"],
             )
         elif self.type == "wa2":
+            # change this to the the naming of columns
             population_data = PopulationDict(
                 log_root=self.log_root,
                 source=data.value["Population p"]["Pop Detail Data pd"],
-                index=data.label["Population p"],
-                columns=data.label["Pop Detail d"],
+                label=data.label,
+                index="Population p",
+                columns="Pop Detail d",
             )
         else:
             population_data = PopulationDict(
                 log_root=self.log_root,
                 source=data.value["Population p"]["Pop Detail Data pd"],
-                index=data.label["Population p"],
-                columns=data.label["Pop Detail d"],
+                label=data.label,
+                index="Population p",
+                columns="Pop Detail d",
             )
-        """
-        else:
-            raise ValueError(f"{self.type=} not implemented")
-        """
-        """
-        # testing of populationDict functions
-        self.attr_pd_arr = data.value["Population p"]["Pop Detail Data pd"]
-        log.debug(f"{self.attr_pd_arr=}")
-        self.attr_pd_df = pd.DataFrame(
-            self.attr_pd_arr,
-            index=data.label["Population p"],
-            columns=data.label["Pop Detail d"],
-        )
-        self.attr_pd_df.index.name = "Population p"
-        self.attr_pd_df.columns.name = "Pop Detail d"
-        log.debug(f"{self.attr_pd_df=}")
-        self.set_description(
-            f"{self.attr_pd_df=}",
-            data.description["Population p"]["Pop Detail pd"],
-        )
+        # else:
+        #    raise ValueError(f"{self.type=} not implemented")
+
+        # this is superceded by set_dataframe
+        # self.attr_pd_arr = data.value["Population p"]["Pop Detail Data pd"]
+        # log.debug(f"{self.attr_pd_arr=}")
+        # self.attr_pd_df = pd.DataFrame(
+        #     self.attr_pd_arr,
+        #     index=data.label["Population p"],
+        #    columns=data.label["Pop Detail d"],
+        # )
+        # self.attr_pd_df.index.name = "Population p"
+        # self.attr_pd_df.columns.name = "Pop Detail d"
+        # log.debug(f"{self.attr_pd_df=}")
+        # self.set_description(
+        #    f"{self.attr_pd_df=}",
+        #     data.description["Population p"]["Pop Detail pd"],
+        # )
         # the same thing in a function less code duplication
         self.attr_pd_arr = data.value["Population p"]["Pop Detail Data pd"]
         self.attr_pd_df = set_dataframe(
@@ -164,6 +167,8 @@ class Population(Base):
             columns="Pop Detail d",
         )
         log.debug(f"{self.attr_pd_df=}")
+        log.debug(f"{self.attr_pd_df.index.name=}")
+        log.debug(f"{self.attr_pd_df.columns.name=}")
         self.set_description(
             f"{self.attr_pd_df=}",
             data.description["Population p"]["Pop Detail pd"],
@@ -179,15 +184,21 @@ class Population(Base):
         #     columns=model.label["Pop Detail d"],
         # )
         # log.debug(f"{population_data_oes=}")
-        """
         log.debug(f"{population_data=}")
 
-        log.debug(f"{population_data.data_arr=}")
-        log.debug(f"{population_data.data_df=}")
-        if population_data.data_arr is None or population_data.data_df is None:
-            raise ValueError(f"no population data {population_data.data_arr=}")
-        self.attr_pd_arr = population_data.data_arr
-        self.attr_pd_df = population_data.data_df
+        log.debug(f"{population_data.attr_pd_arr=}")
+        log.debug(f"{population_data.attr_pd_df=}")
+        if (
+            population_data.attr_pd_arr is None
+            or population_data.attr_pd_df is None
+        ):
+            raise ValueError(
+                f"no population data {population_data.attr_pd_arr=}"
+            )
+        # TODO: should we just instantiate PopDict or PopOES instead of this
+        # shovelling of parameters
+        self.attr_pd_arr = population_data.attr_pd_arr
+        self.attr_pd_df = population_data.attr_pd_df
         log.debug(f"{self.attr_pd_df=}")
         self.set_description(
             f"{self.attr_pd_df=}",
@@ -198,23 +209,6 @@ class Population(Base):
         log.debug(f"{self.description['attr_pd_df']=}")
 
         # set the population by demand levels
-
-        # the same thing in a function less code duplication
-        # note these are defaults for testing
-        # this is the protection level and the burn rates for each PPE
-        self.res_demand_mn_arr = data.value["Resource Demand mn"]
-        self.res_demand_mn_df = set_dataframe(
-            self.res_demand_mn_arr,
-            data.label,
-            index="Pop Protection m",
-            columns="Resource n",
-        )
-        log.debug(f"{self.res_demand_mn_df=}")
-        # for compatiblity both the model and the object hold the same
-        # description
-        self.set_description(
-            f"{self.res_demand_mn_df=}", data.description["Res Demand mn"],
-        )
 
         self.level_pm_arr = data.value["Population p"]["Protection pm"]
         self.level_pm_df = set_dataframe(
@@ -230,15 +224,6 @@ class Population(Base):
         )
         log.debug(f"{self.description['level_pm_df']=}")
 
-        self.demand_pn_df = self.level_pm_df @ self.res_demand_mn_df
-        log.debug(f"{self.demand_pn_df=}")
-        self.demand_pn_df.index.name = "Population p"
-        self.demand_pn_df.columns.name = "Resource n"
-        self.set_description(
-            f"{self.demand_pn_df=}",
-            data.description["Population p"]["Population Demand pn"],
-        )
-
         # now get the conversion from the many p populations to the much
         # smaller l levels that are easier to understand
         self.level_pl_arr = data.value["Population p"]["Pop to Level pl"]
@@ -253,55 +238,3 @@ class Population(Base):
             f"{self.level_pl_df=}",
             data.description["Population p"]["Pop to Level pl"],
         )
-
-        self.level_demand_ln_df = self.level_pl_df.T @ self.demand_pn_df
-        log.debug(f"{self.level_demand_ln_df=}")
-        self.set_description(
-            f"{self.level_demand_ln_df=}",
-            data.description["Population p"]["Level Demand ln"],
-        )
-
-        # now to the total for population
-        # TODO: eventually demand will be across pdn so
-        # across all the values
-        self.total_demand_pn_df = (
-            # self.demand_pn_df * self.attr_pd_df["Size"].values
-            self.demand_pn_df
-            * self.attr_pd_arr
-        )
-        log.debug(f"{self.total_demand_pn_df=}")
-        # convert to demand by levels note we have to transpose
-        self.set_description(
-            f"{self.total_demand_pn_df=}",
-            data.description["Population p"]["Population Total Demand pn"],
-        )
-
-        self.level_total_demand_ln_df = (
-            self.level_pl_df.T @ self.total_demand_pn_df
-        )
-        log.debug(f"{self.level_total_demand_ln_df=}")
-        self.set_description(
-            f"{self.level_total_demand_ln_df=}",
-            data.description["Population p"]["Level Total Demand ln"],
-        )
-
-        # set to null to make pylint happy and instatiate the variable
-        self.level_total_cost_ln_df = None
-        self.set_description(
-            f"{self.level_total_cost_ln_df=}",
-            data.description["Population p"]["Level Total Cost ln"],
-        )
-
-    def level_total_cost(self, cost_ln_df):
-        """Calculate the total cost of resource for a population level.
-
-        The total cost of resources
-        """
-        log = self.log
-        self.level_total_cost_ln_df = (
-            self.level_total_demand_ln_df * cost_ln_df.values
-        )
-        log.debug("level_total_cost_ln_df\n%s", self.level_total_cost_ln_df)
-
-        # method chaining
-        return self

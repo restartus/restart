@@ -342,7 +342,7 @@ class Dashboard:
             # in a Base class
             for df_name, df_value in base_value:
                 self.write_description(df_name, base_value.description)
-
+                # breakpoint()
                 self.write_chart(df_name, df_value)
 
     def write_chart(self, name, df):

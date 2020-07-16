@@ -39,7 +39,8 @@ from typing import Optional
 # https://www.programcreek.com/python/example/192/logging.Formatter
 # the confit now seems to work
 
-class Compose():
+
+class Compose:
     """Compose an entire model together.
 
     Note this must be rentrant for streamlit to work
@@ -111,7 +112,10 @@ class Compose():
             Model(name, log_root=log_root)
             .configure(loaded)
             .set_population(type=args.population)
+            .set_population(type=args.students)
             .set_resource(type=args.resource)
+            .set_resource(type=args.pharma)
+            .set_filter(type=args.filter)
             .set_consumption(type=args.consumption)
             .set_economy(type=args.economy)
             .set_disease(type=args.disease)

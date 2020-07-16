@@ -63,6 +63,7 @@ class Consumption(Base):
             log = logging.getLogger(__name__)
         self.log = log
 
+
         if pop is None:
             log.warning("Not implemented, if no pop passed, use model.data")
         if res is None:
@@ -73,3 +74,78 @@ class Consumption(Base):
             log.debug("Use JHU burn rate model")
         else:
             log.debug("For anything else use Washington data")
+
+        # the same thing in a function less code duplication
+        # note these are defaults for testing
+        # this is the protection level and the burn rates for each PPE
+        self.res_demand_mn_arr = data.value["Resource Demand mn"]
+        self.res_demand_mn_df = set_dataframe(
+            self.res_demand_mn_arr,
+            data.label,
+            index="Pop Protection m",
+            columns="Resource n",
+        )
+        log.debug(f"{self.res_demand_mn_df=}")
+        # for compatiblity both the model and the object hold the same
+        # description
+        self.set_description(
+            f"{self.res_demand_mn_df=}", data.description["Res Demand mn"],
+        )
+
+        self.demand_pn_df = self.level_pm_df @ self.res_demand_mn_df
+        log.debug(f"{self.demand_pn_df=}")
+        self.demand_pn_df.index.name = "Population p"
+        self.demand_pn_df.columns.name = "Resource n"
+        self.set_description(
+            f"{self.demand_pn_df=}",
+            data.description["Population p"]["Population Demand pn"],
+        )
+
+        self.level_demand_ln_df = self.level_pl_df.T @ self.demand_pn_df
+        log.debug(f"{self.level_demand_ln_df=}")
+        self.set_description(
+            f"{self.level_demand_ln_df=}",
+            data.description["Population p"]["Level Demand ln"],
+        )
+        # now to the total for population
+        # TODO: eventually demand will be across pdn so
+        # across all the values
+        self.total_demand_pn_df = (
+            self.demand_pn_df * self.attr_pd_df["Size"].values
+            # self.demand_pn_df
+            # * self.attr_pd_arr
+        )
+        log.debug(f"{self.total_demand_pn_df=}")
+        # convert to demand by levels note we have to transpose
+        self.set_description(
+            f"{self.total_demand_pn_df=}",
+            data.description["Population p"]["Population Total Demand pn"],
+        )
+        self.level_total_demand_ln_df = (
+            self.level_pl_df.T @ self.total_demand_pn_df
+        )
+        log.debug(f"{self.level_total_demand_ln_df=}")
+        self.set_description(
+            f"{self.level_total_demand_ln_df=}",
+            data.description["Population p"]["Level Total Demand ln"],
+        )
+        # set to null to make pylint happy and instatiate the variable
+        self.level_total_cost_ln_df = None
+        self.set_description(
+            f"{self.level_total_cost_ln_df=}",
+            data.description["Population p"]["Level Total Cost ln"],
+        )
+
+    def level_total_cost(self, cost_ln_df):
+        """Calculate the total cost of resource for a population level.
+
+        The total cost of resources
+        """
+        log = self.log
+        self.level_total_cost_ln_df = (
+            self.level_total_demand_ln_df * cost_ln_df.values
+        )
+        log.debug("level_total_cost_ln_df\n%s", self.level_total_cost_ln_df)
+
+        # method chaining
+        return self

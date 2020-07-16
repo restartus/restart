@@ -10,10 +10,11 @@ from base import Base
 # in this new version we cannot depend on Model to be preformed
 # from model import Model
 from typing import Optional, Dict
-from util import Log
+from util import Log, set_dataframe
+from population import Population
 
 
-class PopulationDict(Base):
+class PopulationDict(Population):
     """Population Data Readers.
 
     Reads the population data. The default is to read from the model.data
@@ -25,8 +26,9 @@ class PopulationDict(Base):
         # model: Model,
         log_root: Optional[Log] = None,
         source: Dict = None,
-        index: Optional[str] = None,
-        columns: Optional[str] = None,
+        label: Dict = None,
+        index: str = None,
+        columns: str = None,
     ):
         """Initialize the population object.
 
@@ -37,8 +39,8 @@ class PopulationDict(Base):
         super().__init__()
 
         # https://stackoverflow.com/questions/35328286/how-to-use-numpy-in-optional-typing
-        self.data_arr: Optional[np.ndarray] = None
-        self.data_df: Optional[pd.DataFrame] = None
+        self.attr_pd_arr: Optional[np.ndarray] = None
+        self.attr_pd_df: Optional[pd.DataFrame] = None
 
         # create a sublogger if a root exists in the model
         # self.model: Model = model
@@ -62,10 +64,28 @@ class PopulationDict(Base):
         log.debug(f"{source=}")
 
         # we just use one dimension of source
-        if source is not None:
-            self.data_arr = np.array(source['Size'])
-            log.debug(f"{type(self.data_arr)=}")
-        if index is not None and columns is not None:
-            self.data_df = pd.DataFrame(
-                self.data_arr, index=index, columns=columns,
-            )
+        # if source is not None:
+        #     self.data_arr = np.array(source['Size'])
+        #     log.debug(f"{type(self.data_arr)=}")
+        # why is this here?
+        # if index is not None and columns is not None:
+        #     self.data_df = set_dataframe(
+        #         self.data_arr,
+        #        label=label,
+        #        index=index,
+        #        columns=columns
+        #    )
+        # this check is here to make the type checker happy.
+        if label is None:
+            raise ValueError(f"{label=} is null")
+        self.attr_pd_arr = source
+        self.attr_pd_df = set_dataframe(
+            self.attr_pd_arr,
+            label=label,
+            index=index,
+            columns=columns,
+        )
+
+        log.debug(f"{self.attr_pd_df=}")
+        log.debug(f"{self.attr_pd_df.index.name=}")
+        log.debug(f"{self.attr_pd_df.columns.name=}")

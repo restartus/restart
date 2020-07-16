@@ -77,7 +77,7 @@ class Compose():
         # This name should *not* be the same as any module name like main
         name = "test"
         # this should only get run once so check here
-        breakpoint()
+        # breakpoint()
         log_root = Log(name)
         # Set all the loggers the same
         log = log_root.log

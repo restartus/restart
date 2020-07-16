@@ -155,13 +155,16 @@ make docker
 # you can browse to https://locahost:8051 to see it
 make docker-run
 ```
-# Writing code: Logging, static testing and runtime
+# Writing code: Logging, static testing and runtime and streamlit
+
+## Running with streamlit
+
+
 
 ## Logging
 
 We define logging somewhat magically by using the same variable name and this
 links all the logging together [Stackoverflow](https://stackoverflow.com/questions/40495083/using-python-logging-from-multiple-modules-with-writing-to-a-file-and-rotatingfi)
-
 We use a utility to handle this which correctly deals with the root logger that
 uses the same name as the model. Then each class has a logger with it's own
 identifier to make it easy to create logs.
@@ -169,21 +172,37 @@ identifier to make it easy to create logs.
 We do not use module logging although this is available. We use our own
 opinionated logging tool that dumps logs hierarchically into `main.log`. Each
 module you create should have this in the class __init__() where you should see
-a `log_root` coming in from the main caller.
+a `log_root` coming in from the main caller. The logging code needs to
+abstracted, but basically if you utter this, then log.debug will just work in
+your classes and you want to pass log_root to each class:
 
 ```
-        # create a sublogger if a root exists in the model
-        global log
-        if log_root is not None:
-            self.log_root = log_root
-            log = self.log = self.log_root.log_class(self)
-        # sample use
-        log.debug(f"{log=}")  # will appear in main.log
+        from util import Log
+          def YourClass(...., log_root: Optional[Log])
+            # create a sublogger if a root exists in the model
+            self.log_root = log_root  # log_root is passed 
+            if log_root is not None:
+              # create a specific logger that inherits from our log tree
+              log = log_root.log_class(self)
+            else:
+              # just use a standalong logger
+              log = logging.getLogger(__name__) 
+        self.log = log
+        # demonstration
+        log.debug(f"{log=}")  # will appear log file typically test.log
         log.critical("panic stop")   # will appear on the console
+        # to change the logging levels in your code
+        # to turn up the console logging and then down again
+        log_root.con.setLevel(logging.DEBUG)
+        log_root.con.setLevel(logging.WARNING)
+        # to turn off some of the log file just
+        log_root.fh.setLevel(logging.WARNING)
+        # to get rid of all logging entirely works for all 
+        # handlers
+        log_root.log.setLevel(logging.CRITICAL)
+        # to add your own custom handler
+        log_root.log.add_handler(_your_handler_)
 
-
-        # the sample code to move up the logging for a period and then turn it
-        # off so if you are debugging a module and want more on the console
         self.log_root.con.setLevel(logging.CRITICAL)
         my_test_function_that_does_not_work()
         self.log_root.con.setLevel(logging.DEBUG)
@@ -195,10 +214,10 @@ debugging that looks like which turns up the logging that goes to the console or
 just consult the test.log:
 
 ```
-self.model.log_root.con.setLevel(logging.DEBUG)
-self.log.debug("big error in here")
-self.model.log_root.con.setLevel(logging.WARNING)
-```
+    self.model.log_root.con.setLevel(logging.DEBUG)
+    self.log.debug("big error in here")
+    self.model.log_root.con.setLevel(logging.WARNING)
+    ```
 
 What this does is to create a logger with a different name from `__name__` in
 each

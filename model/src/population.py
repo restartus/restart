@@ -102,15 +102,13 @@ class Population(Base):
             # The default logger if you don't get a root logger
             log = logging.getLogger(__name__)
         self.log = log
-        log.info("In %s", __name__)
+        log.debug("In %s", __name__)
 
         # set the arrays of values should be a column vector
         # https://kite.com/python/answers/how-to-make-a-numpy-array-a-column-vector-in-python
         # A shortcut
         log.debug(f"{data.label=}")
-        log.debug(f"{data.label=}")
-        log.info(f"{data.value=}")
-        log.info(f"{data.value=}")
+        log.debug(f"{data.value=}")
 
         self.type: Optional[str] = type
 

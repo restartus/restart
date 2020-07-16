@@ -71,11 +71,13 @@ def main() -> Model:
     log = log_root.log
     # test that logging works
     log_root.test(log)
+    # removin this line was the problem but it is back in util.py
+    # log.setLevel(logging.DEBUG)
 
     # do not need this with log_root
     # log = set_logger(__name__, level=logging.DEBUG)
     # log = logging.getLogger(__name__)
-    # log.setLevel(logging.DEBUG)
+
     #  https://docs.python.org/3/howto/logging-cookbook.html
     log.debug(f"{__name__=}")
     log.info("hello world")
@@ -134,7 +136,7 @@ def main() -> Model:
 
     # Now bucket population into a set of levels
     # So we have a table is p x l
-    log.info("Population by level\n%s", model.population.level_pl_df)
+    log.debug("Population by level\n%s", model.population.level_pl_df)
 
     # This is rows that are levels adn then usage of each resource  or l, n
     # When population become n x d, then there will be a usage
@@ -177,7 +179,7 @@ def main() -> Model:
     for s in [3, 6, 9]:
         log.info(f"changing stockpile to {s=}")
         model.resource.set_stockpile_days(s)
-        log.info(f"{model.resource.safety_stock_ln_df=}")
+        log.debug(f"{model.resource.safety_stock_ln_df=}")
         log.info(f"{model.resource.inventory_ln_df=}")
 
     # run with streamlit run and then this will not return until after

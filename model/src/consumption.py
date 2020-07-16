@@ -9,12 +9,26 @@ from base import Base
 from modeldata import ModelData
 from util import Log
 from typing import Optional
+from population import Population
+from resourcemodel import Resource
 
 
 class Consumption(Base):
-    """Governs how we act.
+    """Calculate consumption based on Population and Resource.
 
-    This contains
+    Take in Pop and and Res and into model.data["Pop Res Demand pn"]
+    Some parameters are to use:
+    - Washington estimate
+    - Mitre burn rates
+    - Johns Hopkins burn rates
+    - CDPH estimates
+    - Ensemble
+
+    If pop and res aren't set by default take the existing Population and
+    resource already in the model.data
+
+    With dimensions ["Population p"]["Resource n"]
+
     This uses https://realpython.com/documenting-python-code/
     docstrings using the NumPy/SciPy syntax
     Uses a modified standard project
@@ -24,6 +38,8 @@ class Consumption(Base):
     def __init__(
         self,
         data: ModelData,
+        pop: Population = None,
+        res: Resource = None,
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):
@@ -47,5 +63,13 @@ class Consumption(Base):
             log = logging.getLogger(__name__)
         self.log = log
 
-        if type is not None:
-            log.debug(f"not implemented {type=}")
+        if pop is None:
+            log.warning("Not implemented, if no pop passed, use model.data")
+        if res is None:
+            log.warning("Not implemented, if no res passed, use model.data")
+        if type == "Mitre":
+            log.debug("Use Mitre consumption")
+        elif type == "Johns Hopkins":
+            log.debug("Use JHU burn rate model")
+        else:
+            log.debug("For anything else use Washington data")

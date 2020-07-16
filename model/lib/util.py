@@ -14,13 +14,13 @@ def dump_loggers(logging, log: logging.Logger):
 
     Dump everything the logging system
     """
-    log.critical(f"{logging.Logger.manager.loggerDict=}")
+    log.debug(f"{logging.Logger.manager.loggerDict=}")
     for name in logging.Logger.manager.loggerDict.keys():
         lg = logging.getLogger(name)
-        log.critical(f"{lg=}")
-        log.critical(f"{lg.hasHandlers()=}")
+        log.debug(f"{lg=}")
+        log.debug(f"{lg.hasHandlers()=}")
         for h in lg.handlers:
-            log.critical(f"{h=}")
+            log.debug(f"{h=}")
 
 
 def is_dir_or_file(name: str) -> bool:
@@ -78,8 +78,10 @@ class Log:
         log.setLevel(logging.DEBUG)
         self.mylog = self.log_class(self)
 
+        # sanity check for logger
+
         if len(log.handlers) > 0:
-            log.debug(f"{log=} already has {log.handlers=}")
+            log.warning(f"{log=} already has {log.handlers=}")
             # breakpoint()
             return
         # note this is for the logger, each stream has it's own level
@@ -116,7 +118,7 @@ class Log:
         Creates a custom logger just for a class
         """
         class_log_name = self.name + "." + type(object).__name__
-        self.log.critical(f"new logger {class_log_name=}")
+        self.log.debug(f"new logger {class_log_name=}")
         log = logging.getLogger(class_log_name)
         return log
 

@@ -45,15 +45,19 @@ class PopulationDict(Base):
         if log_root is not None:
             self.log_root: Log = log_root
             log = log_root.log_class(self)
+            # breakpoint()
+            log.debug(f"{log_root=}, {log_root.con=}")
+            self.log_root.con.setLevel(logging.DEBUG)
+            log.debug(f"in {__name__=}")
+            self.log_root.con.setLevel(logging.WARNING)
         else:
             log = logging.getLogger(__name__)
+            log.debug(f"no log_root using {log=}")
+            raise ValueError("log_root is null")
         self.log = log
 
         # the sample code to move up the logging for a period and then turn it
         # off
-        self.log_root.con.setLevel(logging.DEBUG)
-        log.debug(f"in {__name__=}")
-        self.log_root.con.setLevel(logging.WARNING)
 
         log.debug(f"{source=}")
 

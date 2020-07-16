@@ -78,11 +78,24 @@ class Log:
         log.setLevel(logging.DEBUG)
         self.mylog = self.log_class(self)
 
-        # sanity check for logger
-
+        # streamlit can call multiple times and all variables are reset
+        # except for logging. So here if the getLogger returns an
+        # existing log, instead of creating new handlers, just look through the
+        # existing ones and copy out the handlers. We use this for convenience
+        # to set debugging levels by changing levels
+        # like log_root.con.setLevel(logging.DEBUG)
+        # or for all logs with log_root.log.setLevel(logging.WARNING)
         if len(log.handlers) > 0:
             log.warning(f"{log=} already has {log.handlers=}")
-            # breakpoint()
+            # assume that the last streamhandler is for the console
+            # the first handler is for the file logger
+            for handler in log.handlers:
+                if type(handler) is logging.StreamHandler:
+                    self.con = handler
+                    continue
+                if type(handler) is logging.FileHandler:
+                    self.fh = handler
+                    continue
             return
         # note this is for the logger, each stream has it's own level
         # note that if name == __main__ you can set all logging too high
@@ -109,7 +122,9 @@ class Log:
         )
         self.fh.setFormatter(self.fh_format)
         self.log.addHandler(self.fh)
-        self.log.debug(f"{self.log=}")
+        self.log.debug(f"{self.log=} f")
+        # note we don't need self.fh, it is also accessible at
+        # self.log.handlers[0] and self.log.handlers[1]
         # breakpoint()
 
     def log_class(self, object):

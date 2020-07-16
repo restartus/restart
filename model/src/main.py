@@ -107,7 +107,6 @@ def main() -> Model:
     # run the loader and put everything into a super dictionary
     # To change the model, just replace LoadYAML and the configuration
     # of it which starts off the entire model
-
     model1 = old_model(name, log_root=log_root)
     log.debug(f"{model1=}")
 
@@ -135,7 +134,7 @@ def main() -> Model:
 
     # Now bucket population into a set of levels
     # So we have a table is p x l
-    log.debug("Population by level\n%s", model.population.level_pl_df)
+    log.info("Population by level\n%s", model.population.level_pl_df)
 
     # This is rows that are levels adn then usage of each resource  or l, n
     # When population become n x d, then there will be a usage

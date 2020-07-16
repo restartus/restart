@@ -72,6 +72,10 @@ class Log:
         self.name = name
         # this is the main logging so at the top
         log = self.log = logging.getLogger(name)
+        # the logger itself needs a level set as low as possible
+        # otherwise the streams will not see it
+        # https://docs.python.org/3/howto/logging-cookbook.html
+        log.setLevel(logging.DEBUG)
         self.mylog = self.log_class(self)
 
         if len(log.handlers) > 0:

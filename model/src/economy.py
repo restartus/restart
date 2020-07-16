@@ -13,8 +13,6 @@ from modeldata import ModelData
 from util import Log
 from typing import Optional
 
-log = logging.getLogger(__name__)
-
 
 class Economy(Base):
     """Economy - Manages the economy.
@@ -46,11 +44,12 @@ class Economy(Base):
         super().__init__()
 
         # create a sublogger if a root exists in the model
-        global log
-        self.log = log
         if log_root is not None:
             self.log_root = log_root
-            log = self.log = self.log_root.log_class(self)
+            log = self.log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
 
         if type is not None:
             log.debug(f"not implemented {type=}")

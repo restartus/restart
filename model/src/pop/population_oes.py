@@ -3,15 +3,12 @@
 Population is working
 """
 import os
-import logging
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
 from typing import Optional, Tuple, Dict
 from util import Log
 from pop.population_dict import PopulationDict
 from loader.load_csv import LoadCSV
-
-log: logging.Logger = logging.getLogger(__name__)
 
 
 class PopulationOES(PopulationDict):
@@ -42,7 +39,8 @@ class PopulationOES(PopulationDict):
         Read the paths in and create dataframes
         """
         self.root_log: Optional[Log]
-        global log
+        # global log
+        # log: logging.Logger = logging.getLogger(__name__)
 
         if log_root is not None:
             self.log_root = log_root
@@ -109,7 +107,7 @@ class PopulationOES(PopulationDict):
             return df
 
         except ValueError:
-            log.debug(f"invalid file {fname=}")
+            self.log.debug(f"invalid file {fname=}")
             return None
 
     def format_code(self, df: pd.DataFrame) -> pd.DataFrame:

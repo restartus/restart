@@ -8,10 +8,6 @@ import yaml
 from typing import Optional, Dict, Iterator, Any
 from util import Log
 
-# TODO: the scoping doesn't work, log here cannot be
-# changed by __init__
-log = logging.getLogger(__name__)
-
 
 class Config:
     """Configure the model.
@@ -30,12 +26,16 @@ class Config:
         entries so order matters if you have duplicates
         """
         self.dict: Dict = {}
-        global log
         # replace the standalone logger if asked
         if log_root is not None:
             self.root_log = log_root
-            log = self.log = log_root.log_class(self)
-            log.debug(f"{self.log=} {log=}")
+            log = log_root.log_class(self)
+            log.debug(f"{log=} {log=}")
+        else:
+            # TODO: the scoping doesn't work, log here cannot be
+            # changed by __init__
+            log = logging.getLogger(__name__)
+        self.log = log
 
         log.debug(f"module {__name__=}")
 
@@ -56,10 +56,7 @@ class Config:
         """
         # TODO: not clear why this is not true
         # https://www.flake8rules.com/rules/F823.html
-        global log
-        if self.log is not log:
-            log = self.log
-            raise ValueError(f"{self.log=} {log=}")
+        log = self.log
         log.debug(f"{filename=}")
         try:
             with open(filename, "r") as f:
@@ -81,6 +78,7 @@ class Config:
 
         Load from an optional file
         """
+        log = self.log
         try:
             # https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
             with open(filename, "r") as f:

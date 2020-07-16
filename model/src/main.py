@@ -15,6 +15,7 @@ https://stackoverflow.com/questions/20309456/call-a-function-from-another-file-i
 # https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
 import logging  # noqa:F401
 import argparse
+
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
 from util import Log
@@ -37,13 +38,6 @@ from typing import Optional
 # This is the only way to get it to work needs to be in main
 # https://www.programcreek.com/python/example/192/logging.Formatter
 # the confit now seems to work
-
-# log = set_logger(__name__, level=logging.DEBUG)
-log = logging.getLogger(__name__)
-
-# https://docs.python.org/3/howto/logging-cookbook.html
-log.debug(f"{__name__=}")
-log.info("hello world")
 
 
 def main() -> Model:
@@ -69,14 +63,22 @@ def main() -> Model:
     And if you make a change to any, the model will automatically recalc
     everything
     """
-    global log
     # set up the logging
-    name = "main"
+    # This name should *not* be the same as any module name like main
+    name = "test"
     log_root = Log(name)
     # Set all the loggers the same
     log = log_root.log
     # test that logging works
     log_root.test(log)
+
+    # do not need this with log_root
+    # log = set_logger(__name__, level=logging.DEBUG)
+    # log = logging.getLogger(__name__)
+    # log.setLevel(logging.DEBUG)
+    #  https://docs.python.org/3/howto/logging-cookbook.html
+    log.debug(f"{__name__=}")
+    log.info("hello world")
 
     parser = get_parser()
     args = parser.parse_args()
@@ -181,7 +183,9 @@ def main() -> Model:
 
     # run with streamlit run and then this will not return until after
     # when run as just regular python this doesn't do anything
-    Dashboard(model, log_root=log_root)
+    log.info("start dashboard ")
+    log.debug("start dashboard")
+    Dashboard(model)
 
     return model
 
@@ -191,6 +195,8 @@ def get_parser():
 
     For all the choices
     """
+    # TODO: Convert to using confuse to store parameters
+    # https://github.com/beetbox/confuse
     # expect a real file
     # https://docs.python.org/3/library/argparse.html
     parser = argparse.ArgumentParser()
@@ -255,9 +261,9 @@ def get_parser():
     # https://treyhunner.com/2018/12/why-you-should-be-using-pathlib/
     parser.add_argument(
         "input",
-        nargs='?',  # one argument
+        nargs="?",  # one argument
         type=Path,
-        default=Path("washington").absolute()
+        default=Path("washington").absolute(),
     )
     return parser
 
@@ -268,6 +274,11 @@ def old_model(name, log_root: Optional[Log] = None):
     Old Model
     """
     # https://www.tutorialspoint.com/Explain-Python-class-method-chaining
+    if log_root is not None:
+        log = log_root.log
+    else:
+        log = logging.getLogger(__name__)
+
     log.info("creating Model")
     model: Model = Model(name, log_root=log_root)
     # run the loader and put everything into a super dictionary

@@ -22,10 +22,6 @@ from modeldata import ModelData
 
 import logging  # noqa: F401
 
-log: logging.Logger = logging.getLogger(__name__)
-# https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
-log.debug(f"{__name__=}")
-
 
 class Model(Base):
     """Main model for planning.
@@ -66,15 +62,20 @@ class Model(Base):
         # the long description of each
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__()
-        global log
-        self.log: logging.Logger = log
-        self.log_root = None
+
+        # https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
+        self.log_root = log_root
         if log_root is not None:
-            self.log_root = log_root
-            self.log = log_root.log_class(self)
-            log = self.log
+            log = log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
+        log.debug(f"{__name__=}")
 
         self.name: str = name
+        if not log.hasHandlers():
+            print(f"{log=} has no handlers")
+
         log.debug(f"{self.name=}")
         self.data: ModelData = ModelData({}, {}, {}, {})
 
@@ -83,6 +84,7 @@ class Model(Base):
 
         Uses Loaded as a dictionary and puts it into model variables
         """
+        log = self.log
         log.debug(f"{loaded.data=}")
 
         # https://realpython.com/python-keyerror/
@@ -184,9 +186,7 @@ class Model(Base):
 
         Mobility create
         """
-        self.mobility = Mobility(
-            self.data, log_root=self.log_root, type=type
-        )
+        self.mobility = Mobility(self.data, log_root=self.log_root, type=type)
         return self
 
     def set_behavioral(self, type: str = None):
@@ -207,6 +207,7 @@ class Model(Base):
     # https://thispointer.com/python-how-to-make-a-class-iterable-create-iterator-class-for-it/
     def __iter__(self):
         """Iterate through the model getting only Base objects."""
+        log = self.log
         self.base_list: List = [
             k for k, v in vars(self).items() if isinstance(v, Base)
         ]
@@ -217,6 +218,7 @@ class Model(Base):
 
     def __next__(self) -> Tuple[str, Base]:
         """Next Base."""
+        log = self.log
         if self.base_index >= self.base_len:
             raise StopIteration
         log.debug(f"{self.base_index=}")

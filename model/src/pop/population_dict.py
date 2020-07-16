@@ -13,15 +13,11 @@ from typing import Optional, Dict
 from util import Log
 
 
-log: logging.Logger = logging.getLogger(__name__)
-
-
 class PopulationDict(Base):
     """Population Data Readers.
 
     Reads the population data. The default is to read from the model.data
     """
-
     # no variable here unless you want them the same across all instances
 
     def __init__(
@@ -44,13 +40,15 @@ class PopulationDict(Base):
         self.data_arr: Optional[np.ndarray] = None
         self.data_df: Optional[pd.DataFrame] = None
 
-        global log
         # create a sublogger if a root exists in the model
         # self.model: Model = model
         if log_root is not None:
             self.log_root: Log = log_root
             log = log_root.log_class(self)
-            self.log: logging.Logger = log
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
+
         # the sample code to move up the logging for a period and then turn it
         # off
         self.log_root.con.setLevel(logging.DEBUG)

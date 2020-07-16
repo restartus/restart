@@ -19,10 +19,6 @@ from util import Log, set_dataframe
 
 import logging  # noqa: F401
 
-# The default logger if you don't get a root logger
-log: logging.Logger = logging.getLogger(__name__)
-log.debug("In %s", __name__)
-
 
 class Population(Base):
     """Population objects are created here.
@@ -98,12 +94,15 @@ class Population(Base):
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         # to pick up the description
         super().__init__()
-        global log
-        self.log = log
         # create a sublogger if a root exists in the model
+        self.log_root = log_root
         if log_root is not None:
-            self.log_root = log_root
-            log = self.log = log_root.log_class(self)
+            log = log_root.log_class(self)
+        else:
+            # The default logger if you don't get a root logger
+            log = logging.getLogger(__name__)
+        self.log = log
+        log.debug("In %s", __name__)
 
         # set the arrays of values should be a column vector
         # https://kite.com/python/answers/how-to-make-a-numpy-array-a-column-vector-in-python
@@ -115,13 +114,13 @@ class Population(Base):
 
         if self.type == "oes":
             population_data: PopulationDict = PopulationOES(
-                    # TODO: location should be input upstream somewhere
-                    {'County': None, 'State': 'California'},
-                    log_root=self.log_root,
-                    source=data.datapaths['Paths'],
-                    index=data.label["Population p"],
-                    columns=data.label["Pop Detail d"]
-                    )
+                # TODO: location should be input upstream somewhere
+                {"County": None, "State": "California"},
+                log_root=self.log_root,
+                source=data.datapaths["Paths"],
+                index=data.label["Population p"],
+                columns=data.label["Pop Detail d"],
+            )
         elif self.type == "wa2":
             population_data = PopulationDict(
                 log_root=self.log_root,
@@ -131,16 +130,16 @@ class Population(Base):
             )
         else:
             population_data = PopulationDict(
-                    log_root=self.log_root,
-                    source=data.value["Population p"]["Pop Detail Data pd"],
-                    index=data.label["Population p"],
-                    columns=data.label["Pop Detail d"],
+                log_root=self.log_root,
+                source=data.value["Population p"]["Pop Detail Data pd"],
+                index=data.label["Population p"],
+                columns=data.label["Pop Detail d"],
             )
-        '''
+        """
         else:
             raise ValueError(f"{self.type=} not implemented")
-        '''
-        '''
+        """
+        """
         # testing of populationDict functions
         self.attr_pd_arr = data.value["Population p"]["Pop Detail Data pd"]
         log.debug(f"{self.attr_pd_arr=}")
@@ -180,7 +179,7 @@ class Population(Base):
         #     columns=model.label["Pop Detail d"],
         # )
         # log.debug(f"{population_data_oes=}")
-        '''
+        """
         log.debug(f"{population_data=}")
 
         log.debug(f"{population_data.data_arr=}")
@@ -298,6 +297,7 @@ class Population(Base):
 
         The total cost of resources
         """
+        log = self.log
         self.level_total_cost_ln_df = (
             self.level_total_demand_ln_df * cost_ln_df.values
         )

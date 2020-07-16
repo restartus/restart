@@ -4,6 +4,9 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+nptyping = "*"
+pydocstyle = "*"
+pdoc3 = "*"
 flake8 = "*"
 mypy = "*"
 bandit = "*"
@@ -12,11 +15,15 @@ tox = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-xdist = "*"
+yamllint = "*"
 
 [packages]
 streamlit = "*"
 altair = "*"
 pandas = "*"
+pyyaml = "*"
+xlrd = "*"
+tables = "*"
 
 [requires]
 python_version = "3.8"

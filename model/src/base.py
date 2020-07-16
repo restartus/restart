@@ -6,10 +6,6 @@ from typing import Dict, Tuple
 import logging
 import pandas as pd  # type:ignore
 
-# The deefault
-log: logging.Logger = logging.getLogger(__name__)
-log.debug(f"{__name__=}")
-
 
 class Base:
     """Base for all model classes.
@@ -27,6 +23,10 @@ class Base:
         Mainly the descriptions
         """
         self.description: Dict = {}
+
+        # since we have no log otherwise
+        log: logging.Logger = logging.getLogger(__name__)
+        log.debug(f"{__name__=}")
         log.debug("run base")
         log.debug(f"{self=}")
 
@@ -38,6 +38,9 @@ class Base:
         Gets rid of the equal sign if it is there from a f string
         Also only uses the last member name
         """
+        # we can't use a higher level logger
+        log: logging.Logger = logging.getLogger(__name__)
+
         # https://stackoverflow.com/questions/18425225/getting-the-name-of-a-variable-as-a-string/58451182#58451182
         # Using Python 3.8 f strings
         # you must use double quotes inside single quotes for strings

@@ -65,6 +65,12 @@ help: $(MAKEFILE_LIST)
 main:
 	pipenv run python $(MAIN) $(FLAGS)
 
+# https://docs.python.org/3/library/pdb.html
+## pdb: run locally with python to test components from main (uses pipenv)
+.PHONY: pdb
+pdb:
+	pipenv run python -m pdb $(MAIN)
+
 ## debug: run with debugging outputs on
 .PHONY: debug
 debug:
@@ -77,6 +83,14 @@ debug:
 web:
 	pipenv run streamlit run $(WEB) -- $(FLAGS)
 
+## web-pdg: single step debug
+web-pdb:
+	pipenv run pdb $(WEB) $(FLAGS)
+## web-debug: run web interface in debugger
+web-debug:
+	pipenv run python -m pdb $(WEB) $(FLAGS)
+
+#
 # https://pipenv.pypa.io/en/latest/install/
 # https://realpython.com/pipenv-guide/
 # install everything including things just needed for edevelopment
@@ -153,12 +167,14 @@ lint:
 	# https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports
 	# note this has a bug if there are no yaml or python files
 	# the brackets test if they exist at all
+	# We set the last to true so we don't get an error code if trhere
+	# are no such files
 	pipenv run flake8
-	[[ -n $(all_py) ]] && pipenv run mypy --namespace-packages $(all_py) || false
-	[[ -n $(all_py) ]] && pipenv run bandit $(all_py) || false
-	[[ -n $(all_py) ]] && pipenv run pydocstyle --convention=google $(all_py) || false
+	[[ -n $(all_py) ]] && pipenv run mypy --namespace-packages $(all_py) || true
+	[[ -n $(all_py) ]] && pipenv run bandit $(all_py) || true
+	[[ -n $(all_py) ]] && pipenv run pydocstyle --convention=google $(all_py) || true
 	# lint the yaml config files and kill the error if it doesn't exist
-	[[ -n $(all_yaml) ]] && pipenv run yamllint $(all_yaml) || false
+	[[ -n $(all_yaml) ]] && pipenv run yamllint $(all_yaml) || true
 	@echo if you want destructive formatting run make format
 
 ## format: reformat python code to standard (uses pipenv)
@@ -168,16 +184,6 @@ lint:
 format:
 	# the default is 88 but pyflakes wants 79
 	pipenv run black -l 79 *.py
-
-# https://docs.python.org/3/library/pdb.html
-## pdb: run locally with python to test components from main (uses pipenv)
-.PHONY: pdb
-pdb:
-	pipenv run python -m pdb $(MAIN)
-
-## web-pdb: run web interface in debugger
-web-pdb:
-	pipenv run python -m pdb $(WEB)
 
 
 ## pypi: push the package to the Python library (uses pipenv)

@@ -6,10 +6,6 @@ import logging
 from util import Log
 from typing import Optional, Dict
 
-# TODO: the scoping doesn't work, log here cannot be
-# changed by __init__
-log: logging.Logger = logging.getLogger(__name__)
-
 
 class Load():
     """Base Load YAML Files.
@@ -29,11 +25,13 @@ class Load():
         self.root_log: Optional[Log]
         self.data: Dict = {}
 
-        global log
         # replace the standalone logger if asked
+        self.root_log = log_root
         if log_root is not None:
-            self.root_log = log_root
             log = self.log = log_root.log_class(self)
-            log.debug(f"{self.log=} {log=}")
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
 
+        log.debug(f"{self.log=} {log=}")
         log.debug(f"module {__name__=}")

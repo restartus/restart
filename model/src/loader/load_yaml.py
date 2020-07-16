@@ -10,10 +10,6 @@ from typing import Optional, Dict, Iterator, Any, List
 from util import Log
 from loader.load import Load
 
-# TODO: the scoping doesn't work, log here cannot be
-# changed by __init__
-log: logging.Logger = logging.getLogger(__name__)
-
 
 class LoadYAML(Load):
     """Load YAML Files.
@@ -36,13 +32,17 @@ class LoadYAML(Load):
         super().__init__()
         self.root_log: Optional[Log]
         self.data: Dict = {}
-        global log
+
         # replace the standalone logger if asked
+        self.root_log = log_root
         if log_root is not None:
-            self.root_log = log_root
             log = self.log = log_root.log_class(self)
             log.debug(f"{self.log=} {log=}")
-
+        else:
+            # TODO: the scoping doesn't work, log here cannot be
+            # changed by __init__
+            log = logging.getLogger(__name__)
+        self.log = log
         log.debug(f"module {__name__=}")
 
         # https://gist.github.com/treyhunner/f35292e676efa0be1728
@@ -77,12 +77,7 @@ class LoadYAML(Load):
 
         Load a Yaml file with one
         """
-        # TODO: not clear why this is not true
-        # https://www.flake8rules.com/rules/F823.html
-        global log
-        if self.log is not log:
-            log = self.log
-            raise ValueError(f"{self.log=} {log=}")
+        log = self.log
         log.debug(f"{filename=}")
         try:
             with open(filename, "r") as f:
@@ -101,6 +96,7 @@ class LoadYAML(Load):
 
         Load from an optional file
         """
+        log = self.log
         try:
             # https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
             with open(filename, "r") as f:

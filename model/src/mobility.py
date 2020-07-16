@@ -10,8 +10,6 @@ from modeldata import ModelData
 from util import Log
 from typing import Optional
 
-log = logging.getLogger(__name__)
-
 
 class Mobility(Base):
     """The amount of acivity and movement.
@@ -38,15 +36,16 @@ class Mobility(Base):
         super().__init__()
 
         # create a sublogger if a root exists in the model
-        global log
+        self.log_root = log_root
         if log_root is not None:
-            self.log_root = log_root
-            log = self.log = self.log_root.log_class(self)
+            log = self.log = log_root.log_class(self)
+            log_root.con.setLevel(logging.DEBUG)
+            log.debug(f"in {__name__=}")
+            log_root.con.setLevel(logging.WARNING)
+        else:
+            log = self.log = logging.getLogger(__name__)
         # the sample code to move up the logging for a period and then turn it
         # off
-        self.log_root.con.setLevel(logging.DEBUG)
-        log.debug(f"in {__name__=}")
-        self.log_root.con.setLevel(logging.WARNING)
 
         if type is not None:
             log.debug(f"not implemented {type=}")

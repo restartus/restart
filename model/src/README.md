@@ -398,3 +398,27 @@ jobs:
       run: |
         pytest
 ```
+
+## Dealing with configurations
+
+We started by using just the yaml library, but [Hackers and
+Slackers](https://realpython.com/python-pathlib/) gives us a host of options.
+Here's an analysis:
+
+1. INI files. Probably don't want to use anymore, but it can be handled by
+   configparser.
+2. TOML files. More powerful INI files, use with the toml library
+3. YAML files. The current stat of the art. You can parse with the yaml library,
+   but they recommend `import confuse` instead particularly because it allows a
+   direct import into argparser
+
+This would remove alot of config that is buried in current main
+
+```
+config = confuse.Configuration('model', __name__)
+parser = argparse.ArgumentParser()
+args = parser.parse_args()
+config.set_args(args)
+```
+
+

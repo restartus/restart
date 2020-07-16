@@ -3,20 +3,35 @@
 Main utilities
 """
 import logging
-import os
 from typing import Optional, Dict
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
+from pathlib import Path
 
 
-def is_dir_or_file(path):
+def dump_loggers(logging, log: logging.Logger):
+    """Dump all logs.
+
+    Dump everything the logging system
+    """
+    log.critical(f"{logging.Logger.manager.loggerDict=}")
+    for name in logging.Logger.manager.loggerDict.keys():
+        lg = logging.getLogger(name)
+        log.critical(f"{lg=}")
+        log.critical(f"{lg.hasHandlers()=}")
+        for h in lg.handlers:
+            log.critical(f"{h=}")
+
+
+def is_dir_or_file(name: str) -> bool:
     """Is path a directory or a file.
 
     It's hard to believe this is not a function already
     """
-    if os.path.isdir(path) or os.path.isfile(path):
-        return path
-    raise ValueError(f"{path=} not file or directory")
+    path = Path(name)
+    if path.is_dir() or path.is_file():
+        return True
+    return False
 
 
 # sets the frame properly but does need to understand the model
@@ -51,9 +66,18 @@ class Log:
         if name is None:
             # https://stackoverflow.com/questions/3925096/how-to-get-only-the-last-part-of-a-path-in-python
             # https://stackoverflow.com/questions/5137497/find-current-directory-and-files-directory
-            name = os.path.basename(os.getcwd())
+            # name = os.path.basename(os.getcwd())
+            # https://realpython.com/python-pathlib/
+            name = Path.cwd().name
         self.name = name
-        self.log = logging.getLogger(name)
+        # this is the main logging so at the top
+        log = self.log = logging.getLogger(name)
+        self.mylog = self.log_class(self)
+
+        if len(log.handlers) > 0:
+            log.debug(f"{log=} already has {log.handlers=}")
+            # breakpoint()
+            return
         # note this is for the logger, each stream has it's own level
         # note that if name == __main__ you can set all logging too high
         #  self.log.setLevel(logging.DEBUG)
@@ -79,17 +103,16 @@ class Log:
         )
         self.fh.setFormatter(self.fh_format)
         self.log.addHandler(self.fh)
-        self.mylog = self.log_class(self)
-        self.mylog.debug(f"{self.mylog=}")
+        self.log.debug(f"{self.log=}")
+        # breakpoint()
 
     def log_class(self, object):
         """Class Logger.
 
         Creates a custom logger just for a class
         """
-        # breakpoint()
         class_log_name = self.name + "." + type(object).__name__
-        self.log.debug(f"new logger {class_log_name=}")
+        self.log.critical(f"new logger {class_log_name=}")
         log = logging.getLogger(class_log_name)
         return log
 
@@ -98,6 +121,7 @@ class Log:
 
         Creates a logger specficaly for a file (a module in Python speak)
         """
+        # breakpoint()
         module_log_name = self.name + "." + name
         log = logging.getLogger(module_log_name)
         return log
@@ -107,9 +131,9 @@ class Log:
 
         Testing code run this to make sure all levels are used
         """
-        log.debug("debug")
-        log.warning("warning")
-        log.error("error")
-        log.critical("critical")
+        log.debug("test debug")
+        log.warning("test warning")
+        log.error("test error")
+        log.critical("test critical")
 
         return self

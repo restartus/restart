@@ -14,8 +14,6 @@ from modeldata import ModelData
 from typing import Optional
 from util import Log
 
-log = logging.getLogger(__name__)
-
 
 class Disease(Base):
     """Resource - Manages all the resources that are used in the model.
@@ -45,11 +43,12 @@ class Disease(Base):
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__()
         # create a sublogger if a root exists in the model
-        global log
-        self.log = log
+        self.log_root = log_root
         if log_root is not None:
-            self.log_root = log_root
-            log = self.log = self.log_root.log_class(self)
+            log = log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
 
         if type is not None:
             log.debug(f"not implemented {type=}")

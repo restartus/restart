@@ -1,4 +1,4 @@
-"""Dashboard for COVID.
+"""Dashboar for COVID.
 
 ## Stock demo
 https://towardsdatascience.com/how-to-build-a-data-science-web-app-in-python-61d1bed65020
@@ -19,17 +19,12 @@ from base import Base
 from model import Model
 import logging
 from typing import Dict
-from util import Log
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 # logging.basicConfig(level=logging.DEBUG
 # https://www.w3resource.com/python-exercises/python-basic-exercise-46.php
 # https://www.geeksforgeeks.org/python-os-path-basename-method/
 # name: str = os.path.basename(__file__).split(".")[0]
-
-# backup logger
-log: logging.Logger = logging.getLogger(__name__)
-log.debug(f"{__name__}=")
 
 
 class Dashboard:
@@ -38,17 +33,22 @@ class Dashboard:
     Streamlit dashboard
     """
 
-    def __init__(self, model: Model, log_root: Log = None):
+    def __init__(self, model: Model):
         """Display the decision dashboard.
 
         Streamlit dashboard for a Model
         """
         super().__init__()
 
-        global log
-        self.log: logging.Logger = log
-        if log_root is not None:
-            log = self.log = log_root.log_class(self)
+        self.log_root = model.log_root
+        if self.log_root is not None:
+            log = self.log_root.log_class(self)
+            log.debug(f"found {self.log_root=} and made {log=}")
+        else:
+            # backup logger
+            log = logging.getLogger(__name__)
+        self.log = log
+        log.debug(f"{__name__=}")
 
         # sample test data
         self.data_df = pd.DataFrame(
@@ -181,7 +181,7 @@ class Dashboard:
         object looking for Pandas DataFrames
         """
         # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
-        global log
+        log = self.log
         log.debug("look for all population items")
         # eventually just go through all the model classes and keep going
         # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
@@ -233,7 +233,7 @@ class Dashboard:
 
         Writes the description of a nice message if none found
         """
-        global log
+        log = self.log
         if name in description:
             log.debug(f"found {name=} in {description=}")
             st.write(description[name])
@@ -246,7 +246,7 @@ class Dashboard:
 
         Test for dashboard
         """
-        global log
+        log = self.log
         st.write(
             """
             # COVID-19 Decision Dashboard
@@ -296,7 +296,8 @@ class Dashboard:
         """
         # F strings do not work with streamlit so just put variables i
         # so use st.write to get them
-        global log
+        log = self.log
+        log.debug(f"{log=}")
         """
         ## Debug
         """
@@ -329,7 +330,8 @@ class Dashboard:
 
         Simple visualization
         """
-        global log
+        log = self.log
+        log.debug(f"visual {model=}")
         """
         # Model Visualization
 
@@ -348,7 +350,8 @@ class Dashboard:
 
         Write out a dataframe as a chart
         """
-        global log
+        log = self.log
+        # Get this from wide to narrow form for charting
         indexed_df = df.reset_index()
         index_name = df.index.name
         log.debug(f"{df=}")

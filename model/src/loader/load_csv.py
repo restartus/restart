@@ -9,8 +9,6 @@ from loader.load import Load
 from util import Log
 from typing import List, Optional, Dict
 
-log: logging.Logger = logging.getLogger(__name__)
-
 
 class LoadCSV(Load):
     """Converts Excel and CSV files into dataframe objects.
@@ -39,13 +37,14 @@ class LoadCSV(Load):
         # logging setup
         super().__init__()
         self.root_log: Optional[Log]
-        global log
 
+        self.root_log = log_root
         if log_root is not None:
-            self.root_log = log_root
-            log = self.log = log_root.log_class(self)
-            log.debug(f"{self.log=} {log=}")
-
+            log = log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
+        log.debug(f"{self.log=} {log=}")
         log.debug(f"module {__name__=}")
 
         # extensions we check for
@@ -122,6 +121,7 @@ class LoadCSV(Load):
         Returns:
             None
         """
+        log = self.log
         name = name + '.h5'
         log.debug(f"{name=}")
         df.to_hdf(name, key='df', mode='w')

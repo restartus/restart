@@ -1,17 +1,31 @@
-"""Testing method clalling
+"""Testing method calling.
+
+Call testing
 """
 import logging
 # getting a method error
 
 
 class Log():
+    """Small Log class.
+
+    TEst log class
+    """
     def __init__(self, name: str):
+        """Init testing.
+
+        Just get a logger
+        """
         if name is None:
             name = __name__
         self.name = name
         self.log = logging.getLogger(name)
 
     def module_log(self, name):
+        """Testing module log.
+
+        Basic scaffold
+        """
         log_name = self.name + '.' + name
         return logging.getLgger(log_name)
 

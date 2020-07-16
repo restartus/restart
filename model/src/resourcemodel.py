@@ -11,8 +11,6 @@ from modeldata import ModelData
 from util import Log, set_dataframe
 from typing import Union
 
-log = logging.getLogger(__name__)
-
 
 class Resource(Base):
     """Resource - Manages all the resources that are used in the model.
@@ -50,11 +48,12 @@ class Resource(Base):
         super().__init__()
 
         # create a sublogger if a root exists in the model
-        global log
-        self.log = log
+        self.log_root = log_root
         if log_root is not None:
-            self.log_root = log_root
-            log = self.log = self.log_root.log_class(self)
+            log = log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
 
         """Initialize the Resource object
         This uses the Frame object and populates it with default data unless yo
@@ -172,6 +171,7 @@ class Resource(Base):
         A helper function which spreads the days across all populations nad all
         columns
         """
+        log = self.log
         # https://numpy.org/doc/stable/reference/generated/numpy.empty_like.html
         if type(days) is int:
             self.stockpile_days_ln_arr = days * np.ones_like(

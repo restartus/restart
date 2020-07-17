@@ -8,7 +8,7 @@
 # ---------
 # the first set just looks for a marker line and then adds a bunch of lines
 # it does not examine the specific contents of the lines added.
-# This is most useful for large scale configurations where you are really 
+# This is most useful for large scale configurations where you are really
 # adding say lines ot a bash script. The marker line is used (usually Added by
 
 # - config_mark: Looks for a marker line and adds one if not already there
@@ -18,7 +18,7 @@
 # The second does whole line replacement.
 # -------
 # This looks for entire lines with a PREFIX and replaces them. This is most
-# useful for smaller edits at the line level. 
+# useful for smaller edits at the line level.
 # - config_add_once: Add a line in a file if it does not exist
 # - config_replace: Looks for a specific line and replaces it with a new one
 #
@@ -67,13 +67,13 @@ config_backup() {
 }
 
 # https://stackoverflow.com/questions/29613304/is-it-possible-to-escape-regex-metacharacters-reliably-with-sed
-# magical oneliner that handles multiline sed replacement. 
+# magical oneliner that handles multiline sed replacement.
 # Use for finding and replacing multiple lines in a config file
 # does need gnu sed and not mac sed
 #
 # Changed from stdin to stdout because of One bug is that is always adds a new line if there is just one line
 # So you can use set_config_var instead for instance if there is just one line
-# usage: to_sed_regex 
+# usage: to_sed_regex
 # stdin: input lines does not work for single lines
 # returns: 0 on success
 # stdout: the properly escaped string (make sure to quote may have spaces
@@ -116,8 +116,8 @@ config_sudo()
     # note we do not quote $@ so we can search them all
     # Note that this test does fail because the directory must also be writeable
     # and owned by you so this does not work with `mv` but does with tee
-    # if there is no util sudo then make our own because we do not want to 
-    # depend on lib-util.sh as this system does not allow cascading library 
+    # if there is no util sudo then make our own because we do not want to
+    # depend on lib-util.sh as this system does not allow cascading library
     # dependencies
     for file in $@
     do
@@ -156,7 +156,7 @@ config_touch() {
 
 # converts a bash variable with multiline text
 # to a single string with \n in it on stdout
-# usage: config_lines_to_line 
+# usage: config_lines_to_line
 # stdin: lines that need to be converted
 # stdout: single line with \n in them
 config_lines_to_line(){
@@ -170,7 +170,7 @@ config_lines_to_line(){
 # replaces the original marker work and uses the config_add
 # this marks a configuration file as being edited
 # It searches the "marker" line and does not add more if it finds it
-# and returns the state of the file. 
+# and returns the state of the file.
 # if the file dopes not exist we create all the parent directories and then the
 # file
 # usage: config__mark -f file [ comment-prefix [ marker ]]
@@ -190,8 +190,8 @@ config_mark()
     local marker="${3:-"Added by $SCRIPTNAME"}"
 
     config_touch "$file"
-    # 
-    if ${force:-false} || ! grep -q "$marker" "$file" 
+    #
+    if ${force:-false} || ! grep -q "$marker" "$file"
     then
       # do not quote config_sudo because it can return null
       # https://stackoverflow.com/questions/3005963/how-can-i-have-a-newline-in-a-string-in-sh
@@ -201,12 +201,12 @@ config_mark()
 }
 
 #
-# 
+#
 # It adds to the stdin use with the redirection <<-EOF typically and then EOF
 # usage: config_add file_to-change <<-EOF
 #        some lines to add
 #        EOF
-# 
+#
 # Use config_add_once if you want to replace just a sigle ilne
 # this is normally used with config_mark
 #
@@ -251,7 +251,7 @@ config_replace() {
     config_touch "$file"
     need_sudo="$(config_sudo "$file")"
     # not sure but $ means an exact match
-    # so if we want to majhc then need to do 
+    # so if we want to majhc then need to do
     # usage: config_add_lines [-f] [file [ lines ]]
     echo grep -q "^$target" "$file"
     if ! grep -q "^$target" "$file"
@@ -263,7 +263,7 @@ config_replace() {
     else
         # note this requires gnu sed running on a Mac
         # fails with the installed sed
-        # to make change work we need to convert 
+        # to make change work we need to convert
         # $new with real new lines into something with \n in
         # a single string
         # local new_sed="$(config_to_line <<<"$lines")"
@@ -293,7 +293,7 @@ config_add_once() {
     local file="${1:-"$HOME/.bashrc"}"
     shift
     local line="$@"
-    if ! grep -q "$line" "$file" 
+    if ! grep -q "$line" "$file"
     then
       echo adding line $line to $file
       $(config_sudo "$file") tee -a "$file" <<<"$line" >/dev/null
@@ -346,7 +346,7 @@ $(config_sudo $file) tee "$file" <"$temp" > /dev/null
 # change part of a  configuration variable
 # most useful when there is a long string and you just want to delete one item
 # GRUB_CMGLINE is an example where you just want to remove the variable QUIET in
-# the string 
+# the string
 # usage: modify_config_var key old_value new_value file [marker]
 modify_config_var()
 {
@@ -367,7 +367,7 @@ modify_config_var()
 # change part of a  configuration variable
 # most useful when there is a long string and you just want to delete one item
 # GRUB_CMGLINE is an example where you just want to remove the variable QUIET in
-# the string 
+# the string
 # usage: modify_config_var key old_value new_value file [marker]
 modify_config_var()
 {

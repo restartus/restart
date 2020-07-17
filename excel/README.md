@@ -75,4 +75,3 @@ The net is that you should never save a sheet with Microsoft 365, it produces
 incompatible formulas when arrays are used.
 
 We use them in a sumproduct and this is breaking.
-

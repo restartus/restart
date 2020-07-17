@@ -4,7 +4,7 @@
 ##
 ## When running, you will need the juypter notebook token
 ## access this with `docker logs $(container)`
-## 
+##
 ##
 #
 # Still have issues with stale images
@@ -12,7 +12,7 @@
 # change the variables here
 #
 
-# Note that 
+# Note that
 TAG ?= v1.4.7.2
 COMMENT ?= test comment
 
@@ -20,7 +20,7 @@ FILES ?= covid-surge-who-county covid-surge-who-single-cook covid-surge-who-sing
 
 ## release: copy up the Excel files to the named locations at the root
 .PHONY: release
-release: 
+release:
 	for file in $(FILES); do \
 		cp "$$file-$(TAG).xlsx" "../$$file.xlsx"; \
 	done

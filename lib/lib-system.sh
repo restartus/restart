@@ -22,11 +22,11 @@ run_app_host() {
 }
 kill_system() {
     # note we cannot use && as pgrep returns an error if not found
-    if pgrep -u "$USER" python 
+    if pgrep -u "$USER" python
     then
         pkill -u "$USER" python
     fi
-    if pgrep -u "$USER" app-host 
+    if pgrep -u "$USER" app-host
     then
         pkill -u "$USER" app-host
     fi

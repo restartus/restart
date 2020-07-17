@@ -4,7 +4,7 @@
 ## https://news.ycombinator.com/item?id=9091691 for linux gui
 ## https://news.ycombinator.com/item?id=8441388 for cli
 ## https://www.npmjs.com/package/onepass-cli for npm package
-## 
+##
 ##@author Rich Tong
 ##@returns 0 on success
 #

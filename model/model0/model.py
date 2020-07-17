@@ -89,7 +89,7 @@ def main():
     Cost_per_resource_by_essentiality_df = cost_per_resource_by_essentiality(model)
     print('Cost per resource by essentiality\n',
           Cost_per_resource_by_essentiality_df)
-    
+
     Total_cost_by_essentiality_df = Total_resource_by_essentiality_df * Cost_per_resource_by_essentiality_df.values
     print('Total cost per resource by essentiality\n',
           Total_cost_by_essentiality_df)

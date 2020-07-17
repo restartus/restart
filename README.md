@@ -86,7 +86,7 @@ same interface, that is they produce the same output and are called the same
 
 The system release two spreadsheets right now as of v1.x at
 https://github.com/restartus/covid-projection/releases. These are right taken
-from the files at the root and renamed appropriately. So when you want to do 
+from the files at the root and renamed appropriately. So when you want to do
 
 - covid-who-surge-washington.xlsx. This is the copied latest file that is the large model
   for State of Washington including SOC
@@ -195,7 +195,7 @@ then edit the sheets directly as often as you like.
 
 ```
 # This gives you your own private copy so no one can mess with your stuff
-# so if the branch can be any name but by convention it is typically your 
+# so if the branch can be any name but by convention it is typically your
 # name and then a dash and then what you are working on
 git checkout -b _matt_-_utah_
 # This makes sure that the server knows about your private copy
@@ -229,7 +229,7 @@ non-Washington that has the simplified model.
 
 Enable:
 1. Picking of different rows will be done by matching IDs rather than indexing
-2. For a given class, you can select a PPE row and then give it a weight. That 
+2. For a given class, you can select a PPE row and then give it a weight. That
 3. The stretch goal. Patients will be added as a column so we can spread them
    across the cubes
 
@@ -307,13 +307,13 @@ having it in a shared dropbox:
 
 1. The versions are taken care of for you. This repo uses [XL
    Trail](https://xltrail.com) to monitor all the spreadsheet changes. It
-generates a cell-by-cell comparison of what's actually changed. 
+generates a cell-by-cell comparison of what's actually changed.
 2. Github keeps track of every revision, so you can have a different set of
    models and these get tagged so you can make sure you are getting the right
 model. This is independent of the filename of the model, so you can make sure
 you are getting the right model at the right time.
 3. It stores every copy of the model in it so you can always roll back and
-   recover a model that is way cool.. 
+   recover a model that is way cool..
 4. The final piece is Git LFS or Large File Storage, this makes it blazingly
    fast to store even GB models (we do!) into the system
 
@@ -366,7 +366,7 @@ two_)
 The way that you collect the sum is by using the trick that modulo 1 gives you a
 fraction so mod(3.4, 1) is 0.4 :
 
-This is where the spreadsheet broke because Google Sheets and Excel, 
+This is where the spreadsheet broke because Google Sheets and Excel,
 
 ```
 {MOD(protection,1),
@@ -391,7 +391,7 @@ can use it if you do a double negative to coerce TRUE/FALSE into a number
 ```
 sumproduct( --(A2:A6="TX"), B2+B6) will only add numbers where the A column has
 the string "TX" in it. So you need to
-[transpose](https://support.office.com/en-us/article/transpose-function-ed039415-ed8a-4a81-93e9-4b6dfac76027) them first. 
+[transpose](https://support.office.com/en-us/article/transpose-function-ed039415-ed8a-4a81-93e9-4b6dfac76027) them first.
 
 So the key formula looks like this where $J$7:$T$13 is the table and $D51 is the
 index into it. Note that it automatically rounds down. Then the column
@@ -419,7 +419,7 @@ has a great explanation of how to make this work but see .github/workflow for
 additional files.
 
 The main trick here is the need to add a step to checkout the right Excel
-spreadsheet. 
+spreadsheet.
 
 To make the deployment work, there is a named file, currently
 covid-surge-who.xlsx which you need to copy the latest model into. Do not
@@ -439,4 +439,4 @@ and push the model into Google Drive and drive it with Javascript
 
 # Mobility Modeling
 
-We need a way to model economic behavior and mobility. 
+We need a way to model economic behavior and mobility.

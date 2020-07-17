@@ -2,8 +2,8 @@
 ##
 ## library bash functions and debugging single stepping
 ## source these into your script
-## 
-## This will export the DEBUGGING and VERBOSE LOG_FLAGS and set them if not already 
+##
+## This will export the DEBUGGING and VERBOSE LOG_FLAGS and set them if not already
 ## done. You should run this before set -u and after you run getopts
 ##
 # comparison tools
@@ -54,7 +54,7 @@ then
 
     # gettext does localization but can not depend on it always being theree
     log_verbose() {
-        if $VERBOSE 
+        if $VERBOSE
         then
             # bashism to redirect to stderr (fd 2)
             >&2 log_message $@
@@ -70,7 +70,7 @@ then
     }
 
     log_debug() {
-        if $DEBUGGING 
+        if $DEBUGGING
         then
             >&2 log_message $@
         fi

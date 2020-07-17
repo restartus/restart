@@ -81,4 +81,4 @@ practical to run a 1.2GB database.
 ## Installing PowerBI modules
 We have this in
 [PowerBI](https://docs.microsoft.com/en-us/power-bi/collaborate-share/service-analyze-in-excel) and you can analyze this in Excel as well through their
-sharing 
+sharing

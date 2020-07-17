@@ -180,13 +180,13 @@ your classes and you want to pass log_root to each class:
         from util import Log
           def YourClass(...., log_root: Optional[Log])
             # create a sublogger if a root exists in the model
-            self.log_root = log_root  # log_root is passed 
+            self.log_root = log_root  # log_root is passed
             if log_root is not None:
               # create a specific logger that inherits from our log tree
               log = log_root.log_class(self)
             else:
               # just use a standalong logger
-              log = logging.getLogger(__name__) 
+              log = logging.getLogger(__name__)
         self.log = log
         # demonstration
         log.debug(f"{log=}")  # will appear log file typically test.log
@@ -197,7 +197,7 @@ your classes and you want to pass log_root to each class:
         log_root.con.setLevel(logging.WARNING)
         # to turn off some of the log file just
         log_root.fh.setLevel(logging.WARNING)
-        # to get rid of all logging entirely works for all 
+        # to get rid of all logging entirely works for all
         # handlers
         log_root.log.setLevel(logging.CRITICAL)
         # to add your own custom handler
@@ -271,10 +271,10 @@ explains how to do this if you just want source code for inclusion in other
 folks package:q
 
 
-## Testing (In development)
+# Testing (In development)
 We will implement pytest, flake8 and a security add-on black
 
-### Unit test
+## Unit test
 
 The main choices here come down to `pytest` [Real
 Python](https://realpython.com/python-testing/)
@@ -291,12 +291,12 @@ you can use the built in assert() tools
 Then you can use `pytest-cov` to make sure you are covering all branches.
 
 
-### Multitasking with tox
+## Multitasking with tox
 
 If you install tox then you can have multiple runners which will be faster.
 
 
-### Passive test tools: Linting
+# Passive test tools: Linting
 
 These are really easy to add as part of a github actions, they are and to a
 CD/CI pipeline. But first some notes on linting
@@ -334,7 +334,6 @@ at development time.
   - pylint -
   - python -
 
-### Running linters
 ```
 # looks in CWD for all python files
 # if using pipenv
@@ -371,13 +370,35 @@ pipenv run black -l 79 *.py
 black -l 79 *.py
 ```
 
-### Security Testing
+## Security Testing
 There is another passive utility called bandit that looks for security issues
 
 ```
 pipenv install --dev bandit
 bandit
 ```
+## Pre Commit testing
+The second layer of testing are pre commit hooks that run before you push. If
+you run `make lint` you should pass these easily, but this is another level of
+checking. [LJ Miranda](https://ljvmiranda921.github.io/notebook/2018/06/21/precommits-using-black-and-flake8/) has a good overview of how to use black and flake8
+
+The easiest way to install is `make pre-commit` but this creates a
+pre-commit-config.yaml and then runs `pre-commit install`. If you want to roll
+your own, you can generate a sample with `pre-commit sample`
+
+They use a series of github repos and then id tags to select the hooks you want
+https://github.com/pre-commit/pre-commit-hooks is their standard one with common
+checks.
+
+Note the syntax for arguments is a little convoluted
+[advanced](https://pre-commit.com/#advanced) but you need to add another
+dictionary
+
+```
+- id: yaml
+  args: [ --multiple-documents ]
+```
+
 ## Github Actions for CD/CI (@lucasthahn)
 
 Not done yet, but [GitHub](https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions) explains what to do  but basically you need to install and then make sure to cd
@@ -431,7 +452,13 @@ Here's an analysis:
    but they recommend `import confuse` instead particularly because it allows a
    direct import into argparser
 
-This would remove alot of config that is buried in current main
+This would remove alot of config that is buried in current main with the
+complication that
+[documentation](https://confuse.readthedocs.io/en/latest/#search-paths) explains
+that you hav to sett APPNAMEDIR externally to use local files so this has to be
+set outside of the system in .env for example. Note we also store the MYPI paths
+here as well. This is non-standard but works for pipenv. Normally .env is only
+for non-cached secrets
 
 ```
 config = confuse.Configuration('model', __name__)
@@ -439,5 +466,3 @@ parser = argparse.ArgumentParser()
 args = parser.parse_args()
 config.set_args(args)
 ```
-
-

@@ -38,15 +38,16 @@ MAIN ?= main.py
 WEB ?= main.py
 LIB ?= lib
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
-FLAGS ?= 
+FLAGS ?=
 all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 flags ?= -p 8501:8501
-PIP ?= streamlit altair pandas pyyaml xlrd tables 
+PIP ?= streamlit altair pandas pyyaml xlrd tables
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
-					 black tox pytest pytest-cov pytest-xdist tox yamllint
+					 black tox pytest pytest-cov pytest-xdist tox yamllint \
+					 pre-commit
 DOC ?= doc
 
 
@@ -95,6 +96,11 @@ web-debug:
 # https://pipenv.pypa.io/en/latest/install/
 # https://realpython.com/pipenv-guide/
 # install everything including things just needed for edevelopment
+##
+## pipenv-existing: bootstart from existing Pipfile in directory
+.PHONY: pipenv-existing
+pipenv-existing:
+	pipenv install
 ## pipenv: Install with pipenv as virtual environment (runs pipenv-clean first)
 # Note that black is still prelease so need --pre
 # pipenv clean removes all packages not in the virtual environment
@@ -121,14 +127,16 @@ pipenv-python:	pipenv-clean
 # note pipenv --rm will fail if there is nothing there so ignore that
 # do not do a pipenv clean until later otherwise it creats an environment
 # Same with the remove if the files are not there
+#
+.PHONY: pipenv-clean
 pipenv-clean:
 	pipenv --rm || true
 	rm Pipfile* || true
 
-## pipenv-existing: bootstart from existing Pipfile in directory
-.PHONY: pipenv-existing
-pipenv-existing:
-	pipenv install
+## pre-commit: install git pre-commit
+.PHONY: pre-commit
+pre-commit:
+	pre-commit install
 
 # https://medium.com/@Tankado95/how-to-generate-a-documentation-for-python-code-using-pdoc-60f681d14d6e
 # https://medium.com/@peterkong/comparison-of-python-documentation-generators-660203ca3804
@@ -177,6 +185,8 @@ lint:
 	# lint the yaml config files and kill the error if it doesn't exist
 	[[ -n $(all_yaml) ]] && pipenv run yamllint $(all_yaml) || true
 	@echo if you want destructive formatting run make format
+	pre-commit autoupdate
+	pre-commit run --all-files
 
 ## format: reformat python code to standard (uses pipenv)
 # exclude web black does not grok streamlit but not conformas

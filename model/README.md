@@ -107,7 +107,7 @@ custom_mark
 # The main classes
 Then each major module can be subclassed from this and your can replace it. The current list of modules are and in the notation, the class name is the major part of the variable. Note that is copied from Jupyter so you will see $Latex$ formula for those of you who can read that, otherwise you can ignore it.
 
-## Model Class 
+## Model Class
 Model or `model`. This is the core framework. It holds the dimensions and
 pointers to all the module component instances. It's main use is to "dimension"
 the problem so that the other subclasses know the size of the problem. It also
@@ -140,7 +140,7 @@ Finally there are various properties that these objects can have. these are hand
 
   - Summary Level of Essentiality  `level`. The population summarized by summary
     levels
-     that are used to restart the economy in phases and stop it the same way 
+     that are used to restart the economy in phases and stop it the same way
   - Demand $D$ or `demand`. This calculates the burn rates or usage of the
     products. In the surge model these are done per person per day which
 generates an lxn matrix
@@ -167,7 +167,7 @@ form. The names change, but the first is for the surge model and the second for
 the full range of data plus time series. And in colons are the class that
 creates it
 
-- 
+-
 - Resource.attr_n_df (Resource.attr_na_df). Resource list main labels and it is all 1's in the surge model
   then extends to the a attributes which are mainly things like volume.
 - Population.attr_p (Population.attr_pd_df). The populations we are studying. In this case,

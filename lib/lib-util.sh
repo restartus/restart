@@ -48,7 +48,7 @@ then
       }
 
     # usage: util_group file
-    # returns on stdout the 
+    # returns on stdout the
     # https://superuser.com/questions/581989/bash-find-directory-group-owner
     util_group() {
         if (( $# == 0 )); then return 1;fi
@@ -91,7 +91,7 @@ then
     }
 
     # Get the profiles loaded into this script
-    # needed when updating paths and want to immediately use the new 
+    # needed when updating paths and want to immediately use the new
     # commands in the running script
     source_profile() {
         pushd ${1:-"$HOME"} >/dev/null
@@ -99,7 +99,7 @@ then
         do
             if [[ -e "$file" ]]
             then
-                # turn off undefined variable checking because 
+                # turn off undefined variable checking because
                 # scripts like bash completion reference undefined
                 # And ignore errors in profiles
                 set +u
@@ -124,7 +124,7 @@ then
 
     # takes the standard input and adds pretty spaces
     # and an indent
-    # usage: indent_output amount_of_indent 
+    # usage: indent_output amount_of_indent
     # https://unix.stackexchange.com/questions/148109/shifting-command-output-to-the-right
     indent_output() {
         local indent=${1:-8}
@@ -140,7 +140,7 @@ then
             return 0
         else
             return 1
-        fi       
+        fi
     }
 
     # usage: promot_user questions bash_command
@@ -153,7 +153,7 @@ then
         # -e means if stdin from a terminal use readline so more features on input
         # -i sets default requires -e
         # -t times out so this still works in batch mode
-        # -r disables escapes 
+        # -r disables escapes
         read -re -t 5 -i Yes -p "$question? " response
         # the ,, makes it lower case
         if [[ ${response,,} =~ ^y ]]
@@ -174,7 +174,7 @@ then
 
     # use the test to avoid set -e problems
     in_vmware_fusion() {
-        if [[ $OSTYPE =~ linux ]] && lspci | grep -q VMware 
+        if [[ $OSTYPE =~ linux ]] && lspci | grep -q VMware
         then
         return 0
         else
@@ -370,7 +370,7 @@ then
 	    fi
     }
 
-    # determine the location of the stow subdirectory 
+    # determine the location of the stow subdirectory
     # usage: util_full_version
     # stdout returns the normalized full name os.major.minor...
     util_full_version() {

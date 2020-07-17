@@ -1,6 +1,6 @@
 # Testing of Iterables
 
-https://towardsdatascience.com/how-to-loop-through-your-own-objects-in-python-1609c81e11ff explains how to create an iterable 
+https://towardsdatascience.com/how-to-loop-through-your-own-objects-in-python-1609c81e11ff explains how to create an iterable
 
 ## First an object that can llop
 

@@ -12,7 +12,7 @@ on:
   release:
     types:
       - created
-    
+
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -34,7 +34,7 @@ jobs:
       uses: actions/upload-release-asset@v1.0.2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with: 
+      with:
         # The URL for uploading assets to the release so this won't work if
         # there is no release
         upload_url: ${{ github.event.release.upload_url }}
@@ -52,7 +52,7 @@ jobs:
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with: 
+      with:
         # The URL for uploading assets to the release
         # upload_url: ${{ github.event.release.upload_url }}
         # You get this from the create release set

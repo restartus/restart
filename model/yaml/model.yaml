@@ -27,7 +27,6 @@ Label:
   "Population Details_d":
     - Count
     - Cases
----
 # http://yaml4r.sourceforge.net/doc/page/collections_in_yaml.htm
 # https://pyyaml.org/wiki/PyYAMLDocumentation
 Resource:

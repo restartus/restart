@@ -9,4 +9,3 @@ Based on [Medium](https://towardsdatascience.com/getting-started-with-apache-air
 ```
 make install
 ```
-

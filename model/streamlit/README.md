@@ -35,7 +35,7 @@ streamlit run cars.py
 pip install streamlit opencv-python
 # YOLO Detection
 streamlit run https://raw.githubusercontent.com/streamlit/demo-self-driving/master/app.py
-# Uber pickup 
+# Uber pickup
 streamlit run https://raw.githubusercontent.com/streamlit/demo-uber-nyc-pickups/master/app.py
 ```
 
@@ -52,7 +52,7 @@ This is probably the trickiest part, but the general scheme for all GCloud is:
 organization and each project lives in an [~/ws/git/src/extern] section where
 you can operate. This gives you a common development environment and variable
 set.
-1. Have a Billing Account (setup once for the entire project) and kept in 
+1. Have a Billing Account (setup once for the entire project) and kept in
    [Lobster1234](https://lobster1234.github.io/2017/05/14/get-started-on-google-cloud-with-cli/)
 has gist on this that is slightly old, for instance the Billing is now a `beta`
 feature and not an `alpha`. For this project we have a single billing system.
@@ -69,4 +69,3 @@ and WS_GCP_PROJ_STAGE
    and kept in WS_DEV_GCLOUD which you start with, so when you joing, there is
 [glcloud-init-dev.sh]
 [ws/git/src/bin/gcloud-init-dev.sh] which is WS_GCP and where you normally push
-

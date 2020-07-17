@@ -10,11 +10,11 @@
 ## git_install_or_update [ -f ] repo [ organization ]
 ## Remember use only local variables!
 ## Assumes HOME and SCRIPTNAME are set
-## 
+##
 
 ## git_get_org returns as a string the name of the organization for this repo
 ## git_organization [ directory to check ]
-git_organization() {    
+git_organization() {
     # this needs to change when you fork the repo
     # first get the front half
     dir="$PWD"
@@ -23,7 +23,7 @@ git_organization() {
     then
       dir="$1"
     fi
-    
+
     if [[ ! -e $dir ]]
     then
       return
@@ -52,7 +52,7 @@ git_organization() {
 git_set_ssh(){
     local repo=${1:-"$src"}
     local git_dir=${2:-"$WS_DIR/git"}
-    cd "$git_dir/$repo" 
+    cd "$git_dir/$repo"
     if ! git status
     then
         >&2 echo $FUNCNAME: $repo is not a git repo
@@ -90,7 +90,7 @@ git_set_config() {
 ##
 git_install_or_update() {
     local return_code=0
-    
+
     if (( $# < 1 ))
     then
         >&2 echo $FUNCNAME: missing repo to update
@@ -100,9 +100,9 @@ git_install_or_update() {
     # -f means force reset to origin/master
     if [[ $1 == -f ]]
     then
-        git_command='git fetch --all && 
-                     git reset --hard origin/master && 
-                     git checkout master && 
+        git_command='git fetch --all &&
+                     git reset --hard origin/master &&
+                     git checkout master &&
         		     git pull'
         shift
     else
@@ -142,7 +142,7 @@ git_install_or_update() {
         fi
 
     	if ! git clone "$full_repo_name" "$repo"
-        then 
+        then
             >&2 echo $FUNCNAME: git clone "$full_repo_name" failed
             return_code=3
         fi

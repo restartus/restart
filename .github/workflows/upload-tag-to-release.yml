@@ -1,11 +1,11 @@
 ##  This is a basic workflow to help you get started with Actions
 ##  https://github.com/actions/upload-release-asset
-# This outputs a brouser_download_url 
+# This outputs a brouser_download_url
 # For subsequent steps like an upload to Google or somewhere
 # https://github.com/actions/create-relea…
-# 
+#
 # Note that we have a hard-coded file here so change the xlsx as needed
-# so make sure to copy the file into 
+# so make sure to copy the file into
 # ./covid-surge-who.xlsx as an env variable
 # https://help.github.com/en/actions/configuring-and-managing-workflows/using-environment-variables
 # Current duplicates release asset
@@ -26,7 +26,7 @@ env:
 # Only run for tagged pushed
 on:
   push:
-    tags: 
+    tags:
     - 'v*' # so the tag should be v1.0, v2.1, v2.1.2-2020-05
 
 
@@ -100,7 +100,7 @@ jobs:
     #  uses: actions/upload-release-asset@v1
     #  env:
     #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #  with: 
+    #  with:
     #    # The URL for uploading assets to the release
     #    # upload_url: ${{ github.event.release.upload_url }}
     #    # You get this from the create release set
@@ -123,7 +123,7 @@ jobs:
     #  uses: actions/upload-release-asset@v1
     #  env:
     #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #  with: 
+    #  with:
     #    # The URL for uploading assets to the release
     #    # upload_url: ${{ github.event.release.upload_url }}
     #    # You get this from the create release set
@@ -146,7 +146,7 @@ jobs:
     #  uses: actions/upload-release-asset@v1
     #  env:
     #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #  with: 
+    #  with:
     #    # The URL for uploading assets to the release
     #    # upload_url: ${{ github.event.release.upload_url }}
     #    # You get this from the create release set

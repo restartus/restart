@@ -163,4 +163,3 @@ find_in_volume_copy_then_detach() {
     fi
 	hdiutil detach "$(dirname "$app")"
 }
-

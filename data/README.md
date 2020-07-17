@@ -5,7 +5,7 @@ This is the cached storage of data that is checked in with git lfs
 # The data sources large storage
 The larger stores are here
 
-That we have so far which has moved to the https://github.com/restartus/data 
+That we have so far which has moved to the https://github.com/restartus/data
 
 1. cook. This is Cook County restaurant data
 2. fred. From U Pittsburgh that is the synthetic data for 2010. Need to finish

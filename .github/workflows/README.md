@@ -1,10 +1,10 @@
-# Github Actions 
+# Github Actions
 
 These are basic CI/CD actions. The test first failed with the idea that you just
 create a file in .github/workflow and it just works. This doesn't seem to be the
 case. You have to create the file at https://github.com in the actions tab by
 selecting new workflow. This uses the [XL Trail GitHub
-Actions](https://www.xltrail.com/blog/how-to-manage-and-release-excel-files-on-github-part2) 
+Actions](https://www.xltrail.com/blog/how-to-manage-and-release-excel-files-on-github-part2)
 
 The sample uses `name` to give a name to the workflow section.
 
@@ -28,7 +28,7 @@ RELEASE_SPREADSHEET at the top and it should work.
 
 In the original XLTrail example it didn't work
 
-So first we got the basic test to work 
+So first we got the basic test to work
 
 This started to work, but you need to have a flag on checkout.
 https://stackoverflow.com/questions/61463578/github-actions-actions-checkoutv2-lfs-true-flag-not-converting-pointers-to-act
@@ -71,7 +71,7 @@ the source code.
 
 But with Github Actions, you can load whatever you want.
 
-So to create tags, it takes two steps first locally, 
+So to create tags, it takes two steps first locally,
 
 ```
 git tag -a v1.2 -m "Latest updates and fixe"
@@ -82,4 +82,3 @@ git push origin v1.2
 
 There are few things, you will see a list of named runs. You can rerun any run
 that you like, but you can't change the Workflow file if you've made edits.
-

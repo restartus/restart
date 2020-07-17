@@ -4,7 +4,7 @@
 ##
 ## When running, you will need the juypter notebook token
 ## access this with `docker logs $(container)`
-## 
+##
 ##
 #
 # Still have issues with stale images

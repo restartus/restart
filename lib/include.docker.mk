@@ -90,7 +90,7 @@ cp_containers = bash -c 'for container in $$(docker ps -a | grep "$$0" | awk "{p
 # work because we use an include file
 # https://swcarpentry.github.io/make-novice/08-self-doc/ is simpler just need ##
 # and it dumpes them out relies on the variable MAKEFILE_LIST which is a list of
-# all files note we do not just use $< because this is an include.mk file 
+# all files note we do not just use $< because this is an include.mk file
 help: $(MAKEFILE_LIST)
 	@sed -n 's/^##//p' $(MAKEFILE_LIST)
 
@@ -100,12 +100,12 @@ requirements:
 	pip freeze > requirements.txt
 
 ## build: pull docker image and builds locally along with tag with git sha
-build: 
+build:
 	docker build --pull --build-arg USER=$(user) -f $(Dockerfile) -t $(image) .
 	docker tag $(image) $(image):$$(git rev-parse HEAD)
 
 ## push: after a build will push the image up
-push: build  
+push: build
 	# need to push and pull to make sure the entire cluster has the right images
 	docker push $(image)
 
@@ -120,7 +120,7 @@ no-cache:
 ## stop: halts all running containers
 stop:
 	@$(for_containers) $(container) stop
-	@$(for_containers) $(container) "rm -v" 
+	@$(for_containers) $(container) "rm -v"
 
 ## pull: pulls the latest image
 pull:
@@ -135,7 +135,7 @@ pull:
 #  To restart a dead container with interactive, you need `docker start -ai
 #  $(container)
 #  -t means assign a consoler tty to it, -i means keep it interactive and attach
-#  stdin and stdout 
+#  stdin and stdout
 # when deploying we do not want to stop running containers
 # And we want to use random names with a two digit extension
 # Make sure to use the -t so you can stop it
@@ -186,7 +186,7 @@ debug: stop
 
 
 ## resume: keep running an existing container
-resume: 
+resume:
 	docker start -ai $(container)
 
 	# the list does not work for this swarm, so use alternative method

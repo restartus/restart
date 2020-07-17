@@ -5,4 +5,3 @@ To create a subdirectory that is referrable we are making a 'faux' package as
 and
 you don't need an __init__.py for versions before Python 3.3 previously. And now
 you should *not* have this __init__.py so that you have use namespaces
-

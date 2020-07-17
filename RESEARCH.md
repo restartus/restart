@@ -23,7 +23,7 @@ Boeing is doing 175 gallon totes and then they refill it.
 30K H2A workers from foreign countries is a projection but so many border
 problems.
 
-164K Census is the most recent data and was recently updated. Bre will 
+164K Census is the most recent data and was recently updated. Bre will
 
 Remainder are WA domestic and then domestic workers.
 
@@ -33,15 +33,14 @@ Usage tempos. Many of outbreaks are in six feet. Some of the state rules. Have
 300 different commodities in. You can use a single processor from Dan Coin.
 
 1. Plants. 1 ounce per day
-2. Warehouses. 
+2. Warehouses.
 3. Fields. Agriculture workers. Farm labor
 
 General forecast for what to order
 
 Tom Dooley and Bre Elsey. The purpose of the forecast is to get a statewide need
 assessment so that it knows if it were to procure enough for food safety then
-what will they need to have. 
+what will they need to have.
 
 Having to buy what they need now. The purpose is to do an assessment.
 https://www.ers.usda.gov/topics/farm-economy/farm-labor/#size
-

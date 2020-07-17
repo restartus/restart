@@ -79,7 +79,7 @@ docker_start() {
         # Use command -v to look for the right module
         ctl=$(command -v systemctl || command -v service)
 
-        # do not know how to start 
+        # do not know how to start
         if [[ -z $ctl ]]
         then
             return 1
@@ -128,7 +128,7 @@ docker_start() {
 # check to see if docker is properly running
 # defaults to local machine
 docker_available() {
-    if ! docker ps >/dev/null 2>&1 
+    if ! docker ps >/dev/null 2>&1
     then
         if [[ $OSTYPE =~ linux ]]
         then
@@ -223,7 +223,7 @@ docker_find_container() {
 
 # Find docker container somewhere
 # Uses http://stackoverflow.com/questions/22107610/shell-script-run-function-from-script-over-ssh
-# To copy a function over for ssh by printing all functions with typeset 
+# To copy a function over for ssh by printing all functions with typeset
 # http://stackoverflow.com/questions/23264657/how-to-run-a-bash-function-in-a-remote-host-in-ubuntu
 # show how to do with declear -f and call with parameters
 ps_docker_container() {
@@ -299,7 +299,7 @@ docker_machine_create_swarm() {
         --swarm \
         --swarm-discovery="$discovery" \
         --swarm-image hypriot/rpi-swarm:latest \
-        $flags 
+        $flags
     then
         if ssh "$remote" docker ps --filter "name=swarm-agent" | grep swarm-agent
         then
@@ -330,7 +330,7 @@ docker_machine_create() {
         return
     fi
     remove_from_authorized_hosts "$host"
-    if ! "$SCRIPT_DIR/is-rpi.sh" "$remote" 
+    if ! "$SCRIPT_DIR/is-rpi.sh" "$remote"
     then
         log_warning $remote is not a Raspberry Pi but will add to cluster anyway
     fi
@@ -344,13 +344,13 @@ docker_machine_create() {
     else
         local force_flag=""
     fi
-    rm_docker_machine $force_flag "$machine" 
+    rm_docker_machine $force_flag "$machine"
     if $force && ssh "$remote" [[ -e /etc/docker/daemon.json ]]
     then
-        log_warning before hypriot version 0.5.15 daemon.json had to be removed 
+        log_warning before hypriot version 0.5.15 daemon.json had to be removed
         log_warning disabling /etc/docker/daemon.json on $remote not compatible with docker-machine
-        ssh "$remote" "sudo systemctl stop docker && 
-                       sudo mv /etc/docker/daemon.json /etc/docker/daemon.$$.json && 
+        ssh "$remote" "sudo systemctl stop docker &&
+                       sudo mv /etc/docker/daemon.json /etc/docker/daemon.$$.json &&
                        sudo systemctl start docker"
     fi
     log_verbose  make sure docker is running on the machine
@@ -362,7 +362,7 @@ docker_machine_create() {
         --generic-ssh-user="$user" \
         --engine-storage-driver=overlay \
         $flags \
-        "$machine" 
+        "$machine"
     then
         return !?
     fi

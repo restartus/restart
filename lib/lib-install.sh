@@ -29,8 +29,8 @@ then
     #    done
     #}
 
-    # initialize package managers and update them all 
-    # usage: package_update 
+    # initialize package managers and update them all
+    # usage: package_update
     package_update() {
         local output='> /dev/null'
         if $VERBOSE
@@ -72,7 +72,7 @@ then
             fi
         done
     }
-    
+
     # usage: cask_is_installed [ casks... ]
     # returns: 0 if installed, otherwise number of casks not installed
     cask_is_installed() {
@@ -101,7 +101,7 @@ then
         local output=">/dev/null 2>&1"
         local errors=0
         if $VERBOSE
-        then 
+        then
             output=""
         fi
 
@@ -175,7 +175,7 @@ then
             log_verbose checking to see how many $artifacts exists found $exists do
             if (( $exists > 0 ))
             then
-                # existance is not an error 
+                # existance is not an error
                 # ((++errors))
                 log_verbose $cask has $exists artifacts already installed skipping
                 continue
@@ -300,7 +300,7 @@ then
 
     # install a modprobe package
     mod_install() {
-        if [[ $# < 1 ]] 
+        if [[ $# < 1 ]]
         then
             return 1
         fi
@@ -346,7 +346,7 @@ then
         for package in $@
         do
             if [[ ! $OSTYPE =~ darwin ]]
-            then 
+            then
                 # do the linux check
                 if  ! dpkg -s "$package" | grep -q "ok installed"
                 then
@@ -373,7 +373,7 @@ then
             fi
 
             # now do the Mac checks
-            # see if the package is installed by homebrew 
+            # see if the package is installed by homebrew
             brew_info="$(brew info "$package" 2>&1)"
             # need the a quotes for the echo to retain the newlines
             if ((  $? != 0 )) || echo "$brew_info" | grep -q "^Not installed"
@@ -400,7 +400,7 @@ then
             # if there are require flags for the package, see if we have them
             # http://stackoverflow.com/questions/20802320/detect-if-homebrew-package-is-installed
             # https://stackoverflow.com/questions/8833230/how-do-i-find-a-list-of-homebrews-installable-packages
-            # brew reinstall --options does not work however 
+            # brew reinstall --options does not work however
             # https://github.com/Homebrew/legacy-homebrew/issues/38259
             # if it is a valid flag for the $package and it is not installed
             # then force an uninstall to get it
@@ -497,7 +497,7 @@ then
     # manager
     # On brew assumes you've tapped the right cask (eg added the right repo
     # usage: package_install [flags] [packages...]
-    # returns: 0 if all packages installed otherwise the error code of the 
+    # returns: 0 if all packages installed otherwise the error code of the
     # first install that failed
     package_install() {
         # find all the flags at the start
@@ -516,7 +516,7 @@ then
                 fi
 
                 if [[ $OSTYPE =~ darwin ]]
-                then 
+                then
                     package_do install "$package" $flags
                     continue
                 fi
@@ -668,10 +668,10 @@ then
         local sha256="${5:-0}"
         mkdir -p "$dest_dir"
         # If file exists and there is md5 sum, we assume the file download worked
-        if [[ -e $dest ]] 
+        if [[ -e $dest ]]
         then
             # if no md5 or sha supplied assume it worked
-            # check_md5 succeeds on a zero so last test is 
+            # check_md5 succeeds on a zero so last test is
             # check_sha256
             if check_sum "$dest" "$md5" "$sha256"
             then
@@ -680,14 +680,14 @@ then
         fi
         # Use the resume feature to make sure you got it by first trying and if
         # http://www.cyberciti.biz/faq/curl-command-resume-broken-download/
-        if ! curl -C - -L "$url" -o "$dest" 
+        if ! curl -C - -L "$url" -o "$dest"
         then
             # if we fail see if the return code doesn't allow -C for resume and retry
             # Amazon AWS for instance doesn't allow resume and returns 31
             # Private Internet Access servers return 33 for same issue
             # but we cannot capture this return code because the if returns true
             # so we just do a retry without resume
-            curl -L "$url" -o "$dest" 
+            curl -L "$url" -o "$dest"
         fi
         check_sum "$dest" "$md5"
     }
@@ -790,11 +790,11 @@ then
                 tar -xf "$tar" "$file"
             fi
         done
-    } 
+    }
 
     # Downloads and checkes the pgp signature against the signer
     # https://www.gnupg.org/gph/en/manual/x135.html
-    # usage: pgp_download $file_url $file_pgp_url $signer_url 
+    # usage: pgp_download $file_url $file_pgp_url $signer_url
     download_url_pgp() {
         if (( $# < 3)); then return 1; fi
         local url="$(eval echo $1)"
@@ -805,7 +805,7 @@ then
         download_url "$signature_url"
         download_url "$signer_url"
         file="$WS_DIR/cache/$(basename "$url")"
-        signature="$WS_DIR/cache/$(basename "$signature_url")" 
+        signature="$WS_DIR/cache/$(basename "$signature_url")"
         signer="$WS_DIR/cache/$(basename "$signer_url")"
         gpg --import "$signer"
         if ! gpg --verify "$signature" "$file" 2>&1 | grep -q "Good signature"

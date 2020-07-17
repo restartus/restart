@@ -14,7 +14,7 @@ from typing import Dict
 class ModelData:
     """Model raw data.
 
-    Data separted from the running Model
+    Data separated from the running Model
     """
 
     label: Dict[str, str]

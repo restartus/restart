@@ -7,7 +7,7 @@ import pandas as pd  # type: ignore # noqa: F401
 import numpy as np  # type: ignore # noqa: F401
 from base import Base
 from modeldata import ModelData
-from util import Log
+from util import Log, set_dataframe
 from typing import Optional
 from population import Population
 from resourcemodel import Resource
@@ -63,11 +63,12 @@ class Consumption(Base):
             log = logging.getLogger(__name__)
         self.log = log
 
-
         if pop is None:
             log.warning("Not implemented, if no pop passed, use model.data")
+            return
         if res is None:
             log.warning("Not implemented, if no res passed, use model.data")
+            return
         if type == "Mitre":
             log.debug("Use Mitre consumption")
         elif type == "Johns Hopkins":
@@ -92,7 +93,14 @@ class Consumption(Base):
             f"{self.res_demand_mn_df=}", data.description["Res Demand mn"],
         )
 
-        self.demand_pn_df = self.level_pm_df @ self.res_demand_mn_df
+        # TODO: we need to decide if all the data lives in data.value["Res
+        # Demand mn"] or should it be gotten from classes like pop.demand_pn_df
+        # As we mix both together, this is a philosophical thing as data.value
+        # in effect makes everything a global, but passing classes hides
+        # information. So data.value is great as an output, but now we are
+        # duplicating information and increasing bugs
+
+        self.demand_pn_df = pop.level_pm_df @ self.res_demand_mn_df
         log.debug(f"{self.demand_pn_df=}")
         self.demand_pn_df.index.name = "Population p"
         self.demand_pn_df.columns.name = "Resource n"
@@ -101,7 +109,7 @@ class Consumption(Base):
             data.description["Population p"]["Population Demand pn"],
         )
 
-        self.level_demand_ln_df = self.level_pl_df.T @ self.demand_pn_df
+        self.level_demand_ln_df = pop.level_pl_df.T @ self.demand_pn_df
         log.debug(f"{self.level_demand_ln_df=}")
         self.set_description(
             f"{self.level_demand_ln_df=}",
@@ -110,10 +118,13 @@ class Consumption(Base):
         # now to the total for population
         # TODO: eventually demand will be across pdn so
         # across all the values
+        # https://stackoverflow.com/questions/54786574/mypy-error-on-dict-of-dict-value-of-type-object-is-not-indexable
+        # you need a casting just to tell it you are getting
+        # https://docs.python.org/3/library/typing.html
         self.total_demand_pn_df = (
-            self.demand_pn_df * self.attr_pd_df["Size"].values
-            # self.demand_pn_df
-            # * self.attr_pd_arr
+            self.demand_pn_df * pop.attr_pd_df["Size"].values  # type: ignore
+            # use below if the array is 1-D
+            # self.demand_pn_df * self.attr_pd_arr
         )
         log.debug(f"{self.total_demand_pn_df=}")
         # convert to demand by levels note we have to transpose
@@ -122,7 +133,7 @@ class Consumption(Base):
             data.description["Population p"]["Population Total Demand pn"],
         )
         self.level_total_demand_ln_df = (
-            self.level_pl_df.T @ self.total_demand_pn_df
+            pop.level_pl_df.T @ self.total_demand_pn_df
         )
         log.debug(f"{self.level_total_demand_ln_df=}")
         self.set_description(

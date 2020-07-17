@@ -339,7 +339,9 @@ class Dashboard:
         """
         for base_key, base_value in model:
             # now using the new model iterator that does through all dataframes
-            # in a Base class
+            # in a Base class. So this assumes the model base data is in
+            # ModelData, but the derived data is in all the classes that are in
+            # the model
             for df_name, df_value in base_value:
                 self.write_description(df_name, base_value.description)
                 # breakpoint()

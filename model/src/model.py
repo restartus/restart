@@ -11,6 +11,7 @@ from loader.load import Load
 
 # import numpy as np  # type:ignore
 # import pandas as pd  # type:ignore
+# from population import Population
 from population import Population
 from pop.population_dict import PopulationDict
 from pop.population_oes import PopulationOES
@@ -21,7 +22,6 @@ from disease import Disease
 from mobility import Mobility
 from behavioral import Behavioral
 from modeldata import ModelData
-from consumption import Consumption
 from filtermodel import Filter
 
 import logging  # noqa: F401
@@ -150,29 +150,32 @@ class Model(Base):
         #    self.data, log_root=self.log_root, type=type
         # )
         # the super class population uses type to return the exact model
-        # TODO: use filter to get the state
+        # filter is by happens after this
+        self.population: Population
         if type == "oes":
-            population_data: PopulationDict = PopulationOES(
-                # TODO: The location should be set by a filter I think
+            self.population = PopulationOES(
+                location={},
                 log_root=self.log_root,
-                source=data.datapaths["Paths"],
-                index=data.label["Population p"],
-                columns=data.label["Pop Detail d"],
+                source=self.data.datapaths["Paths"],
+                index=self.data.label["Population p"],
+                columns=self.data.label["Pop Detail d"],
             )
         elif type == "wa2":
             # change this to the the naming of columns
-            population_data = PopulationDict(
+            self.population = PopulationDict(
+                data=self.data,
+                label=self.data.label,
+                source=self.data.value["Population p"]["Pop Detail Data pd"],
                 log_root=self.log_root,
-                source=data.value["Population p"]["Pop Detail Data pd"],
-                label=data.label,
                 index="Population p",
                 columns="Pop Detail d",
             )
         else:
-            population_data = PopulationDict(
+            self.population = PopulationDict(
+                data=self.data,
                 log_root=self.log_root,
-                source=data.value["Population p"]["Pop Detail Data pd"],
-                label=data.label,
+                source=self.data.value["Population p"]["Pop Detail Data pd"],
+                label=self.data.label,
                 index="Population p",
                 columns="Pop Detail d",
             )
@@ -193,9 +196,11 @@ class Model(Base):
         Consumption by population levels l
         """
         self.consumption = Consumption(
-            self.data, log_root=self.log_root, type=type
+            self.data,
+            self.population, self.resource, log_root=self.log_root, type=type
         )
         return self
+
     def set_filter(self, type: str = None):
         """Filter the model.
 

@@ -25,7 +25,7 @@ from pathlib import Path
 from loader.load_yaml import LoadYAML
 from model import Model
 from resourcemodel import Resource
-from population import Population
+# from population import Population
 from economy import Economy
 from disease import Disease
 from behavioral import Behavioral
@@ -33,6 +33,9 @@ from mobility import Mobility
 from base import Base
 from dashboard import Dashboard
 from typing import Optional
+from pop.population_dict import PopulationDict
+from consumption import Consumption
+from filtermodel import Filter
 
 
 # This is the only way to get it to work needs to be in main

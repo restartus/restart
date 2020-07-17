@@ -89,9 +89,9 @@ class PopulationOES(Population):
         self.occ = self.df.drop(['occ_code'], axis=1)
 
         # TODO: this isn't necessary - should probably just be a child of Base
-        super().__init__(source=self.health,
-                         index=index,
-                         columns=columns)
+        super().__init__(
+            log_root=log_root
+            )
 
     def load_df(self, fname: str) -> Optional[pd.DataFrame]:
         """Load h5 file into a dataframe.

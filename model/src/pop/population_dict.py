@@ -8,9 +8,10 @@ import pandas as pd  # type: ignore # noqa: F401
 # https://www.python.org/dev/peps/pep-0420/
 # in this new version we cannot depend on Model to be preformed
 # from model import Model
-from typing import Optional
+from typing import Optional, Dict
 from util import Log, set_dataframe
 from population import Population
+from modeldata import ModelData
 
 
 class PopulationDict(Population):
@@ -21,7 +22,14 @@ class PopulationDict(Population):
     # no variable here unless you want them the same across all instances
 
     def __init__(
-        self, data: ModelData, log_root: Log = None, type: Optional[str] = None
+        self,
+        data: ModelData,
+        label: Dict,
+        source: Optional[Dict] = None,
+        index: Optional[str] = None,
+        columns: Optional[str] = None,
+        log_root: Log = None,
+        type: str = None,
     ):
         """Initialize the population object.
 
@@ -29,7 +37,7 @@ class PopulationDict(Population):
         override it
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
-        super().__init__()
+        super().__init__(log_root=log_root)
 
         # https://stackoverflow.com/questions/35328286/how-to-use-numpy-in-optional-typing
 

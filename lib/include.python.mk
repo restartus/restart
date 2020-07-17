@@ -185,8 +185,8 @@ lint:
 	# lint the yaml config files and kill the error if it doesn't exist
 	[[ -n $(all_yaml) ]] && pipenv run yamllint $(all_yaml) || true
 	@echo if you want destructive formatting run make format
-	pre-commit autoupdate
-	pre-commit run --all-files
+	[[ -e .pre-commit-config.yaml ]] && pre-commit autoupdate || true
+	[[ -e .pre-commit-config.yaml ]] && pre-commit run --all-files || true
 
 ## format: reformat python code to standard (uses pipenv)
 # exclude web black does not grok streamlit but not conformas

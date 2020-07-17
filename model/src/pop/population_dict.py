@@ -4,12 +4,11 @@ Read in the population from the model dictionary
 """
 import logging
 import pandas as pd  # type: ignore # noqa: F401
-import numpy as np  # type: ignore
+# import numpy as np  # type: ignore
 # https://www.python.org/dev/peps/pep-0420/
-from base import Base
 # in this new version we cannot depend on Model to be preformed
 # from model import Model
-from typing import Optional, Dict
+from typing import Optional
 from util import Log, set_dataframe
 from population import Population
 
@@ -22,13 +21,7 @@ class PopulationDict(Population):
     # no variable here unless you want them the same across all instances
 
     def __init__(
-        self,
-        # model: Model,
-        log_root: Optional[Log] = None,
-        source: Dict = None,
-        label: Dict = None,
-        index: str = None,
-        columns: str = None,
+        self, data: ModelData, log_root: Log = None, type: Optional[str] = None
     ):
         """Initialize the population object.
 
@@ -39,8 +32,6 @@ class PopulationDict(Population):
         super().__init__()
 
         # https://stackoverflow.com/questions/35328286/how-to-use-numpy-in-optional-typing
-        self.attr_pd_arr: Optional[np.ndarray] = None
-        self.attr_pd_df: Optional[pd.DataFrame] = None
 
         # create a sublogger if a root exists in the model
         # self.model: Model = model

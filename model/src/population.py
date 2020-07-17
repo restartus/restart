@@ -11,10 +11,10 @@ from modeldata import ModelData
 # Insert the classes of data we support here
 # TODO: this should probably eventually be to look in a directory
 # and pick up everything but hard code for now
-from pop.population_dict import PopulationDict
-from pop.population_oes import PopulationOES  # noqa:
 from typing import Optional
 from util import Log, set_dataframe
+import numpy as np  # type:ignore
+import pandas as pd  # type:ignore
 
 # import pandas as pd  # type:ignore
 
@@ -106,42 +106,14 @@ class Population(Base):
         self.log = log
         log.debug("In %s", __name__)
 
+        self.attr_pd_arr: Optional[np.ndarray] = None
+        self.attr_pd_df: Optional[pd.DataFrame] = None
+        self.type: Optional[str] = type
+
         # set the arrays of values should be a column vector
         # https://kite.com/python/answers/how-to-make-a-numpy-array-a-column-vector-in-python
         # A shortcut
-        log.debug(f"{data.label=}")
-        log.debug(f"{data.value=}")
 
-        self.type: Optional[str] = type
-
-        if self.type == "oes":
-            population_data: PopulationDict = PopulationOES(
-                # TODO: The location should be set by a filter I think
-                {"County": None, "State": "California"},
-                log_root=self.log_root,
-                source=data.datapaths["Paths"],
-                index=data.label["Population p"],
-                columns=data.label["Pop Detail d"],
-            )
-        elif self.type == "wa2":
-            # change this to the the naming of columns
-            population_data = PopulationDict(
-                log_root=self.log_root,
-                source=data.value["Population p"]["Pop Detail Data pd"],
-                label=data.label,
-                index="Population p",
-                columns="Pop Detail d",
-            )
-        else:
-            population_data = PopulationDict(
-                log_root=self.log_root,
-                source=data.value["Population p"]["Pop Detail Data pd"],
-                label=data.label,
-                index="Population p",
-                columns="Pop Detail d",
-            )
-        # else:
-        #    raise ValueError(f"{self.type=} not implemented")
 
         # this is superceded by set_dataframe
         # self.attr_pd_arr = data.value["Population p"]["Pop Detail Data pd"]

@@ -226,6 +226,13 @@ class Compose:
             help="Select Resource model",
         )
         parser.add_argument(
+            "-f",
+            "--filter",
+            choices=["eoc", "chelsea"],
+            default={"County": None, "State": "California"},
+            help="Select filters model",
+        )
+        parser.add_argument(
             "-c",
             "--consumption",
             choices=["wa-doh", "ensemble"],
@@ -294,9 +301,13 @@ class Compose:
         model.configure(loaded)
         # note we cannot just past model down to allow chaining to work
         log.info("creating Population")
-        model.population = Population(model.data, log_root=model.log_root)
+        model.population = PopulationDict(model.data, log_root=model.log_root)
         log.debug("creating Resource")
         model.resource = Resource(model.data, log_root=model.log_root)
+        log.debug("creating Consumption")
+        model.consumption = Consumption(model.data, log_root=model.log_root)
+        log.debug("creating Filter")
+        model.filter = Filter(model.data, log_root=model.log_root)
         log.debug("creating Economy")
         model.economy = Economy(model.data, log_root=model.log_root)
         log.debug("creating Disease")

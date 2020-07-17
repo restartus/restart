@@ -21,6 +21,8 @@ from disease import Disease
 from mobility import Mobility
 from behavioral import Behavioral
 from modeldata import ModelData
+from consumption import Consumption
+from filtermodel import Filter
 
 import logging  # noqa: F401
 
@@ -146,15 +148,36 @@ class Model(Base):
         # the old method
         # self.population = Population(
         #    self.data, log_root=self.log_root, type=type
-        #)
+        # )
         # the super class population uses type to return the exact model
-        if type == "OES":
-            self.population = PopulationOES(
-                self.data, log_root=self.log_root)
+        # TODO: use filter to get the state
+        if type == "oes":
+            population_data: PopulationDict = PopulationOES(
+                # TODO: The location should be set by a filter I think
+                log_root=self.log_root,
+                source=data.datapaths["Paths"],
+                index=data.label["Population p"],
+                columns=data.label["Pop Detail d"],
+            )
+        elif type == "wa2":
+            # change this to the the naming of columns
+            population_data = PopulationDict(
+                log_root=self.log_root,
+                source=data.value["Population p"]["Pop Detail Data pd"],
+                label=data.label,
+                index="Population p",
+                columns="Pop Detail d",
+            )
         else:
-            self.population = PopulationDict(
-                self.data, log_root=self.log_root)
-        return self
+            population_data = PopulationDict(
+                log_root=self.log_root,
+                source=data.value["Population p"]["Pop Detail Data pd"],
+                label=data.label,
+                index="Population p",
+                columns="Pop Detail d",
+            )
+        # else:
+        #    raise ValueError(f"{self.type=} not implemented")
 
     def set_resource(self, type: str = None):
         """Create resource class.
@@ -173,6 +196,13 @@ class Model(Base):
             self.data, log_root=self.log_root, type=type
         )
         return self
+    def set_filter(self, type: str = None):
+        """Filter the model.
+
+        Shrink the model to relevant population, resource
+        """
+        self.filter = Filter(
+            self.data, log_root=self.log_root, type=type)
 
     def set_economy(self, type: str = None):
         """Create Econometric model.

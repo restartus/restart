@@ -24,7 +24,8 @@ name ?= $$(basename "$(PWD)")
 Dockerfile ?= Dockerfile
 image ?= $(repo)/$(name)
 container = $(name)
-data ?= /var/media
+airflow_data ?= $(CURDIR)
+docker_data ?= /var/media
 destination ?= $(HOME)/ws/runtime
 # the user name on the host nodes if a raspberry pi
 user ?= $$USER
@@ -41,7 +42,7 @@ FLAGS ?=
 all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 flags ?= -p 8501:8501
-PIP ?= streamlit altair pandas pyyaml xlrd tables
+PIP ?= streamlit altair pandas pyyaml xlrd tables 
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
@@ -192,33 +193,14 @@ pypi:
 	pipenv run python setup.py register -r pypi
 	pipenv run python setup.py sdit upload -r pypi
 
-##
-## The bare metal python and conda work is deprecated, please use pipenv:
-## requirements: Freeze Python requirements in bare machine (deprecated use pipenv)
-.PHONY: requirements
-requirements:
-	@echo WARNING requirements not compatible with pipenv so do not create if using pipenv
-	pip freeze > requirements.txt
 
-## bare: install the python packages natively (not recommended (deprecated use pipoenv)
-# https://note.nkmk.me/en/python-pip-install-requirements/
-.PHONY: bare-install
-bare-install:
-	pip install -r requirements.txt
-
-##
-## conda: create the conda environment run with conda env model (not running for @richtong)
-# https://towardsdatascience.com/getting-started-with-python-environments-using-conda-32e9f2779307
-.PHONY: conda
-conda:
-	@echo this installation is note working
-	conda env create -f environment.yml
-	conda env --list
-
-## conda-activate: run the python environment for model
-.PHONY: conda-activate
-conda-activate:
-	@echo run \"conda activate model\"
+## airflow-install: configure airflow data directories
+airflow-install:
+	brew install mysql-client
+	@echo add /usr/local/opt/mysql-client/bin
+	pipenv install apache-airflow
+	pipenv install mysqlclient
+	pushd "$(airflow_data) && AIRFLOW_HOME="$(airflow_data) airflow initdb
 
 ##
 ## docker installation (for deployments):
@@ -276,7 +258,7 @@ docker-run: push pull run-local
 # Find the last container number
 # Find the next free container name
 # https://jpetazzo.github.io/2015/01/19/dockerfile-and-data-in-volumes/
-# Remove the -v $(data) will take it out of the COW file system
+# Remove the -v $(docker_data) will take it out of the COW file system
 # pass down the current USER
 run-local: stop
 	last=$$(docker ps | grep $(image) | awk '{print $$NF}' | cut -d/ -f2 | awk 'BEGIN { FS="-" }; {print $$NF}' | sort -r | head -n1) ; \
@@ -293,12 +275,39 @@ shell: push pull stop
 docker-debug: stop
 	@docker run -it $(flags) --name $(container) $(image) bash
 
-
 ## resume: keep running an existing container
 resume:
 	docker start -ai $(container)
 
-# Note we say only the type file because otherwise it tries to delete $(data) itself
+# Note we say only the type file because otherwise it tries to delete $(docker_data) itself
 ## rm-images: remove docker images
 rm-images:
-	$(for_containers) $(container) exec find $(data) -type f -delete
+	$(for_containers) $(container) exec find $(docker_data) -type f -delete
+
+##
+## The bare metal python and conda work is deprecated, please use pipenv:
+## requirements: Freeze Python requirements in bare machine (deprecated use pipenv)
+.PHONY: requirements
+requirements:
+	@echo WARNING requirements not compatible with pipenv so do not create if using pipenv
+	pip freeze > requirements.txt
+
+## bare: install the python packages natively (not recommended (deprecated use pipoenv)
+# https://note.nkmk.me/en/python-pip-install-requirements/
+.PHONY: bare-install
+bare-install:
+	pip install -r requirements.txt
+
+##
+## conda: create the conda environment run with conda env model (not running for @richtong)
+# https://towardsdocker_datascience.com/getting-started-with-python-environments-using-conda-32e9f2779307
+.PHONY: conda
+conda:
+	@echo this installation is note working
+	conda env create -f environment.yml
+	conda env --list
+
+## conda-activate: run the python environment for model
+.PHONY: conda-activate
+conda-activate:
+	@echo run \"conda activate model\"

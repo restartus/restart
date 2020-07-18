@@ -45,7 +45,7 @@ class Resource(Base):
         Does a read in
         """
         # to pick up the description
-        super().__init__()
+        super().__init__(log_root=log_root)
 
         # create a sublogger if a root exists in the model
         self.log_root = log_root

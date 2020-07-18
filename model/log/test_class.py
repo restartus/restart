@@ -1,13 +1,13 @@
 """Test class for logging test.
 
 Test scaffolding
-
 """
 import logging
 from util import Log
 
 
 def test() -> Log:
+    """Test log."""
     # the name of this is just at the root
     # it is not attached to main at all
     # this creates two loggers immediately
@@ -40,8 +40,9 @@ def test() -> Log:
 class TestClass():
     """Small Log class.
 
-    TEst log class
+    Test log class
     """
+
     def __init__(self, root_log: Log):
         """Init testing.
 
@@ -54,7 +55,7 @@ class TestClass():
         self.mylog = logging.getLogger(self.name)
 
     def module_log(self, name):
-        """Testing module log.
+        """Set Testing module log.
 
         Basic scaffold
         """

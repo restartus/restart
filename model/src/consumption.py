@@ -49,7 +49,7 @@ class Consumption(Base):
         override it
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
-        super().__init__()
+        super().__init__(log_root=log_root)
 
         # create a sublogger if a root exists in the model
         self.log_root = log_root
@@ -93,6 +93,20 @@ class Consumption(Base):
             f"{self.res_demand_mn_df=}", data.description["Res Demand mn"],
         )
 
+        self.level_pm_arr = data.value["Population p"]["Protection pm"]
+        self.level_pm_df = set_dataframe(
+            self.level_pm_arr,
+            data.label,
+            index="Population p",
+            columns="Pop Protection m",
+        )
+        log.debug(f"{self.level_pm_df=}")
+        self.set_description(
+            f"{self.level_pm_df=}",
+            data.description["Population p"]["Protection pm"],
+        )
+        log.debug(f"{self.description['level_pm_df']=}")
+
         # TODO: we need to decide if all the data lives in data.value["Res
         # Demand mn"] or should it be gotten from classes like pop.demand_pn_df
         # As we mix both together, this is a philosophical thing as data.value
@@ -100,7 +114,7 @@ class Consumption(Base):
         # information. So data.value is great as an output, but now we are
         # duplicating information and increasing bugs
 
-        self.demand_pn_df = pop.level_pm_df @ self.res_demand_mn_df
+        self.demand_pn_df = self.level_pm_df @ self.res_demand_mn_df
         log.debug(f"{self.demand_pn_df=}")
         self.demand_pn_df.index.name = "Population p"
         self.demand_pn_df.columns.name = "Resource n"
@@ -122,7 +136,8 @@ class Consumption(Base):
         # you need a casting just to tell it you are getting
         # https://docs.python.org/3/library/typing.html
         self.total_demand_pn_df = (
-            self.demand_pn_df * pop.attr_pd_df["Size"].values  # type: ignore
+            self.demand_pn_df
+            * pop.attr_pd_df["Size"].values  # type: ignore
             # use below if the array is 1-D
             # self.demand_pn_df * self.attr_pd_arr
         )

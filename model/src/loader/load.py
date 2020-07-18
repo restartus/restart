@@ -22,7 +22,6 @@ class Load():
         Base class just sets a logger
         """
         super().__init__()
-        self.root_log: Optional[Log]
         self.data: Dict = {}
 
         # replace the standalone logger if asked

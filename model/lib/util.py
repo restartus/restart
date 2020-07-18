@@ -37,13 +37,22 @@ def is_dir_or_file(name: str) -> bool:
 # sets the frame properly but does need to understand the model
 # so goes into the model method
 def set_dataframe(
-    arr: np.ndarray, label: Dict, index: str = None, columns: str = None,
+    arr: np.ndarray,
+    label: Dict,
+    index: Optional[str] = None,
+    columns: Optional[str] = None,
 ) -> pd.DataFrame:
     """Set the dataframe up.
 
     Using the model data Dictionary and labels
     """
-    df = pd.DataFrame(arr, index=label[index], columns=label[columns],)
+    # we use get so that if there is no item it returns None
+    # https://www.tutorialspoint.com/python/dictionary_get.htm
+    df = pd.DataFrame(
+        arr,
+        index=label[index] if index is not None else None,
+        columns=label[columns] if columns is not None else None,
+    )
     df.index.name = index
     df.columns.name = columns
     return df

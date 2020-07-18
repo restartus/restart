@@ -25,6 +25,7 @@ from pathlib import Path
 from loader.load_yaml import LoadYAML
 from model import Model
 from resourcemodel import Resource
+
 # from population import Population
 from economy import Economy
 from disease import Disease
@@ -113,11 +114,11 @@ class Compose:
         # and a set of decorators
         self.model = model = (
             Model(name, log_root=log_root)
-            .configure(loaded)
+            .set_configure(loaded)
             .set_population(type=args.population)
-            .set_population(type=args.students)
+            # .set_population(type=args.students)
             .set_resource(type=args.resource)
-            .set_resource(type=args.pharma)
+            # .set_resource(type=args.pharma)
             .set_filter(type=args.filter)
             .set_consumption(type=args.consumption)
             .set_economy(type=args.economy)
@@ -128,7 +129,7 @@ class Compose:
         # run the loader and put everything into a super dictionary
         # To change the model, just replace LoadYAML and the configuration
         # of it which starts off the entire model
-        self.model1 = self.old_compose(name, log_root=log_root)
+        self.model1 = self.old_compose("old_" + name, log_root=log_root)
         log.debug(f"{self.model1=}")
 
         # http://net-informations.com/python/iq/instance.htm
@@ -159,24 +160,23 @@ class Compose:
         # This is rows that are levels adn then usage of each resource  or l, n
         # When population become n x d, then there will be a usage
         # level for each do, so this become d x p x n
-        log.debug("level demand\n%s", model.population.level_demand_ln_df)
+        log.debug(f"{model.consumption.level_demand_ln_df=}")
 
         # p x l * l x n -> p x n
-        log.debug(f"{model.population.demand_pn_df=}")
+        log.debug(f"{model.consumption.demand_pn_df=}")
 
         # Now it get's easier, this is the per unit value, so multiply by the
         # population and the * with values does an element wise multiplication
         # With different tempos, this will be across all d dimensions
 
-        log.debug(f"{model.population.total_demand_pn_df=}")
+        log.debug(f"{model.consumption.total_demand_pn_df=}")
         log.debug(f"{model.population.level_pl_df=}")
 
         log.debug(f"{model.resource.cost_ln_df=}")
 
-        model.population.level_total_cost(model.resource.cost_ln_df)
+        model.consumption.level_total_cost(model.resource.cost_ln_df)
         log.debug(
-            "Population by level Total cost\n%s",
-            model.population.level_total_cost_ln_df,
+            f"{model.consumption.level_total_cost_ln_df=}"
         )
 
         # test iteration
@@ -301,10 +301,17 @@ class Compose:
         loaded = LoadYAML(Path("washington").absolute(), log_root=log_root,)
         log.debug(f"{loaded.data=}")
         log.info("configure Model")
-        model.configure(loaded)
+        model.set_configure(loaded)
         # note we cannot just past model down to allow chaining to work
         log.info("creating Population")
-        model.population = PopulationDict(model.data, log_root=model.log_root)
+        model.population = PopulationDict(
+            model.data,
+            model.label,
+            source=model.data.value["Population p"]["Pop Detail Data pd"],
+            index="Population p",
+            columns="Pop Detail d",
+            log_root=log_root,
+        )
         log.debug("creating Resource")
         model.resource = Resource(model.data, log_root=model.log_root)
         log.debug("creating Consumption")

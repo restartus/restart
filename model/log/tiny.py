@@ -13,7 +13,7 @@ from testtiny import test_tiny
 
 
 def tiny():
-    """Tiny testing
+    """Tiny testing.
 
     Small tests of logging
     """

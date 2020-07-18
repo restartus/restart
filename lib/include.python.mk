@@ -33,9 +33,9 @@ user ?= $$USER
 # relatively there
 build_path ?= .
 user ?= $$USER
-MAIN ?= main.py
+MAIN ?= $$(basename $(PWD)).py
 # main.py includes streamlit code that only runs when streamlit invoked
-WEB ?= main.py
+WEB ?= $(MAIN)
 LIB ?= lib
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
 FLAGS ?=
@@ -97,10 +97,11 @@ web-debug:
 # https://realpython.com/pipenv-guide/
 # install everything including things just needed for edevelopment
 ##
-## pipenv-existing: bootstart from existing Pipfile in directory
-.PHONY: pipenv-existing
-pipenv-existing:
-	pipenv install
+## update: installs all pipenv packages
+.PHONY: update
+update:
+	pipenv update
+
 ## pipenv: Install with pipenv as virtual environment (runs pipenv-clean first)
 # Note that black is still prelease so need --pre
 # pipenv clean removes all packages not in the virtual environment
@@ -293,6 +294,12 @@ resume:
 ## rm-images: remove docker images
 rm-images:
 	$(for_containers) $(container) exec find $(docker_data) -type f -delete
+
+##
+## gcloud: push up to Google Cloud
+.PHONY: gcloud
+gcloud:
+	gcloud projects list
 
 ##
 ## The bare metal python and conda work is deprecated, please use pipenv:

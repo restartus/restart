@@ -25,6 +25,9 @@ pandas = "*"
 pyyaml = "*"
 xlrd = "*"
 tables = "*"
+opencv-python = "*"
+vega-datasets = "*"
+yfinance = "*"
 
 [requires]
 python_version = "3.8"

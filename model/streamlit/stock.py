@@ -1,4 +1,5 @@
-#
+"""Stock demo.
+
 # vi:se ts=4 sw=4 et:
 # Stock demo
 # https://towardsdatascience.com/how-to-build-a-data-science-web-app-in-python-61d1bed65020
@@ -6,14 +7,16 @@
 # From https://github.com/restartus/demo-self-driving/blob/master/app.py
 # Use a main and a well formed way to run things
 #
-import yfinance as yf
-import streamlit as st
+"""
+import yfinance as yf  # type: ignore
+import streamlit as st  # type: ignore
 
 # Note how there are no call backs
 
 
 def main():
-    # Not that write uses Markdown
+    """Display data."""
+    # Note that write uses Markdown
     st.write("""
 # Simple Stock Price Analysis
 Shown are the stock **closing price** and ***volume*** of Tesla
@@ -39,8 +42,8 @@ Shown are the stock **closing price** and ***volume*** of Tesla
     ### Daily Volume
     """)
     st.line_chart(tickerDf.Volume)
+    # you start this by detecting a magic variable
 
-  # you start this by detecting a magic variable
 
 if __name__ == "__main__":
     main()

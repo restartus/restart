@@ -9,8 +9,9 @@ import logging
 class Log():
     """Small Log class.
 
-    TEst log class
+    Test log class
     """
+
     def __init__(self, name: str):
         """Init testing.
 
@@ -22,7 +23,7 @@ class Log():
         self.log = logging.getLogger(name)
 
     def module_log(self, name):
-        """Testing module log.
+        """Test module log.
 
         Basic scaffold
         """

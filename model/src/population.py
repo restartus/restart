@@ -86,9 +86,7 @@ class Population(Base):
     #        level_pm_df: Optional[pd.DataFrame] = None,
     #        res_demand_mn_df: Optional[pd.DataFrame] = None,
     #        level_pl_df: Optional[pd.DataFrame] = None,
-    def __init__(
-        self, log_root: Log = None, config: Dict = None
-    ):
+    def __init__(self, log_root: Log = None, config: Dict = None):
         """Initialize all variables.
 
         All initialization here and uses type to determine which method to call
@@ -96,7 +94,7 @@ class Population(Base):
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         # to pick up the description
-        super().__init__()
+        super().__init__(log_root=log_root)
         # create a sublogger if a root exists in the model
         self.log_root = log_root
         if log_root is not None:
@@ -189,23 +187,14 @@ class Population(Base):
     def calc(self, data: ModelData):
         """Run the calculations derived.
 
-        These are the second level calculations
+        TODO: should these go into the consumption class
+        they are fundamentally about translating population
+        into summary levels l for reporting
+
+        And about translating it into consumption levels
         """
         # set the population by demand levels
         log = self.log
-        self.level_pm_arr = data.value["Population p"]["Protection pm"]
-        self.level_pm_df = set_dataframe(
-            self.level_pm_arr,
-            data.label,
-            index="Population p",
-            columns="Pop Protection m",
-        )
-        log.debug(f"{self.level_pm_df=}")
-        self.set_description(
-            f"{self.level_pm_df=}",
-            data.description["Population p"]["Protection pm"],
-        )
-        log.debug(f"{self.description['level_pm_df']=}")
 
         # now get the conversion from the many p populations to the much
         # smaller l levels that are easier to understand

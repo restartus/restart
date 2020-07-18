@@ -46,6 +46,7 @@ class PopulationOES(Population):
             self.log_root = log_root
             log = self.log = log_root.log_class(self)
             log.debug(f"{self.log=} {log=}")
+            super().__init__(log_root=log_root)
 
         log.debug(f"module {__name__=}")
 

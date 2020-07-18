@@ -26,7 +26,8 @@ def main():
     model_data: Generator = load_model()
     log.debug(f'returned {model_data=}')
 
-    for key, value in model_data.items():
+    # for key, value in model_data.items():
+    for key, value in model_data:
         log.critical(f'{key=} {value=}')
         log.critical(f'{model_data[key]=}')
 
@@ -67,7 +68,7 @@ def load_model(filename: Optional[str] = None) -> Optional[Iterator]:
             log.debug(f'{model_data=}')
             for d in model_data:
                 log.debug(f'{d=}')
-            log.debug(f'{model_data[0]=}')
+            # log.debug(f'{model_data[0]=}')  # type: ignore
             return model_data
 
     except yaml.YAMLError as err:

@@ -1,4 +1,4 @@
-"""Dashboar for COVID.
+"""Dashboard for COVID.
 
 ## Stock demo
 https://towardsdatascience.com/how-to-build-a-data-science-web-app-in-python-61d1bed65020
@@ -38,8 +38,6 @@ class Dashboard:
 
         Streamlit dashboard for a Model
         """
-        super().__init__()
-
         self.log_root = model.log_root
         if self.log_root is not None:
             log = self.log_root.log_class(self)
@@ -161,7 +159,7 @@ class Dashboard:
         """
 
         model.resource.attr_na_df
-        model.description["Population.attr_pd_df"]
+        model.description["Population p"]["Pop Detail pd"]
         model.population.attr_pd_df
 
         """
@@ -317,6 +315,7 @@ class Dashboard:
         # https://towardsdatascience.com/quickly-build-and-deploy-an-application-with-streamlit-988ca08c7e83
         # https://towardsdatascience.com/interactive-election-visualisations-with-altair-85c4c3a306f9
         # https://altair-viz.github.io
+        # TODO: this is failing now not sure why need to look at Altair
         graph = (
             alt.Chart(df)
             .mark_circle(size=60)

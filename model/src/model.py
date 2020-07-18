@@ -4,6 +4,10 @@ The model shape is configured here.
 And this uses chained methods as decorators
 https://www.w3schools.com/python/python_classes.asp
 """
+# https://stackoverflow.com/questions/33533148/how-do-i-specify-that-the-return-type-of-a-method-is-the-same-as-the-class-itsel
+# this allows Model to refer to itself
+from __future__ import annotations
+
 from typing import Dict, Optional, Tuple, List
 from base import Base
 from util import Log
@@ -65,7 +69,7 @@ class Model(Base):
         """
         # the long description of each
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
-        super().__init__()
+        super().__init__(log_root=log_root)
 
         # https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
         self.log_root = log_root
@@ -83,7 +87,7 @@ class Model(Base):
         log.debug(f"{self.name=}")
         self.data: ModelData = ModelData({}, {}, {}, {})
 
-    def configure(self, loaded: Load):
+    def set_configure(self, loaded: Load) -> Model:
         """Configure the Model.
 
         Uses Loaded as a dictionary and puts it into model variables
@@ -140,7 +144,7 @@ class Model(Base):
         return self
 
     # TODO: This should be a generated set of methods as they are all identical
-    def set_population(self, type: str = None):
+    def set_population(self, type: str = None) -> Model:
         """Create population class for model.
 
         Population created here
@@ -181,8 +185,11 @@ class Model(Base):
             )
         # else:
         #    raise ValueError(f"{self.type=} not implemented")
+        # calculate the rest
+        self.population.calc(self.data)
+        return self
 
-    def set_resource(self, type: str = None):
+    def set_resource(self, type: str = None) -> Model:
         """Create resource class.
 
         Resource
@@ -190,26 +197,29 @@ class Model(Base):
         self.resource = Resource(self.data, log_root=self.log_root, type=type)
         return self
 
-    def set_consumption(self, type: str = None):
+    def set_consumption(self, type: str = None) -> Model:
         """Set consumption.
 
         Consumption by population levels l
         """
         self.consumption = Consumption(
             self.data,
-            self.population, self.resource, log_root=self.log_root, type=type
+            self.population,
+            self.resource,
+            log_root=self.log_root,
+            type=type,
         )
         return self
 
-    def set_filter(self, type: str = None):
+    def set_filter(self, type: str = None) -> Model:
         """Filter the model.
 
         Shrink the model to relevant population, resource
         """
-        self.filter = Filter(
-            self.data, log_root=self.log_root, type=type)
+        self.filter = Filter(self.data, log_root=self.log_root, type=type)
+        return self
 
-    def set_economy(self, type: str = None):
+    def set_economy(self, type: str = None) -> Model:
         """Create Econometric model.
 
         Economy creation
@@ -217,7 +227,7 @@ class Model(Base):
         self.economy = Economy(self.data, log_root=self.log_root, type=type)
         return self
 
-    def set_disease(self, type: str = None):
+    def set_disease(self, type: str = None) -> Model:
         """Create Disease model.
 
         Disease create
@@ -225,7 +235,7 @@ class Model(Base):
         self.disease = Disease(self.data, log_root=self.log_root, type=type)
         return self
 
-    def set_mobility(self, type: str = None):
+    def set_mobility(self, type: str = None) -> Model:
         """Create Mobility model.
 
         Mobility create
@@ -233,7 +243,7 @@ class Model(Base):
         self.mobility = Mobility(self.data, log_root=self.log_root, type=type)
         return self
 
-    def set_behavioral(self, type: str = None):
+    def set_behavioral(self, type: str = None) -> Model:
         """Create Behavior model.
 
         Behavior create
@@ -249,7 +259,7 @@ class Model(Base):
     # So we want the iterable to be the Base Class
     # The iterator is Model which can return all the Base classes
     # https://thispointer.com/python-how-to-make-a-class-iterable-create-iterator-class-for-it/
-    def __iter__(self):
+    def __iter__(self) -> Model:
         """Iterate through the model getting only Base objects."""
         log = self.log
         self.base_list: List = [
@@ -273,7 +283,7 @@ class Model(Base):
         return key, value
 
     # Use the decorator pattern that Keras and other use with chaining
-    def logger(self, name: str = __name__):
+    def set_logger(self, name: str = __name__) -> Model:
         """Set Log.
 
         Setup the root logger and log

@@ -54,7 +54,6 @@ class PopulationDict(Population):
         else:
             log = logging.getLogger(__name__)
             log.debug(f"no log_root using {log=}")
-            raise ValueError("log_root is null")
         self.log = log
 
         # the sample code to move up the logging for a period and then turn it
@@ -88,3 +87,6 @@ class PopulationDict(Population):
         log.debug(f"{self.attr_pd_df=}")
         log.debug(f"{self.attr_pd_df.index.name=}")
         log.debug(f"{self.attr_pd_df.columns.name=}")
+
+        # now calculate the rest from it
+        super().calc(data)

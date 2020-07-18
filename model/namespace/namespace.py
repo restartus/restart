@@ -7,7 +7,7 @@ from loader.load_test_csv import LoadTestCSV
 
 
 def main():
-    """Main.
+    """Try main namespace.
 
     here we go
     """

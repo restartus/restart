@@ -5,6 +5,7 @@ Base mainly includes the description fields
 from typing import Dict, Tuple
 import logging
 import pandas as pd  # type:ignore
+from util import Log
 
 
 class Base:
@@ -17,7 +18,7 @@ class Base:
     # across all classes see https://docs.python.org/3/tutorial/classes.html
 
     # https://stackoverflow.com/questions/9056957/correct-way-to-define-class-variables-in-python
-    def __init__(self):
+    def __init__(self, log_root: Log = None):
         """Set base varabiles.
 
         Mainly the descriptions
@@ -25,7 +26,10 @@ class Base:
         self.description: Dict = {}
 
         # since we have no log otherwise
-        log: logging.Logger = logging.getLogger(__name__)
+        if log_root is not None:
+            log: logging.Logger = log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
         log.debug(f"{__name__=}")
         log.debug("run base")
         log.debug(f"{self=}")

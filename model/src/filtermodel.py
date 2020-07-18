@@ -22,10 +22,7 @@ class Filter(Base):
     """
 
     def __init__(
-        self,
-        data: ModelData,
-        log_root: Log = None,
-        type: str = None,
+        self, data: ModelData, log_root: Log = None, type: str = None,
     ):
         """Initialize the Economy object.
 
@@ -33,7 +30,7 @@ class Filter(Base):
         override it
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
-        super().__init__()
+        super().__init__(log_root=log_root)
 
         # create a sublogger if a root exists in the model
         self.log_root = log_root

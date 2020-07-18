@@ -1,16 +1,17 @@
-#
+"""Simple car demonsration.
+
 # https://towardsdatascience.com/quickly-build-and-deploy-an-application-with-streamlit-988ca08c7e83
-#
-# Simple car demonsration
 
+"""
 # Standard data sets for demo purposes
-from vega_datasets import data
+from vega_datasets import data  # type: ignore
 
-import streamlit as st
-import altair as alt
+import streamlit as st  # type: ignore
+import altair as alt  # type: ignore
 
 
 def main():
+    """Display main."""
     df = load_data()
     # Simple selection
     page = st.sidebar.selectbox("Choose page", ["Homepage", "Exploration"])
@@ -31,11 +32,13 @@ Please **select** a page on the left
 # pragma that says only run this once
 @st.cache
 def load_data():
+    """Get car data."""
     df = data.cars()
     return df
 
 
 def visualize_data(df, x_axis, y_axis):
+    """Show data."""
     print(df)
     print('x_axis', x_axis)
     print('y_axis', y_axis)

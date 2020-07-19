@@ -23,7 +23,7 @@ from resourcemodel import Resource
 from consumption import Consumption
 from economy import Economy
 from disease import Disease
-from mobility import Mobility
+from activity import Activity
 from behavioral import Behavioral
 from modeldata import ModelData
 from filtermodel import Filter
@@ -136,7 +136,7 @@ class Model(Base):
             "a": len(self.data.label["Res Attribute a"]),
             "p": len(self.data.label["Population p"]),
             "d": len(self.data.label["Pop Detail d"]),
-            "m": len(self.data.label["Pop Protection m"]),
+            "m": len(self.data.label["Consumption m"]),
             "l": len(self.data.label["Pop Level l"]),
             "s": len(self.data.label["Res Safety Stock s"]),
         }
@@ -235,12 +235,13 @@ class Model(Base):
         self.disease = Disease(self.data, log_root=self.log_root, type=type)
         return self
 
-    def set_mobility(self, type: str = None) -> Model:
-        """Create Mobility model.
+    def set_activity(self, type: str = None) -> Model:
+        """Create Social activity model.
 
-        Mobility create
+        Includes social activity, restaurant usage, credit card use and other
+        indicators of people out and about
         """
-        self.mobility = Mobility(self.data, log_root=self.log_root, type=type)
+        self.activity = Activity(self.data, log_root=self.log_root, type=type)
         return self
 
     def set_behavioral(self, type: str = None) -> Model:

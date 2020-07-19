@@ -79,18 +79,24 @@ class Consumption(Base):
         # the same thing in a function less code duplication
         # note these are defaults for testing
         # this is the protection level and the burn rates for each PPE
-        self.res_demand_mn_arr = data.value["Resource Demand mn"]
+        # use get to get a null
+        # https://stackoverflow.com/questions/6130768/return-none-if-dictionary-key-is-not-available
+        self.res_demand_mn_arr = data.value["Consumption m"][
+            "Cons Resource mn"
+        ]
+        # self.res_demand_mn_arr = data.value["Resource Demand mn"]
         self.res_demand_mn_df = set_dataframe(
             self.res_demand_mn_arr,
             data.label,
-            index="Pop Protection m",
+            index="Consumption m",
             columns="Resource n",
         )
         log.debug(f"{self.res_demand_mn_df=}")
         # for compatiblity both the model and the object hold the same
         # description
         self.set_description(
-            f"{self.res_demand_mn_df=}", data.description["Res Demand mn"],
+            f"{self.res_demand_mn_df=}",
+            data.description["Consumption m"]["Cons Resource mn"],
         )
 
         self.level_pm_arr = data.value["Population p"]["Protection pm"]
@@ -98,7 +104,7 @@ class Consumption(Base):
             self.level_pm_arr,
             data.label,
             index="Population p",
-            columns="Pop Protection m",
+            columns="Consumption m",
         )
         log.debug(f"{self.level_pm_df=}")
         self.set_description(

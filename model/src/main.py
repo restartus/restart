@@ -30,7 +30,7 @@ from resourcemodel import Resource
 from economy import Economy
 from disease import Disease
 from behavioral import Behavioral
-from mobility import Mobility
+from activity import Activity
 from base import Base
 from dashboard import Dashboard
 from typing import Optional
@@ -123,7 +123,7 @@ class Compose:
             .set_consumption(type=args.consumption)
             .set_economy(type=args.economy)
             .set_disease(type=args.disease)
-            .set_mobility(type=args.mobility)
+            .set_activity(type=args.activity)
             .set_behavioral(type=args.behavioral)
         )
         # run the loader and put everything into a super dictionary
@@ -175,9 +175,7 @@ class Compose:
         log.debug(f"{model.resource.cost_ln_df=}")
 
         model.consumption.level_total_cost(model.resource.cost_ln_df)
-        log.debug(
-            f"{model.consumption.level_total_cost_ln_df=}"
-        )
+        log.debug(f"{model.consumption.level_total_cost_ln_df=}")
 
         # test iteration
         for base_key, base_value in model:
@@ -259,10 +257,10 @@ class Compose:
 
         parser.add_argument(
             "-m",
-            "--mobility",
+            "--activity",
             choices=["apple", "ensemble", "google"],
             default="ensemble",
-            help="Select Mobility Model",
+            help="Select Activity Model",
         )
 
         parser.add_argument(
@@ -322,8 +320,8 @@ class Compose:
         model.economy = Economy(model.data, log_root=model.log_root)
         log.debug("creating Disease")
         model.disease = Disease(model.data, log_root=model.log_root)
-        log.debug("creating Mobility")
-        model.mobility = Mobility(model.data, log_root=model.log_root)
+        log.debug("creating Activity")
+        model.activity = Activity(model.data, log_root=model.log_root)
         log.debug("creating Behavioral")
         model.behavioral = Behavioral(model.data, log_root=model.log_root)
         log.debug(f"{model=}")

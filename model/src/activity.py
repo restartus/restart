@@ -1,6 +1,6 @@
-"""Mobility Model.
+"""Activity Model.
 
-Mobility modeling
+Activity modeling
 """
 import logging
 import pandas as pd  # type: ignore # noqa: F401
@@ -11,7 +11,7 @@ from util import Log
 from typing import Optional
 
 
-class Mobility(Base):
+class Activity(Base):
     """The amount of acivity and movement.
 
     This contains

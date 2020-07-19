@@ -282,10 +282,19 @@ class Dashboard:
             ### Histogram of uses
             """
         )
-        st.bar_chart(filtered_data_df)
+        # this returns a variable encoding specified with out a type
+        reset_df = filtered_data_df.reset_index()
+        # https://altair-viz.github.io/user_guide/data.html#long-form-vs-wide-form-data
+        st.dataframe(reset_df)
+        # ~https://www.geeksforgeeks.org/python-pandas-melt/
+        wide_df = reset_df.melt(
+            id_vars="Level l", value_vars=["N95", "Mask"], value_name="Units"
+        )
+        st.dataframe(wide_df)
+        st.bar_chart(wide_df)
         # It's so easy to chart with builtin types
         # And labelsa re just more markdown
-        st.line_chart(data_df)
+        st.line_chart(wide_df)
 
     def visualize_data(self, df, x_axis, y_axis):
         """Visualize data.

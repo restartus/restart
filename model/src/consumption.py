@@ -2,13 +2,14 @@
 
 Consumption modeling
 """
+import math
 import logging
 import pandas as pd  # type: ignore # noqa: F401
 import numpy as np  # type: ignore # noqa: F401
 from base import Base
 from modeldata import ModelData
-from util import Log, set_dataframe
-from typing import Optional
+from util import Log, set_dataframe, datetime_to_code
+from typing import Optional, Tuple
 from population import Population
 from resourcemodel import Resource
 
@@ -99,13 +100,23 @@ class Consumption(Base):
             data.description["Consumption m"]["Cons Resource mn"],
         )
 
-        self.level_pm_arr = data.value["Population p"]["Protection pm"]
+        self.level_pm_arr = pop.map_arr
+        # self.level_pm_arr = data.value["Population p"]["Protection pm"]
+        '''
         self.level_pm_df = set_dataframe(
             self.level_pm_arr,
             data.label,
             index="Population p",
             columns="Consumption m",
         )
+        '''
+        # TODO: do this using set_dataframe and figure out labelling
+        self.level_pm_df = pd.DataFrame(
+                self.level_pm_arr,
+                index=pop.map_labs,
+                columns=data.label["Consumption m"]
+        )
+
         log.debug(f"{self.level_pm_df=}")
         self.set_description(
             f"{self.level_pm_df=}",
@@ -129,7 +140,26 @@ class Consumption(Base):
             data.description["Population p"]["Population Demand pn"],
         )
 
-        self.level_demand_ln_df = pop.level_pl_df.T @ self.demand_pn_df
+        self.level_pl_arr = np.hstack(
+                (np.ones((pop.attr_pd_df.shape[0], 1)),
+                 np.zeros((pop.attr_pd_df.shape[0], 1))))
+
+        self.level_pl_df = pd.DataFrame(
+                self.level_pl_arr,
+                index=pop.map_labs,
+                columns=data.label["Pop Level l"]
+        )
+        log.debug(f"{self.level_pl_df=}")
+        '''
+        self.level_pl_df = set_dataframe(
+                self.level_pl_arr,
+                data.label,
+                index=,
+                columns="Pop Level l",
+                )
+        '''
+        # self.level_demand_ln_df = pop.level_pl_df.T @ self.demand_pn_df
+        self.level_demand_ln_df = self.level_pl_df.T @ self.demand_pn_df
         log.debug(f"{self.level_demand_ln_df=}")
         self.set_description(
             f"{self.level_demand_ln_df=}",
@@ -141,12 +171,30 @@ class Consumption(Base):
         # https://stackoverflow.com/questions/54786574/mypy-error-on-dict-of-dict-value-of-type-object-is-not-indexable
         # you need a casting just to tell it you are getting
         # https://docs.python.org/3/library/typing.html
+
+        n95 = np.array(
+                self.demand_pn_df['N95 Surgical'] * pop.attr_pd_arr).reshape(
+                        [pop.attr_pd_arr.shape[0], 1])
+
+        astm = np.array(
+                self.demand_pn_df['ASTM Mask'] * pop.attr_pd_arr).reshape(
+                        [pop.attr_pd_arr.shape[0], 1])
+        self.total_demand_pn_arr = np.hstack((n95, astm))
+        self.total_demand_pn_df = pd.DataFrame(
+                self.total_demand_pn_arr,
+                index=pop.map_labs,
+                columns=data.label["Resource n"],
+        )
+
+        self.total_demand_pn_df.index.name = "Population p"
+        '''
         self.total_demand_pn_df = (
             self.demand_pn_df
             * pop.attr_pd_df["Size"].values  # type: ignore
             # use below if the array is 1-D
             # self.demand_pn_df * self.attr_pd_arr
         )
+        '''
         log.debug(f"{self.total_demand_pn_df=}")
         # convert to demand by levels note we have to transpose
         self.set_description(
@@ -154,7 +202,7 @@ class Consumption(Base):
             data.description["Population p"]["Population Total Demand pn"],
         )
         self.level_total_demand_ln_df = (
-            pop.level_pl_df.T @ self.total_demand_pn_df
+            self.level_pl_df.T @ self.total_demand_pn_df
         )
         log.debug(f"{self.level_total_demand_ln_df=}")
         self.set_description(
@@ -181,3 +229,60 @@ class Consumption(Base):
 
         # method chaining
         return self
+
+    def format_map(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Manually slice the excel model to get protection level mappings>
+
+        Args:
+            df: The excel model loaded into the dataframe
+
+        Returns:
+            The dataframe sliced to give the mappings
+        """
+        # manually redo indexing and select the rows we need
+        df.columns = df.iloc[2528]
+        df = df.iloc[2529:3303]
+        df = df[['Washington SOT', 'SOC', 'Type', 'Level']]
+
+        # fix datetime objects and drop empty rows
+        df['SOC'] = df['SOC'].apply(datetime_to_code)
+        df = df.dropna(axis='rows').reset_index(drop=True)
+        return df
+
+    def create_map(self, df: pd.DataFrame) -> Tuple[list, np.ndarray]:
+        """Generate mappings for OCC codes and population levels.
+
+        Args:
+            df: A dataframe that has OCC codes
+
+        Returns:
+            Dictionary of the population level mappings
+        """
+        map_arr = []
+        labels = []
+        for code in df['occ_code']:
+            arr = np.zeros(7)
+            try:
+                ind = self.map_df[self.map_df['SOC'] == code].index[0]
+                level = self.map_df.iloc[ind]['Level']
+            except IndexError:
+                if code.startswith('29-') or code.startswith('31-'):
+                    level = 5.5
+                else:
+                    level == 3
+
+            # assign integer levels
+            if type(level) is int:
+                arr[level] = 1
+
+            # assign multiple levels
+            else:
+                arr[math.floor(level)] = 0.5
+                arr[math.ceil(level)] = 0.5
+
+            # add to dictionary
+            name = list(df[df['occ_code'] == code]['occ_title'])[0]
+            labels.append(name)
+            map_arr.append(arr)
+
+        return labels, np.array(map_arr)

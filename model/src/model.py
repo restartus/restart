@@ -159,7 +159,7 @@ class Model(Base):
         if type == "oes":
             self.population = PopulationOES(
                 # TODO: This belongs in filter
-                location={'County': None, 'State': 'California'},
+                {'County': None, 'State': 'California'},
                 log_root=self.log_root,
                 source=self.data.datapaths["Paths"],
             )

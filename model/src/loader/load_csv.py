@@ -79,7 +79,6 @@ class LoadCSV(Load):
                 fullbase = os.path.join(rootdir, base)
 
                 try:
-
                     # look for h5 file in rootdir
                     if base + '.h5' in files:
                         log.debug(f"preexisting json found for {base=}")

@@ -175,8 +175,6 @@ class Model(Base):
             )
         else:
             raise ValueError(f"{type=} not implemented")
-        # calculate the rest
-        self.population.calc(self.data)
         return self
 
     def set_resource(self, type: str = None) -> Model:

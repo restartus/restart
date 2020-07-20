@@ -2,14 +2,13 @@
 
 Consumption modeling
 """
-import math
 import logging
 import pandas as pd  # type: ignore # noqa: F401
 import numpy as np  # type: ignore # noqa: F401
 from base import Base
 from modeldata import ModelData
-from util import Log, set_dataframe, datetime_to_code
-from typing import Optional, Tuple
+from util import Log, set_dataframe
+from typing import Optional
 from population import Population
 from resourcemodel import Resource
 
@@ -140,6 +139,12 @@ class Consumption(Base):
             data.description["Population p"]["Population Demand pn"],
         )
 
+        if pop.attr_pd_df is None:
+            raise ValueError(f"{pop.attr_pd_df=} should not be None")
+
+        if pop.attr_pd_arr is None:
+            raise ValueError(f"{pop.attr_pd_arr=} should not be None")
+
         self.level_pl_arr = np.hstack(
                 (np.ones((pop.attr_pd_df.shape[0], 1)),
                  np.zeros((pop.attr_pd_df.shape[0], 1))))
@@ -229,60 +234,3 @@ class Consumption(Base):
 
         # method chaining
         return self
-
-    def format_map(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Manually slice the excel model to get protection level mappings>
-
-        Args:
-            df: The excel model loaded into the dataframe
-
-        Returns:
-            The dataframe sliced to give the mappings
-        """
-        # manually redo indexing and select the rows we need
-        df.columns = df.iloc[2528]
-        df = df.iloc[2529:3303]
-        df = df[['Washington SOT', 'SOC', 'Type', 'Level']]
-
-        # fix datetime objects and drop empty rows
-        df['SOC'] = df['SOC'].apply(datetime_to_code)
-        df = df.dropna(axis='rows').reset_index(drop=True)
-        return df
-
-    def create_map(self, df: pd.DataFrame) -> Tuple[list, np.ndarray]:
-        """Generate mappings for OCC codes and population levels.
-
-        Args:
-            df: A dataframe that has OCC codes
-
-        Returns:
-            Dictionary of the population level mappings
-        """
-        map_arr = []
-        labels = []
-        for code in df['occ_code']:
-            arr = np.zeros(7)
-            try:
-                ind = self.map_df[self.map_df['SOC'] == code].index[0]
-                level = self.map_df.iloc[ind]['Level']
-            except IndexError:
-                if code.startswith('29-') or code.startswith('31-'):
-                    level = 5.5
-                else:
-                    level == 3
-
-            # assign integer levels
-            if type(level) is int:
-                arr[level] = 1
-
-            # assign multiple levels
-            else:
-                arr[math.floor(level)] = 0.5
-                arr[math.ceil(level)] = 0.5
-
-            # add to dictionary
-            name = list(df[df['occ_code'] == code]['occ_title'])[0]
-            labels.append(name)
-            map_arr.append(arr)
-
-        return labels, np.array(map_arr)

@@ -106,6 +106,8 @@ class Population(Base):
 
         self.attr_pd_arr: Optional[np.ndarray] = None
         self.attr_pd_df: Optional[pd.DataFrame] = None
+        self.map_labs: Optional[list] = None
+        self.map_arr: Optional[np.ndarray] = None
         self.config: Optional[Dict] = config
 
     def default(self, data: ModelData):
@@ -182,120 +184,3 @@ class Population(Base):
         log.debug(f"{self=}")
         log.debug(f"{self.description=}")
         log.debug(f"{self.description['attr_pd_df']=}")
-
-    def calc(self, data: ModelData):
-        """Run the calculations derived.
-        TODO: should these go into the consumption class
-        they are fundamentally about translating population
-        into summary levels l for reporting
-        And about translating it into consumption levels
-        """
-        # set the population by demand levels
-        log = self.log
-
-        # now get the conversion from the many p populations to the much
-        # smaller l levels that are easier to understand
-        self.level_pl_arr = data.value["Population p"]["Pop to Level pl"]
-        self.level_pl_df = set_dataframe(
-            self.level_pl_arr,
-            data.label,
-            index="Population p",
-            columns="Pop Level l",
-        )
-        log.debug(f"{self.level_pl_df=}")
-        self.set_description(
-            f"{self.level_pl_df=}",
-            data.description["Population p"]["Pop to Level pl"],
-        )
-
-    # def calc(self, data: ModelData):
-        """Run the calculations derived.
-        TODO: should these go into the consumption class
-        they are fundamentally about translating population
-        into summary levels l for reporting
-
-        And about translating it into consumption levels
-        """
-        """
-        # set the population by demand levels
-        log = self.log
-        # now get the conversion from the many p populations to the much
-        # smaller l levels that are easier to understand
-        # '''
-        # NOTE: hax0ring this rn with dummy values - i figure that since
-        # we're doing healthcare workers they'll all be essential
-        # self.level_pl_arr = data.value["Population p"]["Pop to Level pl"]
-        self.level_pl_arr = np.hstack(
-                (np.ones((self.attr_pd_df.shape[0], 1)),
-                 np.zeros((self.attr_pd_df.shape[0], 1))))
-        self.level_pl_df = set_dataframe(
-            self.level_pl_arr,
-            data.label,
-            index=self.level_pm_arr_labs,
-            columns="Pop Level l",
-        )
-        '''
-        self.level_pl_arr = data.value["Population p"]["Pop to Level pl"]
-        self.level_pl_df = set_dataframe(
-            self.level_pl_arr,
-            data.label,
-            index="Population p",
-            columns="Pop Level l",
-        )
-                self.demand_pn_df['N95 Surgical'] * self.attr_pd_arr).reshape(
-                        [self.attr_pd_arr.shape[0], 1])
-        astm = np.array(
-                self.demand_pn_df['ASTM Mask'] * self.attr_pd_arr).reshape(
-                        [self.attr_pd_arr.shape[0], 1])
-
-        self.total_demand_pn_arr = np.hstack((n95, astm))
-        self.total_demand_pn_df = set_dataframe(
-            self.total_demand_pn_arr,
-            data.label,
-            index=self.level_pm_arr_labs,
-            columns="Resource n",
-        )
-        self.total_demand_pn_df.index.name = "Population p"
-
-        # self.total_demand_pn_df = (
-        #  #  self.demand_pn_df * self.attr_pd_df["Size"].values
-        #    self.demand_pn_df
-        #    * self.attr_pd_arr
-        # )
-        log.debug(f"{self.total_demand_pn_df=}")
-        # convert to demand by levels note we have to transpose
-        self.set_description(
-            f"{self.total_demand_pn_df=}",
-            data.description["Population p"]["Population Total Demand pn"],
-        )
-
-        self.level_total_demand_ln_df = (
-            self.level_pl_df.T @ self.total_demand_pn_df
-        )
-        log.debug(f"{self.level_total_demand_ln_df=}")
-        self.set_description(
-            f"{self.level_total_demand_ln_df=}",
-            data.description["Population p"]["Level Total Demand ln"],
-        )
-
-        # set to null to make pylint happy and instatiate the variable
-        self.level_total_cost_ln_df = None
-        self.set_description(
-            f"{self.level_total_cost_ln_df=}",
-            data.description["Population p"]["Level Total Cost ln"],
-        )
-    def level_total_cost(self, cost_ln_df):
-        # '''Calculate the total cost of resource for a population level.
-
-        The total cost of resources
-        """
-        """
-        log = self.log
-        self.level_total_cost_ln_df = (
-            self.level_total_demand_ln_df * cost_ln_df.values
-        )
-        log.debug("level_total_cost_ln_df\n%s", self.level_total_cost_ln_df)
-
-        # method chaining
-        return self
-"""

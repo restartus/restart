@@ -3,6 +3,7 @@
 Read in the population from the model dictionary
 """
 import logging
+import numpy as np  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
 # import numpy as np  # type: ignore
 # https://www.python.org/dev/peps/pep-0420/
@@ -75,7 +76,10 @@ class PopulationDict(Population):
         # this check is here to make the type checker happy.
         if label is None:
             raise ValueError(f"{label=} is null")
-        self.attr_pd_arr = source
+        if source is None:
+            raise ValueError(f"{source=} is null")
+
+        self.attr_pd_arr = np.array(source['Size'])
         self.attr_pd_df = set_dataframe(
             self.attr_pd_arr,
             label=label,
@@ -83,9 +87,8 @@ class PopulationDict(Population):
             columns=columns,
         )
 
+        self.map_arr = data.value["Population p"]["Protection pm"]
+        self.map_labs: list = list(data.label["Population p"])
         log.debug(f"{self.attr_pd_df=}")
         log.debug(f"{self.attr_pd_df.index.name=}")
         log.debug(f"{self.attr_pd_df.columns.name=}")
-
-        # now calculate the rest from it
-        super().calc(data)

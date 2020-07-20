@@ -155,7 +155,7 @@ class Compose:
 
         # Now bucket population into a set of levels
         # So we have a table is p x l
-        log.debug("Population by level\n%s", model.population.level_pl_df)
+        log.debug("Population by level\n%s", model.consumption.level_pl_df)
 
         # This is rows that are levels adn then usage of each resource  or l, n
         # When population become n x d, then there will be a usage
@@ -170,7 +170,7 @@ class Compose:
         # With different tempos, this will be across all d dimensions
 
         log.debug(f"{model.consumption.total_demand_pn_df=}")
-        log.debug(f"{model.population.level_pl_df=}")
+        log.debug(f"{model.consumption.level_pl_df=}")
 
         log.debug(f"{model.resource.cost_ln_df=}")
 

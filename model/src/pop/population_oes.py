@@ -50,14 +50,17 @@ class PopulationOES(Population):
         log.debug(f"module {__name__=}")
 
         # get population and map data
-        self.attr_pd_df, self.attr_pd_arr, self.map_labs, self.map_arr = self.load_data(source, location)
+        df_dict = self.load_data(source, location)
+        self.attr_pd_df = df_dict['attr_pd_df']
+        self.attr_pd_arr = df_dict['attr_pd_arr']
+        self.map_labs = df_dict['map_labs']
+        self.map_arr = df_dict['map_arr']
 
     def load_data(self, source, location):
         """Do most of the initializing here.
 
         That way the stuff we don't want passed is hidden.
         """
-
         # extract the dataframes we need from the input files
         if source is not None:
             source = LoadCSV(source=source).data
@@ -81,14 +84,19 @@ class PopulationOES(Population):
         # slice to get just healthcare workers
         health_df = self.health_dataframe(df)
 
-        # mapping of population protection levels
-        map_labs, map_arr = self.create_map(health_df, map_df)
-
         # the actual data passed onto the model
         attr_pd_df = self.drop_code(health_df)
         attr_pd_arr = attr_pd_df['Size'].to_numpy()
+        map_labs, map_arr = self.create_map(health_df, map_df)
 
-        return attr_pd_df, attr_pd_arr, map_labs, map_arr
+        # load into dictionary
+        df_dict = {}
+        df_dict['attr_pd_df'] = attr_pd_df
+        df_dict['attr_pd_arr'] = attr_pd_arr
+        df_dict['map_labs'] = map_labs
+        df_dict['map_arr'] = map_arr
+
+        return df_dict
 
     def load_df(self, fname: str) -> Optional[pd.DataFrame]:
         """Load h5 file into a dataframe.
@@ -270,7 +278,6 @@ class PopulationOES(Population):
                         MSA code living in given county
             df: Sliced OES dataframe
         """
-
         # Find county MSA CODE
         code = self.find_code(location, code_df)
 
@@ -300,7 +307,6 @@ class PopulationOES(Population):
         Returns:
             df: Sliced OES dataframe
         """
-
         # Slice OES dataframe by state
         col_list = ['occ_code', 'occ_title', 'o_group', 'tot_emp']
         df = oes_df[(oes_df['area_title'] ==
@@ -448,32 +454,3 @@ class PopulationOES(Population):
         filt = df[(df['occ_code'].str.startswith('29-')) |
                   (df['occ_code'].str.startswith('31-'))]
         return filt
-
-    def healthcare_filter(self) -> pd.DataFrame:
-        """Project OCC code into healthcare vs non-healthcare workers.
-
-        Args:
-            None
-
-        Returns:
-            Dataframe giving total healthcare and non-healthcare populations
-        """
-        if self.data_df is None:
-            raise ValueError(f"{self.data_df=} should not be None")
-
-        # Dataframe labels
-        col_labs = ['Population p', 'Size']
-
-        # Calculate total number of healthcare workers
-        tot_health = np.sum(self.data_df['Size'])
-        health = [['Healthcare Workers', tot_health]]
-
-        # Calculate total number of non-healthcare workers
-        non_health = [['Non-Healthcare Workers', self.tot_pop - tot_health]]
-
-        # Construct dataframes and append
-        health_df = pd.DataFrame(health, columns=col_labs)
-        non_health_df = pd.DataFrame(non_health, columns=col_labs)
-        health_df = health_df.append(non_health_df, ignore_index=True)
-
-        return health_df

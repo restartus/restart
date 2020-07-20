@@ -21,6 +21,7 @@ from pop.population_dict import PopulationDict
 from pop.population_oes import PopulationOES
 from resourcemodel import Resource
 from consumption import Consumption
+from cons.consumption_wa import ConsumptionWA
 from economy import Economy
 from disease import Disease
 from activity import Activity
@@ -190,13 +191,23 @@ class Model(Base):
 
         Consumption by population levels l
         """
-        self.consumption = Consumption(
-            self.data,
-            self.population,
-            self.resource,
-            log_root=self.log_root,
-            type=type,
-        )
+        log = self.log
+
+        self.consumption: Consumption
+        if type == "Mitre":
+            log.debug("Use Mitre consumption")
+            raise ValueError("{type=} not implemented")
+        elif type == "Johns Hopkins":
+            log.debug("Use JHU burn rate model")
+            raise ValueError("{type=} not implemented")
+        else:
+            log.debug("For anything else use Washington data")
+            self.consumption = ConsumptionWA(
+                    self.data,
+                    self.population,
+                    self.resource,
+                    log_root=self.log_root,
+                    type=type)
         return self
 
     def set_filter(self, type: str = None) -> Model:

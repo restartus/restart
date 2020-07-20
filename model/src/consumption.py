@@ -7,7 +7,7 @@ import pandas as pd  # type: ignore # noqa: F401
 import numpy as np  # type: ignore # noqa: F401
 from base import Base
 from modeldata import ModelData
-from util import Log, set_dataframe
+from util import Log
 from typing import Optional
 from population import Population
 from resourcemodel import Resource
@@ -56,181 +56,20 @@ class Consumption(Base):
         if log_root is not None:
             log = log_root.log_class(self)
             # the sample code to move up the logging for a period
-            log_root.con.setLevel(logging.DEBUG)
-            log.debug(f"in {__name__=}")
-            log_root.con.setLevel(logging.WARNING)
         else:
             log = logging.getLogger(__name__)
         self.log = log
+        log.debug(f"In {__name__}")
 
-        if pop is None:
-            log.warning("Not implemented, if no pop passed, use model.data")
-            return
-        if res is None:
-            log.warning("Not implemented, if no res passed, use model.data")
-            return
-        if type == "Mitre":
-            log.debug("Use Mitre consumption")
-        elif type == "Johns Hopkins":
-            log.debug("Use JHU burn rate model")
-        else:
-            log.debug("For anything else use Washington data")
-
-        # the same thing in a function less code duplication
-        # note these are defaults for testing
-        # this is the protection level and the burn rates for each PPE
-        # use get to get a null
-        # https://stackoverflow.com/questions/6130768/return-none-if-dictionary-key-is-not-available
-        self.res_demand_mn_arr = data.value["Consumption m"][
-            "Cons Resource mn"
-        ]
-        # self.res_demand_mn_arr = data.value["Resource Demand mn"]
-        self.res_demand_mn_df = set_dataframe(
-            self.res_demand_mn_arr,
-            data.label,
-            index="Consumption m",
-            columns="Resource n",
-        )
-        log.debug(f"{self.res_demand_mn_df=}")
-        # for compatiblity both the model and the object hold the same
-        # description
-        self.set_description(
-            f"{self.res_demand_mn_df=}",
-            data.description["Consumption m"]["Cons Resource mn"],
-        )
-
-        self.level_pm_arr = pop.map_arr
-        # self.level_pm_arr = data.value["Population p"]["Protection pm"]
-        '''
-        self.level_pm_df = set_dataframe(
-            self.level_pm_arr,
-            data.label,
-            index="Population p",
-            columns="Consumption m",
-        )
-        '''
-        # TODO: do this using set_dataframe and figure out labelling
-        self.level_pm_df = pd.DataFrame(
-                self.level_pm_arr,
-                index=pop.map_labs,
-                columns=data.label["Consumption m"]
-        )
-
-        log.debug(f"{self.level_pm_df=}")
-        self.set_description(
-            f"{self.level_pm_df=}",
-            data.description["Population p"]["Protection pm"],
-        )
-        log.debug(f"{self.description['level_pm_df']=}")
-
-        # TODO: we need to decide if all the data lives in data.value["Res
-        # Demand mn"] or should it be gotten from classes like pop.demand_pn_df
-        # As we mix both together, this is a philosophical thing as data.value
-        # in effect makes everything a global, but passing classes hides
-        # information. So data.value is great as an output, but now we are
-        # duplicating information and increasing bugs
-
-        self.demand_pn_df = self.level_pm_df @ self.res_demand_mn_df
-        log.debug(f"{self.demand_pn_df=}")
-        self.demand_pn_df.index.name = "Population p"
-        self.demand_pn_df.columns.name = "Resource n"
-        self.set_description(
-            f"{self.demand_pn_df=}",
-            data.description["Population p"]["Population Demand pn"],
-        )
-
-        if pop.attr_pd_df is None:
-            raise ValueError(f"{pop.attr_pd_df=} should not be None")
-
-        if pop.attr_pd_arr is None:
-            raise ValueError(f"{pop.attr_pd_arr=} should not be None")
-
-        self.level_pl_arr = np.hstack(
-                (np.ones((pop.attr_pd_df.shape[0], 1)),
-                 np.zeros((pop.attr_pd_df.shape[0], 1))))
-
-        self.level_pl_df = pd.DataFrame(
-                self.level_pl_arr,
-                index=pop.map_labs,
-                columns=data.label["Pop Level l"]
-        )
-        log.debug(f"{self.level_pl_df=}")
-        '''
-        self.level_pl_df = set_dataframe(
-                self.level_pl_arr,
-                data.label,
-                index=,
-                columns="Pop Level l",
-                )
-        '''
-        # self.level_demand_ln_df = pop.level_pl_df.T @ self.demand_pn_df
-        self.level_demand_ln_df = self.level_pl_df.T @ self.demand_pn_df
-        log.debug(f"{self.level_demand_ln_df=}")
-        self.set_description(
-            f"{self.level_demand_ln_df=}",
-            data.description["Population p"]["Level Demand ln"],
-        )
-        # now to the total for population
-        # TODO: eventually demand will be across pdn so
-        # across all the values
-        # https://stackoverflow.com/questions/54786574/mypy-error-on-dict-of-dict-value-of-type-object-is-not-indexable
-        # you need a casting just to tell it you are getting
-        # https://docs.python.org/3/library/typing.html
-
-        n95 = np.array(
-                self.demand_pn_df['N95 Surgical'] * pop.attr_pd_arr).reshape(
-                        [pop.attr_pd_arr.shape[0], 1])
-
-        astm = np.array(
-                self.demand_pn_df['ASTM Mask'] * pop.attr_pd_arr).reshape(
-                        [pop.attr_pd_arr.shape[0], 1])
-        self.total_demand_pn_arr = np.hstack((n95, astm))
-        self.total_demand_pn_df = pd.DataFrame(
-                self.total_demand_pn_arr,
-                index=pop.map_labs,
-                columns=data.label["Resource n"],
-        )
-
-        self.total_demand_pn_df.index.name = "Population p"
-        '''
-        self.total_demand_pn_df = (
-            self.demand_pn_df
-            * pop.attr_pd_df["Size"].values  # type: ignore
-            # use below if the array is 1-D
-            # self.demand_pn_df * self.attr_pd_arr
-        )
-        '''
-        log.debug(f"{self.total_demand_pn_df=}")
-        # convert to demand by levels note we have to transpose
-        self.set_description(
-            f"{self.total_demand_pn_df=}",
-            data.description["Population p"]["Population Total Demand pn"],
-        )
-        self.level_total_demand_ln_df = (
-            self.level_pl_df.T @ self.total_demand_pn_df
-        )
-        log.debug(f"{self.level_total_demand_ln_df=}")
-        self.set_description(
-            f"{self.level_total_demand_ln_df=}",
-            data.description["Population p"]["Level Total Demand ln"],
-        )
-        # set to null to make pylint happy and instatiate the variable
-        self.level_total_cost_ln_df = None
-        self.set_description(
-            f"{self.level_total_cost_ln_df=}",
-            data.description["Population p"]["Level Total Cost ln"],
-        )
-
-    def level_total_cost(self, cost_ln_df):
-        """Calculate the total cost of resource for a population level.
-
-        The total cost of resources
-        """
-        log = self.log
-        self.level_total_cost_ln_df = (
-            self.level_total_demand_ln_df * cost_ln_df.values
-        )
-        log.debug("level_total_cost_ln_df\n%s", self.level_total_cost_ln_df)
-
-        # method chaining
-        return self
+        self.res_demand_mn_arr: Optional[np.ndarray] = None
+        self.res_demand_mn_df: Optional[pd.DataFrame] = None
+        self.level_pm_arr: Optional[np.ndarray] = None
+        self.level_pm_df: Optional[pd.DataFrame] = None
+        self.demand_pn_df: Optional[pd.DataFrame] = None
+        self.level_pl_arr: Optional[np.ndarray] = None
+        self.level_pl_df: Optional[pd.DataFrame] = None
+        self.level_demand_ln_df: Optional[pd.DataFrame] = None
+        self.total_demand_pn_arr: Optional[np.ndarray] = None
+        self.total_demand_pn_df: Optional[pd.DataFrame] = None
+        self.level_total_demand_ln_df: Optional[pd.DataFrame] = None
+        self.level_total_cost_ln_df: Optional[pd.DataFrame] = None

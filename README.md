@@ -20,6 +20,13 @@ right message at the right time is key.
 4. Community. Getting the entire network of public, private and non-profit
    organizations working together.
 
+# Conceptual diagram
+
+We are building a system that calculates from several classes a system that
+looks like:
+
+![Conceptual](doc/conceptual.dot.jpg)
+
 # Project Management
 
 The overall project is managed with [Github
@@ -28,7 +35,7 @@ works this way:
 
 1. We assign items to people for the weekly sprint. Check the board to see what
    issues you own
-2. The syntax of each issue is `[Estimated time in hours to complete] Item name
+2. The syntax of each issue is in brackets Estimated time in hours to complete  Item name
    (actual used), so for instance `[3] Insert new Class (2)` which means it will
 take 3 hours to complete and you've used 2.
 3. When estimating times, we are using the Fibonacci series as a rough guide so

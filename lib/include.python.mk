@@ -28,6 +28,9 @@ WEB ?= $(MAIN)
 LIB ?= lib
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
 FLAGS ?=
+CA_FLAGS ?=
+all_py = $$(find . -name "*.py")
+all_yaml = $$(find . -name "*.yaml")
 flags ?= -p 8501:8501
 PIP ?= streamlit altair pandas pyyaml xlrd tables
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
@@ -43,6 +46,10 @@ DOC ?= doc
 .PHONY: main
 main:
 	pipenv run python $(MAIN) $(FLAGS)
+
+.PHONY: main-ca
+main-ca:
+	pipenv run python $(MAIN) $(CA_FLAGS)
 
 # https://docs.python.org/3/library/pdb.html
 ## pdb: run locally with python to test components from main (uses pipenv)
@@ -69,6 +76,9 @@ web-pdb:
 web-debug:
 	pipenv run python -m pdb $(WEB) $(FLAGS)
 
+.PHONY:
+web-ca:
+	pipenv run streamlit run $(WEB) -- $(CA_FLAGS)
 #
 # https://pipenv.pypa.io/en/latest/install/
 # https://realpython.com/pipenv-guide/

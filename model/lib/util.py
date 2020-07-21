@@ -59,6 +59,19 @@ def set_dataframe(
     return df
 
 
+def load_dataframe(fname: str) -> pd.DataFrame:
+    """Load h5 file into a dataframe.
+
+    Args:
+        Name of h5 file
+
+    Returns:
+        The dataframe serialized in the h5 file
+    """
+    df: pd.DataFrame = pd.read_hdf(fname, 'df')
+    return df
+
+
 def datetime_to_code(code: Union[str, datetime.datetime]) -> str:
     """Converts datetime objects to valid OCC codes.
 

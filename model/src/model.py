@@ -167,7 +167,7 @@ class Model(Base):
         elif type == "dict":
             # change this to the the naming of columns
             self.population = PopulationDict(
-                data=self.data,
+                self.data,
                 label=self.data.label,
                 log_root=self.log_root,
                 index="Population p",

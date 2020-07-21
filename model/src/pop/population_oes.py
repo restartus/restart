@@ -11,7 +11,8 @@ import pandas as pd  # type: ignore
 from loader.load_csv import LoadCSV
 from modeldata import ModelData
 from population import Population
-from util import Log, datetime_to_code
+from util import Log, datetime_to_code, load_dataframe
+from loader.load_csv import LoadCSV
 
 
 class PopulationOES(Population):
@@ -30,7 +31,10 @@ class PopulationOES(Population):
     """
 
     def __init__(
-        self, data: ModelData, location, log_root: Optional[Log] = None,
+        self,
+        data: ModelData,
+        location: Optional[Dict] = None,
+        log_root: Optional[Log] = None,
     ):
         """Initialize.
 
@@ -82,19 +86,19 @@ class PopulationOES(Population):
         if data is not None:
             source = data.datapaths["Paths"]
             source = LoadCSV(source=source).data
-            oes_df = self.load_df(os.path.join(source["Root"], source["OES"]))
-            code_df = self.format_code(
-                self.load_df(os.path.join(source["Root"], source["CODE"]))
-            )
-            pop_df = self.load_df(os.path.join(source["Root"], source["POP"]))
-            map_df = self.format_map(
-                self.load_df(os.path.join(source["Root"], source["MAP"]))
-            )
+            oes_df = load_dataframe(os.path.join(source['Root'],
+                                                 source['OES']))
+            code_df = self.format_code(load_dataframe(
+                os.path.join(source['Root'], source['CODE'])))
+            pop_df = load_dataframe(os.path.join(source['Root'],
+                                                 source['POP']))
+            map_df = self.format_map(load_dataframe(
+                os.path.join(source['Root'], source['MAP'])))
 
         # initialize unsliced dataframe from oes data
-        if location["State"] is None:
-            raise ValueError(f"invalid {self.location=} must specify state")
-        if location["County"] is not None and location["State"] is not None:
+        if location is None:
+            df = self.create_country_df(oes_df)
+        elif location["County"] is not None and location["State"] is not None:
             df = self.create_county_df(location, oes_df, code_df, pop_df)
         else:
             df = self.create_state_df(location, oes_df)
@@ -115,23 +119,6 @@ class PopulationOES(Population):
         df_dict["map_arr"] = map_arr
 
         return df_dict
-
-    def load_df(self, fname: str) -> Optional[pd.DataFrame]:
-        """Load h5 file into a dataframe.
-
-        Args:
-            fname: Name of h5 file
-
-        Returns:
-            The dataframe serialized in the h5 file
-        """
-        try:
-            df: pd.DataFrame = pd.read_hdf(fname, "df")
-            return df
-
-        except ValueError:
-            self.log.debug(f"invalid file {fname=}")
-            return None
 
     def format_code(self, df: pd.DataFrame) -> pd.DataFrame:
         """Perform dataframe transformations specific to list1_2020.xls.
@@ -322,21 +309,21 @@ class PopulationOES(Population):
                         MSA code living in given county
             df: Sliced OES dataframe
         """
-        # Find county MSA CODE
+        # find county MSA CODE
         code = self.find_code(location, code_df)
 
-        # Calculate proportion of MSA code's residents living in county
-        proportion = self.calculate_proportions(
-            code, location, code_df, pop_df
-        )
+        # calculate proportion of MSA code's residents living in county
+        proportion = self.calculate_proportions(code,
+                                                location,
+                                                code_df,
+                                                pop_df)
 
-        # Initialize dataframe as slice of OES data
-        df = oes_df[oes_df["area"] == code][
-            ["occ_code", "occ_title", "o_group", "tot_emp"]
-        ]
+        # initialize dataframe as slice of OES data
+        df = oes_df[oes_df['area'] == code][['occ_code', 'occ_title',
+                                             'o_group', 'tot_emp']]
 
-        # Replace placeholders with 0
-        df = df.replace(to_replace="**", value=0)
+        # replace placeholders with 0
+        df = df.replace(to_replace='**', value=0)
 
         return proportion, df
 
@@ -349,12 +336,28 @@ class PopulationOES(Population):
         Returns:
             df: Sliced OES dataframe
         """
-        # Slice OES dataframe by state
-        col_list = ["occ_code", "occ_title", "o_group", "tot_emp"]
-        df = oes_df[(oes_df["area_title"] == location["State"])][col_list]
+        # slice OES dataframe by state
+        col_list = ['occ_code', 'occ_title', 'o_group', 'tot_emp']
+        df = oes_df[(oes_df['area_title'] ==
+                    location['State'])][col_list]
 
-        # Replace placeholders with 0
-        df = df.replace(to_replace="**", value=0)
+        # replace placeholders with 0
+        df = df.replace(to_replace='**', value=0)
+
+        return df
+
+    def load_country(self, oes_df: pd.DataFrame) -> pd.DataFrame:
+        """Get the OES data for the whole country.
+
+        The default setting for OES population
+        """
+        # slice OES dataframe by the whole county
+        col_list = ['occ_code', 'occ_title', 'o_group', 'tot_emp', 'naics']
+        df = oes_df[(oes_df['area_title'] == 'U.S.') &
+                    (oes_df['naics'] == '000000')][col_list]
+        df = df.drop(['naics'], axis=1)
+        # replace placeholders with 0
+        df = df.replace(to_replace='**', value=0)
 
         return df
 
@@ -371,7 +374,7 @@ class PopulationOES(Population):
             The detailed dataframe with extra categories to account for
             uncounted workers
         """
-        code_list = list(major["occ_code"])
+        code_list = list(set(major['occ_code']))
 
         for code in code_list:
             pat = code[0:3]
@@ -479,6 +482,24 @@ class PopulationOES(Population):
         detailed = self.fill_uncounted(major, detailed)
 
         # Format to fit model
+        detailed = self.format_output(detailed)
+
+        return detailed
+
+    def create_country_df(self,
+                          oes_df: pd.DataFrame) -> pd.DataFrame:
+        """Generate dataframe containing processed OES data for US.
+
+        Args:
+            oes_df: Dataframe containing OES data
+
+        Returns:
+            The processed dataframe
+        """
+        df = self.load_country(oes_df)
+        major = df[df['o_group'] == 'major'].copy()
+        detailed = df[df['o_group'] == 'detailed'].copy()
+        detailed = self.fill_uncounted(major, detailed)
         detailed = self.format_output(detailed)
 
         return detailed

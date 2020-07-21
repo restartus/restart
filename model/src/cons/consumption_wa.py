@@ -58,18 +58,7 @@ class ConsumptionWA(Consumption):
         if res is None:
             raise ValueError("{res=} should not be None")
 
-        self.level_pm_arr = pop.map_arr
-        self.level_pm_df = pd.DataFrame(
-                self.level_pm_arr,
-                index=pop.map_labs,
-                columns=data.label["Consumption m"])
-        log.debug(f"{self.level_pm_df=}")
-        self.set_description(
-                f"{self.level_pm_df=}",
-                data.description["Population p"]["Protection pm"])
-        log.debug(f"{self.description['level_pm_df']=}")
-
-        self.demand_pn_df = self.level_pm_df @ self.res_demand_mn_df
+        self.demand_pn_df = pop.level_pm_df @ self.res_demand_mn_df
         log.debug(f"{self.demand_pn_df=}")
         self.demand_pn_df.index.name = "Population p"
         self.demand_pn_df.columns.name = "Resource n"
@@ -89,11 +78,13 @@ class ConsumptionWA(Consumption):
 
         self.level_pl_df = pd.DataFrame(
                 self.level_pl_arr,
-                index=pop.map_labs,
+                index=pop.level_pm_labs,
                 columns=data.label["Pop Level l"])
         log.debug(f"{self.level_pl_df=}")
 
-        self.level_demand_ln_df = self.level_pl_df.T @ self.demand_pn_df
+        self.level_demand_ln_df = np.array(
+                self.level_pl_df).T @ np.array(self.demand_pn_df)
+
         log.debug(f"{self.level_demand_ln_df=}")
         self.set_description(
                 f"{self.level_demand_ln_df=}",
@@ -108,7 +99,7 @@ class ConsumptionWA(Consumption):
         self.total_demand_pn_arr = np.hstack((n95, astm))
         self.total_demand_pn_df = pd.DataFrame(
                 self.total_demand_pn_arr,
-                index=pop.map_labs,
+                index=pop.level_pm_labs,
                 columns=data.label["Resource n"])
 
         self.total_demand_pn_df.index.name = "Population p"

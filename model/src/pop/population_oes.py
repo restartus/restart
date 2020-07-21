@@ -7,6 +7,7 @@ import math
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
 from typing import Optional, Tuple, Dict
+from modeldata import ModelData
 from population import Population
 from util import Log, datetime_to_code
 from loader.load_csv import LoadCSV
@@ -29,9 +30,9 @@ class PopulationOES(Population):
 
     def __init__(
         self,
+        data: ModelData,
         location,
         log_root: Optional[Log] = None,
-        source: Optional[Dict] = None,
     ):
         """Initialize.
 
@@ -49,20 +50,32 @@ class PopulationOES(Population):
 
         log.debug(f"module {__name__=}")
 
-        # get population and map data
-        df_dict = self.load_data(source, location)
+        # get population data
+        df_dict = self.load_data(data, location)
         self.attr_pd_df = df_dict['attr_pd_df']
         self.attr_pd_arr = df_dict['attr_pd_arr']
-        self.map_labs = df_dict['map_labs']
-        self.map_arr = df_dict['map_arr']
 
-    def load_data(self, source, location):
+        # get mapping data
+        self.level_pm_arr = df_dict['map_arr']
+        self.level_pm_labs = df_dict['map_labs']
+        self.level_pm_df = pd.DataFrame(
+                self.level_pm_arr,
+                index=self.level_pm_labs,
+                columns=data.label["Consumption m"])
+        log.debug(f"{self.level_pm_df=}")
+        self.set_description(
+                f"{self.level_pm_df=}",
+                data.description['Population p']['Protection pm'])
+        log.debug(f"{self.description['level_pm_df']=}")
+
+    def load_data(self, data, location):
         """Do most of the initializing here.
 
         That way the stuff we don't want passed is hidden.
         """
         # extract the dataframes we need from the input files
-        if source is not None:
+        if data is not None:
+            source = data.datapaths["Paths"]
             source = LoadCSV(source=source).data
             oes_df = self.load_df(os.path.join(source['Root'],
                                                source['OES']))

@@ -159,17 +159,16 @@ class Model(Base):
         self.population: Population
         if type == "oes":
             self.population = PopulationOES(
-                # TODO: This belongs in filter
+                self.data,
+                # TODO: this belongs in filter
                 {'County': None, 'State': 'California'},
                 log_root=self.log_root,
-                source=self.data.datapaths["Paths"],
             )
         elif type == "dict":
             # change this to the the naming of columns
             self.population = PopulationDict(
                 data=self.data,
                 label=self.data.label,
-                source=self.data.value["Population p"]["Pop Detail Data pd"],
                 log_root=self.log_root,
                 index="Population p",
                 columns="Pop Detail d",

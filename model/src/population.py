@@ -9,11 +9,10 @@ attr_pd_arr and then a calc() which calculates the rest of the related data
 
 # Note that pip install data-science-types caused errors
 from base import Base
-from modeldata import ModelData
 
 # Insert the classes of data we support here
 from typing import Optional, Dict
-from util import Log, set_dataframe
+from util import Log
 import pandas as pd  # type:ignore
 
 # import pandas as pd  # type:ignore
@@ -106,81 +105,7 @@ class Population(Base):
 
         self.attr_pd_arr: Optional[np.ndarray] = None
         self.attr_pd_df: Optional[pd.DataFrame] = None
-        self.map_labs: Optional[list] = None
-        self.map_arr: Optional[np.ndarray] = None
+        self.level_pm_labs: Optional[list] = None
+        self.level_pm_arr: Optional[np.ndarray] = None
+        self.level_pm_df: Optional[pd.DataFrame] = None
         self.config: Optional[Dict] = config
-
-    def default(self, data: ModelData):
-        """Load The default method for getting values.
-
-        Does the default pull from data.
-        """
-        # set the arrays of values should be a column vector
-        # https://kite.com/python/answers/how-to-make-a-numpy-array-a-column-vector-in-python
-        # A shortcut
-
-        # this is superceded by set_dataframe
-        # self.attr_pd_arr = data.value["Population p"]["Pop Detail Data pd"]
-        # log.debug(f"{self.attr_pd_arr=}")
-        # self.attr_pd_df = pd.DataFrame(
-        #     self.attr_pd_arr,
-        #     index=data.label["Population p"],
-        #    columns=data.label["Pop Detail d"],
-        # )
-        # self.attr_pd_df.index.name = "Population p"
-        # self.attr_pd_df.columns.name = "Pop Detail d"
-        # log.debug(f"{self.attr_pd_df=}")
-        # self.set_description(
-        #    f"{self.attr_pd_df=}",
-        #     data.description["Population p"]["Pop Detail pd"],
-        # )
-        # the same thing in a function less code duplication
-        log = self.log
-        self.attr_pd_arr = data.value["Population p"]["Pop Detail Data pd"]
-        self.attr_pd_df = set_dataframe(
-            self.attr_pd_arr,
-            data.label,
-            index="Population p",
-            columns="Pop Detail d",
-        )
-        log.debug(f"{self.attr_pd_df=}")
-        log.debug(f"{self.attr_pd_df.index.name=}")
-        log.debug(f"{self.attr_pd_df.columns.name=}")
-        self.set_description(
-            f"{self.attr_pd_df=}",
-            data.description["Population p"]["Pop Detail pd"],
-        )
-
-        # new population class, so it can be replaced in a class
-
-        # not running for rich df is null
-        # population_data_oes = PopulationOES(
-        #     model,
-        #     # source=model.data["Population p"]["Pop Detail Data pd"],
-        #     index=model.label["Population p"],
-        #     columns=model.label["Pop Detail d"],
-        # )
-        # log.debug(f"{population_data_oes=}")
-        # log.debug(f"{population_data=}")
-
-        # log.debug(f"{population_data.attr_pd_arr=}")
-        # log.debug(f"{population_data.attr_pd_df=}")
-        # if (
-        #    population_data.attr_pd_arr is None
-        #    or population_data.attr_pd_df is None
-        # ):
-        #     raise ValueError(
-        #        f"no population data {population_data.attr_pd_arr=}"
-        #    )
-        # TODO: should we just instantiate PopDict or PopOES instead of this
-        # shovelling of parameters
-        # self.attr_pd_arr = population_data.attr_pd_arr
-        # self.attr_pd_df = population_data.attr_pd_df
-        log.debug(f"{self.attr_pd_df=}")
-        self.set_description(
-            f"{self.attr_pd_df=}",
-            data.description["Population p"]["Pop Detail pd"],
-        )
-        log.debug(f"{self=}")
-        log.debug(f"{self.description=}")
-        log.debug(f"{self.description['attr_pd_df']=}")

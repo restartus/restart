@@ -305,7 +305,6 @@ class Compose:
         model.population = PopulationDict(
             model.data,
             model.label,
-            source=model.data.value["Population p"]["Pop Detail Data pd"],
             index="Population p",
             columns="Pop Detail d",
             log_root=log_root,

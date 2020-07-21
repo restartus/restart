@@ -20,13 +20,12 @@ class PopulationDict(Population):
 
     Reads the population data. The default is to read from the model.data
     """
-    # no variable here unless you want them the same across all instances
 
     def __init__(
         self,
         data: ModelData,
         label: Dict,
-        source: Optional[Dict] = None,
+        # TODO: unify indexing across classes
         index: Optional[str] = None,
         columns: Optional[str] = None,
         log_root: Log = None,
@@ -40,9 +39,7 @@ class PopulationDict(Population):
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__(log_root=log_root)
 
-        # https://stackoverflow.com/questions/35328286/how-to-use-numpy-in-optional-typing
         # create a sublogger if a root exists in the model
-        # self.model: Model = model
         if log_root is not None:
             self.log_root: Log = log_root
             log = log_root.log_class(self)
@@ -56,39 +53,35 @@ class PopulationDict(Population):
             log.debug(f"no log_root using {log=}")
         self.log = log
 
-        # the sample code to move up the logging for a period and then turn it
-        # off
+        # type declarations
+        self.attr_pd_arr: np.ndarray
+        self.attr_pd_df: pd.DataFrame
+        self.level_pm_arr: np.ndarray
+        self.level_pm_labs: list
 
-        log.debug(f"{source=}")
-
-        # we just use one dimension of source
-        # if source is not None:
-        #     self.data_arr = np.array(source['Size'])
-        #     log.debug(f"{type(self.data_arr)=}")
-        # why is this here?
-        # if index is not None and columns is not None:
-        #     self.data_df = set_dataframe(
-        #         self.data_arr,
-        #        label=label,
-        #        index=index,
-        #        columns=columns
-        #    )
-        # this check is here to make the type checker happy.
         if label is None:
             raise ValueError(f"{label=} is null")
-        if source is None:
-            raise ValueError(f"{source=} is null")
 
-        self.attr_pd_arr = np.array(source['Size'])
+        # get population data
+        self.attr_pd_arr = np.array(
+                data.value["Population p"]["Pop Detail Data pd"]['Size'])
         self.attr_pd_df = set_dataframe(
             self.attr_pd_arr,
             label=label,
             index=index,
-            columns=columns,
-        )
+            columns=columns)
+        log.debug(f"{self.attr_pd_arr=}")
 
-        self.map_arr = data.value["Population p"]["Protection pm"]
-        self.map_labs: list = list(data.label["Population p"])
-        log.debug(f"{self.attr_pd_df=}")
-        log.debug(f"{self.attr_pd_df.index.name=}")
-        log.debug(f"{self.attr_pd_df.columns.name=}")
+        # get mapping data
+        self.level_pm_arr = np.array(
+                data.value["Population p"]["Protection pm"])
+        self.level_pm_labs = list(data.label["Population p"])
+        self.level_pm_df = pd.DataFrame(
+                self.level_pm_arr,
+                index=self.level_pm_labs,
+                columns=data.label["Consumption m"])
+        log.debug(f"{self.level_pm_df=}")
+        self.set_description(
+                f"{self.level_pm_df=}",
+                data.description['Population p']['Protection pm'])
+        log.debug(f"{self.description['level_pm_df']=}")

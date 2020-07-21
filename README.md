@@ -20,6 +20,24 @@ right message at the right time is key.
 4. Community. Getting the entire network of public, private and non-profit
    organizations working together.
 
+# Table of Contents
+
+1. [Conceptual Diagram](#conceptual-diagram)
+2. [Project Management](#project-management)
+3. [Directory Layout](#directory-layout)
+4. [Versions and Releases](#versions-and-releases)
+    - [Release Points](#release-points)
+    - [Release Notes](#release-notes)
+    - [Excel Bug Notes](#excel-bug-notes)
+5. [The Various Documents](#the-various-documents)
+6. [Data Sources](#data-sources)
+7. [Mac Installation Guidelines](#mac-installation-guidelines)
+    - [Using Git LFS and XLTrail](#using-git-lfs-and-xltrail)
+8. [Other Repos](#other-repos)
+9. [Release Schedule](#release-schedule)
+10. [GitHub, XLTrail, and Git LFS](#github-xltrail-and-git-lfs)
+11. [Notes on Using Excel](#notes-on-using-excel)
+
 # Conceptual diagram
 
 We are building a system that calculates from several classes a system that
@@ -45,7 +63,7 @@ hours something will take.
    we are. You should try to turn on your 30 minute announcment on and see how
 log it takes.
 
-# Directory layout
+# Directory Layout
 
 The directory layout has a few major areas:
 
@@ -69,7 +87,7 @@ the other builds.
 in Athena sheets
 
 
-# Versions and releases
+# Versions and Releases
 
 The main release scheme is to alternate between adding features (the v1, v3,...)
 and then solving technical debt issues and solidifying things, you can think of
@@ -89,7 +107,7 @@ put in the CD/CI features
 As with all semvar compliant systems, major versions v1, v2,... maintain the
 same interface, that is they produce the same output and are called the same
 
-## Release points
+## Release Points
 
 The system release two spreadsheets right now as of v1.x at
 https://github.com/restartus/covid-projection/releases. These are right taken
@@ -102,7 +120,7 @@ from the files at the root and renamed appropriately. So when you want to do
 - covid-who-surge-single-cook.xlsx. Thsi is the first release that uses the
   single for Cook county restaurants
 
-## Release notes
+## Release Notes
 
 - v1.4.5 Removes the data table from main washington model and creates a county
   only model
@@ -111,37 +129,37 @@ from the files at the root and renamed appropriately. So when you want to do
   single sheet models
 - v1.3.1. Fixes the the washington surge and has the new york city surge
 
-## Excel bug notes
+## Excel Bug Notes
 If you put a data table inside the system, you will get a external content
 error. To fix this, you should go to the Data tab and look at connections. This
 is the place to remove external connections
 [External](https://answers.microsoft.com/en-us/msoffice/forum/all/excel-for-mac-external-data-connections-have-been/03d3efa9-d540-4b00-8bc8-a06ddb7c4ea1)
 
-## The various documents
+# The Various Documents
 
 - [README.md](README.md) You are reading this, the basic introduction
 - [INTRODUCTION.md](INTRODUCTION.md). The model and how it works at a high level
 - [RESEARCH.md](RESEARCH.md). Various call reports on new ideas
 
 
-## Data sources
+# Data sources
 
-### Apple Mobility
+## Apple Mobility
 
 A regularly published CSV on mobility data
 [Apple](https://www.apple.com/covid19/mobility)
 
-### Google Mobility
+## Google Mobility
 
 A regular data source from [Google](https://www.google.com/covid19/mobility/)
 
-### The PowerBI cube
+## The PowerBI cube
 
 The supporting documents needed are mainly in PowerBI.
 - [OCC Based
   Employment](https://azure.microsoft.com/email/?destination=https%3A%2F%2Fapp.powerbi.com%2FMobileRedirect.html%3Faction%3DOpenReport%26reportObjectId%3De9e58394-451a-429b-aed1-20ef6e317dc4%26ctid%3D1e355c04-e0a4-42ed-8e2d-7351591f0ef1%26groupObjectId%3Df2f0cf78-3695-4dd6-a6fd-cf2063d3195c%26OpenAppFromWindowsPCAndTablet%3Dfalse%26emailSource%3DReportInvitation&p=bT0xN2RlMjVkYy04ODg4LTQwYmYtOTJmYy1iNDEwODVlNDAzZDEmdT1hZW8mbD1Nb2JpbGVSZWRpcmVjdC5odG1s)
 
-# How to set it all up (for the Mac)
+# Mac Installation Guidelines
 
 @richtong will shortly generate instructions for Windows machines, but here is
 an outline of steps:
@@ -167,7 +185,7 @@ Now you need to create a logon at [GitHub](https://github.com) and then ask
 forecast and run these commands to get all the latest spreadsheets directly into
 your machine
 
-## On using the repo you need Git LFS and XLTrail
+## Using Git LFS and XLTrail
 
 You will need to install Git LFS as the models are quite large at 200MB and up
 with and it will really clog your machine:
@@ -302,7 +320,7 @@ This is the model that went to the Washington State Office of Financial Manageme
 - Depends on WHO EFST v1.2 surge to estimate healthcare needs augmented with DOH Tier 1-4 dates 14 April (not updated to latest) and some LNI rules for Construction but not updated to latest phases
 - Estimates conserved use
 
-# Why are we using Github and what is XLTrail and what is LFS
+# Github, XLTrail, and Git LFS
 
 Github and Excel spreadsheets are not really used much together, but as we are
 going to have both Excel spreadsheets and real code integrated, this seems like
@@ -413,7 +431,7 @@ the amount for rounddown(e51,0) and mod(d51) is the fraction above.
 =SUMPRODUCT(OFFSET($J$7:$T$13,$D51,COLUMN(J:J)-COLUMN($J:$J),2,1),TRANSPOSE($E51:$F51))*$G51
 ```
 
-# Guards on the SUMIFS
+## Guards on the SUMIFS
 The next complicated formula relies on ranges and does the summing. The main
 trick here is that it uses SUMIFS as a conditional and you need to have a
 protection level one greater at the end of each, so there is a mythical "7" or
@@ -444,6 +462,6 @@ seems complicated though.
 Another approach might be to take models which are compatible with Google Sheets
 and push the model into Google Drive and drive it with Javascript
 
-# Mobility Modeling
+## Mobility Modeling
 
 We need a way to model economic behavior and mobility.

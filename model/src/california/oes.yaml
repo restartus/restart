@@ -1,7 +1,7 @@
 ---
 Filepaths:
   Paths:
-    Root: '../../../../../data/ingestion/'
+    Root: '../../../data/ingestion/'
     OES: 'all_data_M_2019.xlsx'
     CODE: 'list1_2020.xls'
     POP: 'co-est2019-alldata.csv'

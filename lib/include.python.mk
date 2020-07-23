@@ -90,34 +90,6 @@ install: pipenv-python
 	pipenv install $(PIP)
 	pipenv lock
 
-## pipenv-python: Install latest python 3.x for bleeding edge features
-# also add to the python path
-.PHONY: pipenv-python
-pipenv-python:	pipenv-clean
-	@echo python is currently python 3.8
-	@echo note do not use requirements.txt as it will read it by default
-	@echo get the latest python
-	brew upgrade python@3.8 pipenv
-	PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --python /usr/local/opt/python@3.8/bin/python3
-	pipenv clean
-	 @echo use .env to ensure we can see all packages
-	 #[[ ! -e .env ]] && echo "PYTHONPATH=${PWD}" > .env
-
-## pipenv-clean: cleans the pipenv completely
-# note pipenv --rm will fail if there is nothing there so ignore that
-# do not do a pipenv clean until later otherwise it creats an environment
-# Same with the remove if the files are not there
-#
-.PHONY: pipenv-clean
-pipenv-clean:
-	pipenv --rm || true
-	rm Pipfile* || true
-
-## pre-commit: install git pre-commit
-.PHONY: pre-commit
-pre-commit:
-	pre-commit install
-
 # https://medium.com/@Tankado95/how-to-generate-a-documentation-for-python-code-using-pdoc-60f681d14d6e
 # https://medium.com/@peterkong/comparison-of-python-documentation-generators-660203ca3804
 ## doc: make the documentation for the Python project (uses pipenv)

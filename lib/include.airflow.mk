@@ -26,7 +26,7 @@ AIRFLOW_PIP ?= apache-airflow mysqlclient datetime
 ## airflow-install: configure airflow data directories
 # the side effect of airflow version is to create a default airflow.cfg
 # Which has the current directory as AIRFLOW_HOME
-airflow-install: install
+airflow-install: airflow-pipenv
 	@echo add /usr/local/opt/mysql-client/bin
 	[[ ! -e airflow.cfg ]] && airflow version || true
 	grep AIRFLOW_HOME .env || echo AIRFLOW_HOME="$(airflow_data)" > .env
@@ -35,6 +35,12 @@ airflow-install: install
 		do grep $$file .gitignore || echo $$file >> .gitignore; \
 		done
 	pipenv run airflow initdb
+
+## airflow-pipenv install basic environment for airflow
+# dependency on include.mk
+.PHONY: python-pipenv
+airflow-pipenv:
+	pipenv install $(AIRFLOW_PIP)
 
 ## airflow: initialize an airflow db
 .PHONY: airflow

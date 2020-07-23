@@ -73,7 +73,7 @@ def load_dataframe(fname: str) -> pd.DataFrame:
 
 
 def datetime_to_code(code: Union[str, datetime.datetime]) -> str:
-    """Converts datetime objects to valid OCC codes.
+    """Convert datetime objects to valid OCC codes.
 
     Gets around the problem of Excel automatically converting date-looking
     strings into datetime objects that can't be undone.

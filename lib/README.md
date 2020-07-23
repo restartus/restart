@@ -1,6 +1,10 @@
-# Bash script helper functions
+# Makefile includes
+These are the standard includes:
 
-Used by @rich scripts, you can just source these into your scripts
+include.mk is required and has help and configuration used for all
 
-There is a short preamble to help you find and source them.
-See prebuild.sh as a model for how this works using find_ws() and source_lib().
+The others are for specific purposes:
+
+include.python.mk is for python development
+include.airflow.mk for using Apache airflow
+include.docker.mk for docker managemen

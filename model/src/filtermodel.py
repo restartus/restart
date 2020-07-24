@@ -4,8 +4,10 @@ Filter the model to what's interesting. This is what Dashboard can call on when
 users are done filtering.
 """
 import logging
-import pandas as pd  # type: ignore # noqa: F401
+
 import numpy as np  # type: ignore # noqa: F401
+import pandas as pd  # type: ignore # noqa: F401
+
 from base import Base
 from modeldata import ModelData
 from util import Log

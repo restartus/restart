@@ -7,18 +7,19 @@ It also includes a default() for setting up the main attribute matrix,
 attr_pd_arr and then a calc() which calculates the rest of the related data
 """
 
-# Note that pip install data-science-types caused errors
-from base import Base
+import logging  # noqa: F401
 
 # Insert the classes of data we support here
-from typing import Optional, Dict
-from util import Log
-import pandas as pd  # type:ignore
-
-# import pandas as pd  # type:ignore
+from typing import Dict, Optional
 
 import numpy as np  # type: ignore
-import logging  # noqa: F401
+import pandas as pd  # type:ignore
+
+# Note that pip install data-science-types caused errors
+from base import Base
+from util import Log
+
+# import pandas as pd  # type:ignore
 
 
 class Population(Base):

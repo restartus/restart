@@ -4,10 +4,12 @@ The loader for the CSV
 """
 import logging
 import os
+from typing import Dict, List, Optional
+
 import pandas as pd  # type:ignore
+
 from loader.load import Load
 from util import Log
-from typing import List, Optional, Dict
 
 
 class LoadCSV(Load):
@@ -25,11 +27,14 @@ class LoadCSV(Load):
         csv_ext: list of extensions attached to csv files
         data: dictionary containing names of h5 files
     """
-    def __init__(self,
-                 source: Dict = None,
-                 log_root: Optional[Log] = None,
-                 excel_ext: List[str] = ['.xlsx', '.xls'],
-                 csv_ext: List[str] = ['.csv']):
+
+    def __init__(
+        self,
+        source: Dict = None,
+        log_root: Optional[Log] = None,
+        excel_ext: List[str] = [".xlsx", ".xls"],
+        csv_ext: List[str] = [".csv"],
+    ):
         """Initialize the Loader to read files.
 
         Reads the files
@@ -55,22 +60,22 @@ class LoadCSV(Load):
             raise ValueError(f"{source=} should not be None")
 
         try:
-            if source['Root'] is None:
+            if source["Root"] is None:
                 raise ValueError(f"need root directory in {source=}")
         except KeyError:
             log.debug(f"{source=} invalid config")
             return None
 
         # read all files in the given root directory
-        files = os.listdir(source['Root'])
-        rootdir = source['Root']
+        files = os.listdir(source["Root"])
+        rootdir = source["Root"]
 
         self.data: Dict = source
 
         for fname in source:
 
             # skip root key
-            if not fname == 'Root':
+            if not fname == "Root":
                 path = source[fname]
                 log.debug(f"{path=}")
 
@@ -80,9 +85,9 @@ class LoadCSV(Load):
 
                 try:
                     # look for h5 file in rootdir
-                    if base + '.h5' in files:
+                    if base + ".h5" in files:
                         log.debug(f"preexisting json found for {base=}")
-                        self.data[fname] = base + '.h5'
+                        self.data[fname] = base + ".h5"
 
                     else:
                         log.debug(f"generating h5 file for {base=}")
@@ -102,14 +107,14 @@ class LoadCSV(Load):
 
                         # store dataframe and overwrite dictionary input
                         self.store_dataframe(fullbase, df)
-                        self.data[fname] = base + '.h5'
+                        self.data[fname] = base + ".h5"
 
                 # handle alternate utf encodings
                 except UnicodeDecodeError:
                     log.debug(f"loading {ext=} file with ISO-8859-1 encoding")
                     df = pd.read_csv(fullbase + ext, encoding="ISO-8859-1")
                     self.store_dataframe(fullbase, df)
-                    self.data[fname] = base + '.h5'
+                    self.data[fname] = base + ".h5"
 
     def store_dataframe(self, name: str, df: pd.DataFrame) -> None:
         """Serializes a dataframe in h5 format.
@@ -121,8 +126,8 @@ class LoadCSV(Load):
             None
         """
         log = self.log
-        name = name + '.h5'
+        name = name + ".h5"
         log.debug(f"{name=}")
-        df.to_hdf(name, key='df', mode='w')
+        df.to_hdf(name, key="df", mode="w")
 
         return None

@@ -4,12 +4,14 @@ What resources are and how they are consumed
 https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 """
 import logging
-import pandas as pd  # type: ignore
+from typing import Union
+
 import numpy as np  # type: ignore
+import pandas as pd  # type: ignore
+
 from base import Base
 from modeldata import ModelData
 from util import Log, set_dataframe
-from typing import Union
 
 
 class Resource(Base):

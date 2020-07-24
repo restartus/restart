@@ -3,12 +3,14 @@
 Activity modeling
 """
 import logging
-import pandas as pd  # type: ignore # noqa: F401
+from typing import Optional
+
 import numpy as np  # type: ignore # noqa: F401
+import pandas as pd  # type: ignore # noqa: F401
+
 from base import Base
 from modeldata import ModelData
 from util import Log
-from typing import Optional
 
 
 class Activity(Base):

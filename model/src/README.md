@@ -66,6 +66,13 @@ If you are editing with an editor like vim which uses the external python
 environment for checking, make sure you run `pipenv shell` so that you get the
 correct version of python and pipenv
 
+[Hynek Schlawack](https://hynek.me/talks/python-foss/) is our inspiration for
+our development tooling. The things left to do as of July 24 are:
+
+1. Prettier for formatting non-Python documents
+2. Definitely not going to Sphinx and using Github Actions not Travis CI
+3. Publish packages to PyPl from Github Actions
+
 ## Installation
 
 Here are the notes on installation, there are three ways to run this project.

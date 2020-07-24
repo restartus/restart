@@ -2,12 +2,13 @@
 
 Main utilities
 """
-import logging
 import datetime
-import pandas as pd  # type: ignore
-import numpy as np  # type: ignore
+import logging
 from pathlib import Path
-from typing import Optional, Dict, Union
+from typing import Dict, Optional, Union
+
+import numpy as np  # type: ignore
+import pandas as pd  # type: ignore
 
 
 def dump_loggers(logging, log: logging.Logger):
@@ -68,7 +69,7 @@ def load_dataframe(fname: str) -> pd.DataFrame:
     Returns:
         The dataframe serialized in the h5 file
     """
-    df: pd.DataFrame = pd.read_hdf(fname, 'df')
+    df: pd.DataFrame = pd.read_hdf(fname, "df")
     return df
 
 
@@ -85,7 +86,7 @@ def datetime_to_code(code: Union[str, datetime.datetime]) -> str:
         The code in valid OCC code format
     """
     if type(code) is datetime.datetime:
-        return str(code.month) + '-' + str(code.year)  # type: ignore
+        return str(code.month) + "-" + str(code.year)  # type: ignore
     else:
         return str(code)
 

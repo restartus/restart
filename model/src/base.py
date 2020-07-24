@@ -2,9 +2,11 @@
 
 Base mainly includes the description fields
 """
-from typing import Dict, Tuple
 import logging
+from typing import Dict, Tuple
+
 import pandas as pd  # type:ignore
+
 from util import Log
 
 

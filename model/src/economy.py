@@ -6,12 +6,14 @@ The main way we integrate economic activity.
 # https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html
 # note that the type ignor and noqa lines are space sensitive
 import logging
-import pandas as pd  # type: ignore # noqa: F401
+from typing import Optional
+
 import numpy as np  # type: ignore # noqa: F401
+import pandas as pd  # type: ignore # noqa: F401
+
 from base import Base
 from modeldata import ModelData
 from util import Log
-from typing import Optional
 
 
 class Economy(Base):

@@ -7,6 +7,8 @@ https://stackoverflow.com/questions/20309456/call-a-function-from-another-file-i
 
 """
 
+import argparse
+
 # https://stackoverflow.com/questions/47561840/python-how-can-i-separate-functions-of-class-into-multiple-files
 # explains that you can split a class into separate files by
 # putting these inside the class definition
@@ -14,30 +16,29 @@ https://stackoverflow.com/questions/20309456/call-a-function-from-another-file-i
 # Before we move to full modules, just import locally
 # https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
 import logging  # noqa:F401
-import argparse
-
-# name collision https://docs.python.org/3/library/resource.html
-# so can't use resource.py
-from util import Log
 from pathlib import Path
+from typing import Optional
+
+from activity import Activity
+from base import Base
+from behavioral import Behavioral
+from consumption import Consumption
+from dashboard import Dashboard
+from disease import Disease
+
+# from population import Population
+from economy import Economy
+from filtermodel import Filter
 
 # from config import Config
 from loader.load_yaml import LoadYAML
 from model import Model
+from pop.population_dict import PopulationDict
 from resourcemodel import Resource
 
-# from population import Population
-from economy import Economy
-from disease import Disease
-from behavioral import Behavioral
-from activity import Activity
-from base import Base
-from dashboard import Dashboard
-from typing import Optional
-from pop.population_dict import PopulationDict
-from consumption import Consumption
-from filtermodel import Filter
-
+# name collision https://docs.python.org/3/library/resource.html
+# so can't use resource.py
+from util import Log
 
 # This is the only way to get it to work needs to be in main
 # https://www.programcreek.com/python/example/192/logging.Formatter

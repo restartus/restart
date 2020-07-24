@@ -4,8 +4,10 @@ Here is a test.
 http://zetcode.com/python/yaml/
 """
 import logging
+from typing import Any, Dict, Iterator, Optional
+
 import yaml
-from typing import Optional, Dict, Iterator, Any
+
 from util import Log
 
 

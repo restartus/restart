@@ -4,11 +4,13 @@ Here is a test.
 http://zetcode.com/python/yaml/
 """
 import logging
-import yaml
 import os
-from typing import Optional, Dict, Iterator, Any, List
-from util import Log
+from typing import Any, Dict, Iterator, List, Optional
+
+import yaml
+
 from loader.load import Load
+from util import Log
 
 
 class LoadYAML(Load):
@@ -20,8 +22,10 @@ class LoadYAML(Load):
     # no variable here unless you want them the same across all instances
 
     def __init__(
-        self, *paths,
-        log_root: Optional[Log] = None, ext: List[str] = [".yaml", ".yml"],
+        self,
+        *paths,
+        log_root: Optional[Log] = None,
+        ext: List[str] = [".yaml", ".yml"],
     ):
         """Read Configuration YAML.
 

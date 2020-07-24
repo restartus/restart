@@ -8,28 +8,28 @@ https://www.w3schools.com/python/python_classes.asp
 # this allows Model to refer to itself
 from __future__ import annotations
 
-from typing import Dict, Optional, Tuple, List
+import logging  # noqa: F401
+from typing import Dict, List, Optional, Tuple
+
+from activity import Activity
 from base import Base
-from util import Log
+from behavioral import Behavioral
+from cons.consumption_wa import ConsumptionWA
+from consumption import Consumption
+from disease import Disease
+from economy import Economy
+from filtermodel import Filter
 from loader.load import Load
+from modeldata import ModelData
+from pop.population_dict import PopulationDict
+from pop.population_oes import PopulationOES
 
 # import numpy as np  # type:ignore
 # import pandas as pd  # type:ignore
 # from population import Population
 from population import Population
-from pop.population_dict import PopulationDict
-from pop.population_oes import PopulationOES
 from resourcemodel import Resource
-from consumption import Consumption
-from cons.consumption_wa import ConsumptionWA
-from economy import Economy
-from disease import Disease
-from activity import Activity
-from behavioral import Behavioral
-from modeldata import ModelData
-from filtermodel import Filter
-
-import logging  # noqa: F401
+from util import Log
 
 
 class Model(Base):
@@ -161,7 +161,7 @@ class Model(Base):
             self.population = PopulationOES(
                 self.data,
                 # TODO: this belongs in filter
-                {'County': None, 'State': 'California'},
+                {"County": None, "State": "California"},
                 log_root=self.log_root,
             )
         elif type == "dict":
@@ -202,11 +202,12 @@ class Model(Base):
         else:
             log.debug("For anything else use Washington data")
             self.consumption = ConsumptionWA(
-                    self.data,
-                    self.population,
-                    self.resource,
-                    log_root=self.log_root,
-                    type=type)
+                self.data,
+                self.population,
+                self.resource,
+                log_root=self.log_root,
+                type=type,
+            )
         return self
 
     def set_filter(self, type: str = None) -> Model:

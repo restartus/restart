@@ -3,16 +3,19 @@
 Read in the population from the model dictionary
 """
 import logging
-import numpy as np  # type: ignore
-import pandas as pd  # type: ignore # noqa: F401
+
 # import numpy as np  # type: ignore
 # https://www.python.org/dev/peps/pep-0420/
 # in this new version we cannot depend on Model to be preformed
 # from model import Model
-from typing import Optional, Dict
-from util import Log, set_dataframe
-from population import Population
+from typing import Dict, Optional
+
+import numpy as np  # type: ignore
+import pandas as pd  # type: ignore # noqa: F401
+
 from modeldata import ModelData
+from population import Population
+from util import Log, set_dataframe
 
 
 class PopulationDict(Population):
@@ -64,24 +67,26 @@ class PopulationDict(Population):
 
         # get population data
         self.attr_pd_arr = np.array(
-                data.value["Population p"]["Pop Detail Data pd"]['Size'])
+            data.value["Population p"]["Pop Detail Data pd"]["Size"]
+        )
         self.attr_pd_df = set_dataframe(
-            self.attr_pd_arr,
-            label=label,
-            index=index,
-            columns=columns)
+            self.attr_pd_arr, label=label, index=index, columns=columns
+        )
         log.debug(f"{self.attr_pd_arr=}")
 
         # get mapping data
         self.level_pm_arr = np.array(
-                data.value["Population p"]["Protection pm"])
+            data.value["Population p"]["Protection pm"]
+        )
         self.level_pm_labs = list(data.label["Population p"])
         self.level_pm_df = pd.DataFrame(
-                self.level_pm_arr,
-                index=self.level_pm_labs,
-                columns=data.label["Consumption m"])
+            self.level_pm_arr,
+            index=self.level_pm_labs,
+            columns=data.label["Consumption m"],
+        )
         log.debug(f"{self.level_pm_df=}")
         self.set_description(
-                f"{self.level_pm_df=}",
-                data.description['Population p']['Protection pm'])
+            f"{self.level_pm_df=}",
+            data.description["Population p"]["Protection pm"],
+        )
         log.debug(f"{self.description['level_pm_df']=}")

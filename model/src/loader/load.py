@@ -3,15 +3,17 @@
 BAse class
 """
 import logging
+from typing import Dict, Optional
+
 from util import Log
-from typing import Optional, Dict
 
 
-class Load():
+class Load:
     """Base Load YAML Files.
 
     Base configuration from YAML files
     """
+
     # no variable unless they are the same across all instances
 
     def __init__(

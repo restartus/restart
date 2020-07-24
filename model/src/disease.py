@@ -7,11 +7,13 @@ The disease model work.
 # note the noqa: and type: are space sensitive
 # https://stackoverflow.com/questions/51179109/set-pyflake-and-mypy-ignore-same-line
 import logging
-import pandas as pd  # type: ignore # noqa: F401
+from typing import Optional
+
 import numpy as np  # type: ignore # noqa: F401
+import pandas as pd  # type: ignore # noqa: F401
+
 from base import Base
 from modeldata import ModelData
-from typing import Optional
 from util import Log
 
 

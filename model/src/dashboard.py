@@ -11,14 +11,17 @@ has more ways to do selects and tables
 """
 # import logging  # noqa: F401
 
-# https://mypy.readthedocs.io/en/latest/existing_code.html
-import pandas as pd  # type:ignore
-import altair as alt  # type:ignore
-import streamlit as st  # type:ignore
-from base import Base
-from model import Model
 import logging
 from typing import Dict
+
+import altair as alt  # type:ignore
+
+# https://mypy.readthedocs.io/en/latest/existing_code.html
+import pandas as pd  # type:ignore
+import streamlit as st  # type:ignore
+
+from base import Base
+from model import Model
 
 # https://docs.python.org/3/howto/logging-cookbook.html
 # logging.basicConfig(level=logging.DEBUG

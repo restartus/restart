@@ -26,6 +26,7 @@ pandas = "*"
 pyyaml = "*"
 xlrd = "*"
 tables = "*"
+seed-isort-config = "*"
 
 [requires]
 python_version = "3.8"

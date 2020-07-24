@@ -143,9 +143,16 @@ lint:
 ## format: reformat python code to standard (uses pipenv)
 # exclude web black does not grok streamlit but not conformas
 # pipenv run black -l 79 $(NO_WEB)
+# isort is not compatible with black  so run black last
+# https://copdips.com/2020/04/making-isort-compatible-with-black.html
+# https://github.com/timothycrosley/isort/issues/694
+#  https://timothycrosley.github.io/isort/docs/configuration/profiles/
 .PHONY: format
 format:
-	# the default is 88 but pyflakes wants 79
+	# set multiline 3 or hanging indent and a trailing comma 
+	# the default is 88 but pyflakes wants 79 line width
+	# pipenv run isort -m 3 -tc -w 79 --fgw 0 --up -n .
+	pipenv run isort --profile=black -w 79 .
 	pipenv run black -l 79 *.py
 
 

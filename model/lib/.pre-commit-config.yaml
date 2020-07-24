@@ -32,3 +32,20 @@ repos:
     rev: 5.0.2
     hooks:
       - id: pydocstyle
+  # https://pypi.org/project/seed-isort-config/
+  - repo: https://github.com/asottile/seed-isort-config
+    rev: 2.2.0
+    hooks:
+      - id: seed-isort-config
+  - repo: https://github.com/timothycrosley/isort
+    rev: 4.3.21
+    hooks:
+      - id: isort
+        args: [--profile=black -w 79]
+  # https://ljvmiranda921.github.io/notebook/2018/06/21/precommits-using-black-and-flake8/
+  - repo: https://github.com/ambv/bloack
+    rev: stable
+    hooks:
+      - id: black
+        language_version: 3.8
+        args: [-l 79]

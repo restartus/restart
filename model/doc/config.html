@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.8.3" />
-<title>load_yaml API documentation</title>
+<meta name="generator" content="pdoc 0.8.4" />
+<title>config API documentation</title>
 <meta name="description" content="Read YAML files to get base configuration …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,7 +19,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>load_yaml</code></h1>
+<h1 class="title">Module <code>config</code></h1>
 </header>
 <section id="section-intro">
 <p>Read YAML files to get base configuration.</p>
@@ -36,27 +36,19 @@ http://zetcode.com/python/yaml/
 &#34;&#34;&#34;
 import logging
 import yaml
-import os
-from typing import Optional, Dict, Iterator, Any, List
+from typing import Optional, Dict, Iterator, Any
 from util import Log
-from loader.load import Load
-
-# TODO: the scoping doesn&#39;t work, log here cannot be
-# changed by __init__
-log: logging.Logger = logging.getLogger(__name__)
 
 
-class LoadYAML(Load):
-    &#34;&#34;&#34;Load YAML Files.
+class Config:
+    &#34;&#34;&#34;Configure the model.
 
     Model configuration from YAML files
     &#34;&#34;&#34;
 
-    # no variable here unless you want them the same across all instances
-
+    # no variables here unless you want them same across all instances
     def __init__(
-        self, *paths,
-        log_root: Optional[Log] = None, ext: List[str] = [&#34;.yaml&#34;, &#34;.yml&#34;],
+        self, *files, log_root: Optional[Log] = None,
     ):
         &#34;&#34;&#34;Read Configuration YAML.
 
@@ -64,44 +56,29 @@ class LoadYAML(Load):
         note that this causes the latest dictionary to overwrite prior
         entries so order matters if you have duplicates
         &#34;&#34;&#34;
-        super().__init__()
-        self.root_log: Optional[Log]
-        self.data: Dict = {}
-        global log
+        self.dict: Dict = {}
         # replace the standalone logger if asked
         if log_root is not None:
             self.root_log = log_root
-            log = self.log = log_root.log_class(self)
-            log.debug(f&#34;{self.log=} {log=}&#34;)
+            log = log_root.log_class(self)
+            log.debug(f&#34;{log=} {log=}&#34;)
+        else:
+            # TODO: the scoping doesn&#39;t work, log here cannot be
+            # changed by __init__
+            log = logging.getLogger(__name__)
+        self.log = log
 
         log.debug(f&#34;module {__name__=}&#34;)
 
         # https://gist.github.com/treyhunner/f35292e676efa0be1728
         # https://www.geeksforgeeks.org/packing-and-unpacking-arguments-in-python/
         # Unpacking works in Python 3.6+
-        log.debug(f&#34;{paths=}&#34;)
-        for path in paths:
-            log.debug(f&#34;{path=}&#34;)
-
-        self.ext = ext
-        for path in paths:
-            log.debug(f&#34;{path=}&#34;)
-            # note we are ignoring directories as os.walk gives us
-            #  all the files
-            for parent, dirs, files in os.walk(path):
-                log.debug(f&#34;{files=}&#34;)
-                for file in files:
-                    log.debug(f&#34;{file=}&#34;)
-                    # https://www.geeksforgeeks.org/python-os-path-splitext-method/
-                    base, ext = os.path.splitext(file)
-                    log.debug(f&#34;{ext=}&#34;)
-                    if ext not in self.ext:
-                        log.debug(f&#34;skipping {file=}&#34;)
-                        continue
-                    full_path = os.path.join(parent, file)
-                    data: Optional[Dict] = self.load(full_path)
-                    if data is not None:
-                        self.data = {**self.data, **data}
+        for file in files:
+            dict: Optional[Dict] = self.load(file)
+            if dict is not None:
+                # TODO: the second arg wants Mapping, got Dict
+                self.dict = {**self.dict, **dict}
+        log.debug(f&#34;{self.dict=}&#34;)
 
     def load(self, filename: str) -&gt; Optional[Dict]:
         &#34;&#34;&#34;Load configuration.
@@ -110,10 +87,7 @@ class LoadYAML(Load):
         &#34;&#34;&#34;
         # TODO: not clear why this is not true
         # https://www.flake8rules.com/rules/F823.html
-        global log
-        if self.log is not log:
-            log = self.log
-            raise ValueError(f&#34;{self.log=} {log=}&#34;)
+        log = self.log
         log.debug(f&#34;{filename=}&#34;)
         try:
             with open(filename, &#34;r&#34;) as f:
@@ -127,11 +101,15 @@ class LoadYAML(Load):
             log.error(&#34;No {filename=} exists&#34;)
             return None
 
+        # method chaining
+        return self
+
     def load_all(self, filename: str) -&gt; Optional[Iterator[Any]]:
         &#34;&#34;&#34;Load multiple documents from a single YAML file.
 
         Load from an optional file
         &#34;&#34;&#34;
+        log = self.log
         try:
             # https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
             with open(filename, &#34;r&#34;) as f:
@@ -159,12 +137,12 @@ class LoadYAML(Load):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="load_yaml.LoadYAML"><code class="flex name class">
-<span>class <span class="ident">LoadYAML</span></span>
-<span>(</span><span>*paths, log_root: Union[util.Log, NoneType] = None, ext: List[str] = ['.yaml', '.yml'])</span>
+<dt id="config.Config"><code class="flex name class">
+<span>class <span class="ident">Config</span></span>
+<span>(</span><span>*files, log_root: Union[util.Log, NoneType] = None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Load YAML Files.</p>
+<div class="desc"><p>Configure the model.</p>
 <p>Model configuration from YAML files</p>
 <p>Read Configuration YAML.</p>
 <p>Figure out how to make YAML reading work
@@ -174,17 +152,15 @@ entries so order matters if you have duplicates</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class LoadYAML(Load):
-    &#34;&#34;&#34;Load YAML Files.
+<pre><code class="python">class Config:
+    &#34;&#34;&#34;Configure the model.
 
     Model configuration from YAML files
     &#34;&#34;&#34;
 
-    # no variable here unless you want them the same across all instances
-
+    # no variables here unless you want them same across all instances
     def __init__(
-        self, *paths,
-        log_root: Optional[Log] = None, ext: List[str] = [&#34;.yaml&#34;, &#34;.yml&#34;],
+        self, *files, log_root: Optional[Log] = None,
     ):
         &#34;&#34;&#34;Read Configuration YAML.
 
@@ -192,44 +168,29 @@ entries so order matters if you have duplicates</p></div>
         note that this causes the latest dictionary to overwrite prior
         entries so order matters if you have duplicates
         &#34;&#34;&#34;
-        super().__init__()
-        self.root_log: Optional[Log]
-        self.data: Dict = {}
-        global log
+        self.dict: Dict = {}
         # replace the standalone logger if asked
         if log_root is not None:
             self.root_log = log_root
-            log = self.log = log_root.log_class(self)
-            log.debug(f&#34;{self.log=} {log=}&#34;)
+            log = log_root.log_class(self)
+            log.debug(f&#34;{log=} {log=}&#34;)
+        else:
+            # TODO: the scoping doesn&#39;t work, log here cannot be
+            # changed by __init__
+            log = logging.getLogger(__name__)
+        self.log = log
 
         log.debug(f&#34;module {__name__=}&#34;)
 
         # https://gist.github.com/treyhunner/f35292e676efa0be1728
         # https://www.geeksforgeeks.org/packing-and-unpacking-arguments-in-python/
         # Unpacking works in Python 3.6+
-        log.debug(f&#34;{paths=}&#34;)
-        for path in paths:
-            log.debug(f&#34;{path=}&#34;)
-
-        self.ext = ext
-        for path in paths:
-            log.debug(f&#34;{path=}&#34;)
-            # note we are ignoring directories as os.walk gives us
-            #  all the files
-            for parent, dirs, files in os.walk(path):
-                log.debug(f&#34;{files=}&#34;)
-                for file in files:
-                    log.debug(f&#34;{file=}&#34;)
-                    # https://www.geeksforgeeks.org/python-os-path-splitext-method/
-                    base, ext = os.path.splitext(file)
-                    log.debug(f&#34;{ext=}&#34;)
-                    if ext not in self.ext:
-                        log.debug(f&#34;skipping {file=}&#34;)
-                        continue
-                    full_path = os.path.join(parent, file)
-                    data: Optional[Dict] = self.load(full_path)
-                    if data is not None:
-                        self.data = {**self.data, **data}
+        for file in files:
+            dict: Optional[Dict] = self.load(file)
+            if dict is not None:
+                # TODO: the second arg wants Mapping, got Dict
+                self.dict = {**self.dict, **dict}
+        log.debug(f&#34;{self.dict=}&#34;)
 
     def load(self, filename: str) -&gt; Optional[Dict]:
         &#34;&#34;&#34;Load configuration.
@@ -238,10 +199,7 @@ entries so order matters if you have duplicates</p></div>
         &#34;&#34;&#34;
         # TODO: not clear why this is not true
         # https://www.flake8rules.com/rules/F823.html
-        global log
-        if self.log is not log:
-            log = self.log
-            raise ValueError(f&#34;{self.log=} {log=}&#34;)
+        log = self.log
         log.debug(f&#34;{filename=}&#34;)
         try:
             with open(filename, &#34;r&#34;) as f:
@@ -255,11 +213,15 @@ entries so order matters if you have duplicates</p></div>
             log.error(&#34;No {filename=} exists&#34;)
             return None
 
+        # method chaining
+        return self
+
     def load_all(self, filename: str) -&gt; Optional[Iterator[Any]]:
         &#34;&#34;&#34;Load multiple documents from a single YAML file.
 
         Load from an optional file
         &#34;&#34;&#34;
+        log = self.log
         try:
             # https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
             with open(filename, &#34;r&#34;) as f:
@@ -277,13 +239,9 @@ entries so order matters if you have duplicates</p></div>
             log.error(f&#34;No {filename=} exists&#34;)
             return None</code></pre>
 </details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>loader.load.Load</li>
-</ul>
 <h3>Methods</h3>
 <dl>
-<dt id="load_yaml.LoadYAML.load"><code class="name flex">
+<dt id="config.Config.load"><code class="name flex">
 <span>def <span class="ident">load</span></span>(<span>self, filename: str) ‑> Union[Dict, NoneType]</span>
 </code></dt>
 <dd>
@@ -300,10 +258,7 @@ entries so order matters if you have duplicates</p></div>
     &#34;&#34;&#34;
     # TODO: not clear why this is not true
     # https://www.flake8rules.com/rules/F823.html
-    global log
-    if self.log is not log:
-        log = self.log
-        raise ValueError(f&#34;{self.log=} {log=}&#34;)
+    log = self.log
     log.debug(f&#34;{filename=}&#34;)
     try:
         with open(filename, &#34;r&#34;) as f:
@@ -315,10 +270,13 @@ entries so order matters if you have duplicates</p></div>
 
     except IOError:
         log.error(&#34;No {filename=} exists&#34;)
-        return None</code></pre>
+        return None
+
+    # method chaining
+    return self</code></pre>
 </details>
 </dd>
-<dt id="load_yaml.LoadYAML.load_all"><code class="name flex">
+<dt id="config.Config.load_all"><code class="name flex">
 <span>def <span class="ident">load_all</span></span>(<span>self, filename: str) ‑> Union[Iterator[Any], NoneType]</span>
 </code></dt>
 <dd>
@@ -333,6 +291,7 @@ entries so order matters if you have duplicates</p></div>
 
     Load from an optional file
     &#34;&#34;&#34;
+    log = self.log
     try:
         # https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
         with open(filename, &#34;r&#34;) as f:
@@ -365,10 +324,10 @@ entries so order matters if you have duplicates</p></div>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="load_yaml.LoadYAML" href="#load_yaml.LoadYAML">LoadYAML</a></code></h4>
+<h4><code><a title="config.Config" href="#config.Config">Config</a></code></h4>
 <ul class="">
-<li><code><a title="load_yaml.LoadYAML.load" href="#load_yaml.LoadYAML.load">load</a></code></li>
-<li><code><a title="load_yaml.LoadYAML.load_all" href="#load_yaml.LoadYAML.load_all">load_all</a></code></li>
+<li><code><a title="config.Config.load" href="#config.Config.load">load</a></code></li>
+<li><code><a title="config.Config.load_all" href="#config.Config.load_all">load_all</a></code></li>
 </ul>
 </li>
 </ul>
@@ -377,7 +336,7 @@ entries so order matters if you have duplicates</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
 </footer>
 </body>
 </html>

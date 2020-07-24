@@ -36,7 +36,7 @@ PIP ?= streamlit altair pandas pyyaml xlrd tables
 PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
 					 black tox pytest pytest-cov pytest-xdist tox yamllint \
 					 pre-commit isort
-DOC ?= doc
+DOC ?= ../doc
 
 
 .DEFAULT_GOAL := help

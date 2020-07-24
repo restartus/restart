@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.8.3" />
+<meta name="generator" content="pdoc 0.8.4" />
 <title>population_oes API documentation</title>
 <meta name="description" content="Population reading from OES data …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -33,18 +33,17 @@
 Population is working
 &#34;&#34;&#34;
 import os
-import logging
+import math
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
 from typing import Optional, Tuple, Dict
-from util import Log
-from pop.population_dict import PopulationDict
+from modeldata import ModelData
+from population import Population
+from util import Log, datetime_to_code
 from loader.load_csv import LoadCSV
 
-log: logging.Logger = logging.getLogger(__name__)
 
-
-class PopulationOES(PopulationDict):
+class PopulationOES(Population):
     &#34;&#34;&#34;Transforms OES data into a format compatible with the model.
 
     Performs calculations to give us an estimate of population distributions on
@@ -61,84 +60,102 @@ class PopulationOES(PopulationDict):
 
     def __init__(
         self,
-        location: Dict,
+        data: ModelData,
+        location,
         log_root: Optional[Log] = None,
-        source: Optional[Dict] = None,
-        index: Optional[str] = None,
-        columns: Optional[str] = None,
     ):
         &#34;&#34;&#34;Initialize.
 
-        Read the paths in and create dataframes
+        Read the paths in and create dataframes, generate mappings
         &#34;&#34;&#34;
         self.root_log: Optional[Log]
-        global log
+        # global log
+        # log: logging.Logger = logging.getLogger(__name__)
 
         if log_root is not None:
             self.log_root = log_root
             log = self.log = log_root.log_class(self)
             log.debug(f&#34;{self.log=} {log=}&#34;)
+            super().__init__(log_root=log_root)
 
         log.debug(f&#34;module {__name__=}&#34;)
 
-        # note you should declare otherwise type lint fails
-        # as the static module cannot tell the type in init()
-        self.code_df: pd.DataFrame
-        self.oes_df: pd.DataFrame
-        self.pop_df: pd.DataFrame
+        # get population data
+        df_dict = self.load_data(data, location)
+        self.attr_pd_df = df_dict[&#39;attr_pd_df&#39;]
+        self.attr_pd_arr = df_dict[&#39;attr_pd_arr&#39;]
 
-        # Extract the dataframes we need from the input files
-        # TODO: source stream handling
-        if source is not None:
-            self.source = LoadCSV(source=source).data
-            self.oes_df = self.load_df(os.path.join(source[&#39;Root&#39;],
-                                                    source[&#39;OES&#39;]))
-            self.code_df = self.load_df(os.path.join(source[&#39;Root&#39;],
-                                                     source[&#39;CODE&#39;]))
-            self.pop_df = self.load_df(os.path.join(source[&#39;Root&#39;],
-                                                    source[&#39;POP&#39;]))
+        # get mapping data
+        self.level_pm_arr = df_dict[&#39;map_arr&#39;]
+        self.level_pm_labs = df_dict[&#39;map_labs&#39;]
+        self.level_pm_df = pd.DataFrame(
+                self.level_pm_arr,
+                index=self.level_pm_labs,
+                columns=data.label[&#34;Consumption m&#34;])
+        log.debug(f&#34;{self.level_pm_df=}&#34;)
+        self.set_description(
+                f&#34;{self.level_pm_df=}&#34;,
+                data.description[&#39;Population p&#39;][&#39;Protection pm&#39;])
+        log.debug(f&#34;{self.description[&#39;level_pm_df&#39;]=}&#34;)
 
-        # Handle location input
-        self.location = location
-        log.debug(f&#34;{self.location=}&#34;)
+    def load_data(self, data, location):
+        &#34;&#34;&#34;Do most of the initializing here.
 
-        # Need to specify a state
+        That way the stuff we don&#39;t want passed is hidden.
+        &#34;&#34;&#34;
+        # extract the dataframes we need from the input files
+        if data is not None:
+            source = data.datapaths[&#34;Paths&#34;]
+            source = LoadCSV(source=source).data
+            oes_df = self.load_df(os.path.join(source[&#39;Root&#39;],
+                                               source[&#39;OES&#39;]))
+            code_df = self.format_code(self.load_df(
+                os.path.join(source[&#39;Root&#39;], source[&#39;CODE&#39;])))
+            pop_df = self.load_df(os.path.join(source[&#39;Root&#39;],
+                                               source[&#39;POP&#39;]))
+            map_df = self.format_map(self.load_df(
+                os.path.join(source[&#39;Root&#39;], source[&#39;MAP&#39;])))
+
+        # initialize unsliced dataframe from oes data
         if location[&#34;State&#34;] is None:
             raise ValueError(f&#34;invalid {self.location=} must specify state&#34;)
-
-        # Looking for a specific county
         if location[&#34;County&#34;] is not None and location[&#34;State&#34;] is not None:
-            self.df = self.create_county_df()
-
-        # Looking for a whole state
+            df = self.create_county_df(location, oes_df, code_df, pop_df)
         else:
-            self.df = self.create_state_df()
+            df = self.create_state_df(location, oes_df)
 
-        # Slicing for compatibility with rest of model
-        self.tot_pop = np.sum(self.df[&#39;tot_emp&#39;])
-        self.health = self.healthcare_filter()
-        self.occ = self.df.drop([&#39;occ_code&#39;], axis=1)
+        # slice to get just healthcare workers
+        health_df = self.health_dataframe(df)
 
-        # TODO: this isn&#39;t necessary - should probably just be a child of Base
-        super().__init__(source=self.health,
-                         index=index,
-                         columns=columns)
+        # the actual data passed onto the model
+        attr_pd_df = self.drop_code(health_df)
+        attr_pd_arr = attr_pd_df[&#39;Size&#39;].to_numpy()
+        map_labs, map_arr = self.create_map(health_df, map_df)
+
+        # load into dictionary
+        df_dict = {}
+        df_dict[&#39;attr_pd_df&#39;] = attr_pd_df
+        df_dict[&#39;attr_pd_arr&#39;] = attr_pd_arr
+        df_dict[&#39;map_labs&#39;] = map_labs
+        df_dict[&#39;map_arr&#39;] = map_arr
+
+        return df_dict
 
     def load_df(self, fname: str) -&gt; Optional[pd.DataFrame]:
-        &#34;&#34;&#34;Load JSON file into a dataframe.
+        &#34;&#34;&#34;Load h5 file into a dataframe.
 
         Args:
-            fname: Name of JSON file
+            fname: Name of h5 file
 
         Returns:
-            The dataframe serialized in the JSON file
+            The dataframe serialized in the h5 file
         &#34;&#34;&#34;
         try:
-            df: pd.DataFrame = pd.read_json(open(fname, &#39;rb&#39;), orient=&#39;index&#39;)
+            df: pd.DataFrame = pd.read_hdf(fname, &#39;df&#39;)
             return df
 
         except ValueError:
-            log.debug(f&#34;invalid file {fname=}&#34;)
+            self.log.debug(f&#34;invalid file {fname=}&#34;)
             return None
 
     def format_code(self, df: pd.DataFrame) -&gt; pd.DataFrame:
@@ -173,7 +190,68 @@ class PopulationOES(PopulationDict):
 
         return df
 
-    def find_code(self) -&gt; int:
+    def format_map(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;Manually slice the excel model to get protection level mappings.
+
+        Args:
+            df: The excel model loaded into a dataframe
+
+        Returns:
+            The dataframe sliced to give the mappings
+        &#34;&#34;&#34;
+        # manually redo indexing and select the rows we need
+        df.columns = df.iloc[2528]
+        df = df.iloc[2529:3303]
+        df = df[[&#39;Washington SOT&#39;, &#39;SOC&#39;, &#39;Type&#39;, &#39;Level&#39;]]
+
+        # fix datetime objects and drop empty rows
+        df[&#39;SOC&#39;] = df[&#39;SOC&#39;].apply(datetime_to_code)
+        df = df.dropna(axis=&#39;rows&#39;).reset_index(drop=True)
+        return df
+
+    def create_map(self,
+                   df: pd.DataFrame,
+                   map_df: pd.DataFrame) -&gt; Tuple[list, np.ndarray]:
+        &#34;&#34;&#34;Generate mappings for OCC codes and population levels.
+
+        Args:
+            df: A dataframe that has OCC codes
+
+        Returns:
+            Dictionary of the population level mappings
+        &#34;&#34;&#34;
+        map_arr = []
+        labels = []
+        for code in df[&#39;occ_code&#39;]:
+            arr = np.zeros(7)
+            try:
+                ind = map_df[map_df[&#39;SOC&#39;] == code].index[0]
+                level = map_df.iloc[ind][&#39;Level&#39;]
+            except IndexError:
+                if code.startswith(&#39;29-&#39;) or code.startswith(&#39;31-&#39;):
+                    level = 5.5
+                else:
+                    level = 3
+
+            # assign integer levels
+            if type(level) is int:
+                arr[level] = 1
+
+            # assign multiple levels
+            else:
+                arr[math.floor(level)] = 0.5
+                arr[math.ceil(level)] = 0.5
+
+            # add to dictionary
+            name = list(df[df[&#39;occ_code&#39;] == code][&#39;occ_title&#39;])[0]
+            labels.append(name)
+            map_arr.append(arr)
+
+        return labels, np.array(map_arr)
+
+    def find_code(self,
+                  location: Dict,
+                  code_df: pd.DataFrame) -&gt; int:
         &#34;&#34;&#34;Finds the MSA code of given county.
 
         Args:
@@ -182,15 +260,19 @@ class PopulationOES(PopulationDict):
         Returns:
             Integer corresponding to the given county&#39;s MSA code
         &#34;&#34;&#34;
-        if self.code_df is None:
-            raise ValueError(f&#34;{self.code_df=} should not be None&#34;)
+        if code_df is None:
+            raise ValueError(f&#34;{code_df=} should not be None&#34;)
 
-        return int(self.code_df[(self.code_df[&#39;County Equivalent&#39;] ==
-                   self.location[&#39;County&#39;]) &amp; (self.code_df[&#39;State Name&#39;] ==
-                                               self.location[&#39;State&#39;])]
+        return int(code_df[(code_df[&#39;County Equivalent&#39;] ==
+                   location[&#39;County&#39;]) &amp; (code_df[&#39;State Name&#39;] ==
+                                          location[&#39;State&#39;])]
                    [&#39;CBSA Code&#39;].iloc[0])
 
-    def calculate_proportions(self, code: int) -&gt; float:
+    def calculate_proportions(self,
+                              code: int,
+                              location: Dict,
+                              code_df: pd.DataFrame,
+                              pop_df: pd.DataFrame) -&gt; float:
         &#34;&#34;&#34;Calculate county proportion relative to total MSA pop.
 
         Args:
@@ -200,31 +282,35 @@ class PopulationOES(PopulationDict):
             A float corresponding to the ratio of the county&#39;s population in
             relation to its MSA code.
         &#34;&#34;&#34;
-        if self.code_df is None:
-            raise ValueError(f&#34;{self.code_df=} should not be None&#34;)
-        if self.pop_df is None:
-            raise ValueError(f&#34;{self.code_df=} should not be None&#34;)
+        if code_df is None:
+            raise ValueError(f&#34;{code_df=} should not be None&#34;)
+        if pop_df is None:
+            raise ValueError(f&#34;{code_df=} should not be None&#34;)
 
         # List the counties in the same MSA code as cty_name
-        counties = list(self.code_df[self.code_df[&#39;CBSA Code&#39;] == str(code)]
-                                    [&#39;County Equivalent&#39;])
+        counties = list(code_df[code_df[&#39;CBSA Code&#39;] == str(code)]
+                               [&#39;County Equivalent&#39;])
 
         # Construct dictionary mapping county names to constituent populations
         populations = {}
         for county in counties:
-            pop = int(self.pop_df[(self.pop_df[&#39;CTYNAME&#39;] == county)
-                                  &amp; (self.pop_df[&#39;STNAME&#39;] ==
-                                     self.location[&#39;State&#39;])]
-                                 [&#39;POPESTIMATE2019&#39;])
+            pop = int(pop_df[(pop_df[&#39;CTYNAME&#39;] == county)
+                             &amp; (pop_df[&#39;STNAME&#39;] ==
+                                location[&#39;State&#39;])]
+                            [&#39;POPESTIMATE2019&#39;])
             populations[county] = pop
 
         # Calculate total population in MSA code
         total_pop = sum(populations.values())
 
         # Divide individual county population by total MSA population
-        return populations[self.location[&#39;County&#39;]] / total_pop
+        return populations[location[&#39;County&#39;]] / total_pop
 
-    def load_county(self) -&gt; Tuple[float, pd.DataFrame]:
+    def load_county(self,
+                    location: Dict,
+                    oes_df: pd.DataFrame,
+                    code_df: pd.DataFrame,
+                    pop_df: pd.DataFrame) -&gt; Tuple[float, pd.DataFrame]:
         &#34;&#34;&#34;Slice the OES data by county for further processing downstream.
 
         Args:
@@ -235,25 +321,27 @@ class PopulationOES(PopulationDict):
                         MSA code living in given county
             df: Sliced OES dataframe
         &#34;&#34;&#34;
-        if self.oes_df is None:
-            raise ValueError(f&#34;{self.oes_df=} should not be None&#34;)
-
         # Find county MSA CODE
-        code = self.find_code()
+        code = self.find_code(location, code_df)
 
         # Calculate proportion of MSA code&#39;s residents living in county
-        proportion = self.calculate_proportions(code)
+        proportion = self.calculate_proportions(code,
+                                                location,
+                                                code_df,
+                                                pop_df)
 
         # Initialize dataframe as slice of OES data
-        df = self.oes_df[self.oes_df[&#39;area&#39;] == code][[&#39;occ_code&#39;, &#39;occ_title&#39;,
-                                                       &#39;o_group&#39;, &#39;tot_emp&#39;]]
+        df = oes_df[oes_df[&#39;area&#39;] == code][[&#39;occ_code&#39;, &#39;occ_title&#39;,
+                                             &#39;o_group&#39;, &#39;tot_emp&#39;]]
 
         # Replace placeholders with 0
         df = df.replace(to_replace=&#39;**&#39;, value=0)
 
         return proportion, df
 
-    def load_state(self) -&gt; pd.DataFrame:
+    def load_state(self,
+                   location: Dict,
+                   oes_df: pd.DataFrame) -&gt; pd.DataFrame:
         &#34;&#34;&#34;Slice the OES data by state for further processing downstream.
 
         Args:
@@ -262,13 +350,10 @@ class PopulationOES(PopulationDict):
         Returns:
             df: Sliced OES dataframe
         &#34;&#34;&#34;
-        if self.oes_df is None:
-            raise ValueError(f&#34;{self.oes_df=} should not be None&#34;)
-
         # Slice OES dataframe by state
         col_list = [&#39;occ_code&#39;, &#39;occ_title&#39;, &#39;o_group&#39;, &#39;tot_emp&#39;]
-        df = self.oes_df[(self.oes_df[&#39;area_title&#39;] ==
-                          self.location[&#39;State&#39;])][col_list]
+        df = oes_df[(oes_df[&#39;area_title&#39;] ==
+                    location[&#39;State&#39;])][col_list]
 
         # Replace placeholders with 0
         df = df.replace(to_replace=&#39;**&#39;, value=0)
@@ -299,11 +384,15 @@ class PopulationOES(PopulationDict):
             det_total = np.sum(filt[&#39;tot_emp&#39;])
             delta = total - det_total
 
-            # Create dataframe row and append to detailed dataframe
-            name = list(major[major[&#39;occ_code&#39;] == code][&#39;occ_title&#39;])[0]
-            add_lst = [[pat + &#39;XXXX&#39;, &#39;Uncounted &#39; + name, &#39;detailed&#39;, delta]]
-            add_df = pd.DataFrame(add_lst, columns=list(major.columns))
-            detailed = detailed.append(add_df, ignore_index=True)
+            # TODO: verify that the oes data indeed does not add up
+            if delta &gt; 0:
+                # create dataframe row and append to detailed dataframe
+                name = list(major[major[&#39;occ_code&#39;] == code][&#39;occ_title&#39;])[0]
+                add_lst = [[pat + &#39;XXXX&#39;,
+                            &#39;Uncounted &#39; + name,
+                            &#39;detailed&#39;, delta]]
+                add_df = pd.DataFrame(add_lst, columns=list(major.columns))
+                detailed = detailed.append(add_df, ignore_index=True)
 
         return detailed
 
@@ -322,7 +411,22 @@ class PopulationOES(PopulationDict):
 
         return df
 
-    def create_county_df(self) -&gt; pd.DataFrame:
+    def drop_code(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;Drop the OCC code from a dataframe.
+
+        So that it has the right format for the model.
+        &#34;&#34;&#34;
+        col_labs = [&#39;Population p&#39;, &#39;Size&#39;]
+        df = df.drop([&#39;occ_code&#39;], axis=1)
+        df.columns = col_labs
+
+        return df
+
+    def create_county_df(self,
+                         location: Dict,
+                         oes_df: pd.DataFrame,
+                         code_df: pd.DataFrame,
+                         pop_df: pd.DataFrame) -&gt; pd.DataFrame:
         &#34;&#34;&#34;Generate dataframe containing processed OES data by county.
 
         Args:
@@ -332,7 +436,10 @@ class PopulationOES(PopulationDict):
             The processed dataframe
         &#34;&#34;&#34;
         # Load in sliced dataframe
-        proportion, df = self.load_county()
+        proportion, df = self.load_county(location,
+                                          oes_df,
+                                          code_df,
+                                          pop_df)
 
         # Split into &#39;major&#39; and &#39;detailed&#39; OCC categories
         major = df[df[&#39;o_group&#39;] == &#39;major&#39;].copy()
@@ -351,7 +458,9 @@ class PopulationOES(PopulationDict):
 
         return detailed
 
-    def create_state_df(self) -&gt; pd.DataFrame:
+    def create_state_df(self,
+                        location: Dict,
+                        oes_df: pd.DataFrame) -&gt; pd.DataFrame:
         &#34;&#34;&#34;Generate dataframe containing processed OES data by state.
 
         Args:
@@ -361,7 +470,7 @@ class PopulationOES(PopulationDict):
             The processed dataframe
         &#34;&#34;&#34;
         # Load in sliced dataframe
-        df = self.load_state()
+        df = self.load_state(location, oes_df)
 
         major = df[df[&#39;o_group&#39;] == &#39;major&#39;].copy()
         detailed = df[df[&#39;o_group&#39;] == &#39;detailed&#39;].copy()
@@ -375,35 +484,19 @@ class PopulationOES(PopulationDict):
 
         return detailed
 
-    def healthcare_filter(self) -&gt; pd.DataFrame:
-        &#34;&#34;&#34;Project OCC code into healthcare vs non-healthcare workers.
+    def health_dataframe(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;Return a detailed breakdown of healthcare workers with OCC codes.
 
         Args:
             None
 
         Returns:
-            Dataframe giving total healthcare and non-healthcare populations
+            Dataframe object with the detailed breakdown
         &#34;&#34;&#34;
-        # 29-NNNN and 31-NNNN are healthcare worker OCC codes
-        filt = self.df[(self.df[&#39;occ_code&#39;].str.startswith(&#39;29-&#39;)) |
-                       (self.df[&#39;occ_code&#39;].str.startswith(&#39;31-&#39;))]
-
-        # Dataframe labels
-        col_labs = [&#39;Population p&#39;, &#39;Size&#39;]
-
-        # Calculate total number of healthcare workers
-        tot_health = np.sum(filt[&#39;tot_emp&#39;])
-        health = [[&#39;Healthcare Workers&#39;, tot_health]]
-
-        # Calculate total number of non-healthcare workers
-        non_health = [[&#39;Non-Healthcare Workers&#39;, self.tot_pop - tot_health]]
-
-        # Construct dataframes and append
-        health_df = pd.DataFrame(health, columns=col_labs)
-        non_health_df = pd.DataFrame(non_health, columns=col_labs)
-        health_df = health_df.append(non_health_df, ignore_index=True)
-
-        return health_df</code></pre>
+        # 29-XXXX and 31-XXXX are the healthcare worker codes
+        filt = df[(df[&#39;occ_code&#39;].str.startswith(&#39;29-&#39;)) |
+                  (df[&#39;occ_code&#39;].str.startswith(&#39;31-&#39;))]
+        return filt</code></pre>
 </details>
 </section>
 <section>
@@ -417,7 +510,7 @@ class PopulationOES(PopulationDict):
 <dl>
 <dt id="population_oes.PopulationOES"><code class="flex name class">
 <span>class <span class="ident">PopulationOES</span></span>
-<span>(</span><span>location: Dict, log_root: Union[util.Log, NoneType] = None, source: Union[Dict, NoneType] = None, index: Union[str, NoneType] = None, columns: Union[str, NoneType] = None)</span>
+<span>(</span><span>data: modeldata.ModelData, location, log_root: Union[util.Log, NoneType] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Transforms OES data into a format compatible with the model.</p>
@@ -439,12 +532,12 @@ a county-wide basis.</p>
 <dd>The processed, OES data in a dataframe</dd>
 </dl>
 <p>Initialize.</p>
-<p>Read the paths in and create dataframes</p></div>
+<p>Read the paths in and create dataframes, generate mappings</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class PopulationOES(PopulationDict):
+<pre><code class="python">class PopulationOES(Population):
     &#34;&#34;&#34;Transforms OES data into a format compatible with the model.
 
     Performs calculations to give us an estimate of population distributions on
@@ -461,84 +554,102 @@ a county-wide basis.</p>
 
     def __init__(
         self,
-        location: Dict,
+        data: ModelData,
+        location,
         log_root: Optional[Log] = None,
-        source: Optional[Dict] = None,
-        index: Optional[str] = None,
-        columns: Optional[str] = None,
     ):
         &#34;&#34;&#34;Initialize.
 
-        Read the paths in and create dataframes
+        Read the paths in and create dataframes, generate mappings
         &#34;&#34;&#34;
         self.root_log: Optional[Log]
-        global log
+        # global log
+        # log: logging.Logger = logging.getLogger(__name__)
 
         if log_root is not None:
             self.log_root = log_root
             log = self.log = log_root.log_class(self)
             log.debug(f&#34;{self.log=} {log=}&#34;)
+            super().__init__(log_root=log_root)
 
         log.debug(f&#34;module {__name__=}&#34;)
 
-        # note you should declare otherwise type lint fails
-        # as the static module cannot tell the type in init()
-        self.code_df: pd.DataFrame
-        self.oes_df: pd.DataFrame
-        self.pop_df: pd.DataFrame
+        # get population data
+        df_dict = self.load_data(data, location)
+        self.attr_pd_df = df_dict[&#39;attr_pd_df&#39;]
+        self.attr_pd_arr = df_dict[&#39;attr_pd_arr&#39;]
 
-        # Extract the dataframes we need from the input files
-        # TODO: source stream handling
-        if source is not None:
-            self.source = LoadCSV(source=source).data
-            self.oes_df = self.load_df(os.path.join(source[&#39;Root&#39;],
-                                                    source[&#39;OES&#39;]))
-            self.code_df = self.load_df(os.path.join(source[&#39;Root&#39;],
-                                                     source[&#39;CODE&#39;]))
-            self.pop_df = self.load_df(os.path.join(source[&#39;Root&#39;],
-                                                    source[&#39;POP&#39;]))
+        # get mapping data
+        self.level_pm_arr = df_dict[&#39;map_arr&#39;]
+        self.level_pm_labs = df_dict[&#39;map_labs&#39;]
+        self.level_pm_df = pd.DataFrame(
+                self.level_pm_arr,
+                index=self.level_pm_labs,
+                columns=data.label[&#34;Consumption m&#34;])
+        log.debug(f&#34;{self.level_pm_df=}&#34;)
+        self.set_description(
+                f&#34;{self.level_pm_df=}&#34;,
+                data.description[&#39;Population p&#39;][&#39;Protection pm&#39;])
+        log.debug(f&#34;{self.description[&#39;level_pm_df&#39;]=}&#34;)
 
-        # Handle location input
-        self.location = location
-        log.debug(f&#34;{self.location=}&#34;)
+    def load_data(self, data, location):
+        &#34;&#34;&#34;Do most of the initializing here.
 
-        # Need to specify a state
+        That way the stuff we don&#39;t want passed is hidden.
+        &#34;&#34;&#34;
+        # extract the dataframes we need from the input files
+        if data is not None:
+            source = data.datapaths[&#34;Paths&#34;]
+            source = LoadCSV(source=source).data
+            oes_df = self.load_df(os.path.join(source[&#39;Root&#39;],
+                                               source[&#39;OES&#39;]))
+            code_df = self.format_code(self.load_df(
+                os.path.join(source[&#39;Root&#39;], source[&#39;CODE&#39;])))
+            pop_df = self.load_df(os.path.join(source[&#39;Root&#39;],
+                                               source[&#39;POP&#39;]))
+            map_df = self.format_map(self.load_df(
+                os.path.join(source[&#39;Root&#39;], source[&#39;MAP&#39;])))
+
+        # initialize unsliced dataframe from oes data
         if location[&#34;State&#34;] is None:
             raise ValueError(f&#34;invalid {self.location=} must specify state&#34;)
-
-        # Looking for a specific county
         if location[&#34;County&#34;] is not None and location[&#34;State&#34;] is not None:
-            self.df = self.create_county_df()
-
-        # Looking for a whole state
+            df = self.create_county_df(location, oes_df, code_df, pop_df)
         else:
-            self.df = self.create_state_df()
+            df = self.create_state_df(location, oes_df)
 
-        # Slicing for compatibility with rest of model
-        self.tot_pop = np.sum(self.df[&#39;tot_emp&#39;])
-        self.health = self.healthcare_filter()
-        self.occ = self.df.drop([&#39;occ_code&#39;], axis=1)
+        # slice to get just healthcare workers
+        health_df = self.health_dataframe(df)
 
-        # TODO: this isn&#39;t necessary - should probably just be a child of Base
-        super().__init__(source=self.health,
-                         index=index,
-                         columns=columns)
+        # the actual data passed onto the model
+        attr_pd_df = self.drop_code(health_df)
+        attr_pd_arr = attr_pd_df[&#39;Size&#39;].to_numpy()
+        map_labs, map_arr = self.create_map(health_df, map_df)
+
+        # load into dictionary
+        df_dict = {}
+        df_dict[&#39;attr_pd_df&#39;] = attr_pd_df
+        df_dict[&#39;attr_pd_arr&#39;] = attr_pd_arr
+        df_dict[&#39;map_labs&#39;] = map_labs
+        df_dict[&#39;map_arr&#39;] = map_arr
+
+        return df_dict
 
     def load_df(self, fname: str) -&gt; Optional[pd.DataFrame]:
-        &#34;&#34;&#34;Load JSON file into a dataframe.
+        &#34;&#34;&#34;Load h5 file into a dataframe.
 
         Args:
-            fname: Name of JSON file
+            fname: Name of h5 file
 
         Returns:
-            The dataframe serialized in the JSON file
+            The dataframe serialized in the h5 file
         &#34;&#34;&#34;
         try:
-            df: pd.DataFrame = pd.read_json(open(fname, &#39;rb&#39;), orient=&#39;index&#39;)
+            df: pd.DataFrame = pd.read_hdf(fname, &#39;df&#39;)
             return df
 
         except ValueError:
-            log.debug(f&#34;invalid file {fname=}&#34;)
+            self.log.debug(f&#34;invalid file {fname=}&#34;)
             return None
 
     def format_code(self, df: pd.DataFrame) -&gt; pd.DataFrame:
@@ -573,7 +684,68 @@ a county-wide basis.</p>
 
         return df
 
-    def find_code(self) -&gt; int:
+    def format_map(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;Manually slice the excel model to get protection level mappings.
+
+        Args:
+            df: The excel model loaded into a dataframe
+
+        Returns:
+            The dataframe sliced to give the mappings
+        &#34;&#34;&#34;
+        # manually redo indexing and select the rows we need
+        df.columns = df.iloc[2528]
+        df = df.iloc[2529:3303]
+        df = df[[&#39;Washington SOT&#39;, &#39;SOC&#39;, &#39;Type&#39;, &#39;Level&#39;]]
+
+        # fix datetime objects and drop empty rows
+        df[&#39;SOC&#39;] = df[&#39;SOC&#39;].apply(datetime_to_code)
+        df = df.dropna(axis=&#39;rows&#39;).reset_index(drop=True)
+        return df
+
+    def create_map(self,
+                   df: pd.DataFrame,
+                   map_df: pd.DataFrame) -&gt; Tuple[list, np.ndarray]:
+        &#34;&#34;&#34;Generate mappings for OCC codes and population levels.
+
+        Args:
+            df: A dataframe that has OCC codes
+
+        Returns:
+            Dictionary of the population level mappings
+        &#34;&#34;&#34;
+        map_arr = []
+        labels = []
+        for code in df[&#39;occ_code&#39;]:
+            arr = np.zeros(7)
+            try:
+                ind = map_df[map_df[&#39;SOC&#39;] == code].index[0]
+                level = map_df.iloc[ind][&#39;Level&#39;]
+            except IndexError:
+                if code.startswith(&#39;29-&#39;) or code.startswith(&#39;31-&#39;):
+                    level = 5.5
+                else:
+                    level = 3
+
+            # assign integer levels
+            if type(level) is int:
+                arr[level] = 1
+
+            # assign multiple levels
+            else:
+                arr[math.floor(level)] = 0.5
+                arr[math.ceil(level)] = 0.5
+
+            # add to dictionary
+            name = list(df[df[&#39;occ_code&#39;] == code][&#39;occ_title&#39;])[0]
+            labels.append(name)
+            map_arr.append(arr)
+
+        return labels, np.array(map_arr)
+
+    def find_code(self,
+                  location: Dict,
+                  code_df: pd.DataFrame) -&gt; int:
         &#34;&#34;&#34;Finds the MSA code of given county.
 
         Args:
@@ -582,15 +754,19 @@ a county-wide basis.</p>
         Returns:
             Integer corresponding to the given county&#39;s MSA code
         &#34;&#34;&#34;
-        if self.code_df is None:
-            raise ValueError(f&#34;{self.code_df=} should not be None&#34;)
+        if code_df is None:
+            raise ValueError(f&#34;{code_df=} should not be None&#34;)
 
-        return int(self.code_df[(self.code_df[&#39;County Equivalent&#39;] ==
-                   self.location[&#39;County&#39;]) &amp; (self.code_df[&#39;State Name&#39;] ==
-                                               self.location[&#39;State&#39;])]
+        return int(code_df[(code_df[&#39;County Equivalent&#39;] ==
+                   location[&#39;County&#39;]) &amp; (code_df[&#39;State Name&#39;] ==
+                                          location[&#39;State&#39;])]
                    [&#39;CBSA Code&#39;].iloc[0])
 
-    def calculate_proportions(self, code: int) -&gt; float:
+    def calculate_proportions(self,
+                              code: int,
+                              location: Dict,
+                              code_df: pd.DataFrame,
+                              pop_df: pd.DataFrame) -&gt; float:
         &#34;&#34;&#34;Calculate county proportion relative to total MSA pop.
 
         Args:
@@ -600,31 +776,35 @@ a county-wide basis.</p>
             A float corresponding to the ratio of the county&#39;s population in
             relation to its MSA code.
         &#34;&#34;&#34;
-        if self.code_df is None:
-            raise ValueError(f&#34;{self.code_df=} should not be None&#34;)
-        if self.pop_df is None:
-            raise ValueError(f&#34;{self.code_df=} should not be None&#34;)
+        if code_df is None:
+            raise ValueError(f&#34;{code_df=} should not be None&#34;)
+        if pop_df is None:
+            raise ValueError(f&#34;{code_df=} should not be None&#34;)
 
         # List the counties in the same MSA code as cty_name
-        counties = list(self.code_df[self.code_df[&#39;CBSA Code&#39;] == str(code)]
-                                    [&#39;County Equivalent&#39;])
+        counties = list(code_df[code_df[&#39;CBSA Code&#39;] == str(code)]
+                               [&#39;County Equivalent&#39;])
 
         # Construct dictionary mapping county names to constituent populations
         populations = {}
         for county in counties:
-            pop = int(self.pop_df[(self.pop_df[&#39;CTYNAME&#39;] == county)
-                                  &amp; (self.pop_df[&#39;STNAME&#39;] ==
-                                     self.location[&#39;State&#39;])]
-                                 [&#39;POPESTIMATE2019&#39;])
+            pop = int(pop_df[(pop_df[&#39;CTYNAME&#39;] == county)
+                             &amp; (pop_df[&#39;STNAME&#39;] ==
+                                location[&#39;State&#39;])]
+                            [&#39;POPESTIMATE2019&#39;])
             populations[county] = pop
 
         # Calculate total population in MSA code
         total_pop = sum(populations.values())
 
         # Divide individual county population by total MSA population
-        return populations[self.location[&#39;County&#39;]] / total_pop
+        return populations[location[&#39;County&#39;]] / total_pop
 
-    def load_county(self) -&gt; Tuple[float, pd.DataFrame]:
+    def load_county(self,
+                    location: Dict,
+                    oes_df: pd.DataFrame,
+                    code_df: pd.DataFrame,
+                    pop_df: pd.DataFrame) -&gt; Tuple[float, pd.DataFrame]:
         &#34;&#34;&#34;Slice the OES data by county for further processing downstream.
 
         Args:
@@ -635,25 +815,27 @@ a county-wide basis.</p>
                         MSA code living in given county
             df: Sliced OES dataframe
         &#34;&#34;&#34;
-        if self.oes_df is None:
-            raise ValueError(f&#34;{self.oes_df=} should not be None&#34;)
-
         # Find county MSA CODE
-        code = self.find_code()
+        code = self.find_code(location, code_df)
 
         # Calculate proportion of MSA code&#39;s residents living in county
-        proportion = self.calculate_proportions(code)
+        proportion = self.calculate_proportions(code,
+                                                location,
+                                                code_df,
+                                                pop_df)
 
         # Initialize dataframe as slice of OES data
-        df = self.oes_df[self.oes_df[&#39;area&#39;] == code][[&#39;occ_code&#39;, &#39;occ_title&#39;,
-                                                       &#39;o_group&#39;, &#39;tot_emp&#39;]]
+        df = oes_df[oes_df[&#39;area&#39;] == code][[&#39;occ_code&#39;, &#39;occ_title&#39;,
+                                             &#39;o_group&#39;, &#39;tot_emp&#39;]]
 
         # Replace placeholders with 0
         df = df.replace(to_replace=&#39;**&#39;, value=0)
 
         return proportion, df
 
-    def load_state(self) -&gt; pd.DataFrame:
+    def load_state(self,
+                   location: Dict,
+                   oes_df: pd.DataFrame) -&gt; pd.DataFrame:
         &#34;&#34;&#34;Slice the OES data by state for further processing downstream.
 
         Args:
@@ -662,13 +844,10 @@ a county-wide basis.</p>
         Returns:
             df: Sliced OES dataframe
         &#34;&#34;&#34;
-        if self.oes_df is None:
-            raise ValueError(f&#34;{self.oes_df=} should not be None&#34;)
-
         # Slice OES dataframe by state
         col_list = [&#39;occ_code&#39;, &#39;occ_title&#39;, &#39;o_group&#39;, &#39;tot_emp&#39;]
-        df = self.oes_df[(self.oes_df[&#39;area_title&#39;] ==
-                          self.location[&#39;State&#39;])][col_list]
+        df = oes_df[(oes_df[&#39;area_title&#39;] ==
+                    location[&#39;State&#39;])][col_list]
 
         # Replace placeholders with 0
         df = df.replace(to_replace=&#39;**&#39;, value=0)
@@ -699,11 +878,15 @@ a county-wide basis.</p>
             det_total = np.sum(filt[&#39;tot_emp&#39;])
             delta = total - det_total
 
-            # Create dataframe row and append to detailed dataframe
-            name = list(major[major[&#39;occ_code&#39;] == code][&#39;occ_title&#39;])[0]
-            add_lst = [[pat + &#39;XXXX&#39;, &#39;Uncounted &#39; + name, &#39;detailed&#39;, delta]]
-            add_df = pd.DataFrame(add_lst, columns=list(major.columns))
-            detailed = detailed.append(add_df, ignore_index=True)
+            # TODO: verify that the oes data indeed does not add up
+            if delta &gt; 0:
+                # create dataframe row and append to detailed dataframe
+                name = list(major[major[&#39;occ_code&#39;] == code][&#39;occ_title&#39;])[0]
+                add_lst = [[pat + &#39;XXXX&#39;,
+                            &#39;Uncounted &#39; + name,
+                            &#39;detailed&#39;, delta]]
+                add_df = pd.DataFrame(add_lst, columns=list(major.columns))
+                detailed = detailed.append(add_df, ignore_index=True)
 
         return detailed
 
@@ -722,7 +905,22 @@ a county-wide basis.</p>
 
         return df
 
-    def create_county_df(self) -&gt; pd.DataFrame:
+    def drop_code(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;Drop the OCC code from a dataframe.
+
+        So that it has the right format for the model.
+        &#34;&#34;&#34;
+        col_labs = [&#39;Population p&#39;, &#39;Size&#39;]
+        df = df.drop([&#39;occ_code&#39;], axis=1)
+        df.columns = col_labs
+
+        return df
+
+    def create_county_df(self,
+                         location: Dict,
+                         oes_df: pd.DataFrame,
+                         code_df: pd.DataFrame,
+                         pop_df: pd.DataFrame) -&gt; pd.DataFrame:
         &#34;&#34;&#34;Generate dataframe containing processed OES data by county.
 
         Args:
@@ -732,7 +930,10 @@ a county-wide basis.</p>
             The processed dataframe
         &#34;&#34;&#34;
         # Load in sliced dataframe
-        proportion, df = self.load_county()
+        proportion, df = self.load_county(location,
+                                          oes_df,
+                                          code_df,
+                                          pop_df)
 
         # Split into &#39;major&#39; and &#39;detailed&#39; OCC categories
         major = df[df[&#39;o_group&#39;] == &#39;major&#39;].copy()
@@ -751,7 +952,9 @@ a county-wide basis.</p>
 
         return detailed
 
-    def create_state_df(self) -&gt; pd.DataFrame:
+    def create_state_df(self,
+                        location: Dict,
+                        oes_df: pd.DataFrame) -&gt; pd.DataFrame:
         &#34;&#34;&#34;Generate dataframe containing processed OES data by state.
 
         Args:
@@ -761,7 +964,7 @@ a county-wide basis.</p>
             The processed dataframe
         &#34;&#34;&#34;
         # Load in sliced dataframe
-        df = self.load_state()
+        df = self.load_state(location, oes_df)
 
         major = df[df[&#39;o_group&#39;] == &#39;major&#39;].copy()
         detailed = df[df[&#39;o_group&#39;] == &#39;detailed&#39;].copy()
@@ -775,45 +978,29 @@ a county-wide basis.</p>
 
         return detailed
 
-    def healthcare_filter(self) -&gt; pd.DataFrame:
-        &#34;&#34;&#34;Project OCC code into healthcare vs non-healthcare workers.
+    def health_dataframe(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+        &#34;&#34;&#34;Return a detailed breakdown of healthcare workers with OCC codes.
 
         Args:
             None
 
         Returns:
-            Dataframe giving total healthcare and non-healthcare populations
+            Dataframe object with the detailed breakdown
         &#34;&#34;&#34;
-        # 29-NNNN and 31-NNNN are healthcare worker OCC codes
-        filt = self.df[(self.df[&#39;occ_code&#39;].str.startswith(&#39;29-&#39;)) |
-                       (self.df[&#39;occ_code&#39;].str.startswith(&#39;31-&#39;))]
-
-        # Dataframe labels
-        col_labs = [&#39;Population p&#39;, &#39;Size&#39;]
-
-        # Calculate total number of healthcare workers
-        tot_health = np.sum(filt[&#39;tot_emp&#39;])
-        health = [[&#39;Healthcare Workers&#39;, tot_health]]
-
-        # Calculate total number of non-healthcare workers
-        non_health = [[&#39;Non-Healthcare Workers&#39;, self.tot_pop - tot_health]]
-
-        # Construct dataframes and append
-        health_df = pd.DataFrame(health, columns=col_labs)
-        non_health_df = pd.DataFrame(non_health, columns=col_labs)
-        health_df = health_df.append(non_health_df, ignore_index=True)
-
-        return health_df</code></pre>
+        # 29-XXXX and 31-XXXX are the healthcare worker codes
+        filt = df[(df[&#39;occ_code&#39;].str.startswith(&#39;29-&#39;)) |
+                  (df[&#39;occ_code&#39;].str.startswith(&#39;31-&#39;))]
+        return filt</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>pop.population_dict.PopulationDict</li>
+<li>population.Population</li>
 <li>base.Base</li>
 </ul>
 <h3>Methods</h3>
 <dl>
 <dt id="population_oes.PopulationOES.calculate_proportions"><code class="name flex">
-<span>def <span class="ident">calculate_proportions</span></span>(<span>self, code: int) ‑> float</span>
+<span>def <span class="ident">calculate_proportions</span></span>(<span>self, code: int, location: Dict, code_df: pandas.core.frame.DataFrame, pop_df: pandas.core.frame.DataFrame) ‑> float</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Calculate county proportion relative to total MSA pop.</p>
@@ -829,7 +1016,11 @@ relation to its MSA code.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def calculate_proportions(self, code: int) -&gt; float:
+<pre><code class="python">def calculate_proportions(self,
+                          code: int,
+                          location: Dict,
+                          code_df: pd.DataFrame,
+                          pop_df: pd.DataFrame) -&gt; float:
     &#34;&#34;&#34;Calculate county proportion relative to total MSA pop.
 
     Args:
@@ -839,33 +1030,33 @@ relation to its MSA code.</p></div>
         A float corresponding to the ratio of the county&#39;s population in
         relation to its MSA code.
     &#34;&#34;&#34;
-    if self.code_df is None:
-        raise ValueError(f&#34;{self.code_df=} should not be None&#34;)
-    if self.pop_df is None:
-        raise ValueError(f&#34;{self.code_df=} should not be None&#34;)
+    if code_df is None:
+        raise ValueError(f&#34;{code_df=} should not be None&#34;)
+    if pop_df is None:
+        raise ValueError(f&#34;{code_df=} should not be None&#34;)
 
     # List the counties in the same MSA code as cty_name
-    counties = list(self.code_df[self.code_df[&#39;CBSA Code&#39;] == str(code)]
-                                [&#39;County Equivalent&#39;])
+    counties = list(code_df[code_df[&#39;CBSA Code&#39;] == str(code)]
+                           [&#39;County Equivalent&#39;])
 
     # Construct dictionary mapping county names to constituent populations
     populations = {}
     for county in counties:
-        pop = int(self.pop_df[(self.pop_df[&#39;CTYNAME&#39;] == county)
-                              &amp; (self.pop_df[&#39;STNAME&#39;] ==
-                                 self.location[&#39;State&#39;])]
-                             [&#39;POPESTIMATE2019&#39;])
+        pop = int(pop_df[(pop_df[&#39;CTYNAME&#39;] == county)
+                         &amp; (pop_df[&#39;STNAME&#39;] ==
+                            location[&#39;State&#39;])]
+                        [&#39;POPESTIMATE2019&#39;])
         populations[county] = pop
 
     # Calculate total population in MSA code
     total_pop = sum(populations.values())
 
     # Divide individual county population by total MSA population
-    return populations[self.location[&#39;County&#39;]] / total_pop</code></pre>
+    return populations[location[&#39;County&#39;]] / total_pop</code></pre>
 </details>
 </dd>
 <dt id="population_oes.PopulationOES.create_county_df"><code class="name flex">
-<span>def <span class="ident">create_county_df</span></span>(<span>self) ‑> pandas.core.frame.DataFrame</span>
+<span>def <span class="ident">create_county_df</span></span>(<span>self, location: Dict, oes_df: pandas.core.frame.DataFrame, code_df: pandas.core.frame.DataFrame, pop_df: pandas.core.frame.DataFrame) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Generate dataframe containing processed OES data by county.</p>
@@ -877,7 +1068,11 @@ relation to its MSA code.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def create_county_df(self) -&gt; pd.DataFrame:
+<pre><code class="python">def create_county_df(self,
+                     location: Dict,
+                     oes_df: pd.DataFrame,
+                     code_df: pd.DataFrame,
+                     pop_df: pd.DataFrame) -&gt; pd.DataFrame:
     &#34;&#34;&#34;Generate dataframe containing processed OES data by county.
 
     Args:
@@ -887,7 +1082,10 @@ relation to its MSA code.</p></div>
         The processed dataframe
     &#34;&#34;&#34;
     # Load in sliced dataframe
-    proportion, df = self.load_county()
+    proportion, df = self.load_county(location,
+                                      oes_df,
+                                      code_df,
+                                      pop_df)
 
     # Split into &#39;major&#39; and &#39;detailed&#39; OCC categories
     major = df[df[&#39;o_group&#39;] == &#39;major&#39;].copy()
@@ -907,8 +1105,65 @@ relation to its MSA code.</p></div>
     return detailed</code></pre>
 </details>
 </dd>
+<dt id="population_oes.PopulationOES.create_map"><code class="name flex">
+<span>def <span class="ident">create_map</span></span>(<span>self, df: pandas.core.frame.DataFrame, map_df: pandas.core.frame.DataFrame) ‑> Tuple[list, numpy.ndarray]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Generate mappings for OCC codes and population levels.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong></dt>
+<dd>A dataframe that has OCC codes</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Dictionary of the population level mappings</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def create_map(self,
+               df: pd.DataFrame,
+               map_df: pd.DataFrame) -&gt; Tuple[list, np.ndarray]:
+    &#34;&#34;&#34;Generate mappings for OCC codes and population levels.
+
+    Args:
+        df: A dataframe that has OCC codes
+
+    Returns:
+        Dictionary of the population level mappings
+    &#34;&#34;&#34;
+    map_arr = []
+    labels = []
+    for code in df[&#39;occ_code&#39;]:
+        arr = np.zeros(7)
+        try:
+            ind = map_df[map_df[&#39;SOC&#39;] == code].index[0]
+            level = map_df.iloc[ind][&#39;Level&#39;]
+        except IndexError:
+            if code.startswith(&#39;29-&#39;) or code.startswith(&#39;31-&#39;):
+                level = 5.5
+            else:
+                level = 3
+
+        # assign integer levels
+        if type(level) is int:
+            arr[level] = 1
+
+        # assign multiple levels
+        else:
+            arr[math.floor(level)] = 0.5
+            arr[math.ceil(level)] = 0.5
+
+        # add to dictionary
+        name = list(df[df[&#39;occ_code&#39;] == code][&#39;occ_title&#39;])[0]
+        labels.append(name)
+        map_arr.append(arr)
+
+    return labels, np.array(map_arr)</code></pre>
+</details>
+</dd>
 <dt id="population_oes.PopulationOES.create_state_df"><code class="name flex">
-<span>def <span class="ident">create_state_df</span></span>(<span>self) ‑> pandas.core.frame.DataFrame</span>
+<span>def <span class="ident">create_state_df</span></span>(<span>self, location: Dict, oes_df: pandas.core.frame.DataFrame) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Generate dataframe containing processed OES data by state.</p>
@@ -920,7 +1175,9 @@ relation to its MSA code.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def create_state_df(self) -&gt; pd.DataFrame:
+<pre><code class="python">def create_state_df(self,
+                    location: Dict,
+                    oes_df: pd.DataFrame) -&gt; pd.DataFrame:
     &#34;&#34;&#34;Generate dataframe containing processed OES data by state.
 
     Args:
@@ -930,7 +1187,7 @@ relation to its MSA code.</p></div>
         The processed dataframe
     &#34;&#34;&#34;
     # Load in sliced dataframe
-    df = self.load_state()
+    df = self.load_state(location, oes_df)
 
     major = df[df[&#39;o_group&#39;] == &#39;major&#39;].copy()
     detailed = df[df[&#39;o_group&#39;] == &#39;detailed&#39;].copy()
@@ -943,6 +1200,28 @@ relation to its MSA code.</p></div>
     detailed = self.format_output(detailed)
 
     return detailed</code></pre>
+</details>
+</dd>
+<dt id="population_oes.PopulationOES.drop_code"><code class="name flex">
+<span>def <span class="ident">drop_code</span></span>(<span>self, df: pandas.core.frame.DataFrame) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Drop the OCC code from a dataframe.</p>
+<p>So that it has the right format for the model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def drop_code(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;Drop the OCC code from a dataframe.
+
+    So that it has the right format for the model.
+    &#34;&#34;&#34;
+    col_labs = [&#39;Population p&#39;, &#39;Size&#39;]
+    df = df.drop([&#39;occ_code&#39;], axis=1)
+    df.columns = col_labs
+
+    return df</code></pre>
 </details>
 </dd>
 <dt id="population_oes.PopulationOES.fill_uncounted"><code class="name flex">
@@ -988,17 +1267,21 @@ uncounted workers</p></div>
         det_total = np.sum(filt[&#39;tot_emp&#39;])
         delta = total - det_total
 
-        # Create dataframe row and append to detailed dataframe
-        name = list(major[major[&#39;occ_code&#39;] == code][&#39;occ_title&#39;])[0]
-        add_lst = [[pat + &#39;XXXX&#39;, &#39;Uncounted &#39; + name, &#39;detailed&#39;, delta]]
-        add_df = pd.DataFrame(add_lst, columns=list(major.columns))
-        detailed = detailed.append(add_df, ignore_index=True)
+        # TODO: verify that the oes data indeed does not add up
+        if delta &gt; 0:
+            # create dataframe row and append to detailed dataframe
+            name = list(major[major[&#39;occ_code&#39;] == code][&#39;occ_title&#39;])[0]
+            add_lst = [[pat + &#39;XXXX&#39;,
+                        &#39;Uncounted &#39; + name,
+                        &#39;detailed&#39;, delta]]
+            add_df = pd.DataFrame(add_lst, columns=list(major.columns))
+            detailed = detailed.append(add_df, ignore_index=True)
 
     return detailed</code></pre>
 </details>
 </dd>
 <dt id="population_oes.PopulationOES.find_code"><code class="name flex">
-<span>def <span class="ident">find_code</span></span>(<span>self) ‑> int</span>
+<span>def <span class="ident">find_code</span></span>(<span>self, location: Dict, code_df: pandas.core.frame.DataFrame) ‑> int</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Finds the MSA code of given county.</p>
@@ -1010,7 +1293,9 @@ uncounted workers</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def find_code(self) -&gt; int:
+<pre><code class="python">def find_code(self,
+              location: Dict,
+              code_df: pd.DataFrame) -&gt; int:
     &#34;&#34;&#34;Finds the MSA code of given county.
 
     Args:
@@ -1019,12 +1304,12 @@ uncounted workers</p></div>
     Returns:
         Integer corresponding to the given county&#39;s MSA code
     &#34;&#34;&#34;
-    if self.code_df is None:
-        raise ValueError(f&#34;{self.code_df=} should not be None&#34;)
+    if code_df is None:
+        raise ValueError(f&#34;{code_df=} should not be None&#34;)
 
-    return int(self.code_df[(self.code_df[&#39;County Equivalent&#39;] ==
-               self.location[&#39;County&#39;]) &amp; (self.code_df[&#39;State Name&#39;] ==
-                                           self.location[&#39;State&#39;])]
+    return int(code_df[(code_df[&#39;County Equivalent&#39;] ==
+               location[&#39;County&#39;]) &amp; (code_df[&#39;State Name&#39;] ==
+                                      location[&#39;State&#39;])]
                [&#39;CBSA Code&#39;].iloc[0])</code></pre>
 </details>
 </dd>
@@ -1077,6 +1362,42 @@ uncounted workers</p></div>
     return df</code></pre>
 </details>
 </dd>
+<dt id="population_oes.PopulationOES.format_map"><code class="name flex">
+<span>def <span class="ident">format_map</span></span>(<span>self, df: pandas.core.frame.DataFrame) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Manually slice the excel model to get protection level mappings.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong></dt>
+<dd>The excel model loaded into a dataframe</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The dataframe sliced to give the mappings</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_map(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;Manually slice the excel model to get protection level mappings.
+
+    Args:
+        df: The excel model loaded into a dataframe
+
+    Returns:
+        The dataframe sliced to give the mappings
+    &#34;&#34;&#34;
+    # manually redo indexing and select the rows we need
+    df.columns = df.iloc[2528]
+    df = df.iloc[2529:3303]
+    df = df[[&#39;Washington SOT&#39;, &#39;SOC&#39;, &#39;Type&#39;, &#39;Level&#39;]]
+
+    # fix datetime objects and drop empty rows
+    df[&#39;SOC&#39;] = df[&#39;SOC&#39;].apply(datetime_to_code)
+    df = df.dropna(axis=&#39;rows&#39;).reset_index(drop=True)
+    return df</code></pre>
+</details>
+</dd>
 <dt id="population_oes.PopulationOES.format_output"><code class="name flex">
 <span>def <span class="ident">format_output</span></span>(<span>self, df: pandas.core.frame.DataFrame) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
@@ -1109,52 +1430,36 @@ uncounted workers</p></div>
     return df</code></pre>
 </details>
 </dd>
-<dt id="population_oes.PopulationOES.healthcare_filter"><code class="name flex">
-<span>def <span class="ident">healthcare_filter</span></span>(<span>self) ‑> pandas.core.frame.DataFrame</span>
+<dt id="population_oes.PopulationOES.health_dataframe"><code class="name flex">
+<span>def <span class="ident">health_dataframe</span></span>(<span>self, df: pandas.core.frame.DataFrame) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Project OCC code into healthcare vs non-healthcare workers.</p>
+<div class="desc"><p>Return a detailed breakdown of healthcare workers with OCC codes.</p>
 <h2 id="args">Args</h2>
 <p>None</p>
 <h2 id="returns">Returns</h2>
-<p>Dataframe giving total healthcare and non-healthcare populations</p></div>
+<p>Dataframe object with the detailed breakdown</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def healthcare_filter(self) -&gt; pd.DataFrame:
-    &#34;&#34;&#34;Project OCC code into healthcare vs non-healthcare workers.
+<pre><code class="python">def health_dataframe(self, df: pd.DataFrame) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;Return a detailed breakdown of healthcare workers with OCC codes.
 
     Args:
         None
 
     Returns:
-        Dataframe giving total healthcare and non-healthcare populations
+        Dataframe object with the detailed breakdown
     &#34;&#34;&#34;
-    # 29-NNNN and 31-NNNN are healthcare worker OCC codes
-    filt = self.df[(self.df[&#39;occ_code&#39;].str.startswith(&#39;29-&#39;)) |
-                   (self.df[&#39;occ_code&#39;].str.startswith(&#39;31-&#39;))]
-
-    # Dataframe labels
-    col_labs = [&#39;Population p&#39;, &#39;Size&#39;]
-
-    # Calculate total number of healthcare workers
-    tot_health = np.sum(filt[&#39;tot_emp&#39;])
-    health = [[&#39;Healthcare Workers&#39;, tot_health]]
-
-    # Calculate total number of non-healthcare workers
-    non_health = [[&#39;Non-Healthcare Workers&#39;, self.tot_pop - tot_health]]
-
-    # Construct dataframes and append
-    health_df = pd.DataFrame(health, columns=col_labs)
-    non_health_df = pd.DataFrame(non_health, columns=col_labs)
-    health_df = health_df.append(non_health_df, ignore_index=True)
-
-    return health_df</code></pre>
+    # 29-XXXX and 31-XXXX are the healthcare worker codes
+    filt = df[(df[&#39;occ_code&#39;].str.startswith(&#39;29-&#39;)) |
+              (df[&#39;occ_code&#39;].str.startswith(&#39;31-&#39;))]
+    return filt</code></pre>
 </details>
 </dd>
 <dt id="population_oes.PopulationOES.load_county"><code class="name flex">
-<span>def <span class="ident">load_county</span></span>(<span>self) ‑> Tuple[float, pandas.core.frame.DataFrame]</span>
+<span>def <span class="ident">load_county</span></span>(<span>self, location: Dict, oes_df: pandas.core.frame.DataFrame, code_df: pandas.core.frame.DataFrame, pop_df: pandas.core.frame.DataFrame) ‑> Tuple[float, pandas.core.frame.DataFrame]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Slice the OES data by county for further processing downstream.</p>
@@ -1172,7 +1477,11 @@ MSA code living in given county</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def load_county(self) -&gt; Tuple[float, pd.DataFrame]:
+<pre><code class="python">def load_county(self,
+                location: Dict,
+                oes_df: pd.DataFrame,
+                code_df: pd.DataFrame,
+                pop_df: pd.DataFrame) -&gt; Tuple[float, pd.DataFrame]:
     &#34;&#34;&#34;Slice the OES data by county for further processing downstream.
 
     Args:
@@ -1183,18 +1492,18 @@ MSA code living in given county</dd>
                     MSA code living in given county
         df: Sliced OES dataframe
     &#34;&#34;&#34;
-    if self.oes_df is None:
-        raise ValueError(f&#34;{self.oes_df=} should not be None&#34;)
-
     # Find county MSA CODE
-    code = self.find_code()
+    code = self.find_code(location, code_df)
 
     # Calculate proportion of MSA code&#39;s residents living in county
-    proportion = self.calculate_proportions(code)
+    proportion = self.calculate_proportions(code,
+                                            location,
+                                            code_df,
+                                            pop_df)
 
     # Initialize dataframe as slice of OES data
-    df = self.oes_df[self.oes_df[&#39;area&#39;] == code][[&#39;occ_code&#39;, &#39;occ_title&#39;,
-                                                   &#39;o_group&#39;, &#39;tot_emp&#39;]]
+    df = oes_df[oes_df[&#39;area&#39;] == code][[&#39;occ_code&#39;, &#39;occ_title&#39;,
+                                         &#39;o_group&#39;, &#39;tot_emp&#39;]]
 
     # Replace placeholders with 0
     df = df.replace(to_replace=&#39;**&#39;, value=0)
@@ -1202,42 +1511,96 @@ MSA code living in given county</dd>
     return proportion, df</code></pre>
 </details>
 </dd>
+<dt id="population_oes.PopulationOES.load_data"><code class="name flex">
+<span>def <span class="ident">load_data</span></span>(<span>self, data, location)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Do most of the initializing here.</p>
+<p>That way the stuff we don't want passed is hidden.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_data(self, data, location):
+    &#34;&#34;&#34;Do most of the initializing here.
+
+    That way the stuff we don&#39;t want passed is hidden.
+    &#34;&#34;&#34;
+    # extract the dataframes we need from the input files
+    if data is not None:
+        source = data.datapaths[&#34;Paths&#34;]
+        source = LoadCSV(source=source).data
+        oes_df = self.load_df(os.path.join(source[&#39;Root&#39;],
+                                           source[&#39;OES&#39;]))
+        code_df = self.format_code(self.load_df(
+            os.path.join(source[&#39;Root&#39;], source[&#39;CODE&#39;])))
+        pop_df = self.load_df(os.path.join(source[&#39;Root&#39;],
+                                           source[&#39;POP&#39;]))
+        map_df = self.format_map(self.load_df(
+            os.path.join(source[&#39;Root&#39;], source[&#39;MAP&#39;])))
+
+    # initialize unsliced dataframe from oes data
+    if location[&#34;State&#34;] is None:
+        raise ValueError(f&#34;invalid {self.location=} must specify state&#34;)
+    if location[&#34;County&#34;] is not None and location[&#34;State&#34;] is not None:
+        df = self.create_county_df(location, oes_df, code_df, pop_df)
+    else:
+        df = self.create_state_df(location, oes_df)
+
+    # slice to get just healthcare workers
+    health_df = self.health_dataframe(df)
+
+    # the actual data passed onto the model
+    attr_pd_df = self.drop_code(health_df)
+    attr_pd_arr = attr_pd_df[&#39;Size&#39;].to_numpy()
+    map_labs, map_arr = self.create_map(health_df, map_df)
+
+    # load into dictionary
+    df_dict = {}
+    df_dict[&#39;attr_pd_df&#39;] = attr_pd_df
+    df_dict[&#39;attr_pd_arr&#39;] = attr_pd_arr
+    df_dict[&#39;map_labs&#39;] = map_labs
+    df_dict[&#39;map_arr&#39;] = map_arr
+
+    return df_dict</code></pre>
+</details>
+</dd>
 <dt id="population_oes.PopulationOES.load_df"><code class="name flex">
 <span>def <span class="ident">load_df</span></span>(<span>self, fname: str) ‑> Union[pandas.core.frame.DataFrame, NoneType]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Load JSON file into a dataframe.</p>
+<div class="desc"><p>Load h5 file into a dataframe.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>fname</code></strong></dt>
-<dd>Name of JSON file</dd>
+<dd>Name of h5 file</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>The dataframe serialized in the JSON file</p></div>
+<p>The dataframe serialized in the h5 file</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def load_df(self, fname: str) -&gt; Optional[pd.DataFrame]:
-    &#34;&#34;&#34;Load JSON file into a dataframe.
+    &#34;&#34;&#34;Load h5 file into a dataframe.
 
     Args:
-        fname: Name of JSON file
+        fname: Name of h5 file
 
     Returns:
-        The dataframe serialized in the JSON file
+        The dataframe serialized in the h5 file
     &#34;&#34;&#34;
     try:
-        df: pd.DataFrame = pd.read_json(open(fname, &#39;rb&#39;), orient=&#39;index&#39;)
+        df: pd.DataFrame = pd.read_hdf(fname, &#39;df&#39;)
         return df
 
     except ValueError:
-        log.debug(f&#34;invalid file {fname=}&#34;)
+        self.log.debug(f&#34;invalid file {fname=}&#34;)
         return None</code></pre>
 </details>
 </dd>
 <dt id="population_oes.PopulationOES.load_state"><code class="name flex">
-<span>def <span class="ident">load_state</span></span>(<span>self) ‑> pandas.core.frame.DataFrame</span>
+<span>def <span class="ident">load_state</span></span>(<span>self, location: Dict, oes_df: pandas.core.frame.DataFrame) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Slice the OES data by state for further processing downstream.</p>
@@ -1252,7 +1615,9 @@ MSA code living in given county</dd>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def load_state(self) -&gt; pd.DataFrame:
+<pre><code class="python">def load_state(self,
+               location: Dict,
+               oes_df: pd.DataFrame) -&gt; pd.DataFrame:
     &#34;&#34;&#34;Slice the OES data by state for further processing downstream.
 
     Args:
@@ -1261,13 +1626,10 @@ MSA code living in given county</dd>
     Returns:
         df: Sliced OES dataframe
     &#34;&#34;&#34;
-    if self.oes_df is None:
-        raise ValueError(f&#34;{self.oes_df=} should not be None&#34;)
-
     # Slice OES dataframe by state
     col_list = [&#39;occ_code&#39;, &#39;occ_title&#39;, &#39;o_group&#39;, &#39;tot_emp&#39;]
-    df = self.oes_df[(self.oes_df[&#39;area_title&#39;] ==
-                      self.location[&#39;State&#39;])][col_list]
+    df = oes_df[(oes_df[&#39;area_title&#39;] ==
+                location[&#39;State&#39;])][col_list]
 
     # Replace placeholders with 0
     df = df.replace(to_replace=&#39;**&#39;, value=0)
@@ -1293,13 +1655,17 @@ MSA code living in given county</dd>
 <ul class="">
 <li><code><a title="population_oes.PopulationOES.calculate_proportions" href="#population_oes.PopulationOES.calculate_proportions">calculate_proportions</a></code></li>
 <li><code><a title="population_oes.PopulationOES.create_county_df" href="#population_oes.PopulationOES.create_county_df">create_county_df</a></code></li>
+<li><code><a title="population_oes.PopulationOES.create_map" href="#population_oes.PopulationOES.create_map">create_map</a></code></li>
 <li><code><a title="population_oes.PopulationOES.create_state_df" href="#population_oes.PopulationOES.create_state_df">create_state_df</a></code></li>
+<li><code><a title="population_oes.PopulationOES.drop_code" href="#population_oes.PopulationOES.drop_code">drop_code</a></code></li>
 <li><code><a title="population_oes.PopulationOES.fill_uncounted" href="#population_oes.PopulationOES.fill_uncounted">fill_uncounted</a></code></li>
 <li><code><a title="population_oes.PopulationOES.find_code" href="#population_oes.PopulationOES.find_code">find_code</a></code></li>
 <li><code><a title="population_oes.PopulationOES.format_code" href="#population_oes.PopulationOES.format_code">format_code</a></code></li>
+<li><code><a title="population_oes.PopulationOES.format_map" href="#population_oes.PopulationOES.format_map">format_map</a></code></li>
 <li><code><a title="population_oes.PopulationOES.format_output" href="#population_oes.PopulationOES.format_output">format_output</a></code></li>
-<li><code><a title="population_oes.PopulationOES.healthcare_filter" href="#population_oes.PopulationOES.healthcare_filter">healthcare_filter</a></code></li>
+<li><code><a title="population_oes.PopulationOES.health_dataframe" href="#population_oes.PopulationOES.health_dataframe">health_dataframe</a></code></li>
 <li><code><a title="population_oes.PopulationOES.load_county" href="#population_oes.PopulationOES.load_county">load_county</a></code></li>
+<li><code><a title="population_oes.PopulationOES.load_data" href="#population_oes.PopulationOES.load_data">load_data</a></code></li>
 <li><code><a title="population_oes.PopulationOES.load_df" href="#population_oes.PopulationOES.load_df">load_df</a></code></li>
 <li><code><a title="population_oes.PopulationOES.load_state" href="#population_oes.PopulationOES.load_state">load_state</a></code></li>
 </ul>
@@ -1310,7 +1676,7 @@ MSA code living in given county</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
 </footer>
 </body>
 </html>

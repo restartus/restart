@@ -37,10 +37,10 @@ help: $(MAKEFILE_LIST)
 # also add to the python path
 .PHONY: pipenv-python
 pipenv-python:	pipenv-clean
-	@echo python is currently python 3.8
-	@echo note do not use requirements.txt as it will read it by default
-	@echo get the latest python
+	@echo currently using python 3.8
 	brew upgrade python@3.8 pipenv
+	@echo pipenv sometimes corrupts after python 3.8 install so reinstall if needed
+	pipenv --version || brew reinstall pipenv
 	PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --python /usr/local/opt/python@3.8/bin/python3
 	pipenv clean
 	 @echo use .env to ensure we can see all packages

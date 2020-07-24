@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.8.3" />
+<meta name="generator" content="pdoc 0.8.4" />
 <title>load_csv API documentation</title>
 <meta name="description" content="Loader CSV …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -39,24 +39,21 @@ from loader.load import Load
 from util import Log
 from typing import List, Optional, Dict
 
-log: logging.Logger = logging.getLogger(__name__)
-
 
 class LoadCSV(Load):
     &#34;&#34;&#34;Converts Excel and CSV files into dataframe objects.
 
-    If you give
-    it files with a .xlsx, .xls, or .csv extension, it will read
+    If you give it files with a .xlsx, .xls, or .csv extension, it will read
     their data into a dataframe, and then safe the dataframe as
-    a pickle-file with the extension .p. If you feed this class
-    a pickle-file, it will simply pass through this class. This is
+    a h5 file with extension .h5. If you feed this class
+    a h5 file, it will simply pass through this class. This is
     done so that we can minimize the amount of times the Excel/CSV
     data must be processed - for larger files, it can be lengthy.
 
     Attributes:
-        splitpaths: List of tuples with format (path/to/file, extension)
-        p_list: A list that becomes populated with the names of
-                    pickle-files containing the input-data in dataframe form.
+        excel_ext: list of extensions attached to excel files
+        csv_ext: list of extensions attached to csv files
+        data: dictionary containing names of h5 files
     &#34;&#34;&#34;
     def __init__(self,
                  source: Dict = None,
@@ -70,13 +67,14 @@ class LoadCSV(Load):
         # logging setup
         super().__init__()
         self.root_log: Optional[Log]
-        global log
 
+        self.root_log = log_root
         if log_root is not None:
-            self.root_log = log_root
-            log = self.log = log_root.log_class(self)
-            log.debug(f&#34;{self.log=} {log=}&#34;)
-
+            log = log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
+        log.debug(f&#34;{self.log=} {log=}&#34;)
         log.debug(f&#34;module {__name__=}&#34;)
 
         # extensions we check for
@@ -111,14 +109,13 @@ class LoadCSV(Load):
                 fullbase = os.path.join(rootdir, base)
 
                 try:
-
-                    # look for json file in rootdir
-                    if base + &#39;.json&#39; in files:
+                    # look for h5 file in rootdir
+                    if base + &#39;.h5&#39; in files:
                         log.debug(f&#34;preexisting json found for {base=}&#34;)
-                        self.data[fname] = base + &#39;.json&#39;
+                        self.data[fname] = base + &#39;.h5&#39;
 
                     else:
-                        log.debug(f&#34;generating json file for {base=}&#34;)
+                        log.debug(f&#34;generating h5 file for {base=}&#34;)
 
                         # excel to dataframe
                         if ext in self.excel_ext:
@@ -135,30 +132,28 @@ class LoadCSV(Load):
 
                         # store dataframe and overwrite dictionary input
                         self.store_dataframe(fullbase, df)
-                        self.data[fname] = base + &#39;.json&#39;
+                        self.data[fname] = base + &#39;.h5&#39;
 
                 # handle alternate utf encodings
                 except UnicodeDecodeError:
                     log.debug(f&#34;loading {ext=} file with ISO-8859-1 encoding&#34;)
                     df = pd.read_csv(fullbase + ext, encoding=&#34;ISO-8859-1&#34;)
                     self.store_dataframe(fullbase, df)
-                    self.data[fname] = base + &#39;.json&#39;
+                    self.data[fname] = base + &#39;.h5&#39;
 
     def store_dataframe(self, name: str, df: pd.DataFrame) -&gt; None:
-        &#34;&#34;&#34;Serializes a dataframe in JSON format.
+        &#34;&#34;&#34;Serializes a dataframe in h5 format.
 
         Args:
-            name: Name of the file we want to save
-            df: Dataframe to be serialized
+            name: name of the file we want to save
 
         Returns:
-            Name of the file that has been serialized
+            None
         &#34;&#34;&#34;
-        name = name + &#39;.json&#39;
+        log = self.log
+        name = name + &#39;.h5&#39;
         log.debug(f&#34;{name=}&#34;)
-        json = df.to_json(orient=&#39;index&#39;)
-        with open(name, &#39;w&#39;) as json_file:
-            json_file.write(json)
+        df.to_hdf(name, key=&#39;df&#39;, mode=&#39;w&#39;)
 
         return None</code></pre>
 </details>
@@ -178,20 +173,20 @@ class LoadCSV(Load):
 </code></dt>
 <dd>
 <div class="desc"><p>Converts Excel and CSV files into dataframe objects.</p>
-<p>If you give
-it files with a .xlsx, .xls, or .csv extension, it will read
+<p>If you give it files with a .xlsx, .xls, or .csv extension, it will read
 their data into a dataframe, and then safe the dataframe as
-a pickle-file with the extension .p. If you feed this class
-a pickle-file, it will simply pass through this class. This is
+a h5 file with extension .h5. If you feed this class
+a h5 file, it will simply pass through this class. This is
 done so that we can minimize the amount of times the Excel/CSV
 data must be processed - for larger files, it can be lengthy.</p>
 <h2 id="attributes">Attributes</h2>
 <dl>
-<dt><strong><code>splitpaths</code></strong></dt>
-<dd>List of tuples with format (path/to/file, extension)</dd>
-<dt><strong><code>p_list</code></strong></dt>
-<dd>A list that becomes populated with the names of
-pickle-files containing the input-data in dataframe form.</dd>
+<dt><strong><code>excel_ext</code></strong></dt>
+<dd>list of extensions attached to excel files</dd>
+<dt><strong><code>csv_ext</code></strong></dt>
+<dd>list of extensions attached to csv files</dd>
+<dt><strong><code>data</code></strong></dt>
+<dd>dictionary containing names of h5 files</dd>
 </dl>
 <p>Initialize the Loader to read files.</p>
 <p>Reads the files</p></div>
@@ -202,18 +197,17 @@ pickle-files containing the input-data in dataframe form.</dd>
 <pre><code class="python">class LoadCSV(Load):
     &#34;&#34;&#34;Converts Excel and CSV files into dataframe objects.
 
-    If you give
-    it files with a .xlsx, .xls, or .csv extension, it will read
+    If you give it files with a .xlsx, .xls, or .csv extension, it will read
     their data into a dataframe, and then safe the dataframe as
-    a pickle-file with the extension .p. If you feed this class
-    a pickle-file, it will simply pass through this class. This is
+    a h5 file with extension .h5. If you feed this class
+    a h5 file, it will simply pass through this class. This is
     done so that we can minimize the amount of times the Excel/CSV
     data must be processed - for larger files, it can be lengthy.
 
     Attributes:
-        splitpaths: List of tuples with format (path/to/file, extension)
-        p_list: A list that becomes populated with the names of
-                    pickle-files containing the input-data in dataframe form.
+        excel_ext: list of extensions attached to excel files
+        csv_ext: list of extensions attached to csv files
+        data: dictionary containing names of h5 files
     &#34;&#34;&#34;
     def __init__(self,
                  source: Dict = None,
@@ -227,13 +221,14 @@ pickle-files containing the input-data in dataframe form.</dd>
         # logging setup
         super().__init__()
         self.root_log: Optional[Log]
-        global log
 
+        self.root_log = log_root
         if log_root is not None:
-            self.root_log = log_root
-            log = self.log = log_root.log_class(self)
-            log.debug(f&#34;{self.log=} {log=}&#34;)
-
+            log = log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
+        log.debug(f&#34;{self.log=} {log=}&#34;)
         log.debug(f&#34;module {__name__=}&#34;)
 
         # extensions we check for
@@ -268,14 +263,13 @@ pickle-files containing the input-data in dataframe form.</dd>
                 fullbase = os.path.join(rootdir, base)
 
                 try:
-
-                    # look for json file in rootdir
-                    if base + &#39;.json&#39; in files:
+                    # look for h5 file in rootdir
+                    if base + &#39;.h5&#39; in files:
                         log.debug(f&#34;preexisting json found for {base=}&#34;)
-                        self.data[fname] = base + &#39;.json&#39;
+                        self.data[fname] = base + &#39;.h5&#39;
 
                     else:
-                        log.debug(f&#34;generating json file for {base=}&#34;)
+                        log.debug(f&#34;generating h5 file for {base=}&#34;)
 
                         # excel to dataframe
                         if ext in self.excel_ext:
@@ -292,30 +286,28 @@ pickle-files containing the input-data in dataframe form.</dd>
 
                         # store dataframe and overwrite dictionary input
                         self.store_dataframe(fullbase, df)
-                        self.data[fname] = base + &#39;.json&#39;
+                        self.data[fname] = base + &#39;.h5&#39;
 
                 # handle alternate utf encodings
                 except UnicodeDecodeError:
                     log.debug(f&#34;loading {ext=} file with ISO-8859-1 encoding&#34;)
                     df = pd.read_csv(fullbase + ext, encoding=&#34;ISO-8859-1&#34;)
                     self.store_dataframe(fullbase, df)
-                    self.data[fname] = base + &#39;.json&#39;
+                    self.data[fname] = base + &#39;.h5&#39;
 
     def store_dataframe(self, name: str, df: pd.DataFrame) -&gt; None:
-        &#34;&#34;&#34;Serializes a dataframe in JSON format.
+        &#34;&#34;&#34;Serializes a dataframe in h5 format.
 
         Args:
-            name: Name of the file we want to save
-            df: Dataframe to be serialized
+            name: name of the file we want to save
 
         Returns:
-            Name of the file that has been serialized
+            None
         &#34;&#34;&#34;
-        name = name + &#39;.json&#39;
+        log = self.log
+        name = name + &#39;.h5&#39;
         log.debug(f&#34;{name=}&#34;)
-        json = df.to_json(orient=&#39;index&#39;)
-        with open(name, &#39;w&#39;) as json_file:
-            json_file.write(json)
+        df.to_hdf(name, key=&#39;df&#39;, mode=&#39;w&#39;)
 
         return None</code></pre>
 </details>
@@ -329,35 +321,31 @@ pickle-files containing the input-data in dataframe form.</dd>
 <span>def <span class="ident">store_dataframe</span></span>(<span>self, name: str, df: pandas.core.frame.DataFrame) ‑> NoneType</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Serializes a dataframe in JSON format.</p>
+<div class="desc"><p>Serializes a dataframe in h5 format.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>name</code></strong></dt>
-<dd>Name of the file we want to save</dd>
-<dt><strong><code>df</code></strong></dt>
-<dd>Dataframe to be serialized</dd>
+<dd>name of the file we want to save</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>Name of the file that has been serialized</p></div>
+<p>None</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def store_dataframe(self, name: str, df: pd.DataFrame) -&gt; None:
-    &#34;&#34;&#34;Serializes a dataframe in JSON format.
+    &#34;&#34;&#34;Serializes a dataframe in h5 format.
 
     Args:
-        name: Name of the file we want to save
-        df: Dataframe to be serialized
+        name: name of the file we want to save
 
     Returns:
-        Name of the file that has been serialized
+        None
     &#34;&#34;&#34;
-    name = name + &#39;.json&#39;
+    log = self.log
+    name = name + &#39;.h5&#39;
     log.debug(f&#34;{name=}&#34;)
-    json = df.to_json(orient=&#39;index&#39;)
-    with open(name, &#39;w&#39;) as json_file:
-        json_file.write(json)
+    df.to_hdf(name, key=&#39;df&#39;, mode=&#39;w&#39;)
 
     return None</code></pre>
 </details>
@@ -387,7 +375,7 @@ pickle-files containing the input-data in dataframe form.</dd>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
 </footer>
 </body>
 </html>

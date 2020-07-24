@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.8.3" />
-<title>consumption_who API documentation</title>
-<meta name="description" content="Consumption model from WHO …" />
+<meta name="generator" content="pdoc 0.8.4" />
+<title>disease API documentation</title>
+<meta name="description" content="Disease model …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
@@ -19,19 +19,69 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>consumption_who</code></h1>
+<h1 class="title">Module <code>disease</code></h1>
 </header>
 <section id="section-intro">
-<p>Consumption model from WHO.</p>
-<p>Consumption from the WHO v1.2 Surge analysis</p>
+<p>Disease model.</p>
+<p>The disease model work.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Consumption model from WHO.
+<pre><code class="python">&#34;&#34;&#34;Disease model.
 
-Consumption from the WHO v1.2 Surge analysis
-&#34;&#34;&#34;</code></pre>
+The disease model work.
+&#34;&#34;&#34;
+
+# https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
+# note the noqa: and type: are space sensitive
+# https://stackoverflow.com/questions/51179109/set-pyflake-and-mypy-ignore-same-line
+import logging
+import pandas as pd  # type: ignore # noqa: F401
+import numpy as np  # type: ignore # noqa: F401
+from base import Base
+from modeldata import ModelData
+from typing import Optional
+from util import Log
+
+
+class Disease(Base):
+    &#34;&#34;&#34;Resource - Manages all the resources that are used in the model.
+
+    This creates for all r resources, the list of attributes a
+
+    This contains
+    This uses https://realpython.com/documenting-python-code/
+    docstrings using the NumPy/SciPy syntax
+    Uses a modified standard project
+    Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
+    &#34;&#34;&#34;
+
+    # no variable here unless you want them the same across all classes
+    # see https://docs.python.org/3/tutorial/classes.html
+    def __init__(
+        self,
+        data: ModelData,
+        log_root: Optional[Log] = None,
+        type: Optional[str] = None,
+    ):
+        &#34;&#34;&#34;Initialize the Disease object.
+
+        This uses the Frame object and populates it with default data unless yo
+        override it
+        &#34;&#34;&#34;
+        # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
+        super().__init__(log_root=log_root)
+        # create a sublogger if a root exists in the model
+        self.log_root = log_root
+        if log_root is not None:
+            log = log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
+
+        if type is not None:
+            log.debug(f&#34;not implemented {type=}&#34;)</code></pre>
 </details>
 </section>
 <section>
@@ -41,6 +91,71 @@ Consumption from the WHO v1.2 Surge analysis
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="disease.Disease"><code class="flex name class">
+<span>class <span class="ident">Disease</span></span>
+<span>(</span><span>data: modeldata.ModelData, log_root: Union[util.Log, NoneType] = None, type: Union[str, NoneType] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Resource - Manages all the resources that are used in the model.</p>
+<p>This creates for all r resources, the list of attributes a</p>
+<p>This contains
+This uses <a href="https://realpython.com/documenting-python-code/">https://realpython.com/documenting-python-code/</a>
+docstrings using the NumPy/SciPy syntax
+Uses a modified standard project
+Uses <a href="https://www.sphinx-doc.org/en/master/">https://www.sphinx-doc.org/en/master/</a> to generate the documentation</p>
+<p>Initialize the Disease object.</p>
+<p>This uses the Frame object and populates it with default data unless yo
+override it</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Disease(Base):
+    &#34;&#34;&#34;Resource - Manages all the resources that are used in the model.
+
+    This creates for all r resources, the list of attributes a
+
+    This contains
+    This uses https://realpython.com/documenting-python-code/
+    docstrings using the NumPy/SciPy syntax
+    Uses a modified standard project
+    Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
+    &#34;&#34;&#34;
+
+    # no variable here unless you want them the same across all classes
+    # see https://docs.python.org/3/tutorial/classes.html
+    def __init__(
+        self,
+        data: ModelData,
+        log_root: Optional[Log] = None,
+        type: Optional[str] = None,
+    ):
+        &#34;&#34;&#34;Initialize the Disease object.
+
+        This uses the Frame object and populates it with default data unless yo
+        override it
+        &#34;&#34;&#34;
+        # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
+        super().__init__(log_root=log_root)
+        # create a sublogger if a root exists in the model
+        self.log_root = log_root
+        if log_root is not None:
+            log = log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
+
+        if type is not None:
+            log.debug(f&#34;not implemented {type=}&#34;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>base.Base</li>
+</ul>
+</dd>
+</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -49,11 +164,18 @@ Consumption from the WHO v1.2 Surge analysis
 <ul></ul>
 </div>
 <ul id="index">
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="disease.Disease" href="#disease.Disease">Disease</a></code></h4>
+</li>
+</ul>
+</li>
 </ul>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
 </footer>
 </body>
 </html>

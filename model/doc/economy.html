@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.8.3" />
-<title>modeldata API documentation</title>
-<meta name="description" content="Model Data Stucture …" />
+<meta name="generator" content="pdoc 0.8.4" />
+<title>economy API documentation</title>
+<meta name="description" content="Econometric model …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
@@ -19,40 +19,70 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>modeldata</code></h1>
+<h1 class="title">Module <code>economy</code></h1>
 </header>
 <section id="section-intro">
-<p>Model Data Stucture.</p>
-<p>The core data from a model. While the Model class contains all kinds of
-execution, this is just the data so easy to pass around
-and not run into import bugs</p>
+<p>Econometric model.</p>
+<p>The main way we integrate economic activity.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Model Data Stucture.
+<pre><code class="python">&#34;&#34;&#34;Econometric model.
 
-The core data from a model. While the Model class contains all kinds of
-execution, this is just the data so easy to pass around
-and not run into import bugs
+The main way we integrate economic activity.
 &#34;&#34;&#34;
-# https://realpython.com/python-data-classes/
-# We could also used a named tuple, but this can lead to bugs
-from dataclasses import dataclass
-from typing import Dict
+# https://numpydoc.readthedocs.io/en/latest/format.html
+# https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html
+# note that the type ignor and noqa lines are space sensitive
+import logging
+import pandas as pd  # type: ignore # noqa: F401
+import numpy as np  # type: ignore # noqa: F401
+from base import Base
+from modeldata import ModelData
+from util import Log
+from typing import Optional
 
 
-@dataclass
-class ModelData:
-    &#34;&#34;&#34;Model raw data.
+class Economy(Base):
+    &#34;&#34;&#34;Economy - Manages the economy.
 
-    Data separted from the running Model
+    This creates for all r resources, the list of attributes a
+
+    This contains
+    This uses https://realpython.com/documenting-python-code/
+    docstrings using the NumPy/SciPy syntax
+    Uses a modified standard project
+    Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
     &#34;&#34;&#34;
 
-    label: Dict[str, str]
-    value: Dict
-    description: Dict
-    datapaths: Dict</code></pre>
+    # no variable here unless you want them the same across all classes
+    # see https://docs.python.org/3/tutorial/classes.html
+
+    def __init__(
+        self,
+        data: ModelData,
+        log_root: Optional[Log] = None,
+        type: Optional[str] = None,
+    ):
+        &#34;&#34;&#34;Initialize the Economy object.
+
+        This uses the Frame object and populates it with default data unless yo
+        override it
+        &#34;&#34;&#34;
+        # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
+        super().__init__(log_root=log_root)
+
+        # create a sublogger if a root exists in the model
+        if log_root is not None:
+            self.log_root = log_root
+            log = self.log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
+
+        if type is not None:
+            log.debug(f&#34;not implemented {type=}&#34;)</code></pre>
 </details>
 </section>
 <section>
@@ -64,28 +94,69 @@ class ModelData:
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="modeldata.ModelData"><code class="flex name class">
-<span>class <span class="ident">ModelData</span></span>
-<span>(</span><span>label: Dict[str, str], value: Dict, description: Dict, datapaths: Dict)</span>
+<dt id="economy.Economy"><code class="flex name class">
+<span>class <span class="ident">Economy</span></span>
+<span>(</span><span>data: modeldata.ModelData, log_root: Union[util.Log, NoneType] = None, type: Union[str, NoneType] = None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Model raw data.</p>
-<p>Data separted from the running Model</p></div>
+<div class="desc"><p>Economy - Manages the economy.</p>
+<p>This creates for all r resources, the list of attributes a</p>
+<p>This contains
+This uses <a href="https://realpython.com/documenting-python-code/">https://realpython.com/documenting-python-code/</a>
+docstrings using the NumPy/SciPy syntax
+Uses a modified standard project
+Uses <a href="https://www.sphinx-doc.org/en/master/">https://www.sphinx-doc.org/en/master/</a> to generate the documentation</p>
+<p>Initialize the Economy object.</p>
+<p>This uses the Frame object and populates it with default data unless yo
+override it</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class ModelData:
-    &#34;&#34;&#34;Model raw data.
+<pre><code class="python">class Economy(Base):
+    &#34;&#34;&#34;Economy - Manages the economy.
 
-    Data separted from the running Model
+    This creates for all r resources, the list of attributes a
+
+    This contains
+    This uses https://realpython.com/documenting-python-code/
+    docstrings using the NumPy/SciPy syntax
+    Uses a modified standard project
+    Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
     &#34;&#34;&#34;
 
-    label: Dict[str, str]
-    value: Dict
-    description: Dict
-    datapaths: Dict</code></pre>
+    # no variable here unless you want them the same across all classes
+    # see https://docs.python.org/3/tutorial/classes.html
+
+    def __init__(
+        self,
+        data: ModelData,
+        log_root: Optional[Log] = None,
+        type: Optional[str] = None,
+    ):
+        &#34;&#34;&#34;Initialize the Economy object.
+
+        This uses the Frame object and populates it with default data unless yo
+        override it
+        &#34;&#34;&#34;
+        # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
+        super().__init__(log_root=log_root)
+
+        # create a sublogger if a root exists in the model
+        if log_root is not None:
+            self.log_root = log_root
+            log = self.log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
+
+        if type is not None:
+            log.debug(f&#34;not implemented {type=}&#34;)</code></pre>
 </details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>base.Base</li>
+</ul>
 </dd>
 </dl>
 </section>
@@ -99,7 +170,7 @@ class ModelData:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="modeldata.ModelData" href="#modeldata.ModelData">ModelData</a></code></h4>
+<h4><code><a title="economy.Economy" href="#economy.Economy">Economy</a></code></h4>
 </li>
 </ul>
 </li>
@@ -107,7 +178,7 @@ class ModelData:
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
 </footer>
 </body>
 </html>

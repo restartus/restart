@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.8.3" />
+<meta name="generator" content="pdoc 0.8.4" />
 <title>util API documentation</title>
 <meta name="description" content="Utilities …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -33,25 +33,91 @@
 Main utilities
 &#34;&#34;&#34;
 import logging
-import os
-from typing import Optional, Dict
+import datetime
 import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
+from pathlib import Path
+from typing import Optional, Dict, Union
+
+
+def dump_loggers(logging, log: logging.Logger):
+    &#34;&#34;&#34;Dump all logs.
+
+    Dump everything the logging system
+    &#34;&#34;&#34;
+    log.debug(f&#34;{logging.Logger.manager.loggerDict=}&#34;)
+    for name in logging.Logger.manager.loggerDict.keys():
+        lg = logging.getLogger(name)
+        log.debug(f&#34;{lg=}&#34;)
+        log.debug(f&#34;{lg.hasHandlers()=}&#34;)
+        for h in lg.handlers:
+            log.debug(f&#34;{h=}&#34;)
+
+
+def is_dir_or_file(name: str) -&gt; bool:
+    &#34;&#34;&#34;Is path a directory or a file.
+
+    It&#39;s hard to believe this is not a function already
+    &#34;&#34;&#34;
+    path = Path(name)
+    if path.is_dir() or path.is_file():
+        return True
+    return False
 
 
 # sets the frame properly but does need to understand the model
 # so goes into the model method
 def set_dataframe(
-    arr: np.ndarray, label: Dict, index: str = None, columns: str = None,
+    arr: np.ndarray,
+    label: Dict,
+    index: Optional[str] = None,
+    columns: Optional[str] = None,
 ) -&gt; pd.DataFrame:
     &#34;&#34;&#34;Set the dataframe up.
 
     Using the model data Dictionary and labels
     &#34;&#34;&#34;
-    df = pd.DataFrame(arr, index=label[index], columns=label[columns],)
+    # we use get so that if there is no item it returns None
+    # https://www.tutorialspoint.com/python/dictionary_get.htm
+    df = pd.DataFrame(
+        arr,
+        index=label[index] if index is not None else None,
+        columns=label[columns] if columns is not None else None,
+    )
     df.index.name = index
     df.columns.name = columns
     return df
+
+
+def load_dataframe(fname: str) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;Load h5 file into a dataframe.
+
+    Args:
+        Name of h5 file
+
+    Returns:
+        The dataframe serialized in the h5 file
+    &#34;&#34;&#34;
+    df: pd.DataFrame = pd.read_hdf(fname, &#39;df&#39;)
+    return df
+
+
+def datetime_to_code(code: Union[str, datetime.datetime]) -&gt; str:
+    &#34;&#34;&#34;Convert datetime objects to valid OCC codes.
+
+    Gets around the problem of Excel automatically converting date-looking
+    strings into datetime objects that can&#39;t be undone.
+
+    Args:
+        code: Either a datetime object or string represnting an OCC code
+
+    Returns:
+        The code in valid OCC code format
+    &#34;&#34;&#34;
+    if type(code) is datetime.datetime:
+        return str(code.month) + &#39;-&#39; + str(code.year)  # type: ignore
+    else:
+        return str(code)
 
 
 class Log:
@@ -71,9 +137,37 @@ class Log:
         if name is None:
             # https://stackoverflow.com/questions/3925096/how-to-get-only-the-last-part-of-a-path-in-python
             # https://stackoverflow.com/questions/5137497/find-current-directory-and-files-directory
-            name = os.path.basename(os.getcwd())
+            # name = os.path.basename(os.getcwd())
+            # https://realpython.com/python-pathlib/
+            name = Path.cwd().name
         self.name = name
-        self.log = logging.getLogger(name)
+        # this is the main logging so at the top
+        log = self.log = logging.getLogger(name)
+        # the logger itself needs a level set as low as possible
+        # otherwise the streams will not see it
+        # https://docs.python.org/3/howto/logging-cookbook.html
+        log.setLevel(logging.DEBUG)
+        self.mylog = self.log_class(self)
+
+        # streamlit can call multiple times and all variables are reset
+        # except for logging. So here if the getLogger returns an
+        # existing log, instead of creating new handlers, just look through the
+        # existing ones and copy out the handlers. We use this for convenience
+        # to set debugging levels by changing levels
+        # like log_root.con.setLevel(logging.DEBUG)
+        # or for all logs with log_root.log.setLevel(logging.WARNING)
+        if len(log.handlers) &gt; 0:
+            log.warning(f&#34;{log=} already has {log.handlers=}&#34;)
+            # assume that the last streamhandler is for the console
+            # the first handler is for the file logger
+            for handler in log.handlers:
+                if type(handler) is logging.StreamHandler:
+                    self.con = handler
+                    continue
+                if type(handler) is logging.FileHandler:
+                    self.fh = handler
+                    continue
+            return
         # note this is for the logger, each stream has it&#39;s own level
         # note that if name == __main__ you can set all logging too high
         #  self.log.setLevel(logging.DEBUG)
@@ -99,15 +193,16 @@ class Log:
         )
         self.fh.setFormatter(self.fh_format)
         self.log.addHandler(self.fh)
-        self.mylog = self.log_class(self)
-        self.mylog.debug(f&#34;{self.mylog=}&#34;)
+        self.log.debug(f&#34;{self.log=} f&#34;)
+        # note we don&#39;t need self.fh, it is also accessible at
+        # self.log.handlers[0] and self.log.handlers[1]
+        # breakpoint()
 
     def log_class(self, object):
         &#34;&#34;&#34;Class Logger.
 
         Creates a custom logger just for a class
         &#34;&#34;&#34;
-        # breakpoint()
         class_log_name = self.name + &#34;.&#34; + type(object).__name__
         self.log.debug(f&#34;new logger {class_log_name=}&#34;)
         log = logging.getLogger(class_log_name)
@@ -118,6 +213,7 @@ class Log:
 
         Creates a logger specficaly for a file (a module in Python speak)
         &#34;&#34;&#34;
+        # breakpoint()
         module_log_name = self.name + &#34;.&#34; + name
         log = logging.getLogger(module_log_name)
         return log
@@ -127,10 +223,10 @@ class Log:
 
         Testing code run this to make sure all levels are used
         &#34;&#34;&#34;
-        log.debug(&#34;debug&#34;)
-        log.warning(&#34;warning&#34;)
-        log.error(&#34;error&#34;)
-        log.critical(&#34;critical&#34;)
+        log.debug(&#34;test debug&#34;)
+        log.warning(&#34;test warning&#34;)
+        log.error(&#34;test error&#34;)
+        log.critical(&#34;test critical&#34;)
 
         return self</code></pre>
 </details>
@@ -142,8 +238,115 @@ class Log:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="util.datetime_to_code"><code class="name flex">
+<span>def <span class="ident">datetime_to_code</span></span>(<span>code: Union[str, datetime.datetime]) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert datetime objects to valid OCC codes.</p>
+<p>Gets around the problem of Excel automatically converting date-looking
+strings into datetime objects that can't be undone.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>code</code></strong></dt>
+<dd>Either a datetime object or string represnting an OCC code</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The code in valid OCC code format</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def datetime_to_code(code: Union[str, datetime.datetime]) -&gt; str:
+    &#34;&#34;&#34;Convert datetime objects to valid OCC codes.
+
+    Gets around the problem of Excel automatically converting date-looking
+    strings into datetime objects that can&#39;t be undone.
+
+    Args:
+        code: Either a datetime object or string represnting an OCC code
+
+    Returns:
+        The code in valid OCC code format
+    &#34;&#34;&#34;
+    if type(code) is datetime.datetime:
+        return str(code.month) + &#39;-&#39; + str(code.year)  # type: ignore
+    else:
+        return str(code)</code></pre>
+</details>
+</dd>
+<dt id="util.dump_loggers"><code class="name flex">
+<span>def <span class="ident">dump_loggers</span></span>(<span>logging, log: logging.Logger)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dump all logs.</p>
+<p>Dump everything the logging system</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dump_loggers(logging, log: logging.Logger):
+    &#34;&#34;&#34;Dump all logs.
+
+    Dump everything the logging system
+    &#34;&#34;&#34;
+    log.debug(f&#34;{logging.Logger.manager.loggerDict=}&#34;)
+    for name in logging.Logger.manager.loggerDict.keys():
+        lg = logging.getLogger(name)
+        log.debug(f&#34;{lg=}&#34;)
+        log.debug(f&#34;{lg.hasHandlers()=}&#34;)
+        for h in lg.handlers:
+            log.debug(f&#34;{h=}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="util.is_dir_or_file"><code class="name flex">
+<span>def <span class="ident">is_dir_or_file</span></span>(<span>name: str) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Is path a directory or a file.</p>
+<p>It's hard to believe this is not a function already</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_dir_or_file(name: str) -&gt; bool:
+    &#34;&#34;&#34;Is path a directory or a file.
+
+    It&#39;s hard to believe this is not a function already
+    &#34;&#34;&#34;
+    path = Path(name)
+    if path.is_dir() or path.is_file():
+        return True
+    return False</code></pre>
+</details>
+</dd>
+<dt id="util.load_dataframe"><code class="name flex">
+<span>def <span class="ident">load_dataframe</span></span>(<span>fname: str) ‑> pandas.core.frame.DataFrame</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load h5 file into a dataframe.</p>
+<h2 id="args">Args</h2>
+<p>Name of h5 file</p>
+<h2 id="returns">Returns</h2>
+<p>The dataframe serialized in the h5 file</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_dataframe(fname: str) -&gt; pd.DataFrame:
+    &#34;&#34;&#34;Load h5 file into a dataframe.
+
+    Args:
+        Name of h5 file
+
+    Returns:
+        The dataframe serialized in the h5 file
+    &#34;&#34;&#34;
+    df: pd.DataFrame = pd.read_hdf(fname, &#39;df&#39;)
+    return df</code></pre>
+</details>
+</dd>
 <dt id="util.set_dataframe"><code class="name flex">
-<span>def <span class="ident">set_dataframe</span></span>(<span>arr: numpy.ndarray, label: Dict, index: str = None, columns: str = None) ‑> pandas.core.frame.DataFrame</span>
+<span>def <span class="ident">set_dataframe</span></span>(<span>arr: numpy.ndarray, label: Dict, index: Union[str, NoneType] = None, columns: Union[str, NoneType] = None) ‑> pandas.core.frame.DataFrame</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Set the dataframe up.</p>
@@ -153,13 +356,22 @@ class Log:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_dataframe(
-    arr: np.ndarray, label: Dict, index: str = None, columns: str = None,
+    arr: np.ndarray,
+    label: Dict,
+    index: Optional[str] = None,
+    columns: Optional[str] = None,
 ) -&gt; pd.DataFrame:
     &#34;&#34;&#34;Set the dataframe up.
 
     Using the model data Dictionary and labels
     &#34;&#34;&#34;
-    df = pd.DataFrame(arr, index=label[index], columns=label[columns],)
+    # we use get so that if there is no item it returns None
+    # https://www.tutorialspoint.com/python/dictionary_get.htm
+    df = pd.DataFrame(
+        arr,
+        index=label[index] if index is not None else None,
+        columns=label[columns] if columns is not None else None,
+    )
     df.index.name = index
     df.columns.name = columns
     return df</code></pre>
@@ -202,9 +414,37 @@ If no name passed, then use the name of the current directory.</p></div>
         if name is None:
             # https://stackoverflow.com/questions/3925096/how-to-get-only-the-last-part-of-a-path-in-python
             # https://stackoverflow.com/questions/5137497/find-current-directory-and-files-directory
-            name = os.path.basename(os.getcwd())
+            # name = os.path.basename(os.getcwd())
+            # https://realpython.com/python-pathlib/
+            name = Path.cwd().name
         self.name = name
-        self.log = logging.getLogger(name)
+        # this is the main logging so at the top
+        log = self.log = logging.getLogger(name)
+        # the logger itself needs a level set as low as possible
+        # otherwise the streams will not see it
+        # https://docs.python.org/3/howto/logging-cookbook.html
+        log.setLevel(logging.DEBUG)
+        self.mylog = self.log_class(self)
+
+        # streamlit can call multiple times and all variables are reset
+        # except for logging. So here if the getLogger returns an
+        # existing log, instead of creating new handlers, just look through the
+        # existing ones and copy out the handlers. We use this for convenience
+        # to set debugging levels by changing levels
+        # like log_root.con.setLevel(logging.DEBUG)
+        # or for all logs with log_root.log.setLevel(logging.WARNING)
+        if len(log.handlers) &gt; 0:
+            log.warning(f&#34;{log=} already has {log.handlers=}&#34;)
+            # assume that the last streamhandler is for the console
+            # the first handler is for the file logger
+            for handler in log.handlers:
+                if type(handler) is logging.StreamHandler:
+                    self.con = handler
+                    continue
+                if type(handler) is logging.FileHandler:
+                    self.fh = handler
+                    continue
+            return
         # note this is for the logger, each stream has it&#39;s own level
         # note that if name == __main__ you can set all logging too high
         #  self.log.setLevel(logging.DEBUG)
@@ -230,15 +470,16 @@ If no name passed, then use the name of the current directory.</p></div>
         )
         self.fh.setFormatter(self.fh_format)
         self.log.addHandler(self.fh)
-        self.mylog = self.log_class(self)
-        self.mylog.debug(f&#34;{self.mylog=}&#34;)
+        self.log.debug(f&#34;{self.log=} f&#34;)
+        # note we don&#39;t need self.fh, it is also accessible at
+        # self.log.handlers[0] and self.log.handlers[1]
+        # breakpoint()
 
     def log_class(self, object):
         &#34;&#34;&#34;Class Logger.
 
         Creates a custom logger just for a class
         &#34;&#34;&#34;
-        # breakpoint()
         class_log_name = self.name + &#34;.&#34; + type(object).__name__
         self.log.debug(f&#34;new logger {class_log_name=}&#34;)
         log = logging.getLogger(class_log_name)
@@ -249,6 +490,7 @@ If no name passed, then use the name of the current directory.</p></div>
 
         Creates a logger specficaly for a file (a module in Python speak)
         &#34;&#34;&#34;
+        # breakpoint()
         module_log_name = self.name + &#34;.&#34; + name
         log = logging.getLogger(module_log_name)
         return log
@@ -258,10 +500,10 @@ If no name passed, then use the name of the current directory.</p></div>
 
         Testing code run this to make sure all levels are used
         &#34;&#34;&#34;
-        log.debug(&#34;debug&#34;)
-        log.warning(&#34;warning&#34;)
-        log.error(&#34;error&#34;)
-        log.critical(&#34;critical&#34;)
+        log.debug(&#34;test debug&#34;)
+        log.warning(&#34;test warning&#34;)
+        log.error(&#34;test error&#34;)
+        log.critical(&#34;test critical&#34;)
 
         return self</code></pre>
 </details>
@@ -282,7 +524,6 @@ If no name passed, then use the name of the current directory.</p></div>
 
     Creates a custom logger just for a class
     &#34;&#34;&#34;
-    # breakpoint()
     class_log_name = self.name + &#34;.&#34; + type(object).__name__
     self.log.debug(f&#34;new logger {class_log_name=}&#34;)
     log = logging.getLogger(class_log_name)
@@ -304,6 +545,7 @@ If no name passed, then use the name of the current directory.</p></div>
 
     Creates a logger specficaly for a file (a module in Python speak)
     &#34;&#34;&#34;
+    # breakpoint()
     module_log_name = self.name + &#34;.&#34; + name
     log = logging.getLogger(module_log_name)
     return log</code></pre>
@@ -324,10 +566,10 @@ If no name passed, then use the name of the current directory.</p></div>
 
     Testing code run this to make sure all levels are used
     &#34;&#34;&#34;
-    log.debug(&#34;debug&#34;)
-    log.warning(&#34;warning&#34;)
-    log.error(&#34;error&#34;)
-    log.critical(&#34;critical&#34;)
+    log.debug(&#34;test debug&#34;)
+    log.warning(&#34;test warning&#34;)
+    log.error(&#34;test error&#34;)
+    log.critical(&#34;test critical&#34;)
 
     return self</code></pre>
 </details>
@@ -345,6 +587,10 @@ If no name passed, then use the name of the current directory.</p></div>
 <ul id="index">
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="util.datetime_to_code" href="#util.datetime_to_code">datetime_to_code</a></code></li>
+<li><code><a title="util.dump_loggers" href="#util.dump_loggers">dump_loggers</a></code></li>
+<li><code><a title="util.is_dir_or_file" href="#util.is_dir_or_file">is_dir_or_file</a></code></li>
+<li><code><a title="util.load_dataframe" href="#util.load_dataframe">load_dataframe</a></code></li>
 <li><code><a title="util.set_dataframe" href="#util.set_dataframe">set_dataframe</a></code></li>
 </ul>
 </li>
@@ -364,7 +610,7 @@ If no name passed, then use the name of the current directory.</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
 </footer>
 </body>
 </html>

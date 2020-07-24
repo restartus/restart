@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.8.3" />
+<meta name="generator" content="pdoc 0.8.4" />
 <title>model API documentation</title>
 <meta name="description" content="Define Model definition …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -36,6 +36,10 @@ The model shape is configured here.
 And this uses chained methods as decorators
 https://www.w3schools.com/python/python_classes.asp
 &#34;&#34;&#34;
+# https://stackoverflow.com/questions/33533148/how-do-i-specify-that-the-return-type-of-a-method-is-the-same-as-the-class-itsel
+# this allows Model to refer to itself
+from __future__ import annotations
+
 from typing import Dict, Optional, Tuple, List
 from base import Base
 from util import Log
@@ -43,19 +47,21 @@ from loader.load import Load
 
 # import numpy as np  # type:ignore
 # import pandas as pd  # type:ignore
+# from population import Population
 from population import Population
+from pop.population_dict import PopulationDict
+from pop.population_oes import PopulationOES
 from resourcemodel import Resource
 from consumption import Consumption
+from cons.consumption_wa import ConsumptionWA
 from economy import Economy
 from disease import Disease
+from activity import Activity
 from behavioral import Behavioral
 from modeldata import ModelData
+from filtermodel import Filter
 
 import logging  # noqa: F401
-
-log: logging.Logger = logging.getLogger(__name__)
-# https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
-log.debug(f&#34;{__name__=}&#34;)
 
 
 class Model(Base):
@@ -96,47 +102,54 @@ class Model(Base):
         &#34;&#34;&#34;
         # the long description of each
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
-        super().__init__()
-        global log
-        self.log: logging.Logger = log
-        self.log_root = None
+        super().__init__(log_root=log_root)
+
+        # https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
+        self.log_root = log_root
         if log_root is not None:
-            self.log_root = log_root
-            self.log = log_root.log_class(self)
-            log = self.log
+            log = log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
+        log.debug(f&#34;{__name__=}&#34;)
 
         self.name: str = name
+        if not log.hasHandlers():
+            print(f&#34;{log=} has no handlers&#34;)
+
         log.debug(f&#34;{self.name=}&#34;)
         self.data: ModelData = ModelData({}, {}, {}, {})
 
-    def configure(self, loaded: Load):
+    def set_configure(self, loaded: Load) -&gt; Model:
         &#34;&#34;&#34;Configure the Model.
 
         Uses Loaded as a dictionary and puts it into model variables
         &#34;&#34;&#34;
+        log = self.log
         log.debug(f&#34;{loaded.data=}&#34;)
 
         # https://realpython.com/python-keyerror/
         cfg: Optional[Dict] = loaded.data.get(&#34;Config&#34;)
-        if cfg is not None:
-            self.config = cfg
+        if cfg is None:
+            log.warning(f&#34;no config in {loaded.data=}&#34;)
+        self.config = cfg
         log.debug(f&#34;{self.config=}&#34;)
 
         description: Optional[Dict] = loaded.data.get(&#34;Description&#34;)
-        if description is not None:
-            self.data.description = description
+        if description is None:
+            raise ValueError(f&#34;no description in {loaded.data=}&#34;)
+        self.data.description = description
         log.debug(f&#34;{self.description=}&#34;)
 
         data: Optional[Dict] = loaded.data.get(&#34;Data&#34;)
-        log.debug(f&#34;{data=}&#34;)
-        if data is not None:
-            self.data.value = data
+        if data is None:
+            raise ValueError(f&#34;no data in {loaded.data=}&#34;)
+        self.data.value = data
         log.debug(f&#34;{self.data=}&#34;)
 
         label: Optional[Dict] = loaded.data.get(&#34;Label&#34;)
         if label is None:
-            log.warning(f&#34;No label in {loaded.data=}&#34;)
-            return
+            raise ValueError(f&#34;No label in {loaded.data=}&#34;)
         self.data.label = label
         log.debug(f&#34;{self.data.label=}&#34;)
         self.label = label
@@ -156,7 +169,7 @@ class Model(Base):
             &#34;a&#34;: len(self.data.label[&#34;Res Attribute a&#34;]),
             &#34;p&#34;: len(self.data.label[&#34;Population p&#34;]),
             &#34;d&#34;: len(self.data.label[&#34;Pop Detail d&#34;]),
-            &#34;m&#34;: len(self.data.label[&#34;Pop Protection m&#34;]),
+            &#34;m&#34;: len(self.data.label[&#34;Consumption m&#34;]),
             &#34;l&#34;: len(self.data.label[&#34;Pop Level l&#34;]),
             &#34;s&#34;: len(self.data.label[&#34;Res Safety Stock s&#34;]),
         }
@@ -164,18 +177,39 @@ class Model(Base):
         return self
 
     # TODO: This should be a generated set of methods as they are all identical
-    def set_population(self, type: str = None):
+    def set_population(self, type: str = None) -&gt; Model:
         &#34;&#34;&#34;Create population class for model.
 
         Population created here
         &#34;&#34;&#34;
+        # the old method
+        # self.population = Population(
+        #    self.data, log_root=self.log_root, type=type
+        # )
         # the super class population uses type to return the exact model
-        self.population = Population(
-            self.data, log_root=self.log_root, type=type
-        )
+        # filter is by happens after this
+        self.population: Population
+        if type == &#34;oes&#34;:
+            self.population = PopulationOES(
+                self.data,
+                # TODO: this belongs in filter
+                {&#39;County&#39;: None, &#39;State&#39;: &#39;California&#39;},
+                log_root=self.log_root,
+            )
+        elif type == &#34;dict&#34;:
+            # change this to the the naming of columns
+            self.population = PopulationDict(
+                data=self.data,
+                label=self.data.label,
+                log_root=self.log_root,
+                index=&#34;Population p&#34;,
+                columns=&#34;Pop Detail d&#34;,
+            )
+        else:
+            raise ValueError(f&#34;{type=} not implemented&#34;)
         return self
 
-    def set_resource(self, type: str = None):
+    def set_resource(self, type: str = None) -&gt; Model:
         &#34;&#34;&#34;Create resource class.
 
         Resource
@@ -183,17 +217,39 @@ class Model(Base):
         self.resource = Resource(self.data, log_root=self.log_root, type=type)
         return self
 
-    def set_consumption(self, type: str = None):
+    def set_consumption(self, type: str = None) -&gt; Model:
         &#34;&#34;&#34;Set consumption.
 
         Consumption by population levels l
         &#34;&#34;&#34;
-        self.consumption = Consumption(
-            self.data, log_root=self.log_root, type=type
-        )
+        log = self.log
+
+        self.consumption: Consumption
+        if type == &#34;Mitre&#34;:
+            log.debug(&#34;Use Mitre consumption&#34;)
+            raise ValueError(&#34;{type=} not implemented&#34;)
+        elif type == &#34;Johns Hopkins&#34;:
+            log.debug(&#34;Use JHU burn rate model&#34;)
+            raise ValueError(&#34;{type=} not implemented&#34;)
+        else:
+            log.debug(&#34;For anything else use Washington data&#34;)
+            self.consumption = ConsumptionWA(
+                    self.data,
+                    self.population,
+                    self.resource,
+                    log_root=self.log_root,
+                    type=type)
         return self
 
-    def set_economy(self, type: str = None):
+    def set_filter(self, type: str = None) -&gt; Model:
+        &#34;&#34;&#34;Filter the model.
+
+        Shrink the model to relevant population, resource
+        &#34;&#34;&#34;
+        self.filter = Filter(self.data, log_root=self.log_root, type=type)
+        return self
+
+    def set_economy(self, type: str = None) -&gt; Model:
         &#34;&#34;&#34;Create Econometric model.
 
         Economy creation
@@ -201,7 +257,7 @@ class Model(Base):
         self.economy = Economy(self.data, log_root=self.log_root, type=type)
         return self
 
-    def set_disease(self, type: str = None):
+    def set_disease(self, type: str = None) -&gt; Model:
         &#34;&#34;&#34;Create Disease model.
 
         Disease create
@@ -209,7 +265,16 @@ class Model(Base):
         self.disease = Disease(self.data, log_root=self.log_root, type=type)
         return self
 
-    def set_behavioral(self, type: str = None):
+    def set_activity(self, type: str = None) -&gt; Model:
+        &#34;&#34;&#34;Create Social activity model.
+
+        Includes social activity, restaurant usage, credit card use and other
+        indicators of people out and about
+        &#34;&#34;&#34;
+        self.activity = Activity(self.data, log_root=self.log_root, type=type)
+        return self
+
+    def set_behavioral(self, type: str = None) -&gt; Model:
         &#34;&#34;&#34;Create Behavior model.
 
         Behavior create
@@ -225,8 +290,9 @@ class Model(Base):
     # So we want the iterable to be the Base Class
     # The iterator is Model which can return all the Base classes
     # https://thispointer.com/python-how-to-make-a-class-iterable-create-iterator-class-for-it/
-    def __iter__(self):
+    def __iter__(self) -&gt; Model:
         &#34;&#34;&#34;Iterate through the model getting only Base objects.&#34;&#34;&#34;
+        log = self.log
         self.base_list: List = [
             k for k, v in vars(self).items() if isinstance(v, Base)
         ]
@@ -237,6 +303,7 @@ class Model(Base):
 
     def __next__(self) -&gt; Tuple[str, Base]:
         &#34;&#34;&#34;Next Base.&#34;&#34;&#34;
+        log = self.log
         if self.base_index &gt;= self.base_len:
             raise StopIteration
         log.debug(f&#34;{self.base_index=}&#34;)
@@ -247,7 +314,7 @@ class Model(Base):
         return key, value
 
     # Use the decorator pattern that Keras and other use with chaining
-    def logger(self, name: str = __name__):
+    def set_logger(self, name: str = __name__) -&gt; Model:
         &#34;&#34;&#34;Set Log.
 
         Setup the root logger and log
@@ -268,7 +335,7 @@ class Model(Base):
 <dl>
 <dt id="model.Model"><code class="flex name class">
 <span>class <span class="ident">Model</span></span>
-<span>(</span><span>name, log_root: Union[util.Log, NoneType] = None)</span>
+<span>(</span><span>name, log_root: Optional[Log] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Main model for planning.</p>
@@ -333,47 +400,54 @@ population levels: l levels maps population down to a fewer levels</p>
         &#34;&#34;&#34;
         # the long description of each
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
-        super().__init__()
-        global log
-        self.log: logging.Logger = log
-        self.log_root = None
+        super().__init__(log_root=log_root)
+
+        # https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
+        self.log_root = log_root
         if log_root is not None:
-            self.log_root = log_root
-            self.log = log_root.log_class(self)
-            log = self.log
+            log = log_root.log_class(self)
+        else:
+            log = logging.getLogger(__name__)
+        self.log = log
+        log.debug(f&#34;{__name__=}&#34;)
 
         self.name: str = name
+        if not log.hasHandlers():
+            print(f&#34;{log=} has no handlers&#34;)
+
         log.debug(f&#34;{self.name=}&#34;)
         self.data: ModelData = ModelData({}, {}, {}, {})
 
-    def configure(self, loaded: Load):
+    def set_configure(self, loaded: Load) -&gt; Model:
         &#34;&#34;&#34;Configure the Model.
 
         Uses Loaded as a dictionary and puts it into model variables
         &#34;&#34;&#34;
+        log = self.log
         log.debug(f&#34;{loaded.data=}&#34;)
 
         # https://realpython.com/python-keyerror/
         cfg: Optional[Dict] = loaded.data.get(&#34;Config&#34;)
-        if cfg is not None:
-            self.config = cfg
+        if cfg is None:
+            log.warning(f&#34;no config in {loaded.data=}&#34;)
+        self.config = cfg
         log.debug(f&#34;{self.config=}&#34;)
 
         description: Optional[Dict] = loaded.data.get(&#34;Description&#34;)
-        if description is not None:
-            self.data.description = description
+        if description is None:
+            raise ValueError(f&#34;no description in {loaded.data=}&#34;)
+        self.data.description = description
         log.debug(f&#34;{self.description=}&#34;)
 
         data: Optional[Dict] = loaded.data.get(&#34;Data&#34;)
-        log.debug(f&#34;{data=}&#34;)
-        if data is not None:
-            self.data.value = data
+        if data is None:
+            raise ValueError(f&#34;no data in {loaded.data=}&#34;)
+        self.data.value = data
         log.debug(f&#34;{self.data=}&#34;)
 
         label: Optional[Dict] = loaded.data.get(&#34;Label&#34;)
         if label is None:
-            log.warning(f&#34;No label in {loaded.data=}&#34;)
-            return
+            raise ValueError(f&#34;No label in {loaded.data=}&#34;)
         self.data.label = label
         log.debug(f&#34;{self.data.label=}&#34;)
         self.label = label
@@ -393,7 +467,7 @@ population levels: l levels maps population down to a fewer levels</p>
             &#34;a&#34;: len(self.data.label[&#34;Res Attribute a&#34;]),
             &#34;p&#34;: len(self.data.label[&#34;Population p&#34;]),
             &#34;d&#34;: len(self.data.label[&#34;Pop Detail d&#34;]),
-            &#34;m&#34;: len(self.data.label[&#34;Pop Protection m&#34;]),
+            &#34;m&#34;: len(self.data.label[&#34;Consumption m&#34;]),
             &#34;l&#34;: len(self.data.label[&#34;Pop Level l&#34;]),
             &#34;s&#34;: len(self.data.label[&#34;Res Safety Stock s&#34;]),
         }
@@ -401,18 +475,39 @@ population levels: l levels maps population down to a fewer levels</p>
         return self
 
     # TODO: This should be a generated set of methods as they are all identical
-    def set_population(self, type: str = None):
+    def set_population(self, type: str = None) -&gt; Model:
         &#34;&#34;&#34;Create population class for model.
 
         Population created here
         &#34;&#34;&#34;
+        # the old method
+        # self.population = Population(
+        #    self.data, log_root=self.log_root, type=type
+        # )
         # the super class population uses type to return the exact model
-        self.population = Population(
-            self.data, log_root=self.log_root, type=type
-        )
+        # filter is by happens after this
+        self.population: Population
+        if type == &#34;oes&#34;:
+            self.population = PopulationOES(
+                self.data,
+                # TODO: this belongs in filter
+                {&#39;County&#39;: None, &#39;State&#39;: &#39;California&#39;},
+                log_root=self.log_root,
+            )
+        elif type == &#34;dict&#34;:
+            # change this to the the naming of columns
+            self.population = PopulationDict(
+                data=self.data,
+                label=self.data.label,
+                log_root=self.log_root,
+                index=&#34;Population p&#34;,
+                columns=&#34;Pop Detail d&#34;,
+            )
+        else:
+            raise ValueError(f&#34;{type=} not implemented&#34;)
         return self
 
-    def set_resource(self, type: str = None):
+    def set_resource(self, type: str = None) -&gt; Model:
         &#34;&#34;&#34;Create resource class.
 
         Resource
@@ -420,17 +515,39 @@ population levels: l levels maps population down to a fewer levels</p>
         self.resource = Resource(self.data, log_root=self.log_root, type=type)
         return self
 
-    def set_consumption(self, type: str = None):
+    def set_consumption(self, type: str = None) -&gt; Model:
         &#34;&#34;&#34;Set consumption.
 
         Consumption by population levels l
         &#34;&#34;&#34;
-        self.consumption = Consumption(
-            self.data, log_root=self.log_root, type=type
-        )
+        log = self.log
+
+        self.consumption: Consumption
+        if type == &#34;Mitre&#34;:
+            log.debug(&#34;Use Mitre consumption&#34;)
+            raise ValueError(&#34;{type=} not implemented&#34;)
+        elif type == &#34;Johns Hopkins&#34;:
+            log.debug(&#34;Use JHU burn rate model&#34;)
+            raise ValueError(&#34;{type=} not implemented&#34;)
+        else:
+            log.debug(&#34;For anything else use Washington data&#34;)
+            self.consumption = ConsumptionWA(
+                    self.data,
+                    self.population,
+                    self.resource,
+                    log_root=self.log_root,
+                    type=type)
         return self
 
-    def set_economy(self, type: str = None):
+    def set_filter(self, type: str = None) -&gt; Model:
+        &#34;&#34;&#34;Filter the model.
+
+        Shrink the model to relevant population, resource
+        &#34;&#34;&#34;
+        self.filter = Filter(self.data, log_root=self.log_root, type=type)
+        return self
+
+    def set_economy(self, type: str = None) -&gt; Model:
         &#34;&#34;&#34;Create Econometric model.
 
         Economy creation
@@ -438,7 +555,7 @@ population levels: l levels maps population down to a fewer levels</p>
         self.economy = Economy(self.data, log_root=self.log_root, type=type)
         return self
 
-    def set_disease(self, type: str = None):
+    def set_disease(self, type: str = None) -&gt; Model:
         &#34;&#34;&#34;Create Disease model.
 
         Disease create
@@ -446,7 +563,16 @@ population levels: l levels maps population down to a fewer levels</p>
         self.disease = Disease(self.data, log_root=self.log_root, type=type)
         return self
 
-    def set_behavioral(self, type: str = None):
+    def set_activity(self, type: str = None) -&gt; Model:
+        &#34;&#34;&#34;Create Social activity model.
+
+        Includes social activity, restaurant usage, credit card use and other
+        indicators of people out and about
+        &#34;&#34;&#34;
+        self.activity = Activity(self.data, log_root=self.log_root, type=type)
+        return self
+
+    def set_behavioral(self, type: str = None) -&gt; Model:
         &#34;&#34;&#34;Create Behavior model.
 
         Behavior create
@@ -462,8 +588,9 @@ population levels: l levels maps population down to a fewer levels</p>
     # So we want the iterable to be the Base Class
     # The iterator is Model which can return all the Base classes
     # https://thispointer.com/python-how-to-make-a-class-iterable-create-iterator-class-for-it/
-    def __iter__(self):
+    def __iter__(self) -&gt; Model:
         &#34;&#34;&#34;Iterate through the model getting only Base objects.&#34;&#34;&#34;
+        log = self.log
         self.base_list: List = [
             k for k, v in vars(self).items() if isinstance(v, Base)
         ]
@@ -474,6 +601,7 @@ population levels: l levels maps population down to a fewer levels</p>
 
     def __next__(self) -&gt; Tuple[str, Base]:
         &#34;&#34;&#34;Next Base.&#34;&#34;&#34;
+        log = self.log
         if self.base_index &gt;= self.base_len:
             raise StopIteration
         log.debug(f&#34;{self.base_index=}&#34;)
@@ -484,7 +612,7 @@ population levels: l levels maps population down to a fewer levels</p>
         return key, value
 
     # Use the decorator pattern that Keras and other use with chaining
-    def logger(self, name: str = __name__):
+    def set_logger(self, name: str = __name__) -&gt; Model:
         &#34;&#34;&#34;Set Log.
 
         Setup the root logger and log
@@ -499,8 +627,50 @@ population levels: l levels maps population down to a fewer levels</p>
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="model.Model.configure"><code class="name flex">
-<span>def <span class="ident">configure</span></span>(<span>self, loaded: loader.load.Load)</span>
+<dt id="model.Model.set_activity"><code class="name flex">
+<span>def <span class="ident">set_activity</span></span>(<span>self, type: str = None) ‑> <a title="model.Model" href="#model.Model">Model</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create Social activity model.</p>
+<p>Includes social activity, restaurant usage, credit card use and other
+indicators of people out and about</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_activity(self, type: str = None) -&gt; Model:
+    &#34;&#34;&#34;Create Social activity model.
+
+    Includes social activity, restaurant usage, credit card use and other
+    indicators of people out and about
+    &#34;&#34;&#34;
+    self.activity = Activity(self.data, log_root=self.log_root, type=type)
+    return self</code></pre>
+</details>
+</dd>
+<dt id="model.Model.set_behavioral"><code class="name flex">
+<span>def <span class="ident">set_behavioral</span></span>(<span>self, type: str = None) ‑> <a title="model.Model" href="#model.Model">Model</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create Behavior model.</p>
+<p>Behavior create</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_behavioral(self, type: str = None) -&gt; Model:
+    &#34;&#34;&#34;Create Behavior model.
+
+    Behavior create
+    &#34;&#34;&#34;
+    self.behavioral = Behavioral(
+        self.data, log_root=self.log_root, type=type
+    )
+    return self</code></pre>
+</details>
+</dd>
+<dt id="model.Model.set_configure"><code class="name flex">
+<span>def <span class="ident">set_configure</span></span>(<span>self, loaded: Load) ‑> <a title="model.Model" href="#model.Model">Model</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Configure the Model.</p>
@@ -509,34 +679,36 @@ population levels: l levels maps population down to a fewer levels</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def configure(self, loaded: Load):
+<pre><code class="python">def set_configure(self, loaded: Load) -&gt; Model:
     &#34;&#34;&#34;Configure the Model.
 
     Uses Loaded as a dictionary and puts it into model variables
     &#34;&#34;&#34;
+    log = self.log
     log.debug(f&#34;{loaded.data=}&#34;)
 
     # https://realpython.com/python-keyerror/
     cfg: Optional[Dict] = loaded.data.get(&#34;Config&#34;)
-    if cfg is not None:
-        self.config = cfg
+    if cfg is None:
+        log.warning(f&#34;no config in {loaded.data=}&#34;)
+    self.config = cfg
     log.debug(f&#34;{self.config=}&#34;)
 
     description: Optional[Dict] = loaded.data.get(&#34;Description&#34;)
-    if description is not None:
-        self.data.description = description
+    if description is None:
+        raise ValueError(f&#34;no description in {loaded.data=}&#34;)
+    self.data.description = description
     log.debug(f&#34;{self.description=}&#34;)
 
     data: Optional[Dict] = loaded.data.get(&#34;Data&#34;)
-    log.debug(f&#34;{data=}&#34;)
-    if data is not None:
-        self.data.value = data
+    if data is None:
+        raise ValueError(f&#34;no data in {loaded.data=}&#34;)
+    self.data.value = data
     log.debug(f&#34;{self.data=}&#34;)
 
     label: Optional[Dict] = loaded.data.get(&#34;Label&#34;)
     if label is None:
-        log.warning(f&#34;No label in {loaded.data=}&#34;)
-        return
+        raise ValueError(f&#34;No label in {loaded.data=}&#34;)
     self.data.label = label
     log.debug(f&#34;{self.data.label=}&#34;)
     self.label = label
@@ -556,7 +728,7 @@ population levels: l levels maps population down to a fewer levels</p>
         &#34;a&#34;: len(self.data.label[&#34;Res Attribute a&#34;]),
         &#34;p&#34;: len(self.data.label[&#34;Population p&#34;]),
         &#34;d&#34;: len(self.data.label[&#34;Pop Detail d&#34;]),
-        &#34;m&#34;: len(self.data.label[&#34;Pop Protection m&#34;]),
+        &#34;m&#34;: len(self.data.label[&#34;Consumption m&#34;]),
         &#34;l&#34;: len(self.data.label[&#34;Pop Level l&#34;]),
         &#34;s&#34;: len(self.data.label[&#34;Res Safety Stock s&#34;]),
     }
@@ -564,49 +736,8 @@ population levels: l levels maps population down to a fewer levels</p>
     return self</code></pre>
 </details>
 </dd>
-<dt id="model.Model.logger"><code class="name flex">
-<span>def <span class="ident">logger</span></span>(<span>self, name: str = 'model')</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Set Log.</p>
-<p>Setup the root logger and log</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def logger(self, name: str = __name__):
-    &#34;&#34;&#34;Set Log.
-
-    Setup the root logger and log
-    &#34;&#34;&#34;
-    self.log_root = Log(name)
-    self.log = self.log_root.log
-    return self</code></pre>
-</details>
-</dd>
-<dt id="model.Model.set_behavioral"><code class="name flex">
-<span>def <span class="ident">set_behavioral</span></span>(<span>self, type: str = None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create Behavior model.</p>
-<p>Behavior create</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_behavioral(self, type: str = None):
-    &#34;&#34;&#34;Create Behavior model.
-
-    Behavior create
-    &#34;&#34;&#34;
-    self.behavioral = Behavioral(
-        self.data, log_root=self.log_root, type=type
-    )
-    return self</code></pre>
-</details>
-</dd>
 <dt id="model.Model.set_consumption"><code class="name flex">
-<span>def <span class="ident">set_consumption</span></span>(<span>self, type: str = None)</span>
+<span>def <span class="ident">set_consumption</span></span>(<span>self, type: str = None) ‑> <a title="model.Model" href="#model.Model">Model</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Set consumption.</p>
@@ -615,19 +746,33 @@ population levels: l levels maps population down to a fewer levels</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def set_consumption(self, type: str = None):
+<pre><code class="python">def set_consumption(self, type: str = None) -&gt; Model:
     &#34;&#34;&#34;Set consumption.
 
     Consumption by population levels l
     &#34;&#34;&#34;
-    self.consumption = Consumption(
-        self.data, log_root=self.log_root, type=type
-    )
+    log = self.log
+
+    self.consumption: Consumption
+    if type == &#34;Mitre&#34;:
+        log.debug(&#34;Use Mitre consumption&#34;)
+        raise ValueError(&#34;{type=} not implemented&#34;)
+    elif type == &#34;Johns Hopkins&#34;:
+        log.debug(&#34;Use JHU burn rate model&#34;)
+        raise ValueError(&#34;{type=} not implemented&#34;)
+    else:
+        log.debug(&#34;For anything else use Washington data&#34;)
+        self.consumption = ConsumptionWA(
+                self.data,
+                self.population,
+                self.resource,
+                log_root=self.log_root,
+                type=type)
     return self</code></pre>
 </details>
 </dd>
 <dt id="model.Model.set_disease"><code class="name flex">
-<span>def <span class="ident">set_disease</span></span>(<span>self, type: str = None)</span>
+<span>def <span class="ident">set_disease</span></span>(<span>self, type: str = None) ‑> <a title="model.Model" href="#model.Model">Model</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create Disease model.</p>
@@ -636,7 +781,7 @@ population levels: l levels maps population down to a fewer levels</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def set_disease(self, type: str = None):
+<pre><code class="python">def set_disease(self, type: str = None) -&gt; Model:
     &#34;&#34;&#34;Create Disease model.
 
     Disease create
@@ -646,7 +791,7 @@ population levels: l levels maps population down to a fewer levels</p>
 </details>
 </dd>
 <dt id="model.Model.set_economy"><code class="name flex">
-<span>def <span class="ident">set_economy</span></span>(<span>self, type: str = None)</span>
+<span>def <span class="ident">set_economy</span></span>(<span>self, type: str = None) ‑> <a title="model.Model" href="#model.Model">Model</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create Econometric model.</p>
@@ -655,7 +800,7 @@ population levels: l levels maps population down to a fewer levels</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def set_economy(self, type: str = None):
+<pre><code class="python">def set_economy(self, type: str = None) -&gt; Model:
     &#34;&#34;&#34;Create Econometric model.
 
     Economy creation
@@ -664,8 +809,47 @@ population levels: l levels maps population down to a fewer levels</p>
     return self</code></pre>
 </details>
 </dd>
+<dt id="model.Model.set_filter"><code class="name flex">
+<span>def <span class="ident">set_filter</span></span>(<span>self, type: str = None) ‑> <a title="model.Model" href="#model.Model">Model</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Filter the model.</p>
+<p>Shrink the model to relevant population, resource</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_filter(self, type: str = None) -&gt; Model:
+    &#34;&#34;&#34;Filter the model.
+
+    Shrink the model to relevant population, resource
+    &#34;&#34;&#34;
+    self.filter = Filter(self.data, log_root=self.log_root, type=type)
+    return self</code></pre>
+</details>
+</dd>
+<dt id="model.Model.set_logger"><code class="name flex">
+<span>def <span class="ident">set_logger</span></span>(<span>self, name: str = 'model') ‑> <a title="model.Model" href="#model.Model">Model</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set Log.</p>
+<p>Setup the root logger and log</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_logger(self, name: str = __name__) -&gt; Model:
+    &#34;&#34;&#34;Set Log.
+
+    Setup the root logger and log
+    &#34;&#34;&#34;
+    self.log_root = Log(name)
+    self.log = self.log_root.log
+    return self</code></pre>
+</details>
+</dd>
 <dt id="model.Model.set_population"><code class="name flex">
-<span>def <span class="ident">set_population</span></span>(<span>self, type: str = None)</span>
+<span>def <span class="ident">set_population</span></span>(<span>self, type: str = None) ‑> <a title="model.Model" href="#model.Model">Model</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create population class for model.</p>
@@ -674,20 +858,41 @@ population levels: l levels maps population down to a fewer levels</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def set_population(self, type: str = None):
+<pre><code class="python">def set_population(self, type: str = None) -&gt; Model:
     &#34;&#34;&#34;Create population class for model.
 
     Population created here
     &#34;&#34;&#34;
+    # the old method
+    # self.population = Population(
+    #    self.data, log_root=self.log_root, type=type
+    # )
     # the super class population uses type to return the exact model
-    self.population = Population(
-        self.data, log_root=self.log_root, type=type
-    )
+    # filter is by happens after this
+    self.population: Population
+    if type == &#34;oes&#34;:
+        self.population = PopulationOES(
+            self.data,
+            # TODO: this belongs in filter
+            {&#39;County&#39;: None, &#39;State&#39;: &#39;California&#39;},
+            log_root=self.log_root,
+        )
+    elif type == &#34;dict&#34;:
+        # change this to the the naming of columns
+        self.population = PopulationDict(
+            data=self.data,
+            label=self.data.label,
+            log_root=self.log_root,
+            index=&#34;Population p&#34;,
+            columns=&#34;Pop Detail d&#34;,
+        )
+    else:
+        raise ValueError(f&#34;{type=} not implemented&#34;)
     return self</code></pre>
 </details>
 </dd>
 <dt id="model.Model.set_resource"><code class="name flex">
-<span>def <span class="ident">set_resource</span></span>(<span>self, type: str = None)</span>
+<span>def <span class="ident">set_resource</span></span>(<span>self, type: str = None) ‑> <a title="model.Model" href="#model.Model">Model</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create resource class.</p>
@@ -696,7 +901,7 @@ population levels: l levels maps population down to a fewer levels</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def set_resource(self, type: str = None):
+<pre><code class="python">def set_resource(self, type: str = None) -&gt; Model:
     &#34;&#34;&#34;Create resource class.
 
     Resource
@@ -721,12 +926,14 @@ population levels: l levels maps population down to a fewer levels</p>
 <li>
 <h4><code><a title="model.Model" href="#model.Model">Model</a></code></h4>
 <ul class="two-column">
-<li><code><a title="model.Model.configure" href="#model.Model.configure">configure</a></code></li>
-<li><code><a title="model.Model.logger" href="#model.Model.logger">logger</a></code></li>
+<li><code><a title="model.Model.set_activity" href="#model.Model.set_activity">set_activity</a></code></li>
 <li><code><a title="model.Model.set_behavioral" href="#model.Model.set_behavioral">set_behavioral</a></code></li>
+<li><code><a title="model.Model.set_configure" href="#model.Model.set_configure">set_configure</a></code></li>
 <li><code><a title="model.Model.set_consumption" href="#model.Model.set_consumption">set_consumption</a></code></li>
 <li><code><a title="model.Model.set_disease" href="#model.Model.set_disease">set_disease</a></code></li>
 <li><code><a title="model.Model.set_economy" href="#model.Model.set_economy">set_economy</a></code></li>
+<li><code><a title="model.Model.set_filter" href="#model.Model.set_filter">set_filter</a></code></li>
+<li><code><a title="model.Model.set_logger" href="#model.Model.set_logger">set_logger</a></code></li>
 <li><code><a title="model.Model.set_population" href="#model.Model.set_population">set_population</a></code></li>
 <li><code><a title="model.Model.set_resource" href="#model.Model.set_resource">set_resource</a></code></li>
 </ul>
@@ -737,7 +944,7 @@ population levels: l levels maps population down to a fewer levels</p>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
 </footer>
 </body>
 </html>

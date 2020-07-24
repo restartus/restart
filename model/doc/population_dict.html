@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.8.3" />
-<title>economy API documentation</title>
-<meta name="description" content="Econometric model …" />
+<meta name="generator" content="pdoc 0.8.4" />
+<title>population_dict API documentation</title>
+<meta name="description" content="Population Data Read …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/github.min.css" crossorigin>
@@ -19,71 +19,102 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>economy</code></h1>
+<h1 class="title">Module <code>population_dict</code></h1>
 </header>
 <section id="section-intro">
-<p>Econometric model.</p>
-<p>The main way we integrate economic activity.</p>
+<p>Population Data Read.</p>
+<p>Read in the population from the model dictionary</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Econometric model.
+<pre><code class="python">&#34;&#34;&#34;Population Data Read.
 
-The main way we integrate economic activity.
+Read in the population from the model dictionary
 &#34;&#34;&#34;
-# https://numpydoc.readthedocs.io/en/latest/format.html
-# https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html
-# note that the type ignor and noqa lines are space sensitive
 import logging
+import numpy as np  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
-import numpy as np  # type: ignore # noqa: F401
-from base import Base
+# import numpy as np  # type: ignore
+# https://www.python.org/dev/peps/pep-0420/
+# in this new version we cannot depend on Model to be preformed
+# from model import Model
+from typing import Optional, Dict
+from util import Log, set_dataframe
+from population import Population
 from modeldata import ModelData
-from util import Log
-from typing import Optional
-
-log = logging.getLogger(__name__)
 
 
-class Economy(Base):
-    &#34;&#34;&#34;Economy - Manages the economy.
+class PopulationDict(Population):
+    &#34;&#34;&#34;Population Data Readers.
 
-    This creates for all r resources, the list of attributes a
-
-    This contains
-    This uses https://realpython.com/documenting-python-code/
-    docstrings using the NumPy/SciPy syntax
-    Uses a modified standard project
-    Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
+    Reads the population data. The default is to read from the model.data
     &#34;&#34;&#34;
-
-    # no variable here unless you want them the same across all classes
-    # see https://docs.python.org/3/tutorial/classes.html
 
     def __init__(
         self,
         data: ModelData,
-        log_root: Optional[Log] = None,
-        type: Optional[str] = None,
+        label: Dict,
+        # TODO: unify indexing across classes
+        index: Optional[str] = None,
+        columns: Optional[str] = None,
+        log_root: Log = None,
+        type: str = None,
     ):
-        &#34;&#34;&#34;Initialize the Economy object.
+        &#34;&#34;&#34;Initialize the population object.
 
-        This uses the Frame object and populates it with default data unless yo
-        override it
+        This uses the Frame object and populates it with default data unless
+        you override it
         &#34;&#34;&#34;
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
-        super().__init__()
+        super().__init__(log_root=log_root)
 
         # create a sublogger if a root exists in the model
-        global log
-        self.log = log
         if log_root is not None:
-            self.log_root = log_root
-            log = self.log = self.log_root.log_class(self)
+            self.log_root: Log = log_root
+            log = log_root.log_class(self)
+            # breakpoint()
+            log.debug(f&#34;{log_root=}, {log_root.con=}&#34;)
+            self.log_root.con.setLevel(logging.DEBUG)
+            log.debug(f&#34;in {__name__=}&#34;)
+            self.log_root.con.setLevel(logging.WARNING)
+        else:
+            log = logging.getLogger(__name__)
+            log.debug(f&#34;no log_root using {log=}&#34;)
+        self.log = log
 
-        if type is not None:
-            log.debug(f&#34;not implemented {type=}&#34;)</code></pre>
+        # type declarations
+        self.attr_pd_arr: np.ndarray
+        self.attr_pd_df: pd.DataFrame
+        self.level_pm_arr: np.ndarray
+        self.level_pm_labs: list
+
+        if label is None:
+            raise ValueError(f&#34;{label=} is null&#34;)
+
+        # get population data
+        self.attr_pd_arr = np.array(
+                data.value[&#34;Population p&#34;][&#34;Pop Detail Data pd&#34;][&#39;Size&#39;])
+        self.attr_pd_df = set_dataframe(
+            self.attr_pd_arr,
+            label=label,
+            index=index,
+            columns=columns)
+        log.debug(f&#34;{self.attr_pd_arr=}&#34;)
+
+        # get mapping data
+        self.level_pm_arr = np.array(
+                data.value[&#34;Population p&#34;][&#34;Protection pm&#34;])
+        self.level_pm_labs = list(data.label[&#34;Population p&#34;])
+        self.level_pm_df = pd.DataFrame(
+                self.level_pm_arr,
+                index=self.level_pm_labs,
+                columns=data.label[&#34;Consumption m&#34;])
+        log.debug(f&#34;{self.level_pm_df=}&#34;)
+        self.set_description(
+                f&#34;{self.level_pm_df=}&#34;,
+                data.description[&#39;Population p&#39;][&#39;Protection pm&#39;])
+        log.debug(f&#34;{self.description[&#39;level_pm_df&#39;]=}&#34;)</code></pre>
 </details>
 </section>
 <section>
@@ -95,66 +126,94 @@ class Economy(Base):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="economy.Economy"><code class="flex name class">
-<span>class <span class="ident">Economy</span></span>
-<span>(</span><span>data: modeldata.ModelData, log_root: Union[util.Log, NoneType] = None, type: Union[str, NoneType] = None)</span>
+<dt id="population_dict.PopulationDict"><code class="flex name class">
+<span>class <span class="ident">PopulationDict</span></span>
+<span>(</span><span>data: modeldata.ModelData, label: Dict, index: Union[str, NoneType] = None, columns: Union[str, NoneType] = None, log_root: util.Log = None, type: str = None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Economy - Manages the economy.</p>
-<p>This creates for all r resources, the list of attributes a</p>
-<p>This contains
-This uses <a href="https://realpython.com/documenting-python-code/">https://realpython.com/documenting-python-code/</a>
-docstrings using the NumPy/SciPy syntax
-Uses a modified standard project
-Uses <a href="https://www.sphinx-doc.org/en/master/">https://www.sphinx-doc.org/en/master/</a> to generate the documentation</p>
-<p>Initialize the Economy object.</p>
-<p>This uses the Frame object and populates it with default data unless yo
-override it</p></div>
+<div class="desc"><p>Population Data Readers.</p>
+<p>Reads the population data. The default is to read from the model.data</p>
+<p>Initialize the population object.</p>
+<p>This uses the Frame object and populates it with default data unless
+you override it</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Economy(Base):
-    &#34;&#34;&#34;Economy - Manages the economy.
+<pre><code class="python">class PopulationDict(Population):
+    &#34;&#34;&#34;Population Data Readers.
 
-    This creates for all r resources, the list of attributes a
-
-    This contains
-    This uses https://realpython.com/documenting-python-code/
-    docstrings using the NumPy/SciPy syntax
-    Uses a modified standard project
-    Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
+    Reads the population data. The default is to read from the model.data
     &#34;&#34;&#34;
-
-    # no variable here unless you want them the same across all classes
-    # see https://docs.python.org/3/tutorial/classes.html
 
     def __init__(
         self,
         data: ModelData,
-        log_root: Optional[Log] = None,
-        type: Optional[str] = None,
+        label: Dict,
+        # TODO: unify indexing across classes
+        index: Optional[str] = None,
+        columns: Optional[str] = None,
+        log_root: Log = None,
+        type: str = None,
     ):
-        &#34;&#34;&#34;Initialize the Economy object.
+        &#34;&#34;&#34;Initialize the population object.
 
-        This uses the Frame object and populates it with default data unless yo
-        override it
+        This uses the Frame object and populates it with default data unless
+        you override it
         &#34;&#34;&#34;
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
-        super().__init__()
+        super().__init__(log_root=log_root)
 
         # create a sublogger if a root exists in the model
-        global log
-        self.log = log
         if log_root is not None:
-            self.log_root = log_root
-            log = self.log = self.log_root.log_class(self)
+            self.log_root: Log = log_root
+            log = log_root.log_class(self)
+            # breakpoint()
+            log.debug(f&#34;{log_root=}, {log_root.con=}&#34;)
+            self.log_root.con.setLevel(logging.DEBUG)
+            log.debug(f&#34;in {__name__=}&#34;)
+            self.log_root.con.setLevel(logging.WARNING)
+        else:
+            log = logging.getLogger(__name__)
+            log.debug(f&#34;no log_root using {log=}&#34;)
+        self.log = log
 
-        if type is not None:
-            log.debug(f&#34;not implemented {type=}&#34;)</code></pre>
+        # type declarations
+        self.attr_pd_arr: np.ndarray
+        self.attr_pd_df: pd.DataFrame
+        self.level_pm_arr: np.ndarray
+        self.level_pm_labs: list
+
+        if label is None:
+            raise ValueError(f&#34;{label=} is null&#34;)
+
+        # get population data
+        self.attr_pd_arr = np.array(
+                data.value[&#34;Population p&#34;][&#34;Pop Detail Data pd&#34;][&#39;Size&#39;])
+        self.attr_pd_df = set_dataframe(
+            self.attr_pd_arr,
+            label=label,
+            index=index,
+            columns=columns)
+        log.debug(f&#34;{self.attr_pd_arr=}&#34;)
+
+        # get mapping data
+        self.level_pm_arr = np.array(
+                data.value[&#34;Population p&#34;][&#34;Protection pm&#34;])
+        self.level_pm_labs = list(data.label[&#34;Population p&#34;])
+        self.level_pm_df = pd.DataFrame(
+                self.level_pm_arr,
+                index=self.level_pm_labs,
+                columns=data.label[&#34;Consumption m&#34;])
+        log.debug(f&#34;{self.level_pm_df=}&#34;)
+        self.set_description(
+                f&#34;{self.level_pm_df=}&#34;,
+                data.description[&#39;Population p&#39;][&#39;Protection pm&#39;])
+        log.debug(f&#34;{self.description[&#39;level_pm_df&#39;]=}&#34;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li>population.Population</li>
 <li>base.Base</li>
 </ul>
 </dd>
@@ -170,7 +229,7 @@ override it</p></div>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="economy.Economy" href="#economy.Economy">Economy</a></code></h4>
+<h4><code><a title="population_dict.PopulationDict" href="#population_dict.PopulationDict">PopulationDict</a></code></h4>
 </li>
 </ul>
 </li>
@@ -178,7 +237,7 @@ override it</p></div>
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.3</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.8.4</a>.</p>
 </footer>
 </body>
 </html>

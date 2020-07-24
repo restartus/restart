@@ -21,6 +21,12 @@ isort = "*"
 seed-isort-config = "*"
 
 [packages]
+streamlit = "*"
+altair = "*"
+pandas = "*"
+pyyaml = "*"
+xlrd = "*"
+tables = "*"
 
 [requires]
 python_version = "3.8"

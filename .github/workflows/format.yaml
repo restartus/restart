@@ -44,4 +44,3 @@ jobs:
       run: |
         git checkout ${GITHUB_REF##*/}
         git push
-

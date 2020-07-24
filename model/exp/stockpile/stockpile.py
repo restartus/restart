@@ -3,6 +3,7 @@
 Overall testing of iteration
 """
 import numpy as np  # type: ignore
+
 from util import Log
 
 
@@ -27,8 +28,7 @@ def main():
     col_r = np.array([[30], [60], [90]])
     log.critical(f"{col_r=} {col_r.shape=}")
 
-    c_pn = np.array([[200, 3],
-                     [1, 900]])
+    c_pn = np.array([[200, 3], [1, 900]])
     log.critical(f"{c_pn=} {c_pn.shape=}")
 
     # the simplest way but potentially slower
@@ -62,7 +62,7 @@ def main():
     log.critical(f"{c_pnr=}")
     bcast_pnr = c_pnr * v_pnr
     # swap the high order and the lower order
-    bcast_rpn = np.swapaxes(bcast_pnr, 0, len(bcast_pnr.shape)-1)
+    bcast_rpn = np.swapaxes(bcast_pnr, 0, len(bcast_pnr.shape) - 1)
     log.critical(f"{bcast_rpn=}")
 
     # you need a special function to handle different shapes

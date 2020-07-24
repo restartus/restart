@@ -36,9 +36,11 @@ repos:
   - repo: https://github.com/asottile/seed-isort-config
     rev: v2.2.0
     hooks:
+      # remember this will place things at the root of the repo
+      # but running in lint locally places it in the current directory
       - id: seed-isort-config
   - repo: https://github.com/timothycrosley/isort
-    rev: 5.1.4
+    rev: 5.2.0
     hooks:
       - id: isort
         args: [--profile=black, -w 79]

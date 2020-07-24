@@ -56,7 +56,6 @@ help: $(MAKEFILE_LIST)
 .PHONY: lint
 lint:
 	pipenv check
-	# ensures isortworks correctly
 	# mypy finds more errors than flake and we are using namespace
 	# https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports
 	# note this has a bug if there are no yaml or python files

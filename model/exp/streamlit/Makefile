@@ -10,13 +10,15 @@
 # Still have issues with stale images
 #
 # change the variables here
-.PHONY: install
-install:
-	pipenv install opencv-python vega-datasets streamlit altair yfinance
+## streamlit-install: install for streamlit
+.PHONY: streamlit-install
+streamlit-install:
+	pipenv install opencv-python vega-datasets streamlit altair yfinance pandas
+	pipenv update
 
 MAIN = stock.py
 
-## main2: run second apps
+## web2: run second apps
 .PHONY: web2
 web2:
 	pipenv run streamlit run cars.py

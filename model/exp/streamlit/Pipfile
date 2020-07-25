@@ -17,6 +17,7 @@ pytest-cov = "*"
 pytest-xdist = "*"
 yamllint = "*"
 pre-commit = "*"
+isort = "*"
 
 [packages]
 streamlit = "*"

@@ -8,6 +8,7 @@ from vega_datasets import data  # type: ignore
 
 import streamlit as st  # type: ignore
 import altair as alt  # type: ignore
+import pandas as pd  # type: ignore
 
 
 def main():
@@ -21,7 +22,12 @@ def main():
         st.write("""
 Please **select** a page on the left
 """)
+        df = pd.DataFrame({"Level l": ["Essential", "Non Essential"],
+                          "N95": [123, 23]})
         st.write(df)
+        graph = alt.Chart(df).mark_bar().encode(x="Level l", y="N95")
+        st.write(graph)
+
     elif page == "Exploration":
         st.title("Data Exploration")
         x_axis = st.selectbox("Choose x-axis variable", df.columns, index=3)

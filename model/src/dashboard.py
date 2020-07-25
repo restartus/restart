@@ -90,7 +90,14 @@ class Dashboard:
         )
         self.page = st.sidebar.selectbox(
             "Choose page",
-            ["Exploration", "Tables", "Home", "Test Home", "Test Tables"],
+            [
+                "Exploration",
+                "Tables",
+                "Home",
+                "Test Home",
+                "Test Tables",
+                "Test Exploration",
+            ],
         )
 
         stockpile_days = st.sidebar.slider(
@@ -101,28 +108,39 @@ class Dashboard:
         model.resource.set_stockpile_days(stockpile_days)
 
         if self.page == "Home":
-            self.homePage(model)
+            self.home_page(model)
         elif self.page == "Tables":
             self.tables(model)
         elif self.page == "Exploration":
             self.visualize_model(model)
         elif self.page == "Test Tables":
-            self.testTables(model)
+            self.test_tables(model)
         elif self.page == "Test Home":
-            self.testHome(self.data_df)
+            self.test_home(self.data_df)
         elif self.page == "Test Exploration":
             st.title("Data Exploration")
             # https://docs.streamlit.io/en/latest/api.html
-            self.x_axis = st.selectbox(
-                "Choose x-axis", self.data_df.columns, index=0
+            st.dataframe(self.data_df)
+            st.write(f"{self.data_df.index=}")
+            st.write(f"{self.data_df.columns=}")
+            x_axis = st.selectbox(
+                "Choose x-axis", self.data_df.index, index=0
             )
-            self.y_axis = st.selectbox(
+            y_axis = st.selectbox(
                 "Choose y-axis", self.data_df.columns, index=1
             )
-            self.visualize_data(self.data_df, self.x_axis, self.y_axis)
+            st.write(f"{x_axis=} {y_axis=}")
+            x_multi = st.multiselect("Select Summary Levels",
+                                     self.data_df.index)
+            y_multi = st.multiselect("Select Resource to Display",
+                                     self.data_df.columns)
+            st.write(f"{x_multi=}")
+            st.write(f"{y_multi=}")
+            self.visualize_data(self.data_df, x_axis, y_axis)
+            self.visualize_data(self.data_df, x_multi, y_multi)
             # Not that write uses Markdown
 
-    def homePage(self, model):
+    def home_page(self, model):
         """Home page.
 
         # COVID-19 Decision Dashboard
@@ -132,7 +150,7 @@ class Dashboard:
 
     # uses the literal magic in Streamlit 0.62
     # note that just putting an expression automatically wraps an st.write
-    def testTables(self, model):
+    def test_tables(self, model):
         """Tables.
 
         The full graphical display of all tables use for debugging mainly
@@ -218,8 +236,9 @@ class Dashboard:
                 # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
                 # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
                 # breakpoint()
-                self.write_description(df_name,
-                                       df_value, base_value.description,)
+                self.write_description(
+                    df_name, df_value, base_value.description,
+                )
                 # if df_name in base_value.description:
                 #     log.debug("found description")
                 #     st.write(base_value.description[df_name])
@@ -229,8 +248,9 @@ class Dashboard:
                 # https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
                 # https://pbpython.com/styling-pandas.html
 
-    def write_description(self, name: str,
-                          df: pd.DataFrame, description: Dict):
+    def write_description(
+        self, name: str, df: pd.DataFrame, description: Dict
+    ):
         """Write Description.
 
         Writes the description of a nice message if none found
@@ -244,7 +264,7 @@ class Dashboard:
         # st.header(name)
         log.debug(f"No description found for {name=}")
 
-    def testHome(self, data_df):
+    def test_home(self, data_df):
         """Test drawing.
 
         Test for dashboard
@@ -292,11 +312,21 @@ class Dashboard:
         # https://altair-viz.github.io/user_guide/data.html#long-form-vs-wide-form-data
         st.dataframe(reset_df)
         # ~https://www.geeksforgeeks.org/python-pandas-melt/
+        # The melt is basically id_vars are the reset_index
+        # the value variables is basically the entire old columns.labels
         wide_df = reset_df.melt(
             id_vars="Level l", value_vars=["N95", "Mask"], value_name="Units"
         )
         st.dataframe(wide_df)
+        # https://docs.streamlit.io/en/stable/api.html#display-charts
         st.bar_chart(wide_df)
+        # https://altair-viz.github.io/gallery/grouped_bar_chart.html
+        chart = (
+            alt.Chart(wide_df).mark_bar().encode(x="Resource n:N", y="Units:Q",
+                                                 column="Level l:N",
+                                                 color="Level l:N")
+        )
+        st.write(chart)
         # It's so easy to chart with builtin types
         # And labelsa re just more markdown
         st.line_chart(wide_df)
@@ -314,13 +344,36 @@ class Dashboard:
         ## Debug
         """
         st.write(f"{x_axis=} {y_axis=}")
-        df
-        df.index.name
+        st.write(f"{df.index.name=} {df.columns.name=}")
+        st.write(f"{df.index}")
+        st.write(f"{df.columns}")
+        st.dataframe(df)
         df.index.name = "Label" if None else df.index.name
         # first rest the index to get it to be a column
         # using melt to get column form
         df_reset = df.reset_index()
-        df_reset
+        st.write(df_reset)
+        # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.melt.html
+        # if value_vars are not specified then unpivote everything
+        df_melt = df_reset.melt(id_vars=df.index.name, value_name="Units")
+        st.write(df_melt)
+
+        # for single values
+        # http://scrapingauthority.com/pandas-dataframe-filtering/
+        # https://realnitinworks.netlify.app/check-object-iterability.html?utm_campaign=News&utm_medium=Community&utm_source=DataCamp.com
+        try:
+            iter(x_axis)
+            df_filter_x = df_melt[df_melt["Level l"].isin(x_axis)]
+        except TypeError:
+            df_filter_x = df_melt[df_melt["Level l"] == x_axis]
+        st.dataframe(df_filter_x)
+
+        try:
+            iter(y_axis)
+            df_filter_xy = df_filter_x[df_filter_x["Resource n"].isin(y_axis)]
+        except TypeError:
+            df_filter_xy = df_filter_x[df_filter_x["Resource n"] == y_axis]
+        st.dataframe(df_filter_xy)
 
         # you can also use breakpoint
         # breakpoint()
@@ -329,14 +382,22 @@ class Dashboard:
         # https://towardsdatascience.com/quickly-build-and-deploy-an-application-with-streamlit-988ca08c7e83
         # https://towardsdatascience.com/interactive-election-visualisations-with-altair-85c4c3a306f9
         # https://altair-viz.github.io
-        # TODO: this is failing now not sure why need to look at Altair
+        # https://altair-viz.github.io/user_guide/encoding.html
         graph = (
-            alt.Chart(df)
-            .mark_circle(size=60)
-            .encode(x=x_axis, y=y_axis, tooltip=["N95", "Mask"], color="N95")
+            alt.Chart(df_melt)
+            .mark_bar()
+            .encode(x="Level l:N", y="Units:Q")
             .interactive()
         )
         st.write(graph)
+
+        test = pd.DataFrame(
+            {"Level l": ["healthcare", "non-healthcare"], "Unit": [22, 123]}
+        )
+        st.dataframe(test)
+        st.write(f"{test=}")
+        graph2 = alt.Chart(test).mark_bar().encode(x="Level l", y="Unit")
+        st.write(graph2)
 
     def visualize_model(self, model: Model):
         """Visualize Model.
@@ -356,8 +417,9 @@ class Dashboard:
             # ModelData, but the derived data is in all the classes that are in
             # the model
             for df_name, df_value in base_value:
-                self.write_description(df_name,
-                                       df_value, base_value.description)
+                self.write_description(
+                    df_name, df_value, base_value.description
+                )
                 # breakpoint()
                 # self.write_chart(df_name, df_value)
 

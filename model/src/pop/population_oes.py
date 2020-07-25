@@ -12,7 +12,6 @@ from loader.load_csv import LoadCSV
 from modeldata import ModelData
 from population import Population
 from util import Log, datetime_to_code, load_dataframe
-from loader.load_csv import LoadCSV
 
 
 class PopulationOES(Population):

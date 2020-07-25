@@ -2,8 +2,9 @@
 
 The original model based on DOH levels
 """
+import os
 import logging
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
@@ -11,7 +12,13 @@ from consumption import Consumption
 from modeldata import ModelData
 from population import Population
 from resourcemodel import Resource
-from util import Log, set_dataframe
+from util import Log, load_dataframe
+from loader.load_csv import LoadCSV
+
+# TODO: move into resource module
+RES_LIST = ['Level', 'N95 + Mask', 'N95', 'ASTM 3 Mask',
+            'ASTM 1-2 Mask', 'Non ASTM Mask', 'Face Shield', 'Gowns',
+            'Gloves', 'Shoe Covers']
 
 
 class ConsumptionWA(Consumption):
@@ -41,16 +48,17 @@ class ConsumptionWA(Consumption):
         self.log = log
         log.debug(f"In {__name__}")
 
-        # setting burn rate values
-        self.res_demand_mn_arr = data.value["Consumption m"][
-            "Cons Resource mn"
-        ]
-        self.res_demand_mn_df = set_dataframe(
-            self.res_demand_mn_arr,
-            data.label,
-            index="Consumption m",
-            columns="Resource n",
-        )
+        source = data.datapaths['Paths']
+        source = LoadCSV(source=source).data
+        map_df = load_dataframe(os.path.join(source['Root'],
+                                             source['MAP']))
+        (self.res_demand_mn_rows,
+         self.res_demand_mn_cols,
+         self.res_demand_mn_arr) = self.calculate_burn(map_df)
+        self.res_demand_mn_df = pd.DataFrame(
+                self.res_demand_mn_arr,
+                index=self.res_demand_mn_rows,
+                columns=self.res_demand_mn_cols)
         log.debug(f"{self.res_demand_mn_df=}")
         self.set_description(
             f"{self.res_demand_mn_df=}",
@@ -63,7 +71,13 @@ class ConsumptionWA(Consumption):
         if res is None:
             raise ValueError("{res=} should not be None")
 
-        self.demand_pn_df = pop.level_pm_df @ self.res_demand_mn_df
+        # TODO: move pop.level_pm_df to consumption
+        self.demand_pn_arr = np.array(pop.level_pm_df) @ np.array(
+                self.res_demand_mn_df)
+        self.demand_pn_df = pd.DataFrame(
+                self.demand_pn_arr,
+                index=pop.level_pm_labs,
+                columns=self.res_demand_mn_cols)
         log.debug(f"{self.demand_pn_df=}")
         self.demand_pn_df.index.name = "Population p"
         self.demand_pn_df.columns.name = "Resource n"
@@ -102,17 +116,13 @@ class ConsumptionWA(Consumption):
             data.description["Population p"]["Level Demand ln"],
         )
 
-        n95 = np.array(
-            self.demand_pn_df["N95 Surgical"] * pop.detail_pd_arr
-        ).reshape([pop.detail_pd_arr.shape[0], 1])
-        astm = np.array(
-            self.demand_pn_df["ASTM Mask"] * pop.detail_pd_arr
-        ).reshape([pop.detail_pd_arr.shape[0], 1])
-        self.total_demand_pn_arr = np.hstack((n95, astm))
+        self.total_demand_pn_arr = (
+                np.array(self.demand_pn_df).T * np.array(
+                    pop.detail_pd_df['Size'])).T
         self.total_demand_pn_df = pd.DataFrame(
             self.total_demand_pn_arr,
             index=pop.level_pm_labs,
-            columns=data.label["Resource n"],
+            columns=self.res_demand_mn_cols,
         )
 
         self.total_demand_pn_df.index.name = "Population p"
@@ -126,10 +136,6 @@ class ConsumptionWA(Consumption):
             self.level_pl_df.T @ self.total_demand_pn_df
         )
         log.debug(f"{self.level_total_demand_ln_df=}")
-        self.set_description(
-            f"{self.level_total_demand_ln_df=}",
-            data.description["Population p"]["Level Total Demand ln"],
-        )
         self.set_description(
             f"{self.level_total_demand_ln_df=}",
             data.description["Population p"]["Level Total Demand ln"],
@@ -153,3 +159,18 @@ class ConsumptionWA(Consumption):
         log.debug("level_total_cost_ln_df\n%s", self.level_total_cost_ln_df)
 
         return self
+
+    def calculate_burn(self,
+                       df) -> Tuple[list, list, np.ndarray]:
+        """Pull for the covid-surge-who model for burn rates.
+
+        Does some dataframe slicing manually
+        """
+        df.columns = df.iloc[5]
+        df = df.iloc[6:13]
+        df = df[RES_LIST].fillna(0)
+        arr_rows = list(df['Level'])
+        df.drop(['Level'], axis=1, inplace=True)
+        arr = np.array(df)
+        arr_cols = list(df.columns)
+        return arr_rows, arr_cols, arr

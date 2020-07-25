@@ -176,8 +176,8 @@ class Compose:
 
         log.debug(f"{model.resource.cost_ln_df=}")
 
-        model.consumption.level_total_cost(model.resource.cost_ln_df)
-        log.debug(f"{model.consumption.level_total_cost_ln_df=}")
+        # model.consumption.level_total_cost(model.resource.cost_ln_df)
+        # log.debug(f"{model.consumption.level_total_cost_ln_df=}")
 
         # test iteration
         for base_key, base_value in model:

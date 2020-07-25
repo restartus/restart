@@ -259,7 +259,8 @@ class Dashboard:
         if name in description:
             log.debug(f"found {name=} in {description=}")
             st.write(description[name])
-            st.write(df.style.format("{0:,.2f}"))
+            # st.write(df.style.format("{0:,.2f}"))
+            st.write(df)
             return
         # st.header(name)
         log.debug(f"No description found for {name=}")

@@ -414,8 +414,9 @@ In another note when used with a
 [Boolean](https://exceljet.net/excel-functions/excel-sumproduct-function), you
 can use it if you do a double negative to coerce TRUE/FALSE into a number
 ```
-sumproduct( --(A2:A6="TX"), B2+B6) will only add numbers where the A column has
-the string "TX" in it. So you need to
+sumproduct( --(A2:A6="TX"), B2+B6)
+```
+will only add numbers where the A column has the string "TX" in it. So you need to
 [transpose](https://support.office.com/en-us/article/transpose-function-ed039415-ed8a-4a81-93e9-4b6dfac76027) them first.
 
 So the key formula looks like this where $J$7:$T$13 is the table and $D51 is the

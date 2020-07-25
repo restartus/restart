@@ -163,7 +163,7 @@ class Dashboard:
 
         model.resource.attr_na_df
         model.description["Population p"]["Pop Detail pd"]
-        model.population.attr_pd_df
+        model.population.detail_pd_df
 
         """
         # Population summarized by protection levels pl
@@ -218,7 +218,8 @@ class Dashboard:
                 # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
                 # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
                 # breakpoint()
-                self.write_description(df_name, base_value.description)
+                self.write_description(df_name,
+                                       df_value, base_value.description,)
                 # if df_name in base_value.description:
                 #     log.debug("found description")
                 #     st.write(base_value.description[df_name])
@@ -227,9 +228,9 @@ class Dashboard:
                 #     st.write(f"No description found for {df_name=}")
                 # https://pandas.pydata.org/pandas-docs/stable/user_guide/style.html
                 # https://pbpython.com/styling-pandas.html
-                st.write(df_value.style.format("{0:,.2f}"))
 
-    def write_description(self, name: str, description: Dict):
+    def write_description(self, name: str,
+                          df: pd.DataFrame, description: Dict):
         """Write Description.
 
         Writes the description of a nice message if none found
@@ -238,9 +239,10 @@ class Dashboard:
         if name in description:
             log.debug(f"found {name=} in {description=}")
             st.write(description[name])
+            st.write(df.style.format("{0:,.2f}"))
             return
-        st.header(name)
-        st.write(f"No description found for {name=}")
+        # st.header(name)
+        log.debug(f"No description found for {name=}")
 
     def testHome(self, data_df):
         """Test drawing.
@@ -354,9 +356,10 @@ class Dashboard:
             # ModelData, but the derived data is in all the classes that are in
             # the model
             for df_name, df_value in base_value:
-                self.write_description(df_name, base_value.description)
+                self.write_description(df_name,
+                                       df_value, base_value.description)
                 # breakpoint()
-                self.write_chart(df_name, df_value)
+                # self.write_chart(df_name, df_value)
 
     def write_chart(self, name, df):
         """Write Chart.

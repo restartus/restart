@@ -73,16 +73,16 @@ class ConsumptionWA(Consumption):
             data.description["Population p"]["Population Demand pn"],
         )
 
-        if pop.attr_pd_df is None:
-            raise ValueError(f"{pop.attr_pd_df=} should not be None")
+        if pop.detail_pd_df is None:
+            raise ValueError(f"{pop.detail_pd_df=} should not be None")
 
-        if pop.attr_pd_arr is None:
-            raise ValueError(f"{pop.attr_pd_df=} should not be None")
+        if pop.detail_pd_arr is None:
+            raise ValueError(f"{pop.detail_pd_df=} should not be None")
 
         self.level_pl_arr = np.hstack(
             (
-                np.ones((pop.attr_pd_df.shape[0], 1)),
-                np.zeros((pop.attr_pd_df.shape[0], 1)),
+                np.ones((pop.detail_pd_df.shape[0], 1)),
+                np.zeros((pop.detail_pd_df.shape[0], 1)),
             )
         )
 
@@ -104,11 +104,11 @@ class ConsumptionWA(Consumption):
         )
 
         n95 = np.array(
-            self.demand_pn_df["N95 Surgical"] * pop.attr_pd_arr
-        ).reshape([pop.attr_pd_arr.shape[0], 1])
+            self.demand_pn_df["N95 Surgical"] * pop.detail_pd_arr
+        ).reshape([pop.detail_pd_arr.shape[0], 1])
         astm = np.array(
-            self.demand_pn_df["ASTM Mask"] * pop.attr_pd_arr
-        ).reshape([pop.attr_pd_arr.shape[0], 1])
+            self.demand_pn_df["ASTM Mask"] * pop.detail_pd_arr
+        ).reshape([pop.detail_pd_arr.shape[0], 1])
         self.total_demand_pn_arr = np.hstack((n95, astm))
         self.total_demand_pn_df = pd.DataFrame(
             self.total_demand_pn_arr,

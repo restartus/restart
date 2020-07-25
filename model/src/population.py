@@ -4,7 +4,7 @@ This is the base class for all models. It instantiates the population to be
 filled in.
 
 It also includes a default() for setting up the main attribute matrix,
-attr_pd_arr and then a calc() which calculates the rest of the related data
+detail_pd_arr and then a calc() which calculates the rest of the related data
 """
 
 import logging  # noqa: F401
@@ -68,7 +68,7 @@ class Population(Base):
     # https://stackoverflow.com/questions/2…
 
     # These are the default structures
-    # attr_pd_arr = np.array([735.2, 7179.6])
+    # detail_pd_arr = np.array([735.2, 7179.6])
     # level_pm_arr = np.array(
     #     [
     #         [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5],
@@ -81,7 +81,7 @@ class Population(Base):
     # )
 
     # No need for initialization get it from model.data
-    #        attr_pd_df: Optional[pd.DataFrame] = None,
+    #        detail_pd_df: Optional[pd.DataFrame] = None,
     #        level_pm_df: Optional[pd.DataFrame] = None,
     #        res_demand_mn_df: Optional[pd.DataFrame] = None,
     #        level_pl_df: Optional[pd.DataFrame] = None,
@@ -104,8 +104,8 @@ class Population(Base):
         self.log = log
         log.debug("In %s", __name__)
 
-        self.attr_pd_arr: Optional[np.ndarray] = None
-        self.attr_pd_df: Optional[pd.DataFrame] = None
+        self.detail_pd_arr: Optional[np.ndarray] = None
+        self.detail_pd_df: Optional[pd.DataFrame] = None
         self.level_pm_labs: Optional[list] = None
         self.level_pm_arr: Optional[np.ndarray] = None
         self.level_pm_df: Optional[pd.DataFrame] = None

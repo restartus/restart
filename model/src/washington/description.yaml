@@ -6,7 +6,7 @@
 Description:
   "Population p":
     "Pop Detail pd": |
-      ## Population Details (pd)
+      ## Population Detail (pd)
       There are p Populations in the model and each population
       can have d details about them such as their degree of age,
       ethnicity, attitudes and awareness behaviors

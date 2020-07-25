@@ -152,7 +152,7 @@ class Compose:
         # Eventually, this will be multi dimenstional, so in addition to the
         # total but there will also be the number of COVID patients And other
         # tempo data like number of runs so eventually this is d dimensinoal
-        log.debug("Population\n%s", model.population.attr_pd_df)
+        log.debug("Population\n%s", model.population.detail_pd_df)
 
         # Now bucket population into a set of levels
         # So we have a table is p x l

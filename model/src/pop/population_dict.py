@@ -57,8 +57,8 @@ class PopulationDict(Population):
         self.log = log
 
         # type declarations
-        self.attr_pd_arr: np.ndarray
-        self.attr_pd_df: pd.DataFrame
+        self.detail_pd_arr: np.ndarray
+        self.detail_pd_df: pd.DataFrame
         self.level_pm_arr: np.ndarray
         self.level_pm_labs: list
 
@@ -66,13 +66,18 @@ class PopulationDict(Population):
             raise ValueError(f"{label=} is null")
 
         # get population data
-        self.attr_pd_arr = np.array(
+        self.detail_pd_arr = np.array(
             data.value["Population p"]["Pop Detail Data pd"]["Size"]
         )
-        self.attr_pd_df = set_dataframe(
-            self.attr_pd_arr, label=label, index=index, columns=columns
+        self.detail_pd_df = set_dataframe(
+            self.detail_pd_arr, label=label, index=index, columns=columns
         )
-        log.debug(f"{self.attr_pd_arr=}")
+        log.debug(f"{self.detail_pd_arr=}")
+        self.set_description(
+            f"{self.detail_pd_df=}",
+            data.description["Population p"]["Pop Detail pd"],
+        )
+        log.debug(f"{self.description['detail_pd_df']=}")
 
         # get mapping data
         self.level_pm_arr = np.array(

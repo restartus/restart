@@ -51,8 +51,13 @@ class PopulationOES(Population):
 
         # get population data
         df_dict = self.load_data(data, location)
-        self.attr_pd_df = df_dict["attr_pd_df"]
-        self.attr_pd_arr = df_dict["attr_pd_arr"]
+        self.detail_pd_df = df_dict["detail_pd_df"]
+        self.detail_pd_arr = df_dict["detail_pd_arr"]
+        self.set_description(
+            f"{self.detail_pd_df=}",
+            data.description["Population p"]["Pop Detail pd"],
+        )
+        log.debug(f"{self.description['detail_pd_df']=}")
 
         # get mapping data
         self.level_pm_arr = df_dict["map_arr"]
@@ -99,14 +104,14 @@ class PopulationOES(Population):
         health_df = self.health_dataframe(df)
 
         # the actual data passed onto the model
-        attr_pd_df = self.drop_code(health_df)
-        attr_pd_arr = attr_pd_df["Size"].to_numpy()
+        detail_pd_df = self.drop_code(health_df)
+        detail_pd_arr = detail_pd_df["Size"].to_numpy()
         map_labs, map_arr = self.create_map(health_df, map_df)
 
         # load into dictionary
         df_dict = {}
-        df_dict["attr_pd_df"] = attr_pd_df
-        df_dict["attr_pd_arr"] = attr_pd_arr
+        df_dict["detail_pd_df"] = detail_pd_df
+        df_dict["detail_pd_arr"] = detail_pd_arr
         df_dict["map_labs"] = map_labs
         df_dict["map_arr"] = map_arr
 

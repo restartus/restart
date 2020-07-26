@@ -123,21 +123,21 @@ class Dashboard:
             st.dataframe(self.data_df)
             st.write(f"{self.data_df.index=}")
             st.write(f"{self.data_df.columns=}")
-            x_axis = st.selectbox(
-                "Choose x-axis", self.data_df.index, index=0
-            )
+            x_axis = st.selectbox("Choose x-axis", self.data_df.index, index=0)
             y_axis = st.selectbox(
                 "Choose y-axis", self.data_df.columns, index=1
             )
             st.write(f"{x_axis=} {y_axis=}")
-            x_multi = st.multiselect("Select Summary Levels",
-                                     self.data_df.index)
-            y_multi = st.multiselect("Select Resource to Display",
-                                     self.data_df.columns)
+            x_multi = st.multiselect(
+                "Select Summary Levels", self.data_df.index
+            )
+            y_multi = st.multiselect(
+                "Select Resource to Display", self.data_df.columns
+            )
             st.write(f"{x_multi=}")
             st.write(f"{y_multi=}")
-            self.visualize_data(self.data_df, x_axis, y_axis)
-            self.visualize_data(self.data_df, x_multi, y_multi)
+            self.visualize_data(self.data_df, x=x_axis, y=y_axis)
+            self.visualize_data(self.data_df, x=x_multi, y=y_multi)
             # Not that write uses Markdown
 
     def home_page(self, model):
@@ -322,16 +322,21 @@ class Dashboard:
         st.bar_chart(wide_df)
         # https://altair-viz.github.io/gallery/grouped_bar_chart.html
         chart = (
-            alt.Chart(wide_df).mark_bar().encode(x="Resource n:N", y="Units:Q",
-                                                 column="Level l:N",
-                                                 color="Level l:N")
+            alt.Chart(wide_df)
+            .mark_bar()
+            .encode(
+                x="Resource n:N",
+                y="Units:Q",
+                column="Level l:N",
+                color="Level l:N",
+            )
         )
         st.write(chart)
         # It's so easy to chart with builtin types
         # And labelsa re just more markdown
         st.line_chart(wide_df)
 
-    def visualize_data(self, df, x_axis, y_axis):
+    def visualize_data(self, df, x=None, y=None):
         """Visualize data.
 
         Charting for the dashboard
@@ -343,11 +348,12 @@ class Dashboard:
         """
         ## Debug
         """
-        st.write(f"{x_axis=} {y_axis=}")
+        st.write(f"{x=} {y}")
         st.write(f"{df.index.name=} {df.columns.name=}")
         st.write(f"{df.index}")
         st.write(f"{df.columns}")
         st.dataframe(df)
+        # breakpoint()
         df.index.name = "Label" if None else df.index.name
         # first rest the index to get it to be a column
         # using melt to get column form
@@ -361,18 +367,16 @@ class Dashboard:
         # for single values
         # http://scrapingauthority.com/pandas-dataframe-filtering/
         # https://realnitinworks.netlify.app/check-object-iterability.html?utm_campaign=News&utm_medium=Community&utm_source=DataCamp.com
-        try:
-            iter(x_axis)
-            df_filter_x = df_melt[df_melt["Level l"].isin(x_axis)]
-        except TypeError:
-            df_filter_x = df_melt[df_melt["Level l"] == x_axis]
+        df_filter_x = df_melt[df_melt[df.index.name].isin(x)]
         st.dataframe(df_filter_x)
 
-        try:
-            iter(y_axis)
-            df_filter_xy = df_filter_x[df_filter_x["Resource n"].isin(y_axis)]
-        except TypeError:
-            df_filter_xy = df_filter_x[df_filter_x["Resource n"] == y_axis]
+        # try:
+        #    iter(y_axis)
+        #     df_filter_xy = df_filter_x[df_filter_x[df.columns.name].isin(y_axis)]
+        # except TypeError:
+        #     df_filter_xy = df_filter_x[df_filter_x[df.columns.name] == y_axis]
+
+        df_filter_xy = df_filter_x[df_filter_x[df.columns.name].isin(y)]
         st.dataframe(df_filter_xy)
 
         # you can also use breakpoint
@@ -422,6 +426,7 @@ class Dashboard:
                 )
                 # breakpoint()
                 # self.write_chart(df_name, df_value)
+                self.visualize_data(df_value)
 
     def write_chart(self, name, df):
         """Write Chart.

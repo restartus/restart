@@ -30,7 +30,7 @@ all_yaml = $$(find . -name "*.yaml")
 BASE_PIP ?=
 BASE_PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
 								 black tox pytest pytest-cov pytest-xdist tox yamllint \
-								 pre-commit isort seed-isort-config
+								 pre-commit isort
 
 .DEFAULT_GOAL := help
 
@@ -62,26 +62,18 @@ pre-commit:
 .PHONY: lint
 lint:
 	pipenv check
-	# ensures isortworks correctly
 	# mypy finds more errors than flake and we are using namespace
 	# https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports
 	# note this has a bug if there are no yaml or python files
 	# the brackets test if they exist at all
 	# We set the last to true so we don't get an error code if trhere
 	# are no such files
-	# Note that with precommit installed, theres are pretty redundant, but keep
-	# here unitl it's verfiedjj
 	pipenv run flake8
-ifdef all_py
-	pipenv run seed-isort-config
-	pipenv run mypy --namespace-packages $(all_py) || true
-	pipenv run bandit $(all_py) || true
-	pipenv run pydocstyle --convention=google $(all_py) || true
-endif
+	[[ -n $(all_py) ]] && pipenv run mypy --namespace-packages $(all_py) || true
+	[[ -n $(all_py) ]] && pipenv run bandit $(all_py) || true
+	[[ -n $(all_py) ]] && pipenv run pydocstyle --convention=google $(all_py) || true
 	# lint the yaml config files and kill the error if it doesn't exist
-ifdef all_yaml
-	pipenv run yamllint $(all_yaml) || true
-endif
+	[[ -n $(all_yaml) ]] && pipenv run yamllint $(all_yaml) || true
 	@echo if you want destructive formatting run make format
 	[[ -e .pre-commit-config.yaml ]] && pipenv run pre-commit autoupdate || true
 	[[ -e .pre-commit-config.yaml ]] && pipenv run pre-commit run --all-files || true
@@ -92,19 +84,13 @@ endif
 # Note that black is still prelease so need --pre
 # pipenv clean removes all packages not in the virtual environment
 .PHONY: base-pipenv
-base-pipenv: pipenv-python
-	echo $$SHELL
-ifdef BASE_PIP_DEV
-	pipenv install --dev $(BASE_PIP_DEV) || true
-endif
-ifdef PIP_DEV
-  pipenv install $(BASE_PIP) || true
-endif
+base-pipenv-install: pipenv-python-3.8
+	[[ -n $(BASE_PIP_DEV) ]] && pipenv install --dev $(BASE_PIP_DEV) || true
+	[[ -n $(PIP_DEV) ]] && pipenv install $(BASE_PIP) || true
 	pipenv update
 
 ## pipenv-python: Install python version in $(PYTHON)
 # also add to the python path
-# This faile if we don't have brew
 PYTHON ?= 3.8
 .PHONY: pipenv-python
 pipenv-python: pipenv-clean
@@ -115,7 +101,7 @@ pipenv-python: pipenv-clean
 	PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --python /usr/local/opt/python@$(PYTHON)/bin/python3
 	pipenv clean
 	@echo use .env to ensure we can see all packages
-	grep ^PYTHONPATH .env ||  echo "PYTHONPATH=." >> .env
+	grep PYTHONPATH .env ||  echo "PYTHONPATH=.}" >> .env
 
 ## pipenv-clean: cleans the pipenv completely
 # note pipenv --rm will fail if there is nothing there so ignore that

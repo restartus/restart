@@ -18,15 +18,9 @@ pytest-xdist = "*"
 yamllint = "*"
 pre-commit = "*"
 isort = "*"
+seed-isort-config = "*"
 
 [packages]
-streamlit = "*"
-altair = "*"
-pandas = "*"
-pyyaml = "*"
-xlrd = "*"
-tables = "*"
-seed-isort-config = "*"
 
 [requires]
 python_version = "3.8"

@@ -11,12 +11,11 @@
 # has more ways to do selects and tables
 #
 """
-import streamlit as st  # type: ignore
-import pandas as pd  # type: ignore
-
 # import yfinance as yf
 # import model as md
 import altair as alt  # type: ignore
+import pandas as pd  # type: ignore
+import streamlit as st  # type: ignore
 
 # Note how there are no call backs
 

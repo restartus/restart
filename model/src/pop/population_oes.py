@@ -8,7 +8,6 @@ from typing import Dict, Optional, Tuple
 
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
-
 from loader.load_csv import LoadCSV
 from modeldata import ModelData
 from population import Population

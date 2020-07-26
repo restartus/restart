@@ -85,12 +85,8 @@ update:
 .PHONY: install
 PYTHON = 3.8
 install: pipenv-python
-ifdef PIP_DEV
-	pipenv install --dev $(PIP_DEV) || true
-endif
-ifdef PIP
-	pipenv install $(PIP) || true
-endif
+	[[ -n $(PIP_DEV) ]] && pipenv install --dev $(PIP_DEV) || true
+	[[ -n $(PIP) ]] && pipenv install $(PIP) || true
 	pipenv lock
 
 # https://medium.com/@Tankado95/how-to-generate-a-documentation-for-python-code-using-pdoc-60f681d14d6e

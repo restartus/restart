@@ -7,7 +7,6 @@ from typing import Optional
 
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
-
 from consumption import Consumption
 from modeldata import ModelData
 from population import Population

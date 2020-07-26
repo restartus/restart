@@ -4,10 +4,11 @@ Overall testing of iteration
 """
 import logging
 from typing import List
+
 log = logging.Logger(__name__)
 
 
-class Base():
+class Base:
     """Base class.
 
     Testing
@@ -24,10 +25,10 @@ class Base():
 
 
 # test Model with a list
-class Model0():
+class Model0:
     """List Model."""
 
-    store: List[Base] = [Base('a'), Base('b')]
+    store: List[Base] = [Base("a"), Base("b")]
     index: int
 
     def __init__(self):
@@ -52,7 +53,7 @@ class Model0():
         return self.store[self.index]
 
 
-class Model():
+class Model:
     """Model objects."""
 
     # Class variables are shared by all instances, so you really want these

@@ -12,7 +12,6 @@ from typing import Dict, Optional
 
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
-
 from modeldata import ModelData
 from population import Population
 from util import Log, set_dataframe

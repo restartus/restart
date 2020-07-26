@@ -1,7 +1,8 @@
 """Create README.md images."""
-from graphviz import Digraph
 # https://docs.python.org/3/library/pathlib.html
 from pathlib import Path
+
+from graphviz import Digraph
 
 
 def main():
@@ -21,15 +22,17 @@ def conceptual():
     name = Path(__file__).stem
     format_type = "jpg"
     # https://graphviz.readthedocs.io/en/stable/api.html#graphviz.Graph
-    dot = Digraph(name=name,
-                  # This will give you a .dot file and the jpg
-                  # is names .dot.jpg
-                  filename=Path(name).with_suffix('.dot'),
-                  # dot is the default neato is a minimum energy model
-                  # which looks horrible
-                  # engine="neato",
-                  format=format_type,
-                  node_attr={"shape": "box"},)
+    dot = Digraph(
+        name=name,
+        # This will give you a .dot file and the jpg
+        # is names .dot.jpg
+        filename=Path(name).with_suffix(".dot"),
+        # dot is the default neato is a minimum energy model
+        # which looks horrible
+        # engine="neato",
+        format=format_type,
+        node_attr={"shape": "box"},
+    )
     # neato = Graph(engine="neato")
 
     # Population superclass using cluster as a special name

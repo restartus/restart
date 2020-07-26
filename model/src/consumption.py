@@ -7,7 +7,6 @@ from typing import Optional
 
 import numpy as np  # type: ignore # noqa: F401
 import pandas as pd  # type: ignore # noqa: F401
-
 from base import Base
 from modeldata import ModelData
 from population import Population

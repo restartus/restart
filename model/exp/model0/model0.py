@@ -13,9 +13,10 @@
 # Before we move to full modules, just import locally
 """
 from resource import resource_name
-from population0 import population, population_label
-from consumption0 import usage_by_level, level_name, level_by_population
+
+from consumption0 import level_by_population, level_name, usage_by_level
 from essential import essential_name, population_by_essentiality
+from population0 import population, population_label
 from supply import (
     cost_per_resource_by_essentiality,
     stockpile_required_by_essentiality,

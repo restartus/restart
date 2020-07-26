@@ -3,6 +3,7 @@
 Test scaffolding
 """
 import logging
+
 from util import Log
 
 
@@ -13,31 +14,31 @@ def test() -> Log:
     # this creates two loggers immediately
     # because of the dot notation
 
-    log_name = '__main__.' + __name__
+    log_name = "__main__." + __name__
     log = logging.getLogger(log_name)
 
     # for some reason when these are created
     # there is default formatting applied to the stdout
     # not clear from wherw
 
-    print(f'print {__name__=}')
-    log.critical(f'in {__name__=} with logger {log_name=}')
+    print(f"print {__name__=}")
+    log.critical(f"in {__name__=} with logger {log_name=}")
 
     # This will not sent anything because there are no handlers
     # if there it is below the level of handlers it is suppressed
     # the default handler is to stdout
-    logging.debug(f'using generic logging debug now in {__name__=}')
+    logging.debug(f"using generic logging debug now in {__name__=}")
 
     # Now run this from the generic logger
     logging.warning(f"warning for {__name__=}")
-    root_log = Log('test')
+    root_log = Log("test")
     new_log = root_log.log_module(__name__)
     log.debug(f"{new_log=}")
-    root_log.log.debug(f'logging with {root_log.log=}')
+    root_log.log.debug(f"logging with {root_log.log=}")
     return root_log
 
 
-class TestClass():
+class TestClass:
     """Small Log class.
 
     Test log class
@@ -59,5 +60,5 @@ class TestClass():
 
         Basic scaffold
         """
-        log_name = self.name + '.' + name
+        log_name = self.name + "." + name
         return logging.get.Logger(log_name)

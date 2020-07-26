@@ -26,7 +26,7 @@ def set_handler():
 
     # create a file handler to dump stuff make sure to gitignore it
     # https://www.programcreek.com/python/example/472/logging.FileHandler
-    fh = logging.FileHandler('test.log')
+    fh = logging.FileHandler("test.log")
     fh.setLevel(logging.DEBUG)
     fh_format = logging.Formatter(
         "%(asctime)s %(levelname)-8s "

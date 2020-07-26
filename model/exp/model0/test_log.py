@@ -6,7 +6,6 @@
 """
 import logging
 
-
 # without the config this should not print
 logging.basicConfig(level=logging.DEBUG)
 logging.debug("in first")

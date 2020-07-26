@@ -6,5 +6,5 @@ name=model
 FLAGS = california --load yaml --pop dict
 MAIN = main.py
 
-include ../lib/include.mk
 include ../lib/include.python.mk
+include ../lib/include.mk

@@ -11,7 +11,7 @@ def main():
 
     here we go
     """
-    print('hello world')
+    print("hello world")
     LoadTestCSV()
 
 

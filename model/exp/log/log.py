@@ -3,8 +3,9 @@
 Test case
 """
 import logging
-from test_class import TestClass, test
 from test import set_handler
+
+from test_class import TestClass, test
 from util import Log, dump_loggers
 
 
@@ -24,8 +25,8 @@ def main():
     log.critical("critical")
 
     # now use the Log class
-    root_log = Log('test')
-    root_log.log.info(f'first {root_log=}')
+    root_log = Log("test")
+    root_log.log.info(f"first {root_log=}")
     dump_loggers(logging, log)
     print("hello world")
     log.critical(f"{__name__=}")

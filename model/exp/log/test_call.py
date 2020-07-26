@@ -3,10 +3,11 @@
 Call testing
 """
 import logging
+
 # getting a method error
 
 
-class Log():
+class Log:
     """Small Log class.
 
     Test log class
@@ -27,12 +28,12 @@ class Log():
 
         Basic scaffold
         """
-        log_name = self.name + '.' + name
+        log_name = self.name + "." + name
         return logging.getLgger(log_name)
 
 
-new_log = Log('test')
+new_log = Log("test")
 
 new_module_log = new_log.module_log(__name__)
 
-new_log.log.debug(f'logging with {new_log.log=}')
+new_log.log.debug(f"logging with {new_log.log=}")

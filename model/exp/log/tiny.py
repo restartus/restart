@@ -4,8 +4,9 @@ Test case
 """
 # https://michaelgoerz.net/notes/use-of-the-logging-module-in-python.html
 import logging
-from util import dump_loggers
+
 from testtiny import test_tiny
+from util import dump_loggers
 
 # https://stackoverflow.com/questions/53780735/what-is-the-type-hint-for-a-any-python-module
 # this doesn't help much since we want all the parameters of loggin

@@ -19,8 +19,8 @@ import altair as alt  # type:ignore
 # https://mypy.readthedocs.io/en/latest/existing_code.html
 import pandas as pd  # type:ignore
 import streamlit as st  # type:ignore
-
 from base import Base
+
 from model import Model
 
 # https://docs.python.org/3/howto/logging-cookbook.html
@@ -371,10 +371,10 @@ class Dashboard:
         st.dataframe(df_filter_x)
 
         # try:
-        #    iter(y_axis)
-        #     df_filter_xy = df_filter_x[df_filter_x[df.columns.name].isin(y_axis)]
+        #  iter(y_axis)
+        # df_filter_xy = df_filter_x[df_filter_x[df.columns.name].isin(y_axis)]
         # except TypeError:
-        #     df_filter_xy = df_filter_x[df_filter_x[df.columns.name] == y_axis]
+        # df_filter_xy = df_filter_x[df_filter_x[df.columns.name] == y_axis]
 
         df_filter_xy = df_filter_x[df_filter_x[df.columns.name].isin(y)]
         st.dataframe(df_filter_xy)

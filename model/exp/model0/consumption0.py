@@ -2,8 +2,8 @@
 
 Resources calculated here
 """
-import pandas as pd  # type: ignore
 import numpy as np  # type: ignore
+import pandas as pd  # type: ignore
 
 
 def level_name():

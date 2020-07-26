@@ -1,12 +1,12 @@
 """Create DAshboard."""
 import logging
-import streamlit as st  # type: ignore
-import pandas as pd  # type: ignore
-import numpy as np  # type: ignore
+from typing import List
 
 # import yfinance as yf
 import altair as alt  # type: ignore
-from typing import List
+import numpy as np  # type: ignore
+import pandas as pd  # type: ignore
+import streamlit as st  # type: ignore
 
 # for some reason logger.baseConfig(level=logging.DEBUG) does not work
 # So the lines below don't print anything where are they going
@@ -163,7 +163,6 @@ def main():
 def homepage(model):
     """Show home page."""
     st.write(
-
         """
     # COVID-19 Decision Dashboard
     ## Restart.us

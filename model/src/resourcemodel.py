@@ -8,7 +8,6 @@ from typing import Union
 
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
-
 from base import Base
 from modeldata import ModelData
 from util import Log, set_dataframe

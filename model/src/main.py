@@ -224,8 +224,8 @@ class Compose:
         parser.add_argument(
             "-r",
             "--resource",
-            choices=["eoc", "chelsea"],
-            default="eoc",
+            choices=["dict", "who", "eoc", "chelsea"],
+            default="dict",
             help="Select Resource model",
         )
         parser.add_argument(

@@ -14,8 +14,7 @@
 # The makefiles are self documenting, you use two leading
 # for make help to produce output
 #
-# These should be overridden in the makefile that includes this, but this sets
-# defaults use to add comments when running make help
+# These should be overridden in the makefile that includes this, but this sets # defaults use to add comments when running make help
 #
 # Two entry points in MAIN and WEB
 # https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
@@ -44,11 +43,6 @@ BASE_PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
 help: $(MAKEFILE_LIST)
 	@sed -n 's/^##//p' $(MAKEFILE_LIST)
 
-
-## pre-commit: install git pre-commit into current directory
-.PHONY: pre-commit
-pre-commit:
-	pipenv run pre-commit install
 
 
 # Flake8 does not handle streamlit correctly so exclude it
@@ -101,6 +95,7 @@ ifdef PIP_DEV
   pipenv install $(BASE_PIP) || true
 endif
 	pipenv update
+	[[ -e .pre-commit-config.yaml ]] && pipenv run pre-commit install || true
 
 ## pipenv-python: Install python version in $(PYTHON)
 # also add to the python path

@@ -23,20 +23,21 @@ def main():
     log.critical(f"{row_r=} {row_r.shape=}")
     # making a real column vector
     # https://stackoverflow.com/questions/17428621/python-differentiating-between-row-and-column-vectors
-    col_r = np.array)[[30], [60], [90]])
+    col_r = np.array([[30], [60], [90]])
     log.critical(f"{col_r=} {col_r.shape=}")
 
     c_pn = np.array([[200, 3],
                      [1, 900]])
-    log.critical(f"{c_pn=} {c_pn.shape=}"")
+    log.critical(f"{c_pn=} {c_pn.shape=}")
 
     # the simplest way but potentially slower
-    ein_rpn = np.einsum("r,pn->rpn", s_r, c_pn)
+    ein_rpn = np.einsum("r,pn->rpn", v_r, c_pn)
     log.critical(f"{ein_rpn=}")
 
     # using casting
     cast_rpn = c_pn * row_r
     log.critical(f"{cast_rpn=}")
+
 
 if __name__ == "__main__":
     main()

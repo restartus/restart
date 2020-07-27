@@ -74,7 +74,7 @@ Description:
         For each summaried population level l, this gives the number of periods
         which are typically days that you have to hold
     "Res Inventory Average Demand ln": |
-        ## Average Invetory Demand
+        ## Average Inventory Demand
         For each summarized population level l, what is the total demand from
         that level for each resource n
     "Res Inventory ln": |

@@ -4,8 +4,16 @@
 ---
 Label:
   "Resource n":
-    - "N95 Surgical"
-    - "ASTM Mask"
+    - "Level"
+    - "N95 + Mask"
+    - "N95"
+    - "ASTM 3 Mask"
+    - "ASTM 1-2 Mask"
+    - "Non ASTM Mask"
+    - "Face Shield"
+    - "Gowns"
+    - "Gloves"
+    - "Shoe Covers"
   "Population p":
     - "Healthcare Workers"
     - "Non-Heathcare Worker"

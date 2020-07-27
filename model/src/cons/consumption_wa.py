@@ -15,11 +15,6 @@ from resourcemodel import Resource
 from util import Log, load_dataframe
 from loader.load_csv import LoadCSV
 
-# TODO: move into resource module
-RES_LIST = ['Level', 'N95 + Mask', 'N95', 'ASTM 3 Mask',
-            'ASTM 1-2 Mask', 'Non ASTM Mask', 'Face Shield', 'Gowns',
-            'Gloves', 'Shoe Covers']
-
 
 class ConsumptionWA(Consumption):
     """Calculate consumption using default WA estimates.
@@ -54,7 +49,7 @@ class ConsumptionWA(Consumption):
                                              source['MAP']))
         (self.res_demand_mn_rows,
          self.res_demand_mn_cols,
-         self.res_demand_mn_arr) = self.calculate_burn(map_df)
+         self.res_demand_mn_arr) = self.calculate_burn(map_df, data)
         self.res_demand_mn_df = pd.DataFrame(
                 self.res_demand_mn_arr,
                 index=self.res_demand_mn_rows,
@@ -160,15 +155,19 @@ class ConsumptionWA(Consumption):
 
         return self
 
-    def calculate_burn(self,
-                       df) -> Tuple[list, list, np.ndarray]:
+    def calculate_burn(
+            self,
+            df: pd.DataFrame,
+            data: ModelData,
+    ) -> Tuple[list, list, np.ndarray]:
         """Pull for the covid-surge-who model for burn rates.
 
         Does some dataframe slicing manually
         """
+        res_list = data.label['Resource n']
         df.columns = df.iloc[5]
         df = df.iloc[6:13]
-        df = df[RES_LIST].fillna(0)
+        df = df[res_list].fillna(0)
         arr_rows = list(df['Level'])
         df.drop(['Level'], axis=1, inplace=True)
         arr = np.array(df)

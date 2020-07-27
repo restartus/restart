@@ -58,7 +58,7 @@ class ResourceDict(Resource):
         )
 
         self.cost_ln_arr = data.value["Resource n"]["Pop Level Res Cost ln"]
-        self.cost_ln_df = self.res_dataframe(self.cost_ln_arr)
+        self.cost_ln_df = self.res_dataframe(np.array(self.cost_ln_arr).T)
         log.debug(f"{self.cost_ln_df=}")
         self.set_description(
                 f"{self.cost_ln_df=}",
@@ -67,7 +67,8 @@ class ResourceDict(Resource):
 
         self.inv_initial_ln_arr = data.value["Resource n"][
                 "Res Inventory Initial ln"]
-        self.inv_initial_ln_df = self.res_dataframe(self.inv_initial_ln_arr)
+        self.inv_initial_ln_df = self.res_dataframe(
+                np.array(self.inv_initial_ln_arr).T)
         log.debug(f"{self.inv_initial_ln_df=}")
         self.set_description(
                 f"{self.inv_initial_ln_df=}".split("=")[0],
@@ -84,7 +85,8 @@ class ResourceDict(Resource):
 
         self.inv_eoc_ln_arr = data.value["Resource n"]["Res Inventory EOC ln"]
         log.debug(f"{self.inv_eoc_ln_arr=}")
-        self.inv_eoc_ln_df = self.res_dataframe(self.inv_eoc_ln_arr,)
+        self.inv_eoc_ln_df = self.res_dataframe(
+                np.array(self.inv_eoc_ln_arr).T)
         # ensure we don't have any non-zero numbers
         self.inv_eoc_ln_df[self.inv_eoc_ln_df < 1] = 1
         log.debug(f"{self.inv_eoc_ln_df=}")
@@ -97,7 +99,8 @@ class ResourceDict(Resource):
         safety_stock_ln_arr = data.value["Resource n"][
             "Res Inventory Safety Stock ln"
         ]
-        self.safety_stock_ln_df = self.res_dataframe(safety_stock_ln_arr,)
+        self.safety_stock_ln_df = self.res_dataframe(
+                np.array(safety_stock_ln_arr).T)
         self.set_description(
             f"{self.safety_stock_ln_df=}",
             data.description["Resource n"]["Res Inventory Safety Stock ln"],
@@ -107,7 +110,7 @@ class ResourceDict(Resource):
             "Res Inventory Average Demand ln"
         ]
         self.average_demand_ln_df = self.res_dataframe(
-            self.average_demand_ln_arr
+            np.array(self.average_demand_ln_arr).T
         )
         self.set_description(
             f"{self.average_demand_ln_df=}",
@@ -118,7 +121,7 @@ class ResourceDict(Resource):
             "Res Inventory Stockpile Days ln"
         ]
         self.stockpile_days_ln_df = self.res_dataframe(
-            self.stockpile_days_ln_arr
+            np.array(self.stockpile_days_ln_arr).T
         )
         self.set_description(
             f"{self.stockpile_days_ln_df=}",
@@ -151,7 +154,8 @@ class ResourceDict(Resource):
 
         # need to do a dot product
         self.safety_stock_ln_arr = (
-            self.average_demand_ln_arr * self.stockpile_days_ln_arr
+            np.array(self.average_demand_ln_df) *
+            np.array(self.stockpile_days_ln_df)
         )
         # https://stackoverflow.com/questions/53375161/use-numpy-array-to-replace-pandas-dataframe-values
         self.safety_stock_ln_df[:] = self.safety_stock_ln_arr

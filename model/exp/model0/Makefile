@@ -7,5 +7,5 @@ dashboard0:
 
 WEB = dashboard1.py
 
-include ../../lib/include.mk
 include ../../lib/include.python.mk
+include ../../lib/include.mk

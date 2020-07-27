@@ -73,7 +73,7 @@ lint:
 	# here unitl it's verfiedjj
 	pipenv run flake8
 ifdef all_py
-	pipenv run seed-isort-config
+	pipenv run seed-isort-config || true
 	pipenv run mypy --namespace-packages $(all_py) || true
 	pipenv run bandit $(all_py) || true
 	pipenv run pydocstyle --convention=google $(all_py) || true

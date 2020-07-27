@@ -28,8 +28,8 @@ from pop.population_oes import PopulationOES
 # import pandas as pd  # type:ignore
 # from population import Population
 from population import Population
-from resourcemodel import Resource
 from res.res_dict import ResourceDict
+from resourcemodel import Resource
 from util import Log
 
 
@@ -184,8 +184,9 @@ class Model(Base):
         Resource
         """
         if type == "dict":
-            self.resource: Resource = ResourceDict(self.data,
-                                                   log_root=self.log_root)
+            self.resource: Resource = ResourceDict(
+                self.data, log_root=self.log_root
+            )
         return self
 
     def set_consumption(self, type: str = None) -> Model:

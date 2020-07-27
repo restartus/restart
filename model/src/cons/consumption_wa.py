@@ -2,18 +2,19 @@
 
 The original model based on DOH levels
 """
-import os
 import logging
+import os
 from typing import Optional, Tuple
 
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
+
 from consumption import Consumption
+from loader.load_csv import LoadCSV
 from modeldata import ModelData
 from population import Population
 from resourcemodel import Resource
 from util import Log, load_dataframe
-from loader.load_csv import LoadCSV
 
 
 class ConsumptionWA(Consumption):
@@ -43,17 +44,19 @@ class ConsumptionWA(Consumption):
         self.log = log
         log.debug(f"In {__name__}")
 
-        source = data.datapaths['Paths']
+        source = data.datapaths["Paths"]
         source = LoadCSV(source=source).data
-        map_df = load_dataframe(os.path.join(source['Root'],
-                                             source['MAP']))
-        (self.res_demand_mn_rows,
-         self.res_demand_mn_cols,
-         self.res_demand_mn_arr) = self.calculate_burn(map_df, data)
+        map_df = load_dataframe(os.path.join(source["Root"], source["MAP"]))
+        (
+            self.res_demand_mn_rows,
+            self.res_demand_mn_cols,
+            self.res_demand_mn_arr,
+        ) = self.calculate_burn(map_df, data)
         self.res_demand_mn_df = pd.DataFrame(
-                self.res_demand_mn_arr,
-                index=self.res_demand_mn_rows,
-                columns=self.res_demand_mn_cols)
+            self.res_demand_mn_arr,
+            index=self.res_demand_mn_rows,
+            columns=self.res_demand_mn_cols,
+        )
         log.debug(f"{self.res_demand_mn_df=}")
         self.set_description(
             f"{self.res_demand_mn_df=}",
@@ -68,11 +71,13 @@ class ConsumptionWA(Consumption):
 
         # TODO: move pop.level_pm_df to consumption
         self.demand_pn_arr = np.array(pop.level_pm_df) @ np.array(
-                self.res_demand_mn_df)
+            self.res_demand_mn_df
+        )
         self.demand_pn_df = pd.DataFrame(
-                self.demand_pn_arr,
-                index=pop.level_pm_labs,
-                columns=self.res_demand_mn_cols)
+            self.demand_pn_arr,
+            index=pop.level_pm_labs,
+            columns=self.res_demand_mn_cols,
+        )
         log.debug(f"{self.demand_pn_df=}")
         self.demand_pn_df.index.name = "Population p"
         self.demand_pn_df.columns.name = "Resource n"
@@ -112,8 +117,8 @@ class ConsumptionWA(Consumption):
         )
 
         self.total_demand_pn_arr = (
-                np.array(self.demand_pn_df).T * np.array(
-                    pop.detail_pd_df['Size'])).T
+            np.array(self.demand_pn_df).T * np.array(pop.detail_pd_df["Size"])
+        ).T
         self.total_demand_pn_df = pd.DataFrame(
             self.total_demand_pn_arr,
             index=pop.level_pm_labs,
@@ -156,20 +161,18 @@ class ConsumptionWA(Consumption):
         return self
 
     def calculate_burn(
-            self,
-            df: pd.DataFrame,
-            data: ModelData,
+        self, df: pd.DataFrame, data: ModelData,
     ) -> Tuple[list, list, np.ndarray]:
         """Pull for the covid-surge-who model for burn rates.
 
         Does some dataframe slicing manually
         """
-        res_list = data.label['Resource n']
+        res_list = data.label["Resource n"]
         df.columns = df.iloc[5]
         df = df.iloc[6:13]
         df = df[res_list].fillna(0)
-        arr_rows = list(df['Level'])
-        df.drop(['Level'], axis=1, inplace=True)
+        arr_rows = list(df["Level"])
+        df.drop(["Level"], axis=1, inplace=True)
         arr = np.array(df)
         arr_cols = list(df.columns)
         return arr_rows, arr_cols, arr

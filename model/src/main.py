@@ -32,14 +32,13 @@ from filtermodel import Filter
 
 # from config import Config
 from loader.load_yaml import LoadYAML
+from model import Model
 from pop.population_dict import PopulationDict
 from resourcemodel import Resource
 
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
 from util import Log
-
-from model import Model
 
 # This is the only way to get it to work needs to be in main
 # https://www.programcreek.com/python/example/192/logging.Formatter

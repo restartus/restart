@@ -18,10 +18,9 @@ class ResourceDict(Resource):
 
     This can be a default for testing
     """
+
     def __init__(
-            self,
-            data: ModelData,
-            log_root: Log = None,
+        self, data: ModelData, log_root: Log = None,
     ):
         """Initialize the resources.
 
@@ -44,35 +43,37 @@ class ResourceDict(Resource):
 
         self.attr_na_arr = data.value["Resource n"]["Res Attr Data na"]
         self.attr_na_df = set_dataframe(
-                self.attr_na_arr,
-                data.label,
-                index="Resource n",
-                columns="Res Attribute a",
+            self.attr_na_arr,
+            data.label,
+            index="Resource n",
+            columns="Res Attribute a",
         )
         self.attr_na_df.index.name = "Resources n"
         self.attr_na_df.columns.name = "Res Attr a"
         log.debug(f"{self.attr_na_df=}")
         self.set_description(
-                f"{self.attr_na_df=}",
-                data.description["Resource n"]["Res Attr Data na"]
+            f"{self.attr_na_df=}",
+            data.description["Resource n"]["Res Attr Data na"],
         )
 
         self.cost_ln_arr = data.value["Resource n"]["Pop Level Res Cost ln"]
         self.cost_ln_df = self.res_dataframe(np.array(self.cost_ln_arr).T)
         log.debug(f"{self.cost_ln_df=}")
         self.set_description(
-                f"{self.cost_ln_df=}",
-                data.description["Resource n"]["Pop Level Res Cost ln"]
+            f"{self.cost_ln_df=}",
+            data.description["Resource n"]["Pop Level Res Cost ln"],
         )
 
         self.inv_initial_ln_arr = data.value["Resource n"][
-                "Res Inventory Initial ln"]
+            "Res Inventory Initial ln"
+        ]
         self.inv_initial_ln_df = self.res_dataframe(
-                np.array(self.inv_initial_ln_arr).T)
+            np.array(self.inv_initial_ln_arr).T
+        )
         log.debug(f"{self.inv_initial_ln_df=}")
         self.set_description(
-                f"{self.inv_initial_ln_df=}".split("=")[0],
-                data.description["Resource n"]["Res Inventory Initial ln"]
+            f"{self.inv_initial_ln_df=}".split("=")[0],
+            data.description["Resource n"]["Res Inventory Initial ln"],
         )
         log.debug(f"{self.description['inv_initial_ln_df']}")
         # be careful you want a copy here so inv_initial stays the same
@@ -86,7 +87,8 @@ class ResourceDict(Resource):
         self.inv_eoc_ln_arr = data.value["Resource n"]["Res Inventory EOC ln"]
         log.debug(f"{self.inv_eoc_ln_arr=}")
         self.inv_eoc_ln_df = self.res_dataframe(
-                np.array(self.inv_eoc_ln_arr).T)
+            np.array(self.inv_eoc_ln_arr).T
+        )
         # ensure we don't have any non-zero numbers
         self.inv_eoc_ln_df[self.inv_eoc_ln_df < 1] = 1
         log.debug(f"{self.inv_eoc_ln_df=}")
@@ -100,7 +102,8 @@ class ResourceDict(Resource):
             "Res Inventory Safety Stock ln"
         ]
         self.safety_stock_ln_df = self.res_dataframe(
-                np.array(safety_stock_ln_arr).T)
+            np.array(safety_stock_ln_arr).T
+        )
         self.set_description(
             f"{self.safety_stock_ln_df=}",
             data.description["Resource n"]["Res Inventory Safety Stock ln"],
@@ -128,10 +131,7 @@ class ResourceDict(Resource):
             data.description["Resource n"]["Res Inventory Stockpile Days ln"],
         )
 
-    def set_stockpile_days(
-            self,
-            days: Union[np.ndarray, int]
-    ) -> None:
+    def set_stockpile_days(self, days: Union[np.ndarray, int]) -> None:
         """Set stockpile days for all resources.
 
         A helper function which spreads the days across all populations nad all
@@ -153,10 +153,9 @@ class ResourceDict(Resource):
         log.debug(f"{self.stockpile_days_ln_df=}")
 
         # need to do a dot product
-        self.safety_stock_ln_arr = (
-            np.array(self.average_demand_ln_df) *
-            np.array(self.stockpile_days_ln_df)
-        )
+        self.safety_stock_ln_arr = np.array(
+            self.average_demand_ln_df
+        ) * np.array(self.stockpile_days_ln_df)
         # https://stackoverflow.com/questions/53375161/use-numpy-array-to-replace-pandas-dataframe-values
         self.safety_stock_ln_df[:] = self.safety_stock_ln_arr
         log.debug(f"{self.safety_stock_ln_df=}")

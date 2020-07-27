@@ -6,6 +6,7 @@ import logging
 from typing import Dict, Tuple
 
 import pandas as pd  # type:ignore
+
 from util import Log
 
 

@@ -8,6 +8,7 @@ from typing import Optional, Union
 
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
+
 from base import Base
 from modeldata import ModelData
 from util import Log
@@ -39,9 +40,7 @@ class Resource(Base):
     # instances
 
     def __init__(
-            self,
-            data: ModelData = None,
-            log_root: Log = None,
+        self, data: ModelData = None, log_root: Log = None,
     ):
         """Initialize the Resources.
 
@@ -65,9 +64,7 @@ class Resource(Base):
         self.average_demand_ln_df: Optional[pd.DataFrame] = None
         self.stockpile_days_ln_df: Optional[pd.DataFrame] = None
 
-    def set_stockpile_days(
-            self,
-            days: Union[np.ndarray, int]) -> None:
+    def set_stockpile_days(self, days: Union[np.ndarray, int]) -> None:
         """Template function.
 
         Does nothing
@@ -83,8 +80,7 @@ class Resource(Base):
         log = self.log
         log.debug("Template")
 
-    def round_up_to_eoc(self,
-                        order_ln_df: pd.DataFrame) -> pd.DataFrame:
+    def round_up_to_eoc(self, order_ln_df: pd.DataFrame) -> pd.DataFrame:
         """Template function.
 
         Does nothing
@@ -93,8 +89,7 @@ class Resource(Base):
         log.debug("Template")
         return order_ln_df
 
-    def fulfill(self,
-                order_ln_df: pd.DataFrame) -> None:
+    def fulfill(self, order_ln_df: pd.DataFrame) -> None:
         """Template function.
 
         Does nothing
@@ -102,8 +97,7 @@ class Resource(Base):
         log = self.log
         log.debug("Template")
 
-    def demand(self,
-               demand_ln_df: pd.DataFrame) -> pd.DataFrame:
+    def demand(self, demand_ln_df: pd.DataFrame) -> pd.DataFrame:
         """Template function.
 
         Does nothing
@@ -112,8 +106,7 @@ class Resource(Base):
         log.debug("Template")
         return demand_ln_df
 
-    def res_dataframe(self,
-                      arr: np.ndarray) -> pd.DataFrame:
+    def res_dataframe(self, arr: np.ndarray) -> pd.DataFrame:
         """Template function.
 
         Does nothing

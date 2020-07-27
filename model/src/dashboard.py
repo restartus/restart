@@ -19,8 +19,8 @@ import altair as alt  # type:ignore
 # https://mypy.readthedocs.io/en/latest/existing_code.html
 import pandas as pd  # type:ignore
 import streamlit as st  # type:ignore
-from base import Base
 
+from base import Base
 from model import Model
 
 # https://docs.python.org/3/howto/logging-cookbook.html
@@ -349,27 +349,29 @@ class Dashboard:
         """
         ## Debug
         """
-        st.write(f"{x=} {y}")
-        st.write(f"{df.index.name=} {df.columns.name=}")
-        st.write(f"{df.index}")
-        st.write(f"{df.columns}")
+        # st.write(f"{x=} {y}")
+        # st.write(f"{df.index.name=} {df.columns.name=}")
+        # st.write(f"{df.index}")
+        # st.write(f"{df.columns}")
         st.dataframe(df)
         # breakpoint()
         df.index.name = "Label" if None else df.index.name
         # first rest the index to get it to be a column
         # using melt to get column form
         df_reset = df.reset_index()
-        st.write(df_reset)
+        # st.write(df_reset)
         # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.melt.html
         # if value_vars are not specified then unpivote everything
         df_melt = df_reset.melt(id_vars=df.index.name, value_name="Units")
-        st.write(df_melt)
+        # st.write(df_melt)
 
         # for single values
         # http://scrapingauthority.com/pandas-dataframe-filtering/
         # https://realnitinworks.netlify.app/check-object-iterability.html?utm_campaign=News&utm_medium=Community&utm_source=DataCamp.com
-        df_filter_x = df_melt[df_melt[df.index.name].isin(x)]
-        st.dataframe(df_filter_x)
+
+        # TODO: a bug is here
+        # df_filter_x = df_melt[df_melt[df.index.name].isin(x)]
+        # st.dataframe(df_filter_x)
 
         # try:
         #  iter(y_axis)
@@ -377,8 +379,8 @@ class Dashboard:
         # except TypeError:
         # df_filter_xy = df_filter_x[df_filter_x[df.columns.name] == y_axis]
 
-        df_filter_xy = df_filter_x[df_filter_x[df.columns.name].isin(y)]
-        st.dataframe(df_filter_xy)
+        # df_filter_xy = df_filter_x[df_filter_x[df.columns.name].isin(y)]
+        # st.dataframe(df_filter_xy)
 
         # you can also use breakpoint
         # breakpoint()

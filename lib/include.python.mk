@@ -84,7 +84,7 @@ update:
 # pipenv clean removes all packages not in the virtual environment
 .PHONY: install
 PYTHON = 3.8
-install: pipenv-python
+install: base-pipenv
 ifdef PIP_DEV
 	pipenv install --dev $(PIP_DEV) || true
 endif

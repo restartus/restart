@@ -9,6 +9,7 @@ from typing import Dict, Optional, Tuple
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
+from filtermodel import Filter
 from loader.load_csv import LoadCSV
 from modeldata import ModelData
 from population import Population
@@ -31,10 +32,7 @@ class PopulationOES(Population):
     """
 
     def __init__(
-        self,
-        data: ModelData,
-        location: Optional[Dict] = None,
-        log_root: Optional[Log] = None,
+        self, data: ModelData, filt: Filter, log_root: Optional[Log] = None,
     ):
         """Initialize.
 
@@ -52,8 +50,19 @@ class PopulationOES(Population):
 
         log.debug(f"module {__name__=}")
 
+        # get location and population from the filter
+        self.location = filt.location
+        try:
+            if self.location["county"] is not None:
+                self.location["county"] += " County"
+        except KeyError:
+            log.debug("invalid location input {self.location=}")
+            return
+
+        self.population = filt.population
+
         # get population data
-        df_dict = self.load_data(data, location)
+        df_dict = self.load_data(data, self.location)
         self.detail_pd_df = df_dict["detail_pd_df"]
         self.detail_pd_arr = df_dict["detail_pd_arr"]
         self.set_description(
@@ -100,20 +109,22 @@ class PopulationOES(Population):
             )
 
         # initialize unsliced dataframe from oes data
-        if location is None:
+        if location["county"] is None and location["state"] is None:
             df = self.create_country_df(oes_df)
-        elif location["County"] is not None and location["State"] is not None:
+        elif location["county"] is not None and location["state"] is not None:
+            location["county"] = location["county"]
             df = self.create_county_df(location, oes_df, code_df, pop_df)
         else:
             df = self.create_state_df(location, oes_df)
 
-        # slice to get just healthcare workers
-        health_df = self.health_dataframe(df)
+        # filter the population
+        if self.population == "healthcare":
+            df = self.health_filter(df)
 
         # the actual data passed onto the model
-        detail_pd_df = self.drop_code(health_df)
+        detail_pd_df = self.drop_code(df)
         detail_pd_arr = detail_pd_df["Size"].to_numpy()
-        map_labs, map_arr = self.create_map(health_df, map_df)
+        map_labs, map_arr = self.create_map(df, map_df)
 
         # load into dictionary
         df_dict = {}
@@ -248,8 +259,8 @@ class PopulationOES(Population):
 
         return int(
             code_df[
-                (code_df["County Equivalent"] == location["County"])
-                & (code_df["State Name"] == location["State"])
+                (code_df["County Equivalent"] == location["county"])
+                & (code_df["State Name"] == location["state"])
             ]["CBSA Code"].iloc[0]
         )
 
@@ -285,7 +296,7 @@ class PopulationOES(Population):
             pop = int(
                 pop_df[
                     (pop_df["CTYNAME"] == county)
-                    & (pop_df["STNAME"] == location["State"])
+                    & (pop_df["STNAME"] == location["state"])
                 ]["POPESTIMATE2019"]
             )
             populations[county] = pop
@@ -294,7 +305,7 @@ class PopulationOES(Population):
         total_pop = sum(populations.values())
 
         # Divide individual county population by total MSA population
-        return populations[location["County"]] / total_pop
+        return populations[location["county"]] / total_pop
 
     def load_county(
         self,
@@ -342,7 +353,7 @@ class PopulationOES(Population):
         """
         # slice OES dataframe by state
         col_list = ["occ_code", "occ_title", "o_group", "tot_emp"]
-        df = oes_df[(oes_df["area_title"] == location["State"])][col_list]
+        df = oes_df[(oes_df["area_title"] == location["state"])][col_list]
 
         # replace placeholders with 0
         df = df.replace(to_replace="**", value=0)
@@ -507,7 +518,7 @@ class PopulationOES(Population):
 
         return detailed
 
-    def health_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
+    def health_filter(self, df: pd.DataFrame) -> pd.DataFrame:
         """Return a detailed breakdown of healthcare workers with OCC codes.
 
         Args:

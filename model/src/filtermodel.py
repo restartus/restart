@@ -9,7 +9,6 @@ import numpy as np  # type: ignore # noqa: F401
 import pandas as pd  # type: ignore # noqa: F401
 
 from base import Base
-from modeldata import ModelData
 from util import Log
 
 
@@ -24,12 +23,16 @@ class Filter(Base):
     """
 
     def __init__(
-        self, data: ModelData, log_root: Log = None, type: str = None,
+        self,
+        log_root: Log = None,
+        county: str = None,
+        state: str = None,
+        population: str = None,
     ):
         """Initialize the Economy object.
 
-        This uses the Frame object and populates it with default data unless yo
-        override it
+        This uses the Frame object and populates it with default data unless
+        you override it
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__(log_root=log_root)
@@ -46,5 +49,7 @@ class Filter(Base):
             log = logging.getLogger(__name__)
         self.log = log
 
-        if type is {"County": None, "State": "California"}:
-            log.debug("not implemented")
+        self.location = {"county": county, "state": state}
+        log.debug(f"{self.location=}")
+        self.population = population
+        log.debug(f"{self.population=}")

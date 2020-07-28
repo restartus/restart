@@ -160,10 +160,7 @@ class Model(Base):
         self.population: Population
         if type == "oes":
             self.population = PopulationOES(
-                self.data,
-                # TODO: this belongs in filter
-                {"County": None, "State": "California"},
-                log_root=self.log_root,
+                self.data, self.filter, log_root=self.log_root,
             )
         elif type == "dict":
             # change this to the the naming of columns
@@ -214,12 +211,20 @@ class Model(Base):
             )
         return self
 
-    def set_filter(self, type: str = None) -> Model:
+    def set_filter(
+        self, county: str = None, state: str = None, population: str = None
+    ) -> Model:
         """Filter the model.
 
         Shrink the model to relevant population, resource
         """
-        self.filter = Filter(self.data, log_root=self.log_root, type=type)
+        self.filter = Filter(
+            log_root=self.log_root,
+            county=county,
+            state=state,
+            population=population,
+        )
+
         return self
 
     def set_economy(self, type: str = None) -> Model:

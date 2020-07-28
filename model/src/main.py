@@ -28,7 +28,6 @@ from disease import Disease
 
 # from population import Population
 from economy import Economy
-from filtermodel import Filter
 
 # from config import Config
 from loader.load_yaml import LoadYAML
@@ -116,11 +115,13 @@ class Compose:
         self.model = model = (
             Model(name, log_root=log_root)
             .set_configure(loaded)
+            .set_filter(
+                county=args.county, state=args.state, population=args.subpop
+            )
             .set_population(type=args.population)
             # .set_population(type=args.students)
             .set_resource(type=args.resource)
             # .set_resource(type=args.pharma)
-            .set_filter(type=args.filter)
             .set_consumption(type=args.consumption)
             .set_economy(type=args.economy)
             .set_disease(type=args.disease)
@@ -214,12 +215,22 @@ class Compose:
             default="yaml",
             help="Select loader",
         )
+
         parser.add_argument(
             "-p",
             "--population",
             choices=["dict", "oes"],
             help="Select population data cube",
         )
+
+        parser.add_argument("--county", help="Select county")
+
+        parser.add_argument("--state", help="Select state")
+
+        parser.add_argument(
+            "--subpop", help="Select subpopulation of interest"
+        )
+
         parser.add_argument(
             "-r",
             "--resource",
@@ -227,13 +238,7 @@ class Compose:
             default="dict",
             help="Select Resource model",
         )
-        parser.add_argument(
-            "-f",
-            "--filter",
-            choices=["eoc", "chelsea"],
-            default={"County": None, "State": "California"},
-            help="Select filters model",
-        )
+
         parser.add_argument(
             "-c",
             "--consumption",
@@ -277,7 +282,7 @@ class Compose:
             "input",
             nargs="?",  # one argument
             type=Path,
-            default=Path("washington").absolute(),
+            default=Path("config").absolute(),
         )
         return parser
 
@@ -314,8 +319,8 @@ class Compose:
         model.resource = Resource(model.data, log_root=model.log_root)
         log.debug("creating Consumption")
         model.consumption = Consumption(model.data, log_root=model.log_root)
-        log.debug("creating Filter")
-        model.filter = Filter(model.data, log_root=model.log_root)
+        # log.debug("creating Filter")
+        # model.filter = Filter(model.data, log_root=model.log_root)
         log.debug("creating Economy")
         model.economy = Economy(model.data, log_root=model.log_root)
         log.debug("creating Disease")

@@ -60,6 +60,7 @@ class PopulationOES(Population):
             return
 
         self.population = filt.population
+        self.codes: list
 
         # get population data
         df_dict = self.load_data(data, self.location)
@@ -198,7 +199,9 @@ class PopulationOES(Population):
         # manually redo indexing and select the rows we need
         df.columns = df.iloc[2528]
         df = df.iloc[2529:3303]
-        df = df[["Washington SOT", "SOC", "Type", "Level"]]
+        df = df[
+            ["Washington SOT", "SOC", "Type", "Level", "Essential (0 lowest)"]
+        ]
 
         # fix datetime objects and drop empty rows
         df["SOC"] = df["SOC"].apply(datetime_to_code)
@@ -434,6 +437,7 @@ class PopulationOES(Population):
         So that it has the right format for the model.
         """
         col_labs = ["Population p", "Size"]
+        self.codes = list(df["occ_code"])
         df = df.drop(["occ_code"], axis=1)
         df.columns = col_labs
 

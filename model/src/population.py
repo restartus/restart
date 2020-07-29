@@ -110,3 +110,4 @@ class Population(Base):
         self.level_pm_arr: Optional[np.ndarray] = None
         self.level_pm_df: Optional[pd.DataFrame] = None
         self.config: Optional[Dict] = config
+        self.codes: Optional[list] = None

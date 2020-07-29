@@ -14,7 +14,7 @@ from loader.load_csv import LoadCSV
 from modeldata import ModelData
 from population import Population
 from resourcemodel import Resource
-from util import Log, load_dataframe
+from util import Log, datetime_to_code, load_dataframe
 
 
 class ConsumptionWA(Consumption):
@@ -47,11 +47,14 @@ class ConsumptionWA(Consumption):
         source = data.datapaths["Paths"]
         source = LoadCSV(source=source).data
         map_df = load_dataframe(os.path.join(source["Root"], source["MAP"]))
+
+        # read in the burn rates
         (
             self.res_demand_mn_rows,
             self.res_demand_mn_cols,
             self.res_demand_mn_arr,
         ) = self.calculate_burn(map_df, data)
+
         self.res_demand_mn_df = pd.DataFrame(
             self.res_demand_mn_arr,
             index=self.res_demand_mn_rows,
@@ -92,13 +95,7 @@ class ConsumptionWA(Consumption):
         if pop.detail_pd_arr is None:
             raise ValueError(f"{pop.detail_pd_df=} should not be None")
 
-        self.level_pl_arr = np.hstack(
-            (
-                np.ones((pop.detail_pd_df.shape[0], 1)),
-                np.zeros((pop.detail_pd_df.shape[0], 1)),
-            )
-        )
-
+        self.level_pl_arr = self.calculate_essential(map_df, data, pop)
         self.level_pl_df = pd.DataFrame(
             self.level_pl_arr,
             index=pop.level_pm_labs,
@@ -159,6 +156,46 @@ class ConsumptionWA(Consumption):
         log.debug("level_total_cost_ln_df\n%s", self.level_total_cost_ln_df)
 
         return self
+
+    def calculate_essential(
+        self, df: pd.DataFrame, data: ModelData, pop: Population
+    ) -> pd.DataFrame:
+        """Get population essential levels from the excel model.
+
+        Manually slice the dataframe
+        """
+        # manually redo indexing and select the rows we need
+        df.columns = df.iloc[2528]
+        df = df.iloc[2529:3303]
+        df = df[["SOC", "Essential (0 lowest)"]]
+
+        if pop.codes is None:
+            raise ValueError(f"{pop.codes=} should not be None")
+
+        # add the codes back in
+        pop_level = []
+        df["SOC"] = df["SOC"].apply(datetime_to_code)
+        df.reset_index(drop=True, inplace=True)
+        for code in list(pop.codes):
+            arr = np.zeros(2)
+            try:
+                ind = df[df["SOC"] == code].index[0]
+            except IndexError:
+                ind = -1
+
+            if ind > 0:
+                level = df.iloc[ind]["Essential (0 lowest)"]
+            else:
+                level = np.random.randint(0, high=6)
+
+            if level >= 5:
+                arr[0] = 1
+            else:
+                arr[1] = 1
+
+            pop_level.append(arr)
+
+        return np.array(pop_level)
 
     def calculate_burn(
         self, df: pd.DataFrame, data: ModelData,

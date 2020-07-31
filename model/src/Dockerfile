@@ -1,8 +1,12 @@
 # https://medium.com/usf-msds/deploying-web-app-with-streamlit-docker-and-aws-72b0d4dbcf# https://maelfabien.github.io/project/Streamlit/#7
-FROM python:3.7
-EXPOSE 8501
+MAINTAINER rich@restart.us
+FROM python:3.8
+# copy the application
+COPY . /app
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
+# install packages
+RUN pip install pipenv
+RUN pipenv install --system --deploy
+
+EXPOSE 8501
 CMD streamlit run dashboard.py

@@ -189,11 +189,11 @@ class Compose:
                 log.debug(f"{df_key=}")
                 log.debug(f"{df_value=}")
 
-        for s in [3, 6, 9]:
-            log.info(f"changing stockpile to {s=}")
+        for s in [30, 60, 90]:
+            log.critical(f"changing stockpile to {s=}")
             model.resource.set_stockpile_days(s)
             log.debug(f"{model.resource.safety_stock_ln_df=}")
-            log.info(f"{model.resource.inventory_ln_df=}")
+            log.critical(f"{model.resource.inventory_ln_df=}")
 
         # run with streamlit run and then this will not return until after
         # when run as just regular python this doesn't do anything
@@ -206,6 +206,7 @@ class Compose:
         For all the choices, returns an argparser object
         """
         # TODO: Convert to using confuse to store parameters
+        # or maybe the configargparser
         # https://github.com/beetbox/confuse
         # expect a real file
         # https://docs.python.org/3/library/argparse.html
@@ -281,10 +282,7 @@ class Compose:
 
         # https://treyhunner.com/2018/12/why-you-should-be-using-pathlib/
         parser.add_argument(
-            "input",
-            nargs="?",  # one argument
-            type=Path,
-            default=Path("config").absolute(),
+            "-i", "--input", type=Path, default=Path("config").absolute(),
         )
         return parser
 

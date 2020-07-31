@@ -9,3 +9,4 @@ MAIN = main.py
 
 include ../lib/include.python.mk
 include ../lib/include.mk
+include ../lib/include.docker.mk

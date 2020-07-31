@@ -105,24 +105,13 @@ class ResourceDict(Resource):
             data.description["Resource n"]["Res Inventory Safety Stock ln"],
         )
 
-        self.average_demand_ln_arr = data.value["Resource n"][
-            "Res Inventory Average Demand ln"
+        self.inv_min_in_periods_arr = data.value["Resource n"][
+            "Res Inventory Min in Periods ln"
         ]
-        self.average_demand_ln_df = self.res_dataframe(
-            np.array(self.average_demand_ln_arr)
+        self.inv_min_in_periods_df = self.res_dataframe(
+            np.array(self.inv_min_in_periods_arr)
         )
         self.set_description(
-            f"{self.average_demand_ln_df=}",
-            data.description["Resource n"]["Res Inventory Average Demand ln"],
-        )
-
-        self.stockpile_days_ln_arr = data.value["Resource n"][
-            "Res Inventory Stockpile Days ln"
-        ]
-        self.stockpile_days_ln_df = self.res_dataframe(
-            np.array(self.stockpile_days_ln_arr)
-        )
-        self.set_description(
-            f"{self.stockpile_days_ln_df=}",
+            f"{self.inv_min_in_periods_df=}",
             data.description["Resource n"]["Res Inventory Stockpile Days ln"],
         )

@@ -1,6 +1,6 @@
-"""Consumption Model.
+"""Demand Model.
 
-Consumption modeling
+Demand modeling
 """
 import logging
 from typing import Optional
@@ -15,7 +15,7 @@ from resourcemodel import Resource
 from util import Log
 
 
-class Consumption(Base):
+class Demand(Base):
     """Calculate consumption based on Population and Resource.
 
     Take in Pop and and Res and into model.data["Pop Res Demand pn"]

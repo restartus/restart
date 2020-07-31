@@ -14,8 +14,9 @@ from typing import Dict, List, Optional, Tuple
 from activity import Activity
 from base import Base
 from behavioral import Behavioral
-from consumption import Consumption
-from consumption_wa import ConsumptionWA
+from demand import Demand
+from demand_dict import DemandDict
+from demand_wa import DemandWA
 from disease import Disease
 from economy import Economy
 from filtermodel import Filter
@@ -52,10 +53,9 @@ class Model(Base):
 
     resources: n resources being modeled
         resource Attribute: a attributes for a resource
-        inventory: s stockpile units
     population: p labels defines the populations
         population Details: d details about each population
-        protection protection: m types of resource consumption
+        protection protection: m types of resource demand
         population levels: l levels maps population down to a fewer levels
     """
 
@@ -138,7 +138,7 @@ class Model(Base):
             "a": len(self.data.label["Res Attribute a"]),
             "p": len(self.data.label["Population p"]),
             "d": len(self.data.label["Pop Detail d"]),
-            "m": len(self.data.label["Consumption m"]),
+            "m": len(self.data.label["Demand m"]),
             "l": len(self.data.label["Pop Level l"]),
             "s": len(self.data.label["Res Safety Stock s"]),
         }
@@ -186,26 +186,31 @@ class Model(Base):
             )
         return self
 
-    def set_consumption(self, type: str = None) -> Model:
-        """Set consumption.
+    def set_demand(self, type: str = None) -> Model:
+        """Set demand.
 
-        Consumption by population levels l
+        Demand by population levels l
         """
         log = self.log
 
-        self.consumption: Consumption
+        self.demand: Demand
         if type == "Mitre":
-            log.debug("Use Mitre consumption")
+            log.debug("Use Mitre demand")
             raise ValueError("{type=} not implemented")
         elif type == "Johns Hopkins":
             log.debug("Use JHU burn rate model")
             raise ValueError("{type=} not implemented")
+        elif type == "Washington":
+            self.demand = DemandWA(self.data, self.population, self.resource)
         else:
-            log.debug("For anything else use Washington data")
-            self.consumption = ConsumptionWA(
+            log.debug("default use yaml dictionary data")
+            self.demand = DemandDict(
                 self.data,
+                self.label,
                 self.population,
                 self.resource,
+                index="Pop Level m",
+                columns="Resource n",
                 log_root=self.log_root,
                 type=type,
             )

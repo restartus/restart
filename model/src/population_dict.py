@@ -60,12 +60,12 @@ class PopulationDict(Population):
         self.detail_pd_arr: np.ndarray
         self.detail_pd_df: pd.DataFrame
         self.level_pm_arr: np.ndarray
-        self.level_pm_labs: list
 
         if label is None:
             raise ValueError(f"{label=} is null")
 
-        # get population data
+        # get population data^
+        # TODO: ONly gets the size, long term need all addributes
         self.detail_pd_arr = np.array(
             data.value["Population p"]["Pop Detail Data pd"]["Size"]
         )
@@ -83,11 +83,10 @@ class PopulationDict(Population):
         self.level_pm_arr = np.array(
             data.value["Population p"]["Protection pm"]
         )
-        self.level_pm_labs = list(data.label["Population p"])
         self.level_pm_df = pd.DataFrame(
             self.level_pm_arr,
-            index=self.level_pm_labs,
-            columns=data.label["Consumption m"],
+            index=data.label["Population p"],
+            columns=data.label["Demand m"],
         )
         log.debug(f"{self.level_pm_df=}")
         self.set_description(

@@ -55,7 +55,7 @@ help: $(MAKEFILE_LIST)
 ## lint: cleans code for you
 .PHONY: lint
 lint:
-	pipenv check
+	pipenv check || echo errors found or network not available
 	# mypy finds more errors than flake and we are using namespace
 	# https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports
 	# note this has a bug if there are no yaml or python files

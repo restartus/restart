@@ -1,4 +1,4 @@
-"""Johns Hopkins Consumption.
+"""Set Johns Hopkins Demand.
 
 Johns Hopkins burn rate model
 """

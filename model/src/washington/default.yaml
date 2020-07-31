@@ -14,7 +14,7 @@ Label:
   "Pop Level l":
     - Essential
     - Non-essential
-  "Consumption m":
+  "Demand m":
     - WA0
     - WA1
     - WA2

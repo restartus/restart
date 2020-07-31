@@ -3,6 +3,9 @@
 What resources are and how they are consumed
 https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 """
+# allows return self typing to work
+from __future__ import annotations
+
 import logging
 from typing import Any, Dict, Optional, Union
 
@@ -29,10 +32,8 @@ class Resource(Base):
         Resource. Attributes of each
         Costs. Of the resource
         Inventory. The current inventory level
-        Safety stock. the minimum inventory level in days
-        Average Demand. This is used for min stockpilg
-
-    Need to be done do an economic order quantity that varies by level and item
+        Safety stock. the minimum inventory level in days since we have a surge
+        model this is simply right now the daily rate the model shows
         Economic Order Quantity. inv_eoc_ln_df
     """
 
@@ -55,54 +56,64 @@ class Resource(Base):
             log = logging.getLogger(__name__)
         self.log = log
 
+        # Filling these is the job of the child classes
         self.attr_na_df: Optional[pd.DataFrame] = None
         self.cost_ln_df: Optional[pd.DataFrame] = None
         self.inv_initial_ln_df: Optional[pd.DataFrame] = None
         self.inventory_ln_df: Optional[pd.DataFrame] = None
         self.inv_eoc_ln_df: Optional[pd.DataFrame] = None
-        self.safety_stock_ln_df: pd.DataFrame = pd.DataFrame()
         self.average_demand_ln_df: Optional[pd.DataFrame] = None
-        self.stockpile_days_ln_df: pd.DataFrame = pd.DataFrame()
+        self.inv_min_rln_df: Optional[pd.DataFrame] = None
         self.label: Optional[Dict[Any, Any]] = None
 
-    def set_stockpile_days(self, days: Union[np.ndarray, int]) -> None:
-        """Set stockpile days for all resources.
+    def set_inv_min(
+        self,
+        demand_per_period_ln_df: pd.DataFrame,
+        periods_rln: Union[np.ndarray, int],
+    ) -> Resource:
+        """Set the minimum inventory in periods_r.
 
-        A helper function which spreads the days across all populations nad all
-        columns
+        A helper function that sets the minimum inventory
+        Based on how many periods_r (days) you want stored
+        TODO: Right now it is just using the actually demand since this is
+        surge model but it should use some sort of average or statistical
+        calculation
         """
         log = self.log
         # https://numpy.org/doc/stable/reference/generated/numpy.empty_like.html
-        if type(days) is int:
-            self.stockpile_days_ln_arr: np.ndarray = days * np.ones_like(
-                self.inventory_ln_df
+        if type(periods_rln) is int:
+            log.debug(f"{periods_rln=} scalar inventory")
+            # note we need r=1 for this to work so we insert an empty dimension
+            # https://numpy.org/doc/stable/reference/generated/numpy.expand_dims.html
+            self.inv_min_in_periods_rln_arr: np.ndarray = (
+                periods_rln * np.ones_like(demand_per_period_ln_df)
+            )
+            self.inv_min_in_periods_rln_arr = np.expand_dims(
+                self.inv_min_in_periods_rln_arr, axis=0
             )
         else:
-            self.stockpile_days_ln_arr = days
+            self.inv_min_in_periods_rln_arr = periods_rln
 
-        if self.stockpile_days_ln_arr is not None:
-            self.stockpile_days_ln_df[
-                :
-            ] = self.stockpile_days_ln_arr  # type:ignore
-        log.debug(f"{self.stockpile_days_ln_df=}")
-
+        log.debug(f"{self.inv_min_in_periods_rln_arr=} ")
         # need to do a dot product
-        self.safety_stock_ln_arr = np.array(
-            self.average_demand_ln_df
-        ) * np.array(self.stockpile_days_ln_df)
+        self.inv_min_rln_arr = np.einsum(
+            "ln,rln->rln",
+            demand_per_period_ln_df.to_numpy(),
+            self.inv_min_in_periods_rln_arr,
+        )
         # https://stackoverflow.com/questions/53375161/use-numpy-array-to-replace-pandas-dataframe-values
-        self.safety_stock_ln_df[:] = self.safety_stock_ln_arr
-        log.debug(f"{self.safety_stock_ln_df=}")
-
+        log.debug(f"{self.inv_min_rln_arr=}")
         self.supply_order()
+        return self
 
-    def supply_order(self):
+    def supply_order(self) -> Resource:
         """Order from supplier.
 
         Always order up to the safety stock
         Does not calculate economic order quantity yet
         """
-        order_ln_df = self.safety_stock_ln_df - self.inventory_ln_df
+        # hack here because we only do ranges for min inventory
+        order_ln_df = self.inv_min_rln_arr[0] - self.inventory_ln_df
         # negative means we have inventory above safety levels
         # so get rid of those
         # https://www.w3resource.com/python-exercises/numpy/python-numpy-exercise-90.php
@@ -111,6 +122,7 @@ class Resource(Base):
         order_ln_df = self.round_up_to_eoc(order_ln_df)
         self.log.debug("supply order\n%s", order_ln_df)
         self.fulfill(order_ln_df)
+        return self
 
     # https://stackoverflow.com/questions/2272149/round-to-5-or-other-number-in-python
     def round_up_to_eoc(self, order_ln_df):

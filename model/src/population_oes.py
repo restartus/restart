@@ -38,6 +38,7 @@ class PopulationOES(Population):
 
         Read the paths in and create dataframes, generate mappings
         """
+        breakpoint()
         self.root_log: Optional[Log]
         # global log
         # log: logging.Logger = logging.getLogger(__name__)
@@ -78,7 +79,7 @@ class PopulationOES(Population):
         self.level_pm_df = pd.DataFrame(
             self.level_pm_arr,
             index=self.level_pm_labs,
-            columns=data.label["Consumption m"],
+            columns=data.label["Demand m"],
         )
         log.debug(f"{self.level_pm_df=}")
         self.set_description(

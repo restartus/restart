@@ -42,8 +42,8 @@ Description:
         ## Population Demand Total Cost by N Summary Levels
         For all L population summary levels, the total cost for a set of
         n resources
-  "Consumption m":
-    "Cons Resource mn": |
+  "Demand m":
+    "Demand Resource mn": |
       ## Protection by Level Demand for Resources aka Burn Rate (mn)
       The burn rates per capita for resources
       For example, 1.18 would mean you need 1.18 N95 masks per day for a

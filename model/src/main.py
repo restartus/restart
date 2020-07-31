@@ -22,8 +22,8 @@ from typing import Optional
 from activity import Activity
 from base import Base
 from behavioral import Behavioral
-from consumption import Consumption
 from dashboard import Dashboard
+from demand import Demand
 from disease import Disease
 
 # from population import Population
@@ -67,9 +67,9 @@ class Compose:
         - model itself
         - resource which creates the n resources (eg N95, test kit, etc.) with
           the columns being x attributes like the units and space R[n, x].
-        - consumption to create burn rates for each "level" of the model.
+        - demand to create burn rates for each "level" of the model.
           Instead of calculating unique burn rates per population element, we
-          bucketize with the consumption level l so it returns C[l, n]
+          bucketize with the demand level l so it returns C[l, n]
 
         TODO: Note that then when running streamlit this will be run multiple
         times and must be reentrant which is not today, the logging does not
@@ -124,7 +124,7 @@ class Compose:
             # .set_population(type=args.students)
             .set_resource(type=args.resource)
             # .set_resource(type=args.pharma)
-            .set_consumption(type=args.consumption)
+            .set_demand(type=args.demand)
             .set_economy(type=args.economy)
             .set_disease(type=args.disease)
             .set_activity(type=args.activity)
@@ -144,14 +144,14 @@ class Compose:
             if isinstance(value, Base):
                 log.debug(f"object {name} holds {value} subclass of Base")
 
-        # model.resource.set_stockpile(model.population.level_total_demand_ln_df)
+        # model.resource.set_inv_min(model.population.level_total_demand_ln_df)
         # log.debug("Safety stock\n%s", model.resource.safety_stock_ln_df)
 
         # create the resource object that is p populations and n items
         log.debug("resource attributes\n%s", model.resource.attr_na_df)
 
         # This is a population p by d dimension, eventually the second column
-        # should be a call back that calculates consumption based
+        # should be a call back that calculates demand based
         # Eventually, this will be multi dimenstional, so in addition to the
         # total but there will also be the number of COVID patients And other
         # tempo data like number of runs so eventually this is d dimensinoal
@@ -159,27 +159,27 @@ class Compose:
 
         # Now bucket population into a set of levels
         # So we have a table is p x l
-        log.debug("Population by level\n%s", model.consumption.level_pl_df)
+        log.debug("Population by level\n%s", model.demand.level_pl_df)
 
         # This is rows that are levels adn then usage of each resource  or l, n
         # When population become n x d, then there will be a usage
         # level for each do, so this become d x p x n
-        log.debug(f"{model.consumption.level_demand_ln_df=}")
+        log.debug(f"{model.demand.level_demand_ln_df=}")
 
         # p x l * l x n -> p x n
-        log.debug(f"{model.consumption.demand_pn_df=}")
+        log.debug(f"{model.demand.demand_pn_df=}")
 
         # Now it get's easier, this is the per unit value, so multiply by the
         # population and the * with values does an element wise multiplication
         # With different tempos, this will be across all d dimensions
 
-        log.debug(f"{model.consumption.total_demand_pn_df=}")
-        log.debug(f"{model.consumption.level_pl_df=}")
+        log.debug(f"{model.demand.total_demand_pn_df=}")
+        log.debug(f"{model.demand.level_pl_df=}")
 
         log.debug(f"{model.resource.cost_ln_df=}")
 
-        # model.consumption.level_total_cost(model.resource.cost_ln_df)
-        # log.debug(f"{model.consumption.level_total_cost_ln_df=}")
+        # model.demand.level_total_cost(model.resource.cost_ln_df)
+        # log.debug(f"{model.demand.level_total_cost_ln_df=}")
 
         # test iteration
         for base_key, base_value in model:
@@ -191,7 +191,10 @@ class Compose:
 
         for s in [30, 60, 90]:
             log.critical(f"changing stockpile to {s=}")
-            model.resource.set_stockpile_days(s)
+            log.critical(f"{model.demand.level_total_demand_ln_df=}")
+            model.resource.set_inv_min(
+                model.demand.level_total_demand_ln_df, s
+            )
             log.debug(f"{model.resource.safety_stock_ln_df=}")
             log.critical(f"{model.resource.inventory_ln_df=}")
 
@@ -244,7 +247,7 @@ class Compose:
 
         parser.add_argument(
             "-c",
-            "--consumption",
+            "--demand",
             choices=["wa-doh", "ensemble"],
             default="wa-doh",
             help="Select Resource model",
@@ -317,8 +320,8 @@ class Compose:
         )
         log.debug("creating Resource")
         model.resource = Resource(model.data, log_root=model.log_root)
-        log.debug("creating Consumption")
-        model.consumption = Consumption(model.data, log_root=model.log_root)
+        log.debug("creating Demand")
+        model.demand = Demand(model.data, log_root=model.log_root)
         # log.debug("creating Filter")
         # model.filter = Filter(model.data, log_root=model.log_root)
         log.debug("creating Economy")

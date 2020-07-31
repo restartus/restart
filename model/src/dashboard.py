@@ -100,12 +100,14 @@ class Dashboard:
             ],
         )
 
-        stockpile_days = st.sidebar.slider(
+        inv_min_in_periods = st.sidebar.slider(
             "Stockpile", max_value=120, value=30
         )
-        log.debug(f"{stockpile_days=}")
+        log.debug(f"{inv_min_in_periods=}")
 
-        model.resource.set_stockpile_days(stockpile_days)
+        model.resource.set_inv_min(
+            model.demand.level_total_demand_ln_df, inv_min_in_periods
+        )
 
         if self.page == "Home":
             self.home_page(model)

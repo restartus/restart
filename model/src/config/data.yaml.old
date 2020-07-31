@@ -12,8 +12,8 @@ Data:
     "Pop to Level pl":
       - [1, 0]
       - [0, 1]
-  "Consumption m":
-    "Cons Resource mn":
+  "Demand m":
+    "Demand Resource mn":
       [[0, 1], [0, 2], [0, 2], [0.1, 3], [0.2, 4], [0.3, 6], [1.18, 0]]
   "Resource n":
     "Res Attr Data na":

@@ -1,33 +1,34 @@
-"""Consumption Rates from Washington.
+"""Get Demand Rates from Dictionary.
 
 The original model based on DOH levels
 """
 import logging
-import os
-from typing import Optional, Tuple
+from typing import Dict, Optional
 
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
-from consumption import Consumption
-from load_csv import LoadCSV
+from demand import Demand
 from modeldata import ModelData
 from population import Population
 from resourcemodel import Resource
-from util import Log, datetime_to_code, load_dataframe
+from util import Log, set_dataframe
 
 
-class ConsumptionWA(Consumption):
-    """Calculate consumption using default WA estimates.
+class DemandDict(Demand):
+    """Calculate demand reading from the data dictionary.
 
-    Overrides the Consumption class
+    Overrides the Demand class
     """
 
     def __init__(
         self,
         data: ModelData,
+        label: Dict,
         pop: Population = None,
         res: Resource = None,
+        index: Optional[str] = None,
+        columns: Optional[str] = None,
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):
@@ -44,33 +45,19 @@ class ConsumptionWA(Consumption):
         self.log = log
         log.debug(f"In {__name__}")
 
-        map_df: Optional[pd.DataFrame] = None
-
-        try:
-            source = data.datapaths["Paths"]
-            source = LoadCSV(source=source).data
-            map_df = load_dataframe(
-                os.path.join(source["Root"], source["MAP"])
-            )
-        except KeyError:
-            pass
-
-        # read in the burn rates
-        (
-            self.res_demand_mn_rows,
-            self.res_demand_mn_cols,
-            self.res_demand_mn_arr,
-        ) = self.calculate_burn(map_df, data)
-
-        self.res_demand_mn_df = pd.DataFrame(
-            self.res_demand_mn_arr,
-            index=self.res_demand_mn_rows,
-            columns=self.res_demand_mn_cols,
+        self.level_to_res_mn_arr = np.array(
+            data.value["Demand m"]["Level to Resource mn"]
+        )
+        self.level_to_res_mn_df = set_dataframe(
+            self.level_to_res_mn_arr,
+            label=data.label,
+            index=index,
+            columns=columns,
         )
         log.debug(f"{self.res_demand_mn_df=}")
         self.set_description(
             f"{self.res_demand_mn_df=}",
-            data.description["Consumption m"]["Cons Resource mn"],
+            data.description["Demand m"]["Demand Resource mn"],
         )
 
         # protection level rates
@@ -79,14 +66,13 @@ class ConsumptionWA(Consumption):
         if res is None:
             raise ValueError("{res=} should not be None")
 
-        # TODO: move pop.level_pm_df to consumption
         self.demand_pn_arr = np.array(pop.level_pm_df) @ np.array(
             self.res_demand_mn_df
         )
         self.demand_pn_df = pd.DataFrame(
             self.demand_pn_arr,
-            index=pop.level_pm_labs,
-            columns=self.res_demand_mn_cols,
+            index=label["Population p"],
+            columns=label["Resource n"],
         )
         log.debug(f"{self.demand_pn_df=}")
         self.demand_pn_df.index.name = "Population p"
@@ -102,10 +88,10 @@ class ConsumptionWA(Consumption):
         if pop.detail_pd_arr is None:
             raise ValueError(f"{pop.detail_pd_df=} should not be None")
 
-        self.level_pl_arr = self.calculate_essential(map_df, data, pop)
+        self.level_pl_arr = data.value["Population p"]["Pop Level l"]
         self.level_pl_df = pd.DataFrame(
             self.level_pl_arr,
-            index=pop.level_pm_labs,
+            index=data.label["Population p"],
             columns=data.label["Pop Level l"],
         )
         log.debug(f"{self.level_pl_df=}")
@@ -125,8 +111,8 @@ class ConsumptionWA(Consumption):
         ).T
         self.total_demand_pn_df = pd.DataFrame(
             self.total_demand_pn_arr,
-            index=pop.level_pm_labs,
-            columns=self.res_demand_mn_cols,
+            index=label["Population p"],
+            columns=label["Resource n"],
         )
 
         self.total_demand_pn_df.index.name = "Population p"
@@ -163,63 +149,3 @@ class ConsumptionWA(Consumption):
         log.debug("level_total_cost_ln_df\n%s", self.level_total_cost_ln_df)
 
         return self
-
-    def calculate_essential(
-        self, df: pd.DataFrame, data: ModelData, pop: Population
-    ) -> pd.DataFrame:
-        """Get population essential levels from the excel model.
-
-        Manually slice the dataframe
-        """
-        if pop.codes is None or df is None:
-            return np.array(data.value["Population p"]["Pop to Level pl"])
-
-        # manually redo indexing and select the rows we need
-        df.columns = df.iloc[2528]
-        df = df.iloc[2529:3303]
-        df = df[["SOC", "Essential (0 lowest)"]]
-
-        if pop.codes is None:
-            return np.array(data.value["Population p"]["Pop to Level pl"])
-
-        # add the codes back in
-        pop_level = []
-        df["SOC"] = df["SOC"].apply(datetime_to_code)
-        df.reset_index(drop=True, inplace=True)
-        for code in list(pop.codes):
-            arr = np.zeros(2)
-            try:
-                ind = df[df["SOC"] == code].index[0]
-            except IndexError:
-                ind = -1
-
-            if ind > 0:
-                level = df.iloc[ind]["Essential (0 lowest)"]
-            else:
-                level = np.random.randint(0, high=6)
-
-            if level >= 5:
-                arr[0] = 1
-            else:
-                arr[1] = 1
-
-            pop_level.append(arr)
-
-        return np.array(pop_level)
-
-    def calculate_burn(
-        self, df: pd.DataFrame, data: ModelData,
-    ) -> Tuple[list, list, np.ndarray]:
-        """Pull for the covid-surge-who model for burn rates.
-
-        Does some dataframe slicing manually
-        """
-        res_list = data.label["Resource n"]
-        df.columns = df.iloc[5]
-        df = df.iloc[6:13]
-        df = df[res_list].fillna(0)
-        arr_rows = list(df["Level"])
-        df.drop(["Level"], axis=1, inplace=True)
-        arr = np.array(df)
-        arr_cols = list(df.columns)
-        return arr_rows, arr_cols, arr

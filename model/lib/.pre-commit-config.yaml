@@ -16,7 +16,7 @@ repos:
       - id: check-merge-conflict
       - id: check-yaml
         args: [--allow-multiple-documents]
-      - id: detect-aws-credentials
+      # - id: detect-aws-credentials
       - id: detect-private-key
   # https://ljvmiranda921.github.io/notebook/2018/06/21/precommits-using-black-and-flake8/
   # https://github.com/pre-commit/mirrors-mypy

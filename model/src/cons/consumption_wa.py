@@ -44,9 +44,16 @@ class ConsumptionWA(Consumption):
         self.log = log
         log.debug(f"In {__name__}")
 
-        source = data.datapaths["Paths"]
-        source = LoadCSV(source=source).data
-        map_df = load_dataframe(os.path.join(source["Root"], source["MAP"]))
+        map_df: Optional[pd.DataFrame] = None
+
+        try:
+            source = data.datapaths["Paths"]
+            source = LoadCSV(source=source).data
+            map_df = load_dataframe(
+                os.path.join(source["Root"], source["MAP"])
+            )
+        except KeyError:
+            pass
 
         # read in the burn rates
         (
@@ -164,13 +171,16 @@ class ConsumptionWA(Consumption):
 
         Manually slice the dataframe
         """
+        if pop.codes is None or df is None:
+            return np.array(data.value["Population p"]["Pop to Level pl"])
+
         # manually redo indexing and select the rows we need
         df.columns = df.iloc[2528]
         df = df.iloc[2529:3303]
         df = df[["SOC", "Essential (0 lowest)"]]
 
         if pop.codes is None:
-            raise ValueError(f"{pop.codes=} should not be None")
+            return np.array(data.value["Population p"]["Pop to Level pl"])
 
         # add the codes back in
         pop_level = []

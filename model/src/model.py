@@ -14,21 +14,21 @@ from typing import Dict, List, Optional, Tuple
 from activity import Activity
 from base import Base
 from behavioral import Behavioral
-from cons.consumption_wa import ConsumptionWA
 from consumption import Consumption
+from consumption_wa import ConsumptionWA
 from disease import Disease
 from economy import Economy
 from filtermodel import Filter
-from loader.load import Load
+from load import Load
 from modeldata import ModelData
-from pop.population_dict import PopulationDict
-from pop.population_oes import PopulationOES
 
 # import numpy as np  # type:ignore
 # import pandas as pd  # type:ignore
 # from population import Population
 from population import Population
-from res.res_dict import ResourceDict
+from population_dict import PopulationDict
+from population_oes import PopulationOES
+from res_dict import ResourceDict
 from resourcemodel import Resource
 from util import Log
 

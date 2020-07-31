@@ -8,7 +8,7 @@ from typing import Dict, List, Optional
 
 import pandas as pd  # type:ignore
 
-from loader.load import Load
+from load import Load
 from util import Log
 
 

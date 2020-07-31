@@ -9,7 +9,7 @@ from typing import Any, Dict, Iterator, List, Optional
 
 import yaml
 
-from loader.load import Load
+from load import Load
 from util import Log
 
 

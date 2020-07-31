@@ -5,7 +5,7 @@
 ---
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.1.0
+    rev: v3.2.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -32,19 +32,23 @@ repos:
     rev: 5.0.2
     hooks:
       - id: pydocstyle
+
+  # puts the isort.cfg at the root we do not want that
   # https://pypi.org/project/seed-isort-config/
-  - repo: https://github.com/asottile/seed-isort-config
-    rev: v2.2.0
-    hooks:
-      # remember this will place things at the root of the repo
-      # but running in lint locally places it in the current directory
-      - id: seed-isort-config
-  - repo: https://github.com/timothycrosley/isort
-    rev: 5.2.0
-    hooks:
-      - id: isort
-        args: [--profile=black, -w 79]
+  # - repo: https://github.com/asottile/seed-isort-config
+  #   rev: v2.2.0
+  #   hooks:
+  #     # remember this will place things at the root of the repo
+  #     # but running in lint locally places it in the current directory
+  #    - id: seed-isort-config
+  # does not respect the local arguments
+  # - repo: https://github.com/timothycrosley/isort
+  #   rev: 5.2.0
+  #   hooks:
+  #     - id: isort
+  #       args: [--profile=black, -w 79]
   # https://ljvmiranda921.github.io/notebook/2018/06/21/precommits-using-black-and-flake8/
+
   - repo: https://github.com/ambv/black
     rev: 19.10b0
     hooks:

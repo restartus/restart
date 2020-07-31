@@ -10,7 +10,7 @@ import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
 from filtermodel import Filter
-from loader.load_csv import LoadCSV
+from load_csv import LoadCSV
 from modeldata import ModelData
 from population import Population
 from util import Log, datetime_to_code, load_dataframe

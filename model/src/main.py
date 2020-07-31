@@ -30,9 +30,9 @@ from disease import Disease
 from economy import Economy
 
 # from config import Config
-from loader.load_yaml import LoadYAML
+from load_yaml import LoadYAML
 from model import Model
-from pop.population_dict import PopulationDict
+from population_dict import PopulationDict
 from resourcemodel import Resource
 
 # name collision https://docs.python.org/3/library/resource.html

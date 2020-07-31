@@ -86,6 +86,8 @@ class Compose:
         log_root = Log(name)
         # Set all the loggers the same
         log = log_root.log
+        # There is a root logger we cannot shutoff so turn off propagation
+        log.propagate = False
         # test that logging works
         log_root.test(log)
         # removin this line was the problem but it is back in util.py

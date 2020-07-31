@@ -40,7 +40,7 @@ def is_dir_or_file(name: str) -> bool:
 # so goes into the model method
 def set_dataframe(
     arr: np.ndarray,
-    label: Dict,
+    label: Optional[Dict],
     index: Optional[str] = None,
     columns: Optional[str] = None,
 ) -> pd.DataFrame:
@@ -52,8 +52,12 @@ def set_dataframe(
     # https://www.tutorialspoint.com/python/dictionary_get.htm
     df = pd.DataFrame(
         arr,
-        index=label[index] if index is not None else None,
-        columns=label[columns] if columns is not None else None,
+        index=label[index]
+        if label is not None and index is not None
+        else None,
+        columns=label[columns]
+        if label is not None and columns is not None
+        else None,
     )
     df.index.name = index
     df.columns.name = columns

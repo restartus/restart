@@ -28,7 +28,7 @@ from modeldata import ModelData
 from population import Population
 from population_dict import PopulationDict
 from population_oes import PopulationOES
-from res_dict import ResourceDict
+from resource_dict import ResourceDict
 from resourcemodel import Resource
 from util import Log
 

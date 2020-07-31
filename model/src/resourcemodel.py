@@ -4,14 +4,14 @@ What resources are and how they are consumed
 https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 """
 import logging
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
 from base import Base
 from modeldata import ModelData
-from util import Log
+from util import Log, set_dataframe
 
 
 class Resource(Base):
@@ -60,57 +60,118 @@ class Resource(Base):
         self.inv_initial_ln_df: Optional[pd.DataFrame] = None
         self.inventory_ln_df: Optional[pd.DataFrame] = None
         self.inv_eoc_ln_df: Optional[pd.DataFrame] = None
-        self.safety_stock_ln_df: Optional[pd.DataFrame] = None
+        self.safety_stock_ln_df: pd.DataFrame = pd.DataFrame()
         self.average_demand_ln_df: Optional[pd.DataFrame] = None
-        self.stockpile_days_ln_df: Optional[pd.DataFrame] = None
+        self.stockpile_days_ln_df: pd.DataFrame = pd.DataFrame()
+        self.label: Optional[Dict[Any, Any]] = None
 
     def set_stockpile_days(self, days: Union[np.ndarray, int]) -> None:
-        """Template function.
+        """Set stockpile days for all resources.
 
-        Does nothing
+        A helper function which spreads the days across all populations nad all
+        columns
         """
         log = self.log
-        log.debug("Template")
+        # https://numpy.org/doc/stable/reference/generated/numpy.empty_like.html
+        if type(days) is int:
+            self.stockpile_days_ln_arr: np.ndarray = days * np.ones_like(
+                self.inventory_ln_df
+            )
+        else:
+            self.stockpile_days_ln_arr = days
 
-    def supply_order(self) -> None:
-        """Template function.
+        if self.stockpile_days_ln_arr is not None:
+            self.stockpile_days_ln_df[
+                :
+            ] = self.stockpile_days_ln_arr  # type:ignore
+        log.debug(f"{self.stockpile_days_ln_df=}")
 
-        Does nothing
+        # need to do a dot product
+        self.safety_stock_ln_arr = np.array(
+            self.average_demand_ln_df
+        ) * np.array(self.stockpile_days_ln_df)
+        # https://stackoverflow.com/questions/53375161/use-numpy-array-to-replace-pandas-dataframe-values
+        self.safety_stock_ln_df[:] = self.safety_stock_ln_arr
+        log.debug(f"{self.safety_stock_ln_df=}")
+
+        self.supply_order()
+
+    def supply_order(self):
+        """Order from supplier.
+
+        Always order up to the safety stock
+        Does not calculate economic order quantity yet
         """
-        log = self.log
-        log.debug("Template")
+        order_ln_df = self.safety_stock_ln_df - self.inventory_ln_df
+        # negative means we have inventory above safety levels
+        # so get rid of those
+        # https://www.w3resource.com/python-exercises/numpy/python-numpy-exercise-90.php
+        order_ln_df[order_ln_df < 0] = 0
+        # now gross up the order to the economic order quantity
+        order_ln_df = self.round_up_to_eoc(order_ln_df)
+        self.log.debug("supply order\n%s", order_ln_df)
+        self.fulfill(order_ln_df)
 
-    def round_up_to_eoc(self, order_ln_df: pd.DataFrame) -> pd.DataFrame:
-        """Template function.
+    # https://stackoverflow.com/questions/2272149/round-to-5-or-other-number-in-python
+    def round_up_to_eoc(self, order_ln_df):
+        """Round order up the economic order quantity.
 
-        Does nothing
+        Roundup
         """
-        log = self.log
-        log.debug("Template")
-        return order_ln_df
+        # So take the order and then get the distance to the eoc
+        # by using modulo
+        # https://stackoverflow.com/questions/50767452/check-if-dataframe-has-a-zero-element
+        # https://numpy.org/doc/stable/reference/generated/numpy.any.html
+        # https://softwareengineering.stackexchange.com/questions/225956/python-assert-vs-if-return
+        # do not use asserts they are stripped with optimization, raise errors
+        if np.any(self.inv_eoc_ln_df < 1):
+            raise ValueError(
+                f"EOC should never be less than 1 {self.inv_eoc_ln_df=}"
+            )
 
-    def fulfill(self, order_ln_df: pd.DataFrame) -> None:
-        """Template function.
+        if np.any(order_ln_df < 0):
+            raise ValueError(
+                f"Orders should be never be negative {order_ln_df=}"
+            )
 
-        Does nothing
+        return (
+            order_ln_df
+            + (self.inv_eoc_ln_df - order_ln_df) % self.inv_eoc_ln_df
+        )
+
+    def fulfill(self, order_ln_df):
+        """Fulfill an order form supplier.
+
+        This is a stub in that all orders are immediatley fulfilled
         """
-        log = self.log
-        log.debug("Template")
+        self.log.debug("fulfilled immediately\n%s", order_ln_df)
+        self.inventory_ln_df += order_ln_df
+        self.log.debug("inventory\n%s", self.inventory_ln_df)
 
-    def demand(self, demand_ln_df: pd.DataFrame) -> pd.DataFrame:
-        """Template function.
+    def demand(self, demand_ln_df):
+        """Demand for resources.
 
-        Does nothing
+        Take the demand and then return what you can
+        In this simple model which you can override
+
+        It will check what is in inventory and then call the delivery_fn method
+
+        returns: whats available to ship
         """
-        log = self.log
-        log.debug("Template")
-        return demand_ln_df
+        # Return as much as we can
+        deliver_ln_df = min(demand_ln_df, self.inventory_ln_df)
+        self.inventory_ln_df -= deliver_ln_df
+
+        # now restock
+        self.supply_order()
+        return deliver_ln_df
 
     def res_dataframe(self, arr: np.ndarray) -> pd.DataFrame:
-        """Template function.
+        """Resource Model.
 
-        Does nothing
+        Dataframe setting
         """
-        log = self.log
-        log.debug("Template")
-        return pd.DataFrame(arr)
+        df = set_dataframe(
+            arr, self.label, index="Pop Level l", columns="Resource n"
+        )
+        return df

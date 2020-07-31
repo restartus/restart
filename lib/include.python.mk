@@ -47,6 +47,7 @@ DOC ?= doc
 main:
 	pipenv run python $(MAIN) $(FLAGS)
 
+## main-ca: run the california model
 .PHONY: main-ca
 main-ca:
 	pipenv run python $(MAIN) $(CA_FLAGS)
@@ -55,7 +56,12 @@ main-ca:
 ## pdb: run locally with python to test components from main (uses pipenv)
 .PHONY: pdb
 pdb:
-	pipenv run python -m pdb $(MAIN)
+	pipenv run python -m pdb $(MAIN) $(FLAGS)
+
+## pdb-ca: run debugging on california model
+.PHONY: pdb-ca
+pdb-ca:
+	pipenv run python -m pdb $(MAIN) $(CA-FLAGS)
 
 ## debug: run with debugging outputs on
 .PHONY: debug

@@ -54,9 +54,9 @@ class DemandDict(Demand):
             index=index,
             columns=columns,
         )
-        log.debug(f"{self.res_demand_mn_df=}")
+        log.debug(f"{self.level_to_res_mn_df=}")
         self.set_description(
-            f"{self.res_demand_mn_df=}",
+            f"{self.level_to_res_mn_df=}",
             data.description["Demand m"]["Demand Resource mn"],
         )
 
@@ -67,7 +67,7 @@ class DemandDict(Demand):
             raise ValueError("{res=} should not be None")
 
         self.demand_pn_arr = np.array(pop.level_pm_df) @ np.array(
-            self.res_demand_mn_df
+            self.level_to_res_mn_df
         )
         self.demand_pn_df = pd.DataFrame(
             self.demand_pn_arr,
@@ -88,7 +88,7 @@ class DemandDict(Demand):
         if pop.detail_pd_arr is None:
             raise ValueError(f"{pop.detail_pd_df=} should not be None")
 
-        self.level_pl_arr = data.value["Population p"]["Pop Level l"]
+        self.level_pl_arr = data.value["Population p"]["Pop to Level pl"]
         self.level_pl_df = pd.DataFrame(
             self.level_pl_arr,
             index=data.label["Population p"],

@@ -65,18 +65,15 @@ Description:
         ## Economic Order Quantity
         For each summarized population level l, this gives for every resource n
         the economic order quantity for reordering.
-    "Res Inventory Safety Stock ln": |
-        ## Safety Stock
-        For each summarized population level l, this gives for every resource n
-        the economic order quantity for reordering.
-    "Res Inventory Stockpile Days ln": |
+    "Res Inventory Min ln": |
+        ## Inventory minimum
+        For each summarized population level l, this is the minimum inventory
+        also known as the safety stock
+    "Res Inventory Min in Periods ln": |
         ## Days of Stockpile
         For each summaried population level l, this gives the number of periods
-        which are typically days that you have to hold
-    "Res Inventory Average Demand ln": |
-        ## Average Inventory Demand
-        For each summarized population level l, what is the total demand from
-        that level for each resource n
+        which are typically days that you have to hold. This is multiplied by
+        demand so Inventory Min should be Demand * Days.
     "Res Inventory ln": |
         ## Current Resource Inventory ln
         The current inventory held ready for deliver to Population levels l

@@ -209,7 +209,7 @@ class Model(Base):
                 self.label,
                 self.population,
                 self.resource,
-                index="Pop Level m",
+                index="Demand m",
                 columns="Resource n",
                 log_root=self.log_root,
                 type=type,

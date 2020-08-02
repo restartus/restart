@@ -94,15 +94,12 @@ class ResourceDict(Resource):
         )
         log.debug(f"{self.description['inv_eoc_ln_df']}")
 
-        safety_stock_ln_arr = data.value["Resource n"][
-            "Res Inventory Safety Stock ln"
-        ]
-        self.safety_stock_ln_df = self.res_dataframe(
-            np.array(safety_stock_ln_arr)
-        )
+        # TODO: inv_min_rln should use to be written own own DataFrame
+        self.inv_min_rln_arr = data.value["Resource n"]["Res Inventory Min ln"]
+        self.inv_min_ln_df = self.res_dataframe(np.array(self.inv_min_rln_arr))
         self.set_description(
-            f"{self.safety_stock_ln_df=}",
-            data.description["Resource n"]["Res Inventory Safety Stock ln"],
+            f"{self.inv_min_rln_arr=}",
+            data.description["Resource n"]["Res Inventory Min ln"],
         )
 
         self.inv_min_in_periods_arr = data.value["Resource n"][
@@ -113,5 +110,5 @@ class ResourceDict(Resource):
         )
         self.set_description(
             f"{self.inv_min_in_periods_df=}",
-            data.description["Resource n"]["Res Inventory Stockpile Days ln"],
+            data.description["Resource n"]["Res Inventory Min in Periods ln"],
         )

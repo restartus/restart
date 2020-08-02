@@ -195,7 +195,7 @@ class Compose:
             model.resource.set_inv_min(
                 model.demand.level_total_demand_ln_df, s
             )
-            log.debug(f"{model.resource.safety_stock_ln_df=}")
+            log.debug(f"{model.resource.inv_min_ln_df=}")
             log.critical(f"{model.resource.inventory_ln_df=}")
 
         # run with streamlit run and then this will not return until after

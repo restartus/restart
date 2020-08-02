@@ -63,8 +63,8 @@ class Demand(Base):
         self.log = log
         log.debug(f"In {__name__}")
 
-        self.res_demand_mn_arr: Optional[np.ndarray] = None
-        self.res_demand_mn_df: Optional[pd.DataFrame] = None
+        self.level_to_res_mn_arr: Optional[np.ndarray] = None
+        self.level_to_res_mn_df: Optional[pd.DataFrame] = None
         self.level_pm_arr: Optional[np.ndarray] = None
         self.level_pm_df: Optional[pd.DataFrame] = None
         self.demand_pn_df: Optional[pd.DataFrame] = None

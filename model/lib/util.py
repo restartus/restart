@@ -52,10 +52,10 @@ def set_dataframe(
     # https://www.tutorialspoint.com/python/dictionary_get.htm
     df = pd.DataFrame(
         arr,
-        index=label[index]
+        index=label[index].get()
         if label is not None and index is not None
         else None,
-        columns=label[columns]
+        columns=label[columns].get()
         if label is not None and columns is not None
         else None,
     )

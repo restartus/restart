@@ -84,10 +84,11 @@ class PopulationDict(Population):
         self.level_pm_arr = np.array(
             config["Data"]["Population p"]["Protection pm"].get()
         )
-        self.level_pm_df = pd.DataFrame(
+        self.level_pm_df = set_dataframe(
             self.level_pm_arr,
-            index=config["Label"]["Population p"].get(),
-            columns=config["Label"]["Demand m"].get(),
+            label=config["Label"],
+            index="Population p",
+            columns="Demand m",
         )
         log.debug(f"{self.level_pm_df=}")
         self.set_description(

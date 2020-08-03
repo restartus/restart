@@ -7,7 +7,6 @@ from typing import Optional
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
-import pandas as pd  # type: ignore
 
 from demand import Demand
 from population import Population
@@ -68,14 +67,13 @@ class DemandDict(Demand):
         self.demand_pn_arr = np.array(pop.level_pm_df) @ np.array(
             self.level_to_res_mn_df
         )
-        self.demand_pn_df = pd.DataFrame(
+        self.demand_pn_df = set_dataframe(
             self.demand_pn_arr,
-            index=config["Label"]["Population p"].get(),
-            columns=config["Label"]["Resource n"].get(),
+            label=config["Label"],
+            index="Population p",
+            columns="Resource n",
         )
         log.debug(f"{self.demand_pn_df=}")
-        self.demand_pn_df.index.name = "Population p"
-        self.demand_pn_df.columns.name = "Resource n"
         self.set_description(
             f"{self.demand_pn_df=}",
             config["Description"]["Population p"][
@@ -89,15 +87,19 @@ class DemandDict(Demand):
         if pop.detail_pd_arr is None:
             raise ValueError(f"{pop.detail_pd_df=} should not be None")
 
-        self.level_pl_arr = config["Data"]["Population p"][
-            "Pop to Level pl"
-        ].get()
-        self.level_pl_df = pd.DataFrame(
+        # self.level_pl_arr = data.value["Population p"]["Pop to Level pl"]
+        self.level_pl_arr = config.data["Population p"]["Pop to Level pl"].get()
+        self.level_pl_df = set_dataframe(
             self.level_pl_arr,
-            index=config["Label"]["Population p"].get(),
-            columns=config["Label"]["Pop Level l"].get(),
+            label=config["Label"],
+            index="Population p",
+            columns="Pop Level l",
         )
         log.debug(f"{self.level_pl_df=}")
+        self.set_description(
+            f"{self.level_pl_df=}",
+            config.data["Population p"]["Pop to Level pl"].get(),
+        )
 
         self.level_demand_ln_df = np.array(self.level_pl_df).T @ np.array(
             self.demand_pn_df
@@ -112,13 +114,12 @@ class DemandDict(Demand):
         self.total_demand_pn_arr = (
             np.array(self.demand_pn_df).T * np.array(pop.detail_pd_df["Size"])
         ).T
-        self.total_demand_pn_df = pd.DataFrame(
+        self.total_demand_pn_df = set_dataframe(
             self.total_demand_pn_arr,
-            index=config["Label"]["Population p"].get(),
-            columns=config["Label"]["Resource n"].get(),
+            label=config["Label"],
+            index="Population p",
+            columns="Resource n",
         )
-
-        self.total_demand_pn_df.index.name = "Population p"
         log.debug(f"{self.total_demand_pn_df=}")
         self.set_description(
             f"{self.total_demand_pn_df=}",

@@ -23,10 +23,12 @@ seed-isort-config = "*"
 [packages]
 streamlit = "*"
 altair = "*"
-pandas = "*"
+# https://stackoverflow.com/questions/63198480/keyerror-selector-while-deploying-streamlit-python-app-on-heroku/63198786#63198786
+# Streamlit bug on selector
 pyyaml = "*"
 xlrd = "*"
 tables = "*"
+pandas = "<1.1"
 
 [requires]
 python_version = "3.8"

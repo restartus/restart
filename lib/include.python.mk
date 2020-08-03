@@ -32,7 +32,8 @@ CA_FLAGS ?=
 all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 flags ?= -p 8501:8501
-PIP ?= streamlit altair pandas pyyaml xlrd tables
+# https://stackoverflow.com/questions/63198480/keyerror-selector-while-deploying-streamlit-python-app-on-heroku/63198786#63198786
+PIP ?= streamlit altair "pandas<1.1" pyyaml xlrd tables
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 PIP_DEV ?=

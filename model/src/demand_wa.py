@@ -84,6 +84,7 @@ class DemandWA(Demand):
             index=pop.level_pm_labs,
             columns=config["Label"]["Resource n"].get(),
         )
+
         log.debug(f"{self.demand_pn_df=}")
         self.demand_pn_df.index.name = "Population p"
         self.demand_pn_df.columns.name = "Resource n"

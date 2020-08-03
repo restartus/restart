@@ -201,6 +201,7 @@ class PopulationOES(Population):
             The dataframe sliced to give the mappings
         """
         # manually redo indexing and select the rows we need
+        # TODO: un-hardcode
         df.columns = df.iloc[2528]
         df = df.iloc[2529:3303]
         df = df[

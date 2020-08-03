@@ -96,9 +96,11 @@ class ResourceDict(Resource):
 
         # TODO: inv_min_rln should use to be written own own DataFrame
         self.inv_min_rln_arr = data.value["Resource n"]["Res Inventory Min ln"]
-        self.inv_min_ln_df = self.res_dataframe(np.array(self.inv_min_rln_arr))
+        self.inv_min_rln_df = self.res_dataframe(
+            np.array(self.inv_min_rln_arr)
+        )
         self.set_description(
-            f"{self.inv_min_rln_arr=}",
+            f"{self.inv_min_rln_df=}",
             data.description["Resource n"]["Res Inventory Min ln"],
         )
 

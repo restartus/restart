@@ -77,10 +77,11 @@ web:
 
 ## web-pdb: single step debug
 web-pdb:
-	pipenv run pdb $(WEB) $(FLAGS)
+	pipenv run python -m pdb $(WEB) $(FLAGS)
+
 ## web-debug: run web interface in debugger
 web-debug:
-	pipenv run python -m pdb $(WEB) $(FLAGS)
+	pipenv run python -d $(WEB) $(FLAGS)
 
 .PHONY:
 web-ca:

@@ -141,14 +141,17 @@ class Dashboard:
             self.visualize_data(self.data_df, x=x_axis, y=y_axis)
             self.visualize_data(self.data_df, x=x_multi, y=y_multi)
             # Not that write uses Markdown
+            self.test_graph()
 
     def home_page(self, model):
-        """Home page.
-
+        """Home page."""
+        st.markdown(
+            """
         # COVID-19 Decision Dashboard
         ## Restart.us
         Use caution when interpreting these numbers
         """
+        )
 
     # uses the literal magic in Streamlit 0.62
     # note that just putting an expression automatically wraps an st.write
@@ -157,7 +160,8 @@ class Dashboard:
 
         The full graphical display of all tables use for debugging mainly
         """
-        """
+        st.write(
+            """
         # COVID-19 Decision Tool
         ## Restart.us
         The main data table in the model for your viewing please.
@@ -169,30 +173,55 @@ class Dashboard:
         variable letters so you can keep it all straight in detailed data
         analysis.
 
-        ###Resource safety Stock ln.
+        ## Resource safety Stock ln.
 
-        The supply of resource needs
+        The supply of resource needs in model.resource.inv_min_rln_df
         """
-        model.resource.safety_stock_ln_df
+        )
+        st.write(model.resource.inv_min_rln_df)
 
-        """
-        # Resource Attributes  na
+        st.write(
+            """
+        ## Resource Attributes na
         Resources main attribute is their count, but will later have volume and
         footprint
-        """
 
-        model.resource.attr_na_df
-        model.description["Population p"]["Pop Detail pd"]
-        model.population.detail_pd_df
+        In model.resource.attr_na_df
+        """
+        )
+
+        st.write(model.resource.attr_na_df)
+
+        st.write(
+            """
+        # The Descriptions
+
+        in model.data.description
+        """
+        )
+        st.write(model.data.description["Population p"]["Pop Detail pd"])
+        # st.write(f"{model.data.description=}")
+
+        st.write(
+            """
+        ## The population details
+
+        In model.population.detail_pd_df
 
         """
+        )
+        st.write(model.population.detail_pd_df)
+
+        st.write(
+            """
         # Population summarized by protection levels pl
         Population main attribute is their count, but will later have things
         like how often they are out doing work and will keep track of things
         like social mobility and columns will have characteristics like age,
         ethnicity, gender as a crosstab.t
         """
-        model.population.level_pl_df
+        )
+        st.write(model.demand.level_pl_df)
 
     def tables(self, model):
         """Table Exploration.
@@ -266,6 +295,7 @@ class Dashboard:
             return
         # st.header(name)
         log.debug(f"No description found for {name=}")
+        st.write(f"No description found for {name=}")
 
     def test_home(self, data_df):
         """Test drawing.
@@ -355,7 +385,7 @@ class Dashboard:
         # st.write(f"{df.index.name=} {df.columns.name=}")
         # st.write(f"{df.index}")
         # st.write(f"{df.columns}")
-        st.dataframe(df)
+        # st.dataframe(df)
         # breakpoint()
         df.index.name = "Label" if None else df.index.name
         # first rest the index to get it to be a column
@@ -371,7 +401,6 @@ class Dashboard:
         # http://scrapingauthority.com/pandas-dataframe-filtering/
         # https://realnitinworks.netlify.app/check-object-iterability.html?utm_campaign=News&utm_medium=Community&utm_source=DataCamp.com
 
-        # TODO: a bug is here
         # df_filter_x = df_melt[df_melt[df.index.name].isin(x)]
         # st.dataframe(df_filter_x)
 
@@ -400,6 +429,8 @@ class Dashboard:
         )
         st.write(graph)
 
+    def test_graph(self):
+        """Test graphing."""
         test = pd.DataFrame(
             {"Level l": ["healthcare", "non-healthcare"], "Unit": [22, 123]}
         )

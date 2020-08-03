@@ -76,7 +76,6 @@ class DemandWA(Demand):
         if res is None:
             raise ValueError("{res=} should not be None")
 
-        # TODO: move pop.level_pm_df to demand
         self.demand_pn_arr = np.array(pop.level_pm_df) @ np.array(
             self.res_demand_mn_df
         )

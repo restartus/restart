@@ -17,6 +17,8 @@ import argparse
 # https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
 import logging  # noqa:F401
 
+import confuse  # type: ignore
+
 from base import Base
 from dashboard import Dashboard
 from model import Model
@@ -95,11 +97,16 @@ class Compose:
         args = parser.parse_args()
         log.debug(f"{args=}")
 
+        # move config init here so that it can access args
+        # now set_configure is just used to change the base default
+        self.config = confuse.Configuration("config")
+        self.config.set_args(args)
+
         # refactor with method chaining but this does require a single class
         # and a set of decorators
         self.model = model = (
             Model(name, log_root=log_root)
-            .set_configure()
+            .set_configure(self.config)
             .set_filter(
                 county=args.county, state=args.state, population=args.subpop
             )

@@ -407,7 +407,6 @@ class PopulationOES(Population):
             det_total = np.sum(filt["tot_emp"])
             delta = total - det_total
 
-            # TODO: verify that the oes data indeed does not add up
             if delta > 0:
                 # create dataframe row and append to detailed dataframe
                 name = list(major[major["occ_code"] == code]["occ_title"])[0]

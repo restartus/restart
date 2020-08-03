@@ -11,8 +11,6 @@ from __future__ import annotations
 import logging  # noqa: F401
 from typing import Dict, List, Optional, Tuple
 
-import confuse  # type: ignore
-
 from activity import Activity
 from base import Base
 from behavioral import Behavioral
@@ -90,14 +88,13 @@ class Model(Base):
         log.debug(f"{self.name=}")
         self.data: ModelData = ModelData({}, {}, {}, {})
 
-    def set_configure(self) -> Model:
+    def set_configure(self, config) -> Model:
         """Configure the Model.
 
         Uses Loaded as a dictionary and puts it into model variables
         """
         log = self.log
-        self.config = confuse.Configuration("config")
-        log.debug(f"{self.config=}")
+        self.config = config
 
         # These are just as convenience functions for dimensions
         # and for type checking this is ugly should make it

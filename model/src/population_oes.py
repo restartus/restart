@@ -6,12 +6,12 @@ import math
 import os
 from typing import Dict, Optional, Tuple
 
+import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
 from filtermodel import Filter
 from load_csv import LoadCSV
-from modeldata import ModelData
 from population import Population
 from util import Log, datetime_to_code, load_dataframe
 
@@ -32,13 +32,15 @@ class PopulationOES(Population):
     """
 
     def __init__(
-        self, data: ModelData, filt: Filter, log_root: Optional[Log] = None,
+        self,
+        config: confuse.Configuration,
+        filt: Filter,
+        log_root: Optional[Log] = None,
     ):
         """Initialize.
 
         Read the paths in and create dataframes, generate mappings
         """
-        breakpoint()
         self.root_log: Optional[Log]
         # global log
         # log: logging.Logger = logging.getLogger(__name__)
@@ -47,7 +49,7 @@ class PopulationOES(Population):
             self.log_root = log_root
             log = self.log = log_root.log_class(self)
             log.debug(f"{self.log=} {log=}")
-            super().__init__(log_root=log_root)
+            super().__init__(config, log_root=log_root)
 
         log.debug(f"module {__name__=}")
 
@@ -64,12 +66,12 @@ class PopulationOES(Population):
         self.codes: list
 
         # get population data
-        df_dict = self.load_data(data, self.location)
+        df_dict = self.load_data(config, self.location)
         self.detail_pd_df = df_dict["detail_pd_df"]
         self.detail_pd_arr = df_dict["detail_pd_arr"]
         self.set_description(
             f"{self.detail_pd_df=}",
-            data.description["Population p"]["Pop Detail pd"],
+            config["Description"]["Population p"]["Pop Detail pd"].get(),
         )
         log.debug(f"{self.description['detail_pd_df']=}")
 
@@ -79,23 +81,23 @@ class PopulationOES(Population):
         self.level_pm_df = pd.DataFrame(
             self.level_pm_arr,
             index=self.level_pm_labs,
-            columns=data.label["Demand m"],
+            columns=config["Label"]["Demand m"].get(),
         )
         log.debug(f"{self.level_pm_df=}")
         self.set_description(
             f"{self.level_pm_df=}",
-            data.description["Population p"]["Protection pm"],
+            config["Description"]["Population p"]["Protection pm"].get(),
         )
         log.debug(f"{self.description['level_pm_df']=}")
 
-    def load_data(self, data, location):
+    def load_data(self, config, location):
         """Do most of the initializing here.
 
         That way the stuff we don't want passed is hidden.
         """
         # extract the dataframes we need from the input files
-        if data is not None:
-            source = data.datapaths["Paths"]
+        if config is not None:
+            source = config["Paths"].get()
             source = LoadCSV(source=source).data
             oes_df = load_dataframe(
                 os.path.join(source["Root"], source["OES"])

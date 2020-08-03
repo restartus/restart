@@ -11,6 +11,8 @@ from __future__ import annotations
 import logging  # noqa: F401
 from typing import Dict, List, Optional, Tuple
 
+import confuse  # type: ignore
+
 from activity import Activity
 from base import Base
 from behavioral import Behavioral
@@ -20,7 +22,6 @@ from demand_wa import DemandWA
 from disease import Disease
 from economy import Economy
 from filtermodel import Filter
-from load import Load
 from modeldata import ModelData
 
 # import numpy as np  # type:ignore
@@ -89,58 +90,27 @@ class Model(Base):
         log.debug(f"{self.name=}")
         self.data: ModelData = ModelData({}, {}, {}, {})
 
-    def set_configure(self, loaded: Load) -> Model:
+    def set_configure(self) -> Model:
         """Configure the Model.
 
         Uses Loaded as a dictionary and puts it into model variables
         """
         log = self.log
-        log.debug(f"{loaded.data=}")
-
-        # https://realpython.com/python-keyerror/
-        cfg: Optional[Dict] = loaded.data.get("Config")
-        if cfg is None:
-            log.warning(f"no config in {loaded.data=}")
-        self.config = cfg
+        self.config = confuse.Configuration("config")
         log.debug(f"{self.config=}")
-
-        description: Optional[Dict] = loaded.data.get("Description")
-        if description is None:
-            raise ValueError(f"no description in {loaded.data=}")
-        self.data.description = description
-        log.debug(f"{self.description=}")
-
-        data: Optional[Dict] = loaded.data.get("Data")
-        if data is None:
-            raise ValueError(f"no data in {loaded.data=}")
-        self.data.value = data
-        log.debug(f"{self.data=}")
-
-        label: Optional[Dict] = loaded.data.get("Label")
-        if label is None:
-            raise ValueError(f"No label in {loaded.data=}")
-        self.data.label = label
-        log.debug(f"{self.data.label=}")
-        self.label = label
-        log.debug(f"{self.label=}")
-
-        datapaths: Optional[Dict] = loaded.data.get("Filepaths")
-        if datapaths is not None:
-            self.data.datapaths = datapaths
-        log.debug(f"{self.data.datapaths=}")
 
         # These are just as convenience functions for dimensions
         # and for type checking this is ugly should make it
         # for look for assign because we are just mapping label
         # TODO: with the new labeling, this is easy to make a loop
         self.dim: Dict[str, int] = {
-            "n": len(self.data.label["Resource n"]),
-            "a": len(self.data.label["Res Attribute a"]),
-            "p": len(self.data.label["Population p"]),
-            "d": len(self.data.label["Pop Detail d"]),
-            "m": len(self.data.label["Demand m"]),
-            "l": len(self.data.label["Pop Level l"]),
-            "s": len(self.data.label["Res Safety Stock s"]),
+            "n": len(self.config["Label"]["Resource n"].get()),
+            "a": len(self.config["Label"]["Res Attribute a"].get()),
+            "p": len(self.config["Label"]["Population p"].get()),
+            "d": len(self.config["Label"]["Pop Detail d"].get()),
+            "m": len(self.config["Label"]["Demand m"].get()),
+            "l": len(self.config["Label"]["Pop Level l"].get()),
+            "s": len(self.config["Label"]["Res Safety Stock s"].get()),
         }
         log.debug(f"{self.dim=}")
         return self
@@ -160,13 +130,12 @@ class Model(Base):
         self.population: Population
         if type == "oes":
             self.population = PopulationOES(
-                self.data, self.filter, log_root=self.log_root,
+                self.config, self.filter, log_root=self.log_root,
             )
         elif type == "dict":
             # change this to the the naming of columns
             self.population = PopulationDict(
-                self.data,
-                label=self.data.label,
+                self.config,
                 log_root=self.log_root,
                 index="Population p",
                 columns="Pop Detail d",
@@ -182,7 +151,7 @@ class Model(Base):
         """
         if type == "dict":
             self.resource: Resource = ResourceDict(
-                self.data, log_root=self.log_root
+                self.config, log_root=self.log_root
             )
         return self
 
@@ -194,19 +163,25 @@ class Model(Base):
         log = self.log
 
         self.demand: Demand
-        if type == "Mitre":
+        if type == "mitre":
             log.debug("Use Mitre demand")
             raise ValueError("{type=} not implemented")
-        elif type == "Johns Hopkins":
+        elif type == "jhu":
             log.debug("Use JHU burn rate model")
             raise ValueError("{type=} not implemented")
-        elif type == "Washington":
-            self.demand = DemandWA(self.data, self.population, self.resource)
+        elif type == "washington":
+            self.demand = DemandWA(
+                self.config,
+                self.population,
+                self.resource,
+                log_root=self.log_root,
+                type=type,
+            )
+
         else:
-            log.debug("default use yaml dictionary data")
+            log.debug("Use default yaml dictionary data")
             self.demand = DemandDict(
-                self.data,
-                self.label,
+                self.config,
                 self.population,
                 self.resource,
                 index="Demand m",

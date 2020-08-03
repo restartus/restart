@@ -3,13 +3,13 @@
 The original model based on DOH levels
 """
 import logging
-from typing import Dict, Optional
+from typing import Optional
 
+import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
 from demand import Demand
-from modeldata import ModelData
 from population import Population
 from resourcemodel import Resource
 from util import Log, set_dataframe
@@ -23,8 +23,7 @@ class DemandDict(Demand):
 
     def __init__(
         self,
-        data: ModelData,
-        label: Dict,
+        config: confuse.Configuration,
         pop: Population = None,
         res: Resource = None,
         index: Optional[str] = None,
@@ -36,7 +35,7 @@ class DemandDict(Demand):
 
         Do some matrix math
         """
-        super().__init__(data, log_root=log_root)
+        super().__init__(config, log_root=log_root)
         self.log_root = log_root
         if log_root is not None:
             log = log_root.log_class(self)
@@ -46,18 +45,18 @@ class DemandDict(Demand):
         log.debug(f"In {__name__}")
 
         self.level_to_res_mn_arr = np.array(
-            data.value["Demand m"]["Level to Resource mn"]
+            config["Data"]["Demand m"]["Level to Resource mn"].get()
         )
         self.level_to_res_mn_df = set_dataframe(
             self.level_to_res_mn_arr,
-            label=data.label,
+            label=config["Label"].get(),
             index=index,
             columns=columns,
         )
         log.debug(f"{self.level_to_res_mn_df=}")
         self.set_description(
             f"{self.level_to_res_mn_df=}",
-            data.description["Demand m"]["Demand Resource mn"],
+            config["Description"]["Demand m"]["Demand Resource mn"].get(),
         )
 
         # protection level rates
@@ -71,15 +70,17 @@ class DemandDict(Demand):
         )
         self.demand_pn_df = pd.DataFrame(
             self.demand_pn_arr,
-            index=label["Population p"],
-            columns=label["Resource n"],
+            index=config["Label"]["Population p"].get(),
+            columns=config["Label"]["Resource n"].get(),
         )
         log.debug(f"{self.demand_pn_df=}")
         self.demand_pn_df.index.name = "Population p"
         self.demand_pn_df.columns.name = "Resource n"
         self.set_description(
             f"{self.demand_pn_df=}",
-            data.description["Population p"]["Population Demand pn"],
+            config["Description"]["Population p"][
+                "Population Demand pn"
+            ].get(),
         )
 
         if pop.detail_pd_df is None:
@@ -88,11 +89,13 @@ class DemandDict(Demand):
         if pop.detail_pd_arr is None:
             raise ValueError(f"{pop.detail_pd_df=} should not be None")
 
-        self.level_pl_arr = data.value["Population p"]["Pop to Level pl"]
+        self.level_pl_arr = config["Data"]["Population p"][
+            "Pop to Level pl"
+        ].get()
         self.level_pl_df = pd.DataFrame(
             self.level_pl_arr,
-            index=data.label["Population p"],
-            columns=data.label["Pop Level l"],
+            index=config["Label"]["Population p"].get(),
+            columns=config["Label"]["Pop Level l"].get(),
         )
         log.debug(f"{self.level_pl_df=}")
 
@@ -103,7 +106,7 @@ class DemandDict(Demand):
         log.debug(f"{self.level_demand_ln_df=}")
         self.set_description(
             f"{self.level_demand_ln_df=}",
-            data.description["Population p"]["Level Demand ln"],
+            config["Description"]["Population p"]["Level Demand ln"].get(),
         )
 
         self.total_demand_pn_arr = (
@@ -111,15 +114,17 @@ class DemandDict(Demand):
         ).T
         self.total_demand_pn_df = pd.DataFrame(
             self.total_demand_pn_arr,
-            index=label["Population p"],
-            columns=label["Resource n"],
+            index=config["Label"]["Population p"].get(),
+            columns=config["Label"]["Resource n"].get(),
         )
 
         self.total_demand_pn_df.index.name = "Population p"
         log.debug(f"{self.total_demand_pn_df=}")
         self.set_description(
             f"{self.total_demand_pn_df=}",
-            data.description["Population p"]["Population Total Demand pn"],
+            config["Description"]["Population p"][
+                "Population Total Demand pn"
+            ].get(),
         )
 
         self.level_total_demand_ln_df = (
@@ -128,13 +133,15 @@ class DemandDict(Demand):
         log.debug(f"{self.level_total_demand_ln_df=}")
         self.set_description(
             f"{self.level_total_demand_ln_df=}",
-            data.description["Population p"]["Level Total Demand ln"],
+            config["Description"]["Population p"][
+                "Level Total Demand ln"
+            ].get(),
         )
 
         self.level_total_cost_ln_df = None
         self.set_description(
             f"{self.level_total_cost_ln_df=}",
-            data.description["Population p"]["Level Total Cost ln"],
+            config["Description"]["Population p"]["Level Total Cost ln"].get(),
         )
 
     def level_total_cost(self, cost_ln_df):

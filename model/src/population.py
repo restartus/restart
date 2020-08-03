@@ -8,10 +8,10 @@ detail_pd_arr and then a calc() which calculates the rest of the related data
 """
 
 import logging  # noqa: F401
-
-# Insert the classes of data we support here
 from typing import Dict, Optional
 
+# Insert the classes of data we support here
+import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type:ignore
 
@@ -85,7 +85,7 @@ class Population(Base):
     #        level_pm_df: Optional[pd.DataFrame] = None,
     #        res_demand_mn_df: Optional[pd.DataFrame] = None,
     #        level_pl_df: Optional[pd.DataFrame] = None,
-    def __init__(self, log_root: Log = None, config: Dict = None):
+    def __init__(self, config: confuse.Configuration, log_root: Log = None):
         """Initialize all variables.
 
         All initialization here and uses type to determine which method to call

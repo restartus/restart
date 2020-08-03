@@ -12,6 +12,7 @@ from base import Base
 from util import Log
 
 
+# TODO: now we can just add this to config with confuse
 class Filter(Base):
     """Governs how we act.
 

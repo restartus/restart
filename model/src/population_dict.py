@@ -8,12 +8,12 @@ import logging
 # https://www.python.org/dev/peps/pep-0420/
 # in this new version we cannot depend on Model to be preformed
 # from model import Model
-from typing import Dict, Optional
+from typing import Optional
 
+import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
 
-from modeldata import ModelData
 from population import Population
 from util import Log, set_dataframe
 
@@ -26,8 +26,7 @@ class PopulationDict(Population):
 
     def __init__(
         self,
-        data: ModelData,
-        label: Dict,
+        config: confuse.Configuration,
         # TODO: unify indexing across classes
         index: Optional[str] = None,
         columns: Optional[str] = None,
@@ -40,13 +39,12 @@ class PopulationDict(Population):
         you override it
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
-        super().__init__(log_root=log_root)
+        super().__init__(config, log_root=log_root)
 
         # create a sublogger if a root exists in the model
         if log_root is not None:
             self.log_root: Log = log_root
             log = log_root.log_class(self)
-            # breakpoint()
             log.debug(f"{log_root=}, {log_root.con=}")
             self.log_root.con.setLevel(logging.DEBUG)
             log.debug(f"in {__name__=}")
@@ -61,36 +59,39 @@ class PopulationDict(Population):
         self.detail_pd_df: pd.DataFrame
         self.level_pm_arr: np.ndarray
 
-        if label is None:
-            raise ValueError(f"{label=} is null")
+        if config is None:
+            raise ValueError(f"{config=} is null")
 
-        # get population data^
-        # TODO: ONly gets the size, long term need all addributes
+        # get population data
+        # TODO: Only gets the size, long term need all addributes
         self.detail_pd_arr = np.array(
-            data.value["Population p"]["Pop Detail Data pd"]["Size"]
+            config["Data"]["Population p"]["Pop Detail Data pd"]["Size"].get()
         )
         self.detail_pd_df = set_dataframe(
-            self.detail_pd_arr, label=label, index=index, columns=columns
+            self.detail_pd_arr,
+            label=config["Label"].get(),
+            index=index,
+            columns=columns,
         )
         log.debug(f"{self.detail_pd_arr=}")
         self.set_description(
             f"{self.detail_pd_df=}",
-            data.description["Population p"]["Pop Detail pd"],
+            config["Description"]["Population p"]["Pop Detail pd"].get(),
         )
         log.debug(f"{self.description['detail_pd_df']=}")
 
         # get mapping data
         self.level_pm_arr = np.array(
-            data.value["Population p"]["Protection pm"]
+            config["Data"]["Population p"]["Protection pm"].get()
         )
         self.level_pm_df = pd.DataFrame(
             self.level_pm_arr,
-            index=data.label["Population p"],
-            columns=data.label["Demand m"],
+            index=config["Label"]["Population p"].get(),
+            columns=config["Label"]["Demand m"].get(),
         )
         log.debug(f"{self.level_pm_df=}")
         self.set_description(
             f"{self.level_pm_df=}",
-            data.description["Population p"]["Protection pm"],
+            config["Description"]["Population p"]["Protection pm"].get(),
         )
         log.debug(f"{self.description['level_pm_df']=}")

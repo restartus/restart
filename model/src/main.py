@@ -16,28 +16,18 @@ import argparse
 # Before we move to full modules, just import locally
 # https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
 import logging  # noqa:F401
-from pathlib import Path
-from typing import Optional
 
-from activity import Activity
 from base import Base
-from behavioral import Behavioral
 from dashboard import Dashboard
-from demand import Demand
-from disease import Disease
-
-# from population import Population
-from economy import Economy
-
-# from config import Config
-from load_yaml import LoadYAML
 from model import Model
-from population_dict import PopulationDict
-from resourcemodel import Resource
 
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
 from util import Log
+
+# from pathlib import Path
+# from typing import Optional
+
 
 # This is the only way to get it to work needs to be in main
 # https://www.programcreek.com/python/example/192/logging.Formatter
@@ -104,19 +94,12 @@ class Compose:
         parser = self.get_parser()
         args = parser.parse_args()
         log.debug(f"{args=}")
-        if args.load == "yaml":
-            loaded = LoadYAML(args.input, log_root=log_root)
-            if not loaded.data:
-                raise ValueError("f{args.input=} is empty")
-            log.debug(f"{loaded.data=}")
-        else:
-            raise ValueError("not implemented")
 
         # refactor with method chaining but this does require a single class
         # and a set of decorators
         self.model = model = (
             Model(name, log_root=log_root)
-            .set_configure(loaded)
+            .set_configure()
             .set_filter(
                 county=args.county, state=args.state, population=args.subpop
             )
@@ -133,8 +116,9 @@ class Compose:
         # run the loader and put everything into a super dictionary
         # To change the model, just replace LoadYAML and the configuration
         # of it which starts off the entire model
-        self.model1 = self.old_compose("old_" + name, log_root=log_root)
-        log.debug(f"{self.model1=}")
+        # TODO: confuse breaks the old model
+        # self.model1 = self.old_compose("old_" + name, log_root=log_root)
+        # log.debug(f"{self.model1=}")
 
         # http://net-informations.com/python/iq/instance.htm
         log.debug(f"{model} is {vars(model)}")
@@ -251,9 +235,9 @@ class Compose:
         parser.add_argument(
             "-c",
             "--demand",
-            choices=["wa-doh", "ensemble"],
-            default="wa-doh",
-            help="Select Resource model",
+            choices=["mitre", "jhu", "washington", "dict"],
+            default="dict",
+            help="Select Demand model",
         )
         parser.add_argument(
             "-e",
@@ -286,12 +270,10 @@ class Compose:
             help="Select Epidemological Disease Model",
         )
 
-        # https://treyhunner.com/2018/12/why-you-should-be-using-pathlib/
-        parser.add_argument(
-            "-i", "--input", type=Path, default=Path("config").absolute(),
-        )
         return parser
 
+    # TODO: confuse breaks the old model so need to go and fix this
+    '''
     def old_compose(self, name, log_root: Optional[Log] = None):
         """Old Model invocation.
 
@@ -336,6 +318,7 @@ class Compose:
         log.debug("creating Behavioral")
         model.behavioral = Behavioral(model.data, log_root=model.log_root)
         log.debug(f"{model=}")
+    '''
 
 
 # This is a global variable so easy to find

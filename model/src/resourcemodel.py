@@ -7,13 +7,13 @@ https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional, Union
+from typing import Optional, Union
 
+import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
 from base import Base
-from modeldata import ModelData
 from util import Log, set_dataframe
 
 
@@ -41,7 +41,7 @@ class Resource(Base):
     # instances
 
     def __init__(
-        self, data: ModelData = None, log_root: Log = None,
+        self, config: confuse.Configuration, log_root: Log = None,
     ):
         """Initialize the Resources.
 
@@ -55,6 +55,7 @@ class Resource(Base):
         else:
             log = logging.getLogger(__name__)
         self.log = log
+        self.config = config
 
         # Filling these is the job of the child classes
         self.attr_na_df: Optional[pd.DataFrame] = None
@@ -64,7 +65,6 @@ class Resource(Base):
         self.inv_eoc_ln_df: Optional[pd.DataFrame] = None
         self.average_demand_ln_df: Optional[pd.DataFrame] = None
         self.inv_min_rln_df: Optional[pd.DataFrame] = None
-        self.label: Optional[Dict[Any, Any]] = None
 
     def set_inv_min(
         self,
@@ -186,6 +186,9 @@ class Resource(Base):
         Dataframe setting
         """
         df = set_dataframe(
-            arr, self.label, index="Pop Level l", columns="Resource n"
+            arr,
+            self.config["Label"].get(),
+            index="Pop Level l",
+            columns="Resource n",
         )
         return df

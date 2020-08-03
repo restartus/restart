@@ -4,17 +4,17 @@ The original model based on DOH levels
 """
 import logging
 import os
-from typing import Optional, Tuple
+from typing import Optional
 
+import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
 from demand import Demand
 from load_csv import LoadCSV
-from modeldata import ModelData
 from population import Population
 from resourcemodel import Resource
-from util import Log, datetime_to_code, load_dataframe
+from util import Log, datetime_to_code, load_dataframe, set_dataframe
 
 
 class DemandWA(Demand):
@@ -25,7 +25,7 @@ class DemandWA(Demand):
 
     def __init__(
         self,
-        data: ModelData,
+        config: confuse.Configuration,
         pop: Population = None,
         res: Resource = None,
         log_root: Optional[Log] = None,
@@ -35,7 +35,7 @@ class DemandWA(Demand):
 
         Do some matrix math
         """
-        super().__init__(data, log_root=log_root)
+        super().__init__(config, log_root=log_root)
         self.log_root = log_root
         if log_root is not None:
             log = log_root.log_class(self)
@@ -47,7 +47,7 @@ class DemandWA(Demand):
         map_df: Optional[pd.DataFrame] = None
 
         try:
-            source = data.datapaths["Paths"]
+            source = config["Paths"].get()
             source = LoadCSV(source=source).data
             map_df = load_dataframe(
                 os.path.join(source["Root"], source["MAP"])
@@ -55,22 +55,19 @@ class DemandWA(Demand):
         except KeyError:
             pass
 
-        # read in the burn rates
-        (
-            self.res_demand_mn_rows,
-            self.res_demand_mn_cols,
+        self.res_demand_mn_arr = config["Data"]["Demand m"][
+            "Level to Resource mn"
+        ].get()
+        self.res_demand_mn_df = set_dataframe(
             self.res_demand_mn_arr,
-        ) = self.calculate_burn(map_df, data)
-
-        self.res_demand_mn_df = pd.DataFrame(
-            self.res_demand_mn_arr,
-            index=self.res_demand_mn_rows,
-            columns=self.res_demand_mn_cols,
+            label=config["Label"].get(),
+            index="Demand m",
+            columns="Resource n",
         )
         log.debug(f"{self.res_demand_mn_df=}")
         self.set_description(
             f"{self.res_demand_mn_df=}",
-            data.description["Demand m"]["Demand Resource mn"],
+            config["Description"]["Demand m"]["Demand Resource mn"].get(),
         )
 
         # protection level rates
@@ -86,14 +83,16 @@ class DemandWA(Demand):
         self.demand_pn_df = pd.DataFrame(
             self.demand_pn_arr,
             index=pop.level_pm_labs,
-            columns=self.res_demand_mn_cols,
+            columns=config["Label"]["Resource n"].get(),
         )
         log.debug(f"{self.demand_pn_df=}")
         self.demand_pn_df.index.name = "Population p"
         self.demand_pn_df.columns.name = "Resource n"
         self.set_description(
             f"{self.demand_pn_df=}",
-            data.description["Population p"]["Population Demand pn"],
+            config["Description"]["Population p"][
+                "Population Demand pn"
+            ].get(),
         )
 
         if pop.detail_pd_df is None:
@@ -102,11 +101,11 @@ class DemandWA(Demand):
         if pop.detail_pd_arr is None:
             raise ValueError(f"{pop.detail_pd_df=} should not be None")
 
-        self.level_pl_arr = self.calculate_essential(map_df, data, pop)
+        self.level_pl_arr = self.calculate_essential(map_df, config, pop)
         self.level_pl_df = pd.DataFrame(
             self.level_pl_arr,
             index=pop.level_pm_labs,
-            columns=data.label["Pop Level l"],
+            columns=config["Label"]["Pop Level l"].get(),
         )
         log.debug(f"{self.level_pl_df=}")
 
@@ -117,7 +116,7 @@ class DemandWA(Demand):
         log.debug(f"{self.level_demand_ln_df=}")
         self.set_description(
             f"{self.level_demand_ln_df=}",
-            data.description["Population p"]["Level Demand ln"],
+            config["Description"]["Population p"]["Level Demand ln"].get(),
         )
 
         self.total_demand_pn_arr = (
@@ -126,14 +125,16 @@ class DemandWA(Demand):
         self.total_demand_pn_df = pd.DataFrame(
             self.total_demand_pn_arr,
             index=pop.level_pm_labs,
-            columns=self.res_demand_mn_cols,
+            columns=config["Label"]["Resource n"],
         )
 
         self.total_demand_pn_df.index.name = "Population p"
         log.debug(f"{self.total_demand_pn_df=}")
         self.set_description(
             f"{self.total_demand_pn_df=}",
-            data.description["Population p"]["Population Total Demand pn"],
+            config["Description"]["Population p"][
+                "Population Total Demand pn"
+            ].get(),
         )
 
         self.level_total_demand_ln_df = (
@@ -142,13 +143,15 @@ class DemandWA(Demand):
         log.debug(f"{self.level_total_demand_ln_df=}")
         self.set_description(
             f"{self.level_total_demand_ln_df=}",
-            data.description["Population p"]["Level Total Demand ln"],
+            config["Description"]["Population p"][
+                "Level Total Demand ln"
+            ].get(),
         )
 
         self.level_total_cost_ln_df = None
         self.set_description(
             f"{self.level_total_cost_ln_df=}",
-            data.description["Population p"]["Level Total Cost ln"],
+            config["Description"]["Population p"]["Level Total Cost ln"].get(),
         )
 
     def level_total_cost(self, cost_ln_df):
@@ -165,14 +168,16 @@ class DemandWA(Demand):
         return self
 
     def calculate_essential(
-        self, df: pd.DataFrame, data: ModelData, pop: Population
+        self, df: pd.DataFrame, config: confuse.Configuration, pop: Population
     ) -> pd.DataFrame:
         """Get population essential levels from the excel model.
 
         Manually slice the dataframe
         """
         if pop.codes is None or df is None:
-            return np.array(data.value["Population p"]["Pop to Level pl"])
+            return np.array(
+                config["Data"]["Population p"]["Pop to Level pl"].get()
+            )
 
         # manually redo indexing and select the rows we need
         df.columns = df.iloc[2528]
@@ -180,7 +185,9 @@ class DemandWA(Demand):
         df = df[["SOC", "Essential (0 lowest)"]]
 
         if pop.codes is None:
-            return np.array(data.value["Population p"]["Pop to Level pl"])
+            return np.array(
+                config["Data"]["Population p"]["Pop to Level pl"].get()
+            )
 
         # add the codes back in
         pop_level = []
@@ -206,20 +213,3 @@ class DemandWA(Demand):
             pop_level.append(arr)
 
         return np.array(pop_level)
-
-    def calculate_burn(
-        self, df: pd.DataFrame, data: ModelData,
-    ) -> Tuple[list, list, np.ndarray]:
-        """Pull for the covid-surge-who model for burn rates.
-
-        Does some dataframe slicing manually
-        """
-        res_list = data.label["Resource n"]
-        df.columns = df.iloc[5]
-        df = df.iloc[6:13]
-        df = df[res_list].fillna(0)
-        arr_rows = list(df["Level"])
-        df.drop(["Level"], axis=1, inplace=True)
-        arr = np.array(df)
-        arr_cols = list(df.columns)
-        return arr_rows, arr_cols, arr

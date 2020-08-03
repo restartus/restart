@@ -88,7 +88,9 @@ class DemandDict(Demand):
             raise ValueError(f"{pop.detail_pd_df=} should not be None")
 
         # self.level_pl_arr = data.value["Population p"]["Pop to Level pl"]
-        self.level_pl_arr = config.data["Population p"]["Pop to Level pl"].get()
+        self.level_pl_arr = config.data["Population p"][
+            "Pop to Level pl"
+        ].get()
         self.level_pl_df = set_dataframe(
             self.level_pl_arr,
             label=config["Label"],

@@ -411,7 +411,7 @@ class Dashboard:
             st.write(f"{df.index.name=} {df.columns.name=}")
             st.write(f"{df.index=}")
             st.write(f"{df.columns=}")
-        st.dataframe(df)
+            st.dataframe(df)
         df.index.name = "Label" if None else df.index.name
         # first reset the index to get it to be a column
         # using melt to get column form
@@ -432,18 +432,13 @@ class Dashboard:
         # TODO: implement filtering
         # df_filter_x = df_melt[df_melt[df.index.name].isin(x)]
         # st.dataframe(df_filter_x)
-
         # try:
         #  iter(y_axis)
         # df_filter_xy = df_filter_x[df_filter_x[df.columns.name].isin(y_axis)]
         # except TypeError:
         # df_filter_xy = df_filter_x[df_filter_x[df.columns.name] == y_axis]
-
         # df_filter_xy = df_filter_x[df_filter_x[df.columns.name].isin(y)]
         # st.dataframe(df_filter_xy)
-
-        # you can also use breakpoint
-        # breakpoint()
 
         # Since this was published, there are more parameters for interactive
         # https://towardsdatascience.com/quickly-build-and-deploy-an-application-with-streamlit-988ca08c7e83
@@ -461,13 +456,18 @@ class Dashboard:
         y_alt = y + ":Q"
         encoding = {"y": alt.Y(y_alt)}
 
-        for col in range(0, df_melt.shape[1]):
+        for col in range(0, df_melt.shape[1] - 1):
             var = df_melt.columns[col]
             # tricky, but add to the encoding dictionary
             # using the first item which is a string
             # Then the second is the function in Altair
             # to be called with which creates the right object
             encoding[mapping[col][0]] = mapping[col][1](var + ":N")
+        if self.debug_level <= logging.DEBUG:
+            st.write(f"{encoding=}")
+        chart = alt.Chart(df_melt, encoding=encoding).mark_bar()
+        st.write(chart)
+
         if self.debug_level <= logging.DEBUG:
             st.write(f"{encoding=}")
             self.test_encode(df_melt)

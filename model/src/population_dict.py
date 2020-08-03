@@ -86,7 +86,7 @@ class PopulationDict(Population):
         )
         self.level_pm_df = set_dataframe(
             self.level_pm_arr,
-            label=config["Label"],
+            label=config["Label"].get(),
             index="Population p",
             columns="Demand m",
         )

@@ -69,7 +69,7 @@ class DemandDict(Demand):
         )
         self.demand_pn_df = set_dataframe(
             self.demand_pn_arr,
-            label=config["Label"],
+            label=config["Label"].get(),
             index="Population p",
             columns="Resource n",
         )
@@ -88,19 +88,19 @@ class DemandDict(Demand):
             raise ValueError(f"{pop.detail_pd_df=} should not be None")
 
         # self.level_pl_arr = data.value["Population p"]["Pop to Level pl"]
-        self.level_pl_arr = config.data["Population p"][
+        self.level_pl_arr = config["Data"]["Population p"][
             "Pop to Level pl"
         ].get()
         self.level_pl_df = set_dataframe(
             self.level_pl_arr,
-            label=config["Label"],
+            label=config["Label"].get(),
             index="Population p",
             columns="Pop Level l",
         )
         log.debug(f"{self.level_pl_df=}")
         self.set_description(
             f"{self.level_pl_df=}",
-            config.data["Population p"]["Pop to Level pl"].get(),
+            config["Data"]["Population p"]["Pop to Level pl"].get(),
         )
 
         self.level_demand_ln_df = np.array(self.level_pl_df).T @ np.array(
@@ -118,7 +118,7 @@ class DemandDict(Demand):
         ).T
         self.total_demand_pn_df = set_dataframe(
             self.total_demand_pn_arr,
-            label=config["Label"],
+            label=config["Label"].get(),
             index="Population p",
             columns="Resource n",
         )

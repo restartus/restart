@@ -124,7 +124,7 @@ class DemandWA(Demand):
         self.total_demand_pn_df = pd.DataFrame(
             self.total_demand_pn_arr,
             index=pop.level_pm_labs,
-            columns=config["Label"]["Resource n"],
+            columns=config["Label"]["Resource n"].get(),
         )
 
         self.total_demand_pn_df.index.name = "Population p"

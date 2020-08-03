@@ -91,9 +91,9 @@ class Dashboard:
         self.page = st.sidebar.selectbox(
             "Choose page",
             [
-                "Exploration",
-                "Tables",
                 "Home",
+                "Tables",
+                "Exploration",
                 "Test Home",
                 "Test Tables",
                 "Test Exploration",
@@ -105,6 +105,8 @@ class Dashboard:
         )
         log.debug(f"{inv_min_in_periods=}")
 
+        # To make this work for the update, use up all the exiting inventory
+        model.resource.demand(model.resource.inventory_ln_df)
         model.resource.set_inv_min(
             model.demand.level_total_demand_ln_df, inv_min_in_periods
         )
@@ -147,11 +149,18 @@ class Dashboard:
         """Home page."""
         st.markdown(
             """
-        # COVID-19 Decision Dashboard
+        # COVID-19 Decision Dashboard Stockpile Analysis
         ## Restart.us
+
+        To use the surge model, change the slider for stockpile days on the
+        right and the table below will change to indicate minimum inventory
+        required.
+
         Use caution when interpreting these numbers
         """
         )
+        # this will change based on the stockpile
+        st.write(model.resource.inventory_ln_df)
 
     # uses the literal magic in Streamlit 0.62
     # note that just putting an expression automatically wraps an st.write

@@ -189,9 +189,12 @@ class Compose:
                 log.debug(f"{df_key=}")
                 log.debug(f"{df_value=}")
 
-        for s in [30, 60, 90]:
+        # this just keeps increasing supply also test decreasing
+        for s in [30, 60, 90, 40, 20]:
+            log.debug("reset inventory to minimum")
+            model.resource.demand(model.resource.inventory_ln_df)
             log.critical(f"changing stockpile to {s=}")
-            log.critical(f"{model.demand.level_total_demand_ln_df=}")
+            log.debug(f"{model.demand.level_total_demand_ln_df=}")
             model.resource.set_inv_min(
                 model.demand.level_total_demand_ln_df, s
             )

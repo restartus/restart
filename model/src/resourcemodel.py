@@ -171,7 +171,9 @@ class Resource(Base):
         returns: whats available to ship
         """
         # Return as much as we can
-        deliver_ln_df = min(demand_ln_df, self.inventory_ln_df)
+        # the simple min won't work, need an element0-wise minimum
+        # https://numpy.org/doc/stable/reference/generated/numpy.minimum.html
+        deliver_ln_df = np.minimum(demand_ln_df, self.inventory_ln_df)
         self.inventory_ln_df -= deliver_ln_df
 
         # now restock

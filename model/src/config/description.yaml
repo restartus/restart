@@ -54,7 +54,7 @@ Description:
         For all n Resources, these are the figures for each of the a Attributes
         of each resource.
     "Pop Level Res Cost ln": |
-        ## For Each Summary Level, the cost of Resoures
+        ## For Each Summary Level, the cost of Resources
         For each of l summary levels, get the per capita cost for each of n
         Resources.
     "Res Inventory Initial ln": |

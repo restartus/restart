@@ -19,8 +19,6 @@ class Filter(Base):
     This contains
     This uses https://realpython.com/documenting-python-code/
     docstrings using the NumPy/SciPy syntax
-    Uses a modified standard project
-    Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
     """
 
     def __init__(

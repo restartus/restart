@@ -291,7 +291,6 @@ class Dashboard:
                 #     continue
                 # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
                 # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
-                # breakpoint()
                 self.write_description(
                     df_name, df_value, base_value.description,
                 )
@@ -312,6 +311,11 @@ class Dashboard:
         Writes the description of a nice message if none found
         """
         log = self.log
+        log.debug(f"{name=}")
+        if self.debug_level <= logging.DEBUG:
+            st.write("in write_description")
+            st.write(f"{name=}")
+
         if name in description:
             log.debug(f"found {name=} in {description=}")
             st.write(description[name])
@@ -320,7 +324,14 @@ class Dashboard:
             return
         # st.header(name)
         log.debug(f"No description found for {name=}")
-        st.write(f"No description found for {name=}")
+        st.write(
+            f"""
+            ## {name} Has No Description
+            No description in found for {name=}
+            """
+        )
+        if self.debug_level <= logging.ERROR:
+            st.write(f"Missing in {description=}")
 
     def test_home_page(self, data_df):
         """Test drawing.

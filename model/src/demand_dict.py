@@ -100,7 +100,7 @@ class DemandDict(Demand):
         log.debug(f"{self.level_pl_df=}")
         self.set_description(
             f"{self.level_pl_df=}",
-            config["Data"]["Population p"]["Pop to Level pl"].get(),
+            config["Description"]["Population p"]["Pop to Level pl"].get(),
         )
 
         self.level_demand_ln_df = np.array(self.level_pl_df).T @ np.array(

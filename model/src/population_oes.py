@@ -66,6 +66,7 @@ class PopulationOES(Population):
         self.codes: list
 
         # get population data
+        log.debug(f"loading {self.location=}")
         df_dict = self.load_data(config, self.location)
         self.detail_pd_df = df_dict["detail_pd_df"]
         self.detail_pd_arr = df_dict["detail_pd_arr"]

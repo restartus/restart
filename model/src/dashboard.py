@@ -41,6 +41,7 @@ class Dashboard:
 
         Streamlit dashboard for a Model
         """
+        # TODO: Put all this stuff into a library
         self.log_root = model.log_root
         if self.log_root is not None:
             log = self.log_root.log_class(self)
@@ -105,6 +106,17 @@ class Dashboard:
         )
         log.debug(f"{inv_min_in_periods=}")
 
+        self.debug_level = st.sidebar.slider(
+            "Debug (0=no debug output, 100=massive output) ", value=0
+        )
+        # the logging level is the reverse sense,
+        # it is the supression level
+        # if you want 90% of the messages set logging.DEBUG is 10
+        # if you want 20 of the messages set logging.CRITICAL is 80
+        self.debug_level = 100 - self.debug_level
+        if self.debug_level <= logging.DEBUG:
+            st.sidebar.markdown(f"{self.debug_level=}")
+
         # To make this work for the update, use up all the exiting inventory
         model.resource.demand(model.resource.inventory_ln_df)
         model.resource.set_inv_min(
@@ -114,36 +126,39 @@ class Dashboard:
         if self.page == "Home":
             self.home_page(model)
         elif self.page == "Tables":
-            self.tables(model)
+            self.tables_page(model)
         elif self.page == "Exploration":
-            self.visualize_model(model)
+            self.exploration_page(model)
         elif self.page == "Test Tables":
-            self.test_tables(model)
+            self.test_tables_page(model)
         elif self.page == "Test Home":
-            self.test_home(self.data_df)
+            self.test_home_page(self.data_df)
         elif self.page == "Test Exploration":
-            st.title("Data Exploration")
-            # https://docs.streamlit.io/en/latest/api.html
-            st.dataframe(self.data_df)
+            self.test_exploration_page()
+
+    def test_exploration_page(self):
+        """Testing Exploration Options."""
+        st.title("Data Exploration")
+        # https://docs.streamlit.io/en/latest/api.html
+        st.dataframe(self.data_df)
+        if self.debug_level <= logging.DEBUG:
             st.write(f"{self.data_df.index=}")
             st.write(f"{self.data_df.columns=}")
-            x_axis = st.selectbox("Choose x-axis", self.data_df.index, index=0)
-            y_axis = st.selectbox(
-                "Choose y-axis", self.data_df.columns, index=1
-            )
+        x_axis = st.selectbox("Choose x-axis", self.data_df.index, index=0)
+        y_axis = st.selectbox("Choose y-axis", self.data_df.columns, index=1)
+        if self.debug_level <= logging.DEBUG:
             st.write(f"{x_axis=} {y_axis=}")
-            x_multi = st.multiselect(
-                "Select Summary Levels", self.data_df.index
-            )
-            y_multi = st.multiselect(
-                "Select Resource to Display", self.data_df.columns
-            )
+        x_multi = st.multiselect("Select Summary Levels", self.data_df.index)
+        y_multi = st.multiselect(
+            "Select Resource to Display", self.data_df.columns
+        )
+        if self.debug_level <= logging.DEBUG:
             st.write(f"{x_multi=}")
             st.write(f"{y_multi=}")
-            self.visualize_data(self.data_df, x=x_axis, y=y_axis)
-            self.visualize_data(self.data_df, x=x_multi, y=y_multi)
-            # Not that write uses Markdown
-            self.test_graph()
+        self.visualize_data(self.data_df, x=x_axis, y=y_axis)
+        self.visualize_data(self.data_df, x=x_multi, y=y_multi)
+        # Not that write uses Markdown
+        self.test_graph()
 
     def home_page(self, model):
         """Home page."""
@@ -160,11 +175,20 @@ class Dashboard:
         """
         )
         # this will change based on the stockpile
-        st.write(model.resource.inventory_ln_df)
+        # https://pandas.pydata.org/pandas-docs/stable/user_guide/options.html
+        # none of these work in streamlit
+        # pd.set_option("display.precision", 0)
+        # pd.set_option("display.float_format", "{:,.0f}".format)
+        # pd.options.display.float_format = "{:,.0f}".format
+        # https://stackoverflow.com/questions/43102734/format-a-number-with-commas-to-separate-thousands-in-python
+        # https://mkaz.blog/code/python-string-format-cookbook/
+        st.write(model.resource.inventory_ln_df.style.format("{:,.0f}"))
+        # https://pandas.pydata.org/pandas-docs/stable/user_guide/options.html
+        self.visualize_data(model.resource.inventory_ln_df)
 
     # uses the literal magic in Streamlit 0.62
     # note that just putting an expression automatically wraps an st.write
-    def test_tables(self, model):
+    def test_tables_page(self, model):
         """Tables.
 
         The full graphical display of all tables use for debugging mainly
@@ -205,13 +229,12 @@ class Dashboard:
             """
         # The Descriptions
 
-        in model.data.description
+        in model.config["Description"]
         """
         )
         st.write(
             model.config["Description"]["Population p"]["Pop Detail pd"].get()
         )
-        # st.write(f"{model.data.description=}")
 
         st.write(
             """
@@ -234,7 +257,7 @@ class Dashboard:
         )
         st.write(model.demand.level_pl_df)
 
-    def tables(self, model):
+    def tables_page(self, model):
         """Table Exploration.
 
         Automatically reads from model.description a markdown string
@@ -244,18 +267,24 @@ class Dashboard:
         # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
         log = self.log
         log.debug("look for all population items")
+        if self.debug_level <= logging.DEBUG:
+            st.write(f"in tables page on {model=}")
         # eventually just go through all the model classes and keep going
         # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
 
-        """
+        st.write(
+            """
         # COVID-19 Data Table Exploration
 
         Use this section to look through the data. This include the
         descriptions that are included with it.
         """
+        )
 
         # http://net-informations.com/python/iq/instance.htm
-        log.debug(f"{model} is {vars(model)}")
+        log.debug(f"{model=} is {vars(model)=}")
+        if self.debug_level <= logging.DEBUG:
+            st.write(f"{model=} is {vars(model)=}")
         # replaced by iteration
         # for model_value in model:
         # for model_key, model_value in vars(model).items():
@@ -277,7 +306,6 @@ class Dashboard:
                 #     continue
                 # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
                 # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
-                # breakpoint()
                 self.write_description(
                     df_name, df_value, base_value.description,
                 )
@@ -298,17 +326,31 @@ class Dashboard:
         Writes the description of a nice message if none found
         """
         log = self.log
+        log.debug(f"{name=}")
+        if self.debug_level <= logging.DEBUG:
+            st.write("in write_description")
+            st.write(f"{name=}")
+
         if name in description:
             log.debug(f"found {name=} in {description=}")
             st.write(description[name])
-            # st.write(df.style.format("{0:,.2f}"))
-            st.write(df)
+            # this style fails could be streamlit bug
+            # only fails for the first item population details
+            # st.dataframe(df.style.format("{:,.0f}"))
+            st.dataframe(df)
             return
         # st.header(name)
         log.debug(f"No description found for {name=}")
-        st.write(f"No description found for {name=}")
+        st.write(
+            f"""
+            ## {name} Has No Description
+            No description in found for {name=}
+            """
+        )
+        if self.debug_level <= logging.ERROR:
+            st.write(f"Missing in {description=}")
 
-    def test_home(self, data_df):
+    def test_home_page(self, data_df):
         """Test drawing.
 
         Test for dashboard
@@ -392,53 +434,138 @@ class Dashboard:
         """
         ## Debug
         """
-        # st.write(f"{x=} {y}")
-        # st.write(f"{df.index.name=} {df.columns.name=}")
-        # st.write(f"{df.index}")
-        # st.write(f"{df.columns}")
-        # st.dataframe(df)
-        # breakpoint()
+        if self.debug_level <= logging.DEBUG:
+            st.write(f"{x=} {y=}")
+            st.write(f"{df.index.name=} {df.columns.name=}")
+            st.write(f"{df.index=}")
+            st.write(f"{df.columns=}")
+            st.dataframe(df)
         df.index.name = "Label" if None else df.index.name
-        # first rest the index to get it to be a column
+        # first reset the index to get it to be a column
         # using melt to get column form
         df_reset = df.reset_index()
-        # st.write(df_reset)
+        if self.debug_level <= logging.DEBUG:
+            st.write(df_reset)
         # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.melt.html
         # if value_vars are not specified then unpivote everything
-        df_melt = df_reset.melt(id_vars=df.index.name, value_name="Units")
-        # st.write(df_melt)
+        # Note Units is used already, so need a different name
+        df_melt = df_reset.melt(id_vars=df.index.name, value_name="Count")
+        if self.debug_level <= logging.DEBUG:
+            st.write(df_melt)
 
         # for single values
         # http://scrapingauthority.com/pandas-dataframe-filtering/
         # https://realnitinworks.netlify.app/check-object-iterability.html?utm_campaign=News&utm_medium=Community&utm_source=DataCamp.com
 
+        # TODO: implement filtering
         # df_filter_x = df_melt[df_melt[df.index.name].isin(x)]
         # st.dataframe(df_filter_x)
-
         # try:
         #  iter(y_axis)
         # df_filter_xy = df_filter_x[df_filter_x[df.columns.name].isin(y_axis)]
         # except TypeError:
         # df_filter_xy = df_filter_x[df_filter_x[df.columns.name] == y_axis]
-
         # df_filter_xy = df_filter_x[df_filter_x[df.columns.name].isin(y)]
         # st.dataframe(df_filter_xy)
-
-        # you can also use breakpoint
-        # breakpoint()
 
         # Since this was published, there are more parameters for interactive
         # https://towardsdatascience.com/quickly-build-and-deploy-an-application-with-streamlit-988ca08c7e83
         # https://towardsdatascience.com/interactive-election-visualisations-with-altair-85c4c3a306f9
-        # https://altair-viz.github.io
         # https://altair-viz.github.io/user_guide/encoding.html
+        mapping = [
+            ["x", alt.X],
+            ["column", alt.Column],
+            ["color", alt.Color],
+            ["size", alt.Size],
+        ]
+        # make the Y axis the last column which in narrow form is always
+        # the data
+        y = df_melt.columns[-1]
+        y_alt = y + ":Q"
+        encoding = {"y": alt.Y(y_alt)}
+
+        for col in range(0, df_melt.shape[1] - 1):
+            var = df_melt.columns[col]
+            # tricky, but add to the encoding dictionary
+            # using the first item which is a string
+            # Then the second is the function in Altair
+            # to be called with which creates the right object
+            encoding[mapping[col][0]] = mapping[col][1](var + ":N")
+        if self.debug_level <= logging.DEBUG:
+            st.write(f"{encoding=}")
+        chart = alt.Chart(df_melt, encoding=encoding).mark_bar()
+        st.write(chart)
+
+        if self.debug_level <= logging.DEBUG:
+            st.write(f"{encoding=}")
+            self.test_encode(df_melt)
+
+    def test_encode(self, df_melt):
+        """Test dynamic encoding for Altair."""
+        # Using the constructor interface
+        # https://altair-viz.github.io/user_guide/internals.html
+        st.write("test_encode")
+        width = df_melt.shape[1]
+        st.write(f"{width=}")
+        st.write(f"{df_melt.columns=}")
+        y = df_melt.columns[-1]
+        y_alt = y + ":Q"
+        encoding = {"y": alt.Y(y_alt)}
+        # Now progressively assign the wider we go
+        # This is easy for users, but hard to crate this
+        # automatically, encode looks like it i really a ditionary
+        # passed as **kwargs
+        if width >= 2:
+            x = df_melt.columns[0]
+            x_alt = x + ":N"
+            encoding["x"] = alt.X(x_alt)
+        if width >= 3:
+            column = df_melt.columns[1]
+            column_alt = column + ":N"
+            encoding["column"] = alt.Column(column_alt)
+        if width >= 4:
+            color = df_melt.columns[2]
+            color_alt = color + ":N"
+            encoding["color"] = alt.Color(color_alt)
+        st.write(f"{encoding=}")
+        dict_graph = alt.Chart(df_melt, encoding=encoding).mark_bar()
+        st.write(dict_graph)
         graph = (
             alt.Chart(df_melt)
             .mark_bar()
-            .encode(x="Level l:N", y="Units:Q")
+            # .encode(x="Level l:N", y="Units:Q")
+            .encode(x=x_alt, y=y_alt, column=column_alt)
             .interactive()
         )
         st.write(graph)
+        test_graph = alt.Chart(
+            df_melt,
+            mark="bar",
+            encoding=alt.FacetedEncoding(
+                x=alt.PositionFieldDef(field=x, type="nominal"),
+                y=alt.PositionFieldDef(field=y, type="quantitative"),
+            ),
+        )
+        st.write(test_graph)
+        # using a dictionary to pass to encode
+        # https://altair-viz.github.io/user_guide/encoding.html
+        # this only works for 3 wides
+        if width < 3:
+            return
+        encode = dict(
+            x=alt.X(x_alt), y=alt.Y(y_alt), column=alt.Column(column_alt)
+        )
+        st.write(f"{encode=}")
+        encode_graph = alt.Chart(df_melt, mark="bar", encoding=encode)
+        st.write(encode_graph)
+        # test adding dynamically to dictionary
+        encode2 = {}
+        encode2["x"] = alt.X(x_alt)
+        encode2["y"] = alt.Y(y_alt)
+        encode2["column"] = alt.Column(column_alt)
+        st.write(f"{encode2=}")
+        encode2_graph = alt.Chart(df_melt, encoding=encode2).mark_bar()
+        st.write(encode2_graph)
 
     def test_graph(self):
         """Test graphing."""
@@ -450,7 +577,7 @@ class Dashboard:
         graph2 = alt.Chart(test).mark_bar().encode(x="Level l", y="Unit")
         st.write(graph2)
 
-    def visualize_model(self, model: Model):
+    def exploration_page(self, model: Model):
         """Visualize Model.
 
         Simple visualization

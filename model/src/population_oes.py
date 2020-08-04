@@ -70,6 +70,8 @@ class PopulationOES(Population):
         df_dict = self.load_data(config, self.location)
         self.detail_pd_df = df_dict["detail_pd_df"]
         self.detail_pd_arr = df_dict["detail_pd_arr"]
+        self.detail_pd_df.index.name = "Population p"
+        self.detail_pd_df.index.name = "Pop Detail d"
         self.set_description(
             f"{self.detail_pd_df=}",
             config["Description"]["Population p"]["Pop Detail pd"].get(),
@@ -247,7 +249,7 @@ class PopulationOES(Population):
                 arr[math.ceil(level)] = 0.5
 
             # add to dictionary
-            name = list(df[df["occ_code"] == code]["occ_title"])[0]
+            name = df[df["occ_code"] == code].index.tolist()[0]
             labels.append(name)
             map_arr.append(arr)
 
@@ -440,7 +442,7 @@ class PopulationOES(Population):
 
         So that it has the right format for the model.
         """
-        col_labs = ["Population p", "Size"]
+        col_labs = ["Size"]
         self.codes = list(df["occ_code"])
         df = df.drop(["occ_code"], axis=1)
         df.columns = col_labs
@@ -480,7 +482,7 @@ class PopulationOES(Population):
 
         # Format to fit model
         detailed = self.format_output(detailed)
-
+        detailed.set_index("occ_title", drop=True, inplace=True)
         return detailed
 
     def create_state_df(
@@ -506,7 +508,7 @@ class PopulationOES(Population):
 
         # Format to fit model
         detailed = self.format_output(detailed)
-
+        detailed.set_index("occ_title", drop=True, inplace=True)
         return detailed
 
     def create_country_df(self, oes_df: pd.DataFrame) -> pd.DataFrame:
@@ -523,7 +525,7 @@ class PopulationOES(Population):
         detailed = df[df["o_group"] == "detailed"].copy()
         detailed = self.fill_uncounted(major, detailed)
         detailed = self.format_output(detailed)
-
+        detailed.set_index("occ_title", drop=True, inplace=True)
         return detailed
 
     def health_filter(self, df: pd.DataFrame) -> pd.DataFrame:

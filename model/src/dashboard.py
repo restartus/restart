@@ -102,7 +102,7 @@ class Dashboard:
         )
 
         inv_min_in_periods = st.sidebar.slider(
-            "Stockpile", max_value=120, value=30
+            "Stockpile", max_value=120, value=30, step=15,
         )
         log.debug(f"{inv_min_in_periods=}")
 

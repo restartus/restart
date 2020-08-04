@@ -175,7 +175,16 @@ class Dashboard:
         """
         )
         # this will change based on the stockpile
-        st.write(model.resource.inventory_ln_df)
+        # https://pandas.pydata.org/pandas-docs/stable/user_guide/options.html
+        # none of these work in streamlit
+        # pd.set_option("display.precision", 0)
+        # pd.set_option("display.float_format", "{:,.0f}".format)
+        # pd.options.display.float_format = "{:,.0f}".format
+        # https://stackoverflow.com/questions/43102734/format-a-number-with-commas-to-separate-thousands-in-python
+        # https://mkaz.blog/code/python-string-format-cookbook/
+        st.write(model.resource.inventory_ln_df.style.format("{:,.0f}"))
+        # https://pandas.pydata.org/pandas-docs/stable/user_guide/options.html
+        self.visualize_data(model.resource.inventory_ln_df)
 
     # uses the literal magic in Streamlit 0.62
     # note that just putting an expression automatically wraps an st.write
@@ -256,15 +265,19 @@ class Dashboard:
         # https://stackoverflow.com/questions/44790030/return-all-class-variable-values-from-a-python-class
         log = self.log
         log.debug("look for all population items")
+        if self.debug_level <= logging.DEBUG:
+            st.write(f"in tables page on {model=}")
         # eventually just go through all the model classes and keep going
         # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
 
-        """
+        st.write(
+            """
         # COVID-19 Data Table Exploration
 
         Use this section to look through the data. This include the
         descriptions that are included with it.
         """
+        )
 
         # http://net-informations.com/python/iq/instance.htm
         log.debug(f"{model=} is {vars(model)=}")
@@ -319,8 +332,10 @@ class Dashboard:
         if name in description:
             log.debug(f"found {name=} in {description=}")
             st.write(description[name])
-            st.write(df.style.format("{0:,.2f}"))
-            # st.write(df)
+            # this style fails could be streamlit bug
+            # only fails for the first item population details
+            # st.dataframe(df.style.format("{:,.0f}"))
+            st.dataframe(df)
             return
         # st.header(name)
         log.debug(f"No description found for {name=}")

@@ -19,7 +19,7 @@ TODO: Not implemented need to work out multiindex
 from __future__ import annotations
 
 import logging
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore

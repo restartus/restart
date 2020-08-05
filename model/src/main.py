@@ -119,6 +119,7 @@ class Compose:
             .set_disease(type=args.disease)
             .set_activity(type=args.activity)
             .set_behavioral(type=args.behavioral)
+            .set_output(type=args.output)
         )
         # run the loader and put everything into a super dictionary
         # To change the model, just replace LoadYAML and the configuration
@@ -230,6 +231,8 @@ class Compose:
         parser.add_argument(
             "--subpop", help="Select subpopulation of interest"
         )
+
+        parser.add_argument("--output", help="Write results to CSV file")
 
         parser.add_argument(
             "-r",

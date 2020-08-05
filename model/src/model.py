@@ -239,6 +239,25 @@ class Model(Base):
         )
         return self
 
+    def set_output(self, type: str = None) -> Model:
+        """Generate output.
+
+        Write output to a CSV file.
+        """
+        if self.demand.total_demand_pn_df is None:
+            raise ValueError(f"{self.demand.total_demand_pn_df=} is null")
+        if self.population.detail_pd_df is None:
+            raise ValueError(f"{self.population.detail_pd_df=} is null")
+
+        if type is not None:
+            df = self.demand.total_demand_pn_df.copy()
+            # insert population into the dataframe
+            pop = list(self.population.detail_pd_df["Size"])
+            df.insert(loc=0, column="Size", value=pop)
+            df.to_csv(type)
+
+        return self
+
     # https://stackoverflow.com/questions/37835179/how-can-i-specify-the-function-type-in-my-type-hints
     # https://www.datacamp.com/community/tutorials/python-iterator-tutorial
     # https://towardsdatascience.com/how-to-loop-through-your-own-objects-in-python-1609c81e11ff

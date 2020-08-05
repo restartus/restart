@@ -30,6 +30,7 @@ from population_dict import PopulationDict
 from population_oes import PopulationOES
 from resource_dict import ResourceDict
 from resourcemodel import Resource
+from output import Output
 from util import Log
 
 
@@ -244,6 +245,7 @@ class Model(Base):
 
         Write output to a CSV file.
         """
+        """
         if self.demand.total_demand_pn_df is None:
             raise ValueError(f"{self.demand.total_demand_pn_df=} is null")
         if self.population.detail_pd_df is None:
@@ -255,6 +257,16 @@ class Model(Base):
             pop = list(self.population.detail_pd_df["Size"])
             df.insert(loc=0, column="Size", value=pop)
             df.to_csv(type)
+        """
+        if type is not None:
+            self.output = Output(
+                config=self.config,
+                pop=self.population,
+                resource=self.resource,
+                demand=self.demand,
+                log_root=self.log_root,
+                type=type,
+            )
 
         return self
 

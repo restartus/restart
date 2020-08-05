@@ -87,7 +87,6 @@ class DemandDict(Demand):
         if pop.detail_pd_arr is None:
             raise ValueError(f"{pop.detail_pd_df=} should not be None")
 
-        # self.level_pl_arr = data.value["Population p"]["Pop to Level pl"]
         self.level_pl_arr = config["Data"]["Population p"][
             "Pop to Level pl"
         ].get()

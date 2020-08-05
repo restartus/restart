@@ -80,42 +80,89 @@ class Data:
 
         self.description = description
         self.label = label
-        self.set_array(array)
-        self.set_dataframe(
-            array, label=config["Label"].get(), index=index, columns=columns
-        )
+        self.array = array
 
-    def set_array(self, array: np.ndarray,) -> Data:
+    # these are the functions called when something externally is changed
+    @property
+    def array(self):
+        """Property method for array.
+
+        Returns the private variable
+        """
+        return self._array
+
+    @array.setter
+    def array(self, array: np.ndarray):
         """Change display and graph values when array changes.
 
         When this changes update other representations
         """
         if self.config is None:
             raise ValueError(f"{self.config=} is null")
-        self.array = array
-        self.set_dataframe(
-            self.array,
-            label=self.config["Label"].get(),
-            index=self.index,
-            columns=self.columns,
+        self._array = array
+        self.set_df(
+            self.config["Label"].get(), index=self.index, columns=self.columns,
         )
-        self.to_narrow()
+        self.set_alt()
 
-        return self
+    @property
+    def df(self):
+        """Property method for df.
 
-    def set_df(self, df: pd.DataFrame) -> Data:
+        Returns the private variable
+        """
+        return self._df
+
+    @df.setter
+    def df(self, df: pd.DataFrame) -> Data:
         """Change the array and narrow when df changes."""
-        self.df = df
-        self.array = df.to_numpy()
+        self._df = df
+        self.set_array(self._df)
+        self.set_alt()
         return self
 
-    def set_narrow(self, narrow: pd.DataFrame) -> Data:
-        """Given a new narrow, update wide and array."""
-        self.narrow = narrow
-        self.from_narrow_to_wide()
-        self.from_wide_to_array()
-        self.log.debug("not implemented")
+    @property
+    def alt(self):
+        """Property method for narrow."""
+        return self._narrow
+
+    @alt.setter
+    def alt(self, alt: pd.DataFrame):
+        self._alt = alt
         return self
+
+    # set functions called internally after external changes made
+    def set_array(self, df: pd.DataFrame):
+        """Change the array when df changes."""
+        self._array = np.array(df)
+
+    def set_df(
+        self,
+        label: Optional[Dict],
+        index: Optional[str] = None,
+        columns: Optional[str] = None,
+    ):
+        """Change the df when array changes."""
+        df = pd.DataFrame(
+            self.array,
+            index=label[index]
+            if label is not None and index is not None
+            else None,
+            columns=label[columns]
+            if label is not None and columns is not None
+            else None,
+        )
+
+        df.index.name = index
+        df.columns.name = columns
+
+        self._df = df
+
+    def set_alt(self):
+        """Convert self.wide to self.narrow."""
+        narrow = self.df.reset_index()
+        narrow = narrow.melt()
+        self._narrow = narrow
 
     def from_narrow_to_wide(self) -> Data:
         """Convert narrow to wide dataframe."""
@@ -126,40 +173,6 @@ class Data:
         """Convert wide to a multi-dimenstional array."""
         self.log.debug("not implemented")
         self.array = self.df.to_numpy()
-        return self
-
-    def to_narrow(self) -> Data:
-        """Convert self.wide to self.narrow."""
-        self.narrow = self.df.reset_index()
-        self.narrow = self.narrow.melt()
-        return self
-
-    def set_dataframe(
-        self,
-        arr: np.ndarray,
-        label: Optional[Dict],
-        index: Optional[str] = None,
-        columns: Optional[str] = None,
-    ) -> Data:
-        """Set the dataframe up.
-
-        Using the model data Dictionary and labels
-        """
-        # we use get so that if there is no item it returns None
-        # https://www.tutorialspoint.com/python/dictionary_get.htm
-        df = pd.DataFrame(
-            arr,
-            index=label[index]
-            if label is not None and index is not None
-            else None,
-            columns=label[columns]
-            if label is not None and columns is not None
-            else None,
-        )
-        df.index.name = index
-        df.columns.name = columns
-
-        self.df = df
         return self
 
     def __iter__(self):

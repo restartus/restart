@@ -19,10 +19,11 @@ TODO: Not implemented need to work out multiindex
 from __future__ import annotations
 
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 
-import numpy as np  # type:ignore
-import pandas as pd  # type:ignore
+import confuse  # type: ignore
+import numpy as np  # type: ignore
+import pandas as pd  # type: ignore
 
 from util import Log
 
@@ -52,9 +53,12 @@ class Data:
     # https://stackoverflow.com/questions/9056957/correct-way-to-define-class-variables-in-python
     def __init__(
         self,
-        array: np.array,
+        array: np.ndarray,
         description: str,
-        label: List[Dict],
+        config: confuse.Configuration,
+        index: str,
+        columns: str,
+        label: Optional[List[Dict]] = None,
         log_root: Log = None,
     ):
         """Set base varabiles.
@@ -70,17 +74,31 @@ class Data:
         self.log = log
         log.debug(f"{__name__=}")
 
+        self.config = config
+        self.index = index
+        self.columns = columns
+
         self.description = description
         self.label = label
         self.set_array(array)
+        self.set_dataframe(
+            array, label=config["Label"].get(), index=index, columns=columns
+        )
 
-    def set_array(self, array: np.ndarray) -> Data:
+    def set_array(self, array: np.ndarray,) -> Data:
         """Change display and graph values when array changes.
 
         When this changes update other representations
         """
+        if self.config is None:
+            raise ValueError(f"{self.config=} is null")
         self.array = array
-        self.df = pd.DataFrame(self.array)
+        self.set_dataframe(
+            self.array,
+            label=self.config["Label"].get(),
+            index=self.index,
+            columns=self.columns,
+        )
         self.to_narrow()
 
         return self
@@ -114,6 +132,34 @@ class Data:
         """Convert self.wide to self.narrow."""
         self.narrow = self.df.reset_index()
         self.narrow = self.narrow.melt()
+        return self
+
+    def set_dataframe(
+        self,
+        arr: np.ndarray,
+        label: Optional[Dict],
+        index: Optional[str] = None,
+        columns: Optional[str] = None,
+    ) -> Data:
+        """Set the dataframe up.
+
+        Using the model data Dictionary and labels
+        """
+        # we use get so that if there is no item it returns None
+        # https://www.tutorialspoint.com/python/dictionary_get.htm
+        df = pd.DataFrame(
+            arr,
+            index=label[index]
+            if label is not None and index is not None
+            else None,
+            columns=label[columns]
+            if label is not None and columns is not None
+            else None,
+        )
+        df.index.name = index
+        df.columns.name = columns
+
+        self.df = df
         return self
 
     def __iter__(self):

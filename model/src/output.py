@@ -4,6 +4,7 @@ Automatically generates config files
 """
 import logging
 import confuse  # type: ignore
+import numpy as np  # type: ignore
 import yaml
 from typing import Dict
 from base import Base
@@ -51,9 +52,13 @@ class Output(Base):
         new_config = {}
 
         # copy over the fields that don't change
-        new_config["Config"] = self.config["Config"].get()
-        new_config["Description"] = self.config["Description"].get()
-        new_config["Paths"] = self.config["Paths"].get()
+        new_config["Config"] = dict(self.config["Config"].get())
+        new_config["Description"] = dict(self.config["Description"].get())
+        for key in new_config["Description"].keys():
+            new_config["Description"][key] = dict(
+                new_config["Description"][key]
+            )
+        new_config["Paths"] = dict(self.config["Paths"].get())
 
         # get the new data
         new_config["Data"] = {}
@@ -62,12 +67,16 @@ class Output(Base):
         new_config["Data"]["Population p"]["Pop Detail Data pd"][
             "Size"
         ] = list(self.pop.detail_pd_df["Size"])
-        new_config["Data"]["Protection pm"] = self.pop.level_pm_arr.tolist()
-        new_config["Data"]["Pop to Level pl"] = self.demand.level_pl_arr
+        new_config["Data"]["Population p"][
+            "Protection pm"
+        ] = self.pop.level_pm_arr.tolist()
+        new_config["Data"]["Population p"]["Pop to Level pl"] = np.array(
+            self.demand.level_pl_arr
+        ).tolist()
         new_config["Data"]["Demand m"] = {}
-        new_config["Data"]["Demand m"][
-            "Level to Resource mn"
-        ] = self.demand.level_to_res_mn_arr.tolist()
+        new_config["Data"]["Demand m"]["Level to Resource mn"] = np.array(
+            self.demand.level_to_res_mn_df
+        ).tolist()
         new_config["Data"]["Resource n"] = {}
         new_config["Data"]["Resource n"][
             "Res Attr Data na"

@@ -55,18 +55,18 @@ class DemandWA(Demand):
         except KeyError:
             pass
 
-        self.res_demand_mn_arr = config["Data"]["Demand m"][
+        self.level_to_res_mn_arr = config["Data"]["Demand m"][
             "Level to Resource mn"
         ].get()
-        self.res_demand_mn_df = set_dataframe(
-            self.res_demand_mn_arr,
+        self.level_to_res_mn_df = set_dataframe(
+            self.level_to_res_mn_arr,
             label=config["Label"].get(),
             index="Demand m",
             columns="Resource n",
         )
-        log.debug(f"{self.res_demand_mn_df=}")
+        log.debug(f"{self.level_to_res_mn_df=}")
         self.set_description(
-            f"{self.res_demand_mn_df=}",
+            f"{self.level_to_res_mn_df=}",
             config["Description"]["Demand m"]["Demand Resource mn"].get(),
         )
 
@@ -77,7 +77,7 @@ class DemandWA(Demand):
             raise ValueError("{res=} should not be None")
 
         self.demand_pn_arr = np.array(pop.level_pm_df) @ np.array(
-            self.res_demand_mn_df
+            self.level_to_res_mn_df
         )
         self.demand_pn_df = pd.DataFrame(
             self.demand_pn_arr,

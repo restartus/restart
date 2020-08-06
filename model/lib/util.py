@@ -4,11 +4,20 @@ Main utilities
 """
 import datetime
 import logging
+import os
 from pathlib import Path
 from typing import Dict, Optional, Union
 
+import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
+
+
+def set_config(path: str):
+    """Set a confuse configuration."""
+    os.environ["CONFIGDIR"] = os.path.abspath(path)
+    config = confuse.Configuration("config")
+    return config
 
 
 def dump_loggers(logging, log: logging.Logger):

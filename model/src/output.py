@@ -3,14 +3,16 @@
 Automatically generates config files
 """
 import logging
+from typing import Dict
+
 import confuse  # type: ignore
 import numpy as np  # type: ignore
 import yaml
-from typing import Dict
+
 from base import Base
+from demand import Demand
 from population import Population
 from resourcemodel import Resource
-from demand import Demand
 from util import Log
 
 
@@ -24,7 +26,8 @@ class Output(Base):
         resource: Resource,
         demand: Demand,
         log_root: Log = None,
-        type: str = None,
+        out: str = None,
+        csv: str = None,
     ):
         """Do the initializing.
 
@@ -43,9 +46,11 @@ class Output(Base):
         self.pop = pop
         self.resource = resource
         self.demand = demand
-        self.type = type
+        self.out = out
+        self.csv = csv
 
         self.generate_config()
+        self.write_csv()
 
     def generate_config(self):
         """Generate a new config yaml."""
@@ -124,6 +129,15 @@ class Output(Base):
 
     def write_config(self, config: Dict):
         """Writes config dict to yaml file."""
-        if self.type is not None:
-            with open(self.type, "w") as yamlfile:
+        if self.out is not None:
+            with open(self.out, "w") as yamlfile:
                 yaml.dump(config, yamlfile)
+
+    def write_csv(self):
+        """Writes to a CSV file."""
+        if self.csv is not None:
+            df = self.demand.total_demand_pn_df.copy()
+            # insert population into the dataframe
+            pop = list(self.pop.detail_pd_df["Size"])
+            df.insert(loc=0, column="Size", value=pop)
+            df.to_csv(self.csv)

@@ -17,15 +17,13 @@ import argparse
 # https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
 import logging  # noqa:F401
 
-import confuse  # type: ignore
-
 from base import Base
 from dashboard import Dashboard
 from model import Model
 
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
-from util import Log
+from util import Log, set_config
 
 # from pathlib import Path
 # from typing import Optional
@@ -99,7 +97,8 @@ class Compose:
 
         # move config init here so that it can access args
         # now set_configure is just used to change the base default
-        self.config = confuse.Configuration("config")
+        self.config = set_config(args.config)
+        # self.config = confuse.Configuration("config")
         self.config.set_args(args)
 
         # refactor with method chaining but this does require a single class
@@ -119,7 +118,7 @@ class Compose:
             .set_disease(type=args.disease)
             .set_activity(type=args.activity)
             .set_behavioral(type=args.behavioral)
-            .set_output(type=args.output)
+            .set_output(out=args.output, csv=args.csv)
         )
         # run the loader and put everything into a super dictionary
         # To change the model, just replace LoadYAML and the configuration
@@ -224,6 +223,8 @@ class Compose:
             help="Select population data cube",
         )
 
+        parser.add_argument("--csv", help="Select CSV file output")
+
         parser.add_argument("--county", help="Select county")
 
         parser.add_argument("--state", help="Select state")
@@ -232,7 +233,11 @@ class Compose:
             "--subpop", help="Select subpopulation of interest"
         )
 
-        parser.add_argument("--output", help="Write results to CSV file")
+        parser.add_argument(
+            "--config", default=".", help="Select path to config.yaml"
+        )
+
+        parser.add_argument("--output", "-o", help="Write results to CSV file")
 
         parser.add_argument(
             "-r",

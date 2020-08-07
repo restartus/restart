@@ -13,19 +13,26 @@
 #
 
 # Note that
-TAG ?= v1.4.7.2
+TAG ?= v2.0
 COMMENT ?= test comment
 
-FILES ?= covid-surge-who-county covid-surge-who-single-cook covid-surge-who-single covid-surge-who
+FILES ?= covid-surge-who \
+		 covid-surge-who-reed \
+		 covid-surge-who-single \
+		 covid-surge-who-county \
+		 covid-surge-who-single-cook \
+		 covid-surge-who-single-ca \
+		 covid-surge-who-single-miami
 
 ## release: copy up the Excel files to the named locations at the root
 .PHONY: release
 release:
+	@echo if the tag does not exist we skip and use the older version
 	for file in $(FILES); do \
-		cp "$$file-$(TAG).xlsx" "../$$file.xlsx"; \
+		cp "$$file-$(TAG).xlsx" "../$$file.xlsx" || true; \
 	done
 
-## action: pushes a new tag up while delete old if they exist forcing a github action
+## action: pushes a new tag up while delete old to force the action
 .PHONY: action
 action:
 	git tag -d "$(TAG)"; \
@@ -33,4 +40,4 @@ action:
 	git tag -a "$(TAG)" -m "$(COMMENT)" && \
 	git push origin "$(TAG)"
 
-include include.mk
+include ../lib/include.mk

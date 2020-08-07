@@ -184,6 +184,7 @@ class PopulationWA(Population):
             index=detailed["Industry description"],
             columns=self.config["Label"]["Demand m"].get(),
         )
+        self.level_pm_labs = list(self.level_pm_df.index)
         self.set_description(
             f"{self.level_pm_df=}",
             self.config["Description"]["Population p"]["Protection pm"].get(),

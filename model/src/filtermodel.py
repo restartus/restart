@@ -26,7 +26,7 @@ class Filter(Base):
         log_root: Log = None,
         county: str = None,
         state: str = None,
-        population: str = None,
+        subpop: str = None,
     ):
         """Initialize the Economy object.
 
@@ -50,5 +50,5 @@ class Filter(Base):
 
         self.location = {"county": county, "state": state}
         log.debug(f"{self.location=}")
-        self.population = population
-        log.debug(f"{self.population=}")
+        self.subpop = subpop
+        log.debug(f"{self.subpop=}")

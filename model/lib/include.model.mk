@@ -3,6 +3,7 @@ WEB ?= $(MAIN)
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py" -not -name $(WEB))
 FLAGS ?=
 CA_FLAGS ?=
+WA_FLAGS ?=
 
 ## main: run the main program
 .PHONY: main
@@ -13,6 +14,10 @@ main:
 .PHONY: main-ca
 main-ca:
 	pipenv run python $(MAIN) $(CA_FLAGS)
+
+.PHONY: main-wa
+main-wa:
+	pipenv run python $(MAIN) $(WA_FLAGS)
 
 # https://docs.python.org/3/library/pdb.html
 ## pdb: run locally with python to test components from main (uses pipenv)
@@ -47,3 +52,7 @@ web-debug:
 .PHONY:
 web-ca:
 	pipenv run streamlit run $(WEB) -- $(CA_FLAGS)
+
+.PHONY:
+web-wa:
+	pipenv run streamlit run $(WEB) -- $(WA_FLAGS)

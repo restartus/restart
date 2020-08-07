@@ -99,7 +99,7 @@ class DemandWA(Demand):
             raise ValueError(f"{pop.detail_pd_df=} should not be None")
 
         if pop.detail_pd_arr is None:
-            raise ValueError(f"{pop.detail_pd_df=} should not be None")
+            raise ValueError(f"{pop.detail_pd_arr=} should not be None")
 
         self.level_pl_arr = self.calculate_essential(map_df, config, pop)
         self.level_pl_df = pd.DataFrame(
@@ -178,11 +178,10 @@ class DemandWA(Demand):
 
         Manually slice the dataframe
         """
+        detail_pd_df: pd.DataFrame = pop.detail_pd_df
         if pop.codes is None or df is None:
-            return np.array(
-                config["Data"]["Population p"]["Pop to Level pl"].get()
-            )
-
+            arr = np.random.rand(detail_pd_df.shape[0], 2)
+            return np.rint(arr)
         # manually redo indexing and select the rows we need
         df.columns = df.iloc[2528]
         df = df.iloc[2529:3303]

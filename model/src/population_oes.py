@@ -62,7 +62,7 @@ class PopulationOES(Population):
             log.debug("invalid location input {self.location=}")
             return
 
-        self.population = filt.population
+        self.subpop = filt.subpop
         self.codes: list
 
         # get population data
@@ -71,7 +71,7 @@ class PopulationOES(Population):
         self.detail_pd_df = df_dict["detail_pd_df"]
         self.detail_pd_arr = df_dict["detail_pd_arr"]
         self.detail_pd_df.index.name = "Population p"
-        self.detail_pd_df.index.name = "Pop Detail d"
+        self.detail_pd_df.columns.name = "Pop Detail d"
         self.set_description(
             f"{self.detail_pd_df=}",
             config["Description"]["Population p"]["Pop Detail pd"].get(),
@@ -125,7 +125,7 @@ class PopulationOES(Population):
             df = self.create_state_df(location, oes_df)
 
         # filter the population
-        if self.population == "healthcare":
+        if self.subpop == "healthcare":
             df = self.health_filter(df)
 
         # the actual data passed onto the model
@@ -188,7 +188,7 @@ class PopulationOES(Population):
             axis=1,
         )
 
-        # Reset indeces for aesthetic appeal
+        # Reset indices for aesthetic appeal
         df = df.reset_index(drop=True)
 
         return df

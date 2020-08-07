@@ -29,6 +29,7 @@ from output import Output
 from population import Population
 from population_dict import PopulationDict
 from population_oes import PopulationOES
+from population_wa import PopulationWA
 from resource_dict import ResourceDict
 from resourcemodel import Resource
 from util import Log
@@ -130,6 +131,10 @@ class Model(Base):
             self.population = PopulationOES(
                 self.config, self.filter, log_root=self.log_root,
             )
+        elif type == "wa":
+            self.population = PopulationWA(
+                self.config, self.filter, log_root=self.log_root
+            )
         elif type == "dict":
             # change this to the the naming of columns
             self.population = PopulationDict(
@@ -190,17 +195,14 @@ class Model(Base):
         return self
 
     def set_filter(
-        self, county: str = None, state: str = None, population: str = None
+        self, county: str = None, state: str = None, subpop: str = None
     ) -> Model:
         """Filter the model.
 
         Shrink the model to relevant population, resource
         """
         self.filter = Filter(
-            log_root=self.log_root,
-            county=county,
-            state=state,
-            population=population,
+            log_root=self.log_root, county=county, state=state, subpop=subpop,
         )
 
         return self

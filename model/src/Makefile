@@ -3,8 +3,9 @@
 #
 # overriding the name
 name=model
-FLAGS = --load yaml --pop dict
+FLAGS = --pop dict
 CA_FLAGS = --pop oes --state California --demand washington --subpop healthcare
+WA_FLAGS = --pop wa --demand washington
 MAIN = main.py
 
 include ../lib/include.mk

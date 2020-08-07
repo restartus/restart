@@ -107,7 +107,7 @@ class Compose:
             Model(name, log_root=log_root)
             .set_configure(self.config)
             .set_filter(
-                county=args.county, state=args.state, population=args.subpop
+                county=args.county, state=args.state, subpop=args.subpop
             )
             .set_population(type=args.population)
             # .set_population(type=args.students)
@@ -208,18 +208,11 @@ class Compose:
         # expect a real file
         # https://docs.python.org/3/library/argparse.html
         parser = argparse.ArgumentParser()
-        parser.add_argument(
-            "-l",
-            "--load",
-            choices=["yaml", "csv"],
-            default="yaml",
-            help="Select loader",
-        )
 
         parser.add_argument(
             "-p",
             "--population",
-            choices=["dict", "oes"],
+            choices=["dict", "oes", "wa"],
             help="Select population data cube",
         )
 

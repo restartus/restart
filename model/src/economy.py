@@ -8,11 +8,11 @@ The main way we integrate economic activity.
 import logging
 from typing import Optional
 
+import confuse  # type: ignore
 import numpy as np  # type: ignore # noqa: F401
 import pandas as pd  # type: ignore # noqa: F401
 
 from base import Base
-from modeldata import ModelData
 from util import Log
 
 
@@ -33,7 +33,7 @@ class Economy(Base):
 
     def __init__(
         self,
-        data: ModelData,
+        config: confuse.Configuration,
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):

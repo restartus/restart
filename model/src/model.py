@@ -20,7 +20,6 @@ from demand_wa import DemandWA
 from disease import Disease
 from economy import Economy
 from filtermodel import Filter
-from modeldata import ModelData
 from output import Output
 
 # import numpy as np  # type:ignore
@@ -88,7 +87,6 @@ class Model(Base):
             print(f"{log=} has no handlers")
 
         log.debug(f"{self.name=}")
-        self.data: ModelData = ModelData({}, {}, {}, {})
 
     def set_configure(self, config) -> Model:
         """Configure the Model.
@@ -212,7 +210,7 @@ class Model(Base):
 
         Economy creation
         """
-        self.economy = Economy(self.data, log_root=self.log_root, type=type)
+        self.economy = Economy(self.config, log_root=self.log_root, type=type)
         return self
 
     def set_disease(self, type: str = None) -> Model:
@@ -220,16 +218,18 @@ class Model(Base):
 
         Disease create
         """
-        self.disease = Disease(self.data, log_root=self.log_root, type=type)
+        self.disease = Disease(self.config, log_root=self.log_root, type=type)
         return self
 
     def set_activity(self, type: str = None) -> Model:
         """Create Social activity model.
 
-        Includes social activity, restaurant usage, credit card use and other
-        indicators of people out and about
+        Includes social activity, restaurant usage, credit card use and
+        other indicators of people out and about
         """
-        self.activity = Activity(self.data, log_root=self.log_root, type=type)
+        self.activity = Activity(
+            self.config, log_root=self.log_root, type=type
+        )
         return self
 
     def set_behavioral(self, type: str = None) -> Model:
@@ -238,7 +238,7 @@ class Model(Base):
         Behavior create
         """
         self.behavioral = Behavioral(
-            self.data, log_root=self.log_root, type=type
+            self.config, log_root=self.log_root, type=type
         )
         return self
 

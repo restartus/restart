@@ -30,7 +30,7 @@ all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 flags ?= -p 8501:8501
 # As of july 2020, streamlit not compatible with Pandas 1.1
-PIP ?= streamlit altair "pandas<1.1" pyyaml xlrd tables confuse setuptools wheel
+PIP ?= streamlit altair "pandas<1.1" pyyaml xlrd tables confuse setuptools wheel twine
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 PIP_DEV ?=
@@ -94,11 +94,20 @@ format:
 	pipenv run isort --profile=black -w 79 .
 	pipenv run black -l 79 *.py
 
-## pypi: push the package to the Python library (uses pipenv)
+## package: build package
+.PHONY: package
+package:
+	pipenv run python setu.py sdist bdist_wheel
+
+## pypi: build package and push to the python package index
 .PHONY: pypi
-pypi:
-	pipenv run python setup.py register -r pypi
-	pipenv run python setup.py sdit upload -r pypi
+pypi: package
+	pipenv run twine upload dist/*
+
+## pypi-test: build package and push to test python package index
+.PHONY: pypi-test
+pypi-test: package
+	pipenv run twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 ##
 ## gcloud: push up to Google Cloud

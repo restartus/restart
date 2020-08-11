@@ -59,7 +59,7 @@ jobs:
         # https://git-scm.com/book/en/v2/Git-Basics-Tagging
         # note git lfs pull only allows one --include flat at a time
         run: |
-          for release in "$WA_RELEASE" "$COOK_RELEASE" \
+          for release in "$WA_RELEASE" "$COOK_RELEASE" "$MIAMI_RELEASE" \
                          "$SINGLE_RELEASE" "$COUNTY_RELEASE" \
                          "$CA_RELEASE" "$REED_RELEASE"
           do

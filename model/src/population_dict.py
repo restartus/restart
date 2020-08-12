@@ -96,3 +96,5 @@ class PopulationDict(Population):
             config["Description"]["Population p"]["Protection pm"].get(),
         )
         log.debug(f"{self.description['level_pm_df']=}")
+
+        self.level_pm_labs = config["Label"]["Population p"].get()

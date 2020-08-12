@@ -16,7 +16,7 @@
 #
 # https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
 airflow_data ?= $(PWD)
-AIRFLOW_PIP ?= apache-airflow mysqlclient datetime
+AIRFLOW_PIP ?= apache-airflow mysqlclient datetime tables
 AIRFLOW_PIP_DEV ?=
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
@@ -63,8 +63,10 @@ airflow-pipenv: airflow-clean pipenv-python
 	command -v mysql || brew install mysql-client
 	grep mysql-client "$$HOME/.bash_profile" || \
 		echo PATH="/usr/local/opt/mysql-client/bin:$$PATH" >> "$$HOME/.bash_profile"
-	[[ -n "$(AIRFLOW_PIP)" ]] && pipenv install $(AIRFLOW_PIP) || true
-	[[ -n "$(AIRFLOW_PIP_DEV)" ]] && pipenv install --dev $(AIRFLOW_PIP_DEV) || true
+ifdef AIRFLOW_PIP
+	pipenv install $(AIRFLOW_PIP)
+	pipenv install --dev $(AIRFLOW_PIP_DEV) || true
+endif
 	pipenv update
 
 ## airflow-clean: start over remove all config files

@@ -29,10 +29,9 @@ lib_name=${lib_name//-/_}
 # if [[ ! -z $BASH &&  -z ${!lib_name} ]]
 if eval [[ -z \${$lib_name-} ]]
 then
-    # how to do an indirect reference
     eval $lib_name=true
 
-    find_ws()
+    find_ws() 
     {
         local dir=${1:-$SCRIPT_DIR}
         local find_cmd='$(find "$dir" -maxdepth 2 \
@@ -57,8 +56,9 @@ then
     }
 
     # now call find_ws to figure out the workspace
-    export WS_DIR=${WS_DIR:-$(find_ws "$SCRIPT_DIR")}
-    export SOURCE_DIR=${SOURCE_DIR:-"$WS_DIR/git/src"}
+    export WS_DIR="${WS_DIR:-$(find_ws "$SCRIPT_DIR")}"
+    export SOURCE_DIR="${SOURCE_DIR:-"$WS_DIR/git/src"}"
+    export BIN_DIR="${BIN_DIR:-"$WS_DIR/git/src/bin"}"
     # in the world where there is no single src dir, this is the same as all the
     # git repos
     if [[ ! -e $SOURCE_DIR ]]
@@ -71,14 +71,14 @@ then
         while (( $# > 0 )); do
             # Change the sourcing to look first down from WS_DIR for speed
             # exclude mnt so we do not disaoppear into sshfs mounts
-            # maxdepth needs to be high enough for ws/git/personal to find
+            # maxdepth needs to be high enough for ws/git/user to find
             # ws/git/src/infra/lib
-            local lib=$(find "$WS_DIR" "$SCRIPT_DIR"/{.,..,../..} -maxdepth 7 \
+            local lib=$(find "$WS_DIR" "$SCRIPT_DIR"/{.,..,../..,../../..} -maxdepth 7 \
                 -name mnt -prune -o -name $1 -print -quit)
             if [[ -n $lib ]]
             then
                 source "$lib"; fi
             shift; done
     }
-    source_lib lib-debug.sh
+    source_lib lib-debug.sh 
 fi

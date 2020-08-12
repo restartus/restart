@@ -28,12 +28,8 @@ WEB ?= $(MAIN)
 LIB ?= lib
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
 FLAGS ?=
-CA_FLAGS ?=
-all_py = $$(find . -name "*.py")
-all_yaml = $$(find . -name "*.yaml")
 flags ?= -p 8501:8501
-# https://stackoverflow.com/questions/63198480/keyerror-selector-while-deploying-streamlit-python-app-on-heroku/63198786#63198786
-PIP ?= streamlit altair "pandas<1.1" pyyaml xlrd tables
+PIP ?= streamlit altair pandas pyyaml xlrd tables
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 PIP_DEV ?=
@@ -48,21 +44,11 @@ DOC ?= doc
 main:
 	pipenv run python $(MAIN) $(FLAGS)
 
-## main-ca: run the california model
-.PHONY: main-ca
-main-ca:
-	pipenv run python $(MAIN) $(CA_FLAGS)
-
 # https://docs.python.org/3/library/pdb.html
 ## pdb: run locally with python to test components from main (uses pipenv)
 .PHONY: pdb
 pdb:
-	pipenv run python -m pdb $(MAIN) $(FLAGS)
-
-## pdb-ca: run debugging on california model
-.PHONY: pdb-ca
-pdb-ca:
-	pipenv run python -m pdb $(MAIN) $(CA-FLAGS)
+	pipenv run python -m pdb $(MAIN)
 
 ## debug: run with debugging outputs on
 .PHONY: debug
@@ -78,15 +64,11 @@ web:
 
 ## web-pdb: single step debug
 web-pdb:
-	pipenv run python -m pdb $(WEB) $(FLAGS)
-
+	pipenv run pdb $(WEB) $(FLAGS)
 ## web-debug: run web interface in debugger
 web-debug:
-	pipenv run python -d $(WEB) $(FLAGS)
+	pipenv run python -m pdb $(WEB) $(FLAGS)
 
-.PHONY:
-web-ca:
-	pipenv run streamlit run $(WEB) -- $(CA_FLAGS)
 #
 # https://pipenv.pypa.io/en/latest/install/
 # https://realpython.com/pipenv-guide/

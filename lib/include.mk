@@ -21,6 +21,7 @@
 SHELL :- /bin/bash
 repo ?= restartus
 name ?= $$(basename "$(PWD)")
+user ?= $$USER
 all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 
@@ -55,7 +56,8 @@ help: $(MAKEFILE_LIST)
 ## lint: cleans code for you
 .PHONY: lint
 lint:
-	pipenv check || echo errors found or network not available
+	pipenv check
+	# ensures isortworks correctly
 	# mypy finds more errors than flake and we are using namespace
 	# https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports
 	# note this has a bug if there are no yaml or python files

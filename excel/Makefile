@@ -12,8 +12,9 @@
 # change the variables here
 #
 
-# Note that
-TAG ?= v2.0
+# Note that this should be the release you want
+## TAG: set a tag to the latest release you want
+TAG ?= v2.0.1
 COMMENT ?= test comment
 
 FILES ?= covid-surge-who \

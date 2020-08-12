@@ -97,6 +97,7 @@ class Dashboard(BaseLog):
                 "Test Home",
                 "Test Tables",
                 "Test Exploration",
+                "Demand Exploration",
             ],
         )
 
@@ -134,6 +135,17 @@ class Dashboard(BaseLog):
             self.test_home_page(self.data_df)
         elif self.page == "Test Exploration":
             self.test_exploration_page()
+        elif self.page == "Demand Exploration":
+            self.demand_exploration_page(model)
+
+    def demand_exploration_page(self, model):
+        """Test interactive dataframes."""
+        st.title("Demand Exploration")
+
+        # get the demand data
+        df = model.demand.level_to_res_mn_df
+
+        st.dataframe(df)
 
     def test_exploration_page(self):
         """Testing Exploration Options."""

@@ -52,7 +52,7 @@ Data:
       - 4.0
       - 0.2
     - - 0.0
-      - 0.1
+      - 1.0
       - 2.0
       - 1.0
       - 0.0
@@ -60,15 +60,15 @@ Data:
       - 1.5
       - 8.0
       - 0.4
-    - - 1.18
+    - - 2.36
       - 0.0
-      - 3.51
-      - 1.5
+      - 3.03
+      - 1.0
       - 0.05
       - 0.27
-      - 2.57
+      - 3.65
       - 12.0
-      - 0.5
+      - 0.6
   Population p:
     Pop Detail Data pd:
       Size:
@@ -426,28 +426,28 @@ Data:
       - 368
       - 1826
       - 105
-      - 1431
-      - 1563
-      - 193
-      - 342
-      - 166
-      - 439
-      - 281
-      - 324
-      - 605
-      - 930
-      - 114
-      - 166
-      - 122
-      - 61
-      - 52
-      - 316
-      - 307
-      - 52
-      - 61
-      - 131
-      - 166
       - 289
+      - 166
+      - 52
+      - 439
+      - 324
+      - 1563
+      - 131
+      - 930
+      - 52
+      - 342
+      - 114
+      - 122
+      - 1431
+      - 605
+      - 316
+      - 61
+      - 307
+      - 166
+      - 61
+      - 166
+      - 193
+      - 281
     Pop to Level pl:
     - - 0.0
       - 1.0
@@ -491,8 +491,6 @@ Data:
       - 1.0
     - - 1.0
       - 0.0
-    - - 1.0
-      - 0.0
     - - 0.0
       - 1.0
     - - 0.0
@@ -535,8 +533,6 @@ Data:
       - 1.0
     - - 0.0
       - 1.0
-    - - 1.0
-      - 0.0
     - - 0.0
       - 1.0
     - - 0.0
@@ -545,10 +541,12 @@ Data:
       - 1.0
     - - 0.0
       - 1.0
-    - - 1.0
-      - 0.0
+    - - 0.0
+      - 1.0
     - - 0.0
       - 1.0
+    - - 1.0
+      - 0.0
     - - 0.0
       - 1.0
     - - 1.0
@@ -593,8 +591,6 @@ Data:
       - 1.0
     - - 0.0
       - 1.0
-    - - 1.0
-      - 0.0
     - - 0.0
       - 1.0
     - - 0.0
@@ -611,6 +607,10 @@ Data:
       - 1.0
     - - 0.0
       - 1.0
+    - - 0.0
+      - 1.0
+    - - 0.0
+      - 1.0
     - - 1.0
       - 0.0
     - - 1.0
@@ -669,10 +669,10 @@ Data:
       - 1.0
     - - 0.0
       - 1.0
-    - - 1.0
-      - 0.0
-    - - 1.0
-      - 0.0
+    - - 0.0
+      - 1.0
+    - - 0.0
+      - 1.0
     - - 0.0
       - 1.0
     - - 0.0
@@ -727,8 +727,6 @@ Data:
       - 0.0
     - - 0.0
       - 1.0
-    - - 1.0
-      - 0.0
     - - 1.0
       - 0.0
     - - 1.0
@@ -747,10 +745,10 @@ Data:
       - 0.0
     - - 1.0
       - 0.0
-    - - 0.0
-      - 1.0
     - - 0.0
       - 1.0
+    - - 1.0
+      - 0.0
     - - 0.0
       - 1.0
     - - 1.0
@@ -769,12 +767,14 @@ Data:
       - 0.0
     - - 1.0
       - 0.0
-    - - 0.0
-      - 1.0
+    - - 1.0
+      - 0.0
     - - 0.0
       - 1.0
     - - 1.0
       - 0.0
+    - - 1.0
+      - 0.0
     - - 0.0
       - 1.0
     - - 0.0
@@ -799,8 +799,6 @@ Data:
       - 0.0
     - - 1.0
       - 0.0
-    - - 0.0
-      - 1.0
     - - 1.0
       - 0.0
     - - 1.0
@@ -811,14 +809,14 @@ Data:
       - 0.0
     - - 1.0
       - 0.0
-    - - 0.0
-      - 1.0
     - - 1.0
       - 0.0
-    - - 0.0
-      - 1.0
     - - 0.0
       - 1.0
+    - - 1.0
+      - 0.0
+    - - 1.0
+      - 0.0
     - - 0.0
       - 1.0
     - - 0.0
@@ -855,6 +853,8 @@ Data:
       - 1.0
     - - 0.0
       - 1.0
+    - - 1.0
+      - 0.0
     - - 0.0
       - 1.0
     - - 0.0
@@ -1115,6 +1115,8 @@ Data:
       - 1.0
     - - 0.0
       - 1.0
+    - - 1.0
+      - 0.0
     - - 0.0
       - 1.0
     - - 0.0
@@ -1137,8 +1139,6 @@ Data:
       - 1.0
     - - 0.0
       - 1.0
-    - - 1.0
-      - 0.0
     - - 0.0
       - 1.0
     - - 0.0
@@ -1161,10 +1161,6 @@ Data:
       - 1.0
     - - 1.0
       - 0.0
-    - - 0.0
-      - 1.0
-    - - 0.0
-      - 1.0
     - - 0.0
       - 1.0
     - - 0.0
@@ -1179,8 +1175,14 @@ Data:
       - 1.0
     - - 0.0
       - 1.0
+    - - 1.0
+      - 0.0
+    - - 1.0
+      - 0.0
     - - 1.0
       - 0.0
+    - - 0.0
+      - 1.0
     - - 0.0
       - 1.0
     - - 0.0
@@ -1193,10 +1195,8 @@ Data:
       - 1.0
     - - 0.0
       - 1.0
-    - - 1.0
-      - 0.0
-    - - 1.0
-      - 0.0
+    - - 0.0
+      - 1.0
     - - 0.0
       - 1.0
     - - 0.0
@@ -3739,6 +3739,41 @@ Data:
     - - 0.0
       - 0.0
       - 0.0
+      - 1.0
+      - 0.0
+      - 0.0
+      - 0.0
+    - - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+      - 0.0
+      - 0.0
+      - 0.0
+    - - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+      - 0.0
+      - 0.0
+      - 0.0
+    - - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+      - 0.0
+      - 0.0
+      - 0.0
+    - - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+      - 0.0
+      - 0.0
+      - 0.0
+    - - 0.0
+      - 0.0
+      - 0.0
       - 0.0
       - 0.0
       - 0.5
@@ -3760,66 +3795,31 @@ Data:
     - - 0.0
       - 0.0
       - 0.0
+      - 1.0
+      - 0.0
+      - 0.0
+      - 0.0
+    - - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+      - 0.0
+      - 0.0
+      - 0.0
+    - - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+      - 0.0
+      - 0.0
+      - 0.0
+    - - 0.0
+      - 0.0
+      - 0.0
       - 0.0
       - 0.0
       - 0.5
       - 0.5
-    - - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-      - 0.0
-      - 0.0
-      - 0.0
-    - - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-      - 0.0
-      - 0.0
-      - 0.0
-    - - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-      - 0.0
-      - 0.0
-      - 0.0
-    - - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-      - 0.0
-      - 0.0
-      - 0.0
-    - - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-      - 0.0
-      - 0.0
-      - 0.0
-    - - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-      - 0.0
-      - 0.0
-      - 0.0
-    - - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-      - 0.0
-      - 0.0
-      - 0.0
-    - - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-      - 0.0
-      - 0.0
-      - 0.0
     - - 0.0
       - 0.0
       - 0.0
@@ -4471,28 +4471,28 @@ Label:
   - Packers and Packagers, Hand
   - Stockers and Order Fillers
   - Refuse and Recyclable Material Collectors
-  - Uncounted Office and Administrative Support Occupations
-  - Uncounted Production Occupations
-  - Uncounted Personal Care and Service Occupations
-  - Uncounted Food Preparation and Serving Related Occupations
-  - Uncounted Life, Physical, and Social Science Occupations
-  - Uncounted Construction and Extraction Occupations
-  - Uncounted Architecture and Engineering Occupations
-  - Uncounted Installation, Maintenance, and Repair Occupations
-  - Uncounted Healthcare Practitioners and Technical Occupations
-  - Uncounted Educational Instruction and Library Occupations
-  - Uncounted Sales and Related Occupations
-  - Uncounted Healthcare Support Occupations
-  - Uncounted Protective Service Occupations
-  - Uncounted Legal Occupations
-  - Uncounted Building and Grounds Cleaning and Maintenance Occupations
-  - Uncounted Business and Financial Operations Occupations
-  - Uncounted Management Occupations
-  - Uncounted Computer and Mathematical Occupations
-  - Uncounted Farming, Fishing, and Forestry Occupations
-  - Uncounted Community and Social Service Occupations
-  - Uncounted Arts, Design, Entertainment, Sports, and Media Occupations
   - Uncounted Transportation and Material Moving Occupations
+  - Uncounted Arts, Design, Entertainment, Sports, and Media Occupations
+  - Uncounted Computer and Mathematical Occupations
+  - Uncounted Construction and Extraction Occupations
+  - Uncounted Installation, Maintenance, and Repair Occupations
+  - Uncounted Production Occupations
+  - Uncounted Community and Social Service Occupations
+  - Uncounted Educational Instruction and Library Occupations
+  - Uncounted Building and Grounds Cleaning and Maintenance Occupations
+  - Uncounted Food Preparation and Serving Related Occupations
+  - Uncounted Sales and Related Occupations
+  - Uncounted Protective Service Occupations
+  - Uncounted Office and Administrative Support Occupations
+  - Uncounted Healthcare Practitioners and Technical Occupations
+  - Uncounted Business and Financial Operations Occupations
+  - Uncounted Legal Occupations
+  - Uncounted Management Occupations
+  - Uncounted Life, Physical, and Social Science Occupations
+  - Uncounted Farming, Fishing, and Forestry Occupations
+  - Uncounted Healthcare Support Occupations
+  - Uncounted Personal Care and Service Occupations
+  - Uncounted Architecture and Engineering Occupations
   Res Attribute a:
   - Units
   - Volume

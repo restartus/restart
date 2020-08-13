@@ -28,6 +28,9 @@ pyyaml = "*"
 xlrd = "*"
 tables = "*"
 confuse = "*"
+setuptools = "*"
+wheel = "*"
+twine = "*"
 
 [requires]
 python_version = "3.8"

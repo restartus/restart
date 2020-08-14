@@ -2,7 +2,6 @@
 
 Read in the population from the model dictionary
 """
-import logging
 
 # import numpy as np  # type: ignore
 # https://www.python.org/dev/peps/pep-0420/
@@ -14,8 +13,9 @@ import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
 
+from log import Log
 from population import Population
-from util import Log, set_dataframe
+from util import set_dataframe
 
 
 class PopulationDict(Population):
@@ -42,17 +42,7 @@ class PopulationDict(Population):
         super().__init__(config, log_root=log_root)
 
         # create a sublogger if a root exists in the model
-        if log_root is not None:
-            self.log_root: Log = log_root
-            log = log_root.log_class(self)
-            log.debug(f"{log_root=}, {log_root.con=}")
-            self.log_root.con.setLevel(logging.DEBUG)
-            log.debug(f"in {__name__=}")
-            self.log_root.con.setLevel(logging.WARNING)
-        else:
-            log = logging.getLogger(__name__)
-            log.debug(f"no log_root using {log=}")
-        self.log = log
+        log = self.log
 
         # type declarations
         self.detail_pd_arr: np.ndarray

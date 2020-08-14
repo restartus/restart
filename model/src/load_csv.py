@@ -2,14 +2,13 @@
 
 The loader for the CSV
 """
-import logging
 import os
 from typing import Dict, List, Optional
 
 import pandas as pd  # type:ignore
 
 from load import Load
-from util import Log
+from log import Log
 
 
 class LoadCSV(Load):
@@ -40,15 +39,8 @@ class LoadCSV(Load):
         Reads the files
         """
         # logging setup
-        super().__init__()
-        self.root_log: Optional[Log]
-
-        self.root_log = log_root
-        if log_root is not None:
-            log = log_root.log_class(self)
-        else:
-            log = logging.getLogger(__name__)
-        self.log = log
+        super().__init__(log_root=log_root)
+        log = self.log
         log.debug(f"{self.log=} {log=}")
         log.debug(f"module {__name__=}")
 

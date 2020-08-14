@@ -19,11 +19,12 @@ import logging  # noqa:F401
 
 from base import Base
 from dashboard import Dashboard
+from log import Log
 from model import Model
 
 # name collision https://docs.python.org/3/library/resource.html
 # so can't use resource.py
-from util import Log, set_config
+from util import set_config
 
 # from pathlib import Path
 # from typing import Optional
@@ -45,51 +46,64 @@ class Compose:
         """Bootstrap the whole model creating all objects.
 
         Bootstrap where each modules successively knows more about the world
-        Population defines Pop_details[p,d], Pop_levels[p,l]
 
         In this version, there is a specific order of creation and implicit
         dependencies so use in this order. The notation we uses suffixes each
-        with a unique letter that gives the number of elements so n x a means n
-        resource by a attributes. And yes this will not work when we have more
-        than 26 types of dimensions :-)
+        different meanings.
 
-        In a future revision, you can do this in any order and it will work
-        - model itself
-        - resource which creates the n resources (eg N95, test kit, etc.) with
-          the columns being x attributes like the units and space R[n, x].
-        - demand to create burn rates for each "level" of the model.
-          Instead of calculating unique burn rates per population element, we
-          bucketize with the demand level l so it returns C[l, n]
+        The major model elements are:
+        Real World Objects
+        Population - People and their attributes
+        Organization - Hospitals, EMTs, etc.
+        Resources - PPE, Testing, Lab Capacity,...
+        Warehouse - Storing resources
 
-        TODO: Note that then when running streamlit this will be run multiple
-        times and must be reentrant which is not today, the logging does not
-        work
+        Transformation Objects: These map from real to real
+        Demand - The demand from Populations and Organizations for Resources
 
-        And if you make a change to any, the model will automatically recalc
-        everything
+        Notation: We use snake_case to bind these together
+
+        Object_<dimension description...>_units_dimensions_type
+
+        For example: this means population object as a total count (vs per
+        unit) with dimensions:
+        g - geo. These are normally filtered out to get to the right level
+        t - time. These are normally filtered so it is a single dimension
+        r - range of estimates. by default just a single point estimate but can
+            be as many different points as you need with lo, mid, hi typically
+        p - population one for each class. Note that each object can have
+            different summary levels, so p = p0 and l = p1 so the first level
+            summary. We allow an ulimited levels, but a single variable with a
+            number indicates how much summarization with 0 being the most
+            detailed.
+        d - a shortcut for the "columns" for this, the last element also called
+            phat and it is not and this is more formally known as p^(hat)
+            and there are arbitrarily summarizations from phat0 to the more
+            summarized p^(hat1, phat2,...
+
+        We normally use the shortest notation but all these are valid
+        and should point to the same object. With the most common notation just
+        noting the object_units_lastdimension_type
+
+        Pop_tot_desc_gtrpd_df = Pop_tot_gtrpd_df == Pop_tot_gtrp0phat_df ==
+        Population_total_description_gtrp0phat0_df ==
+        Population_geo_time_range_detail_description_detail_gtrp0phat0_dataframe
+
+
         """
         # set up the logging
         # This name should *not* be the same as any module name like main
-        name = "test"
-        # this should only get run once so check here
-        # breakpoint()
-        log_root = Log(name)
-        # Set all the loggers the same
-        log = log_root.log
+        name = "model"
+        self.log_root = Log(name)
+        # for convenience
+        self.log = log = self.log_root.log
         # There is a root logger we cannot shutoff so turn off propagation
         log.propagate = False
         # test that logging works
-        log_root.test(log)
-        # removin this line was the problem but it is back in util.py
-        # log.setLevel(logging.DEBUG)
-
-        # do not need this with log_root
-        # log = set_logger(__name__, level=logging.DEBUG)
-        # log = logging.getLogger(__name__)
-
         #  https://docs.python.org/3/howto/logging-cookbook.html
-        log.debug(f"{__name__=}")
-        log.info("hello world")
+        self.log_root.test(log)
+        log.debug(f"{__name__=}")  # goes to log file
+        log.info("hello world")  # goes to console
 
         parser = self.get_parser()
         args = parser.parse_args()
@@ -101,18 +115,18 @@ class Compose:
         # self.config = confuse.Configuration("config")
         self.config.set_args(args)
 
-        # refactor with method chaining but this does require a single class
-        # and a set of decorators
+        # uses method chaining
         self.model = model = (
-            Model(name, log_root=log_root)
+            Model(name, log_root=self.log_root)
             .set_configure(self.config)
             .set_filter(
                 county=args.county, state=args.state, subpop=args.subpop
             )
+            # Create the real object in the world
             .set_population(type=args.population)
-            # .set_population(type=args.students)
+            .set_organization(type=args.organization)
             .set_resource(type=args.resource)
-            # .set_resource(type=args.pharma)
+            # Create the transformers
             .set_demand(type=args.demand)
             .set_economy(type=args.economy)
             .set_disease(type=args.disease)
@@ -216,6 +230,8 @@ class Compose:
             help="Select population data cube",
         )
 
+        parser.add_argument("--organization", help=["hospital", "EMO"])
+
         parser.add_argument("--csv", help="Select CSV file output")
 
         parser.add_argument("--county", help="Select county")
@@ -280,8 +296,9 @@ class Compose:
 
         return parser
 
-    # TODO: confuse breaks the old model so need to go and fix this
     '''
+    # confuse breaks the old model so need to go and fix this
+    # deprecated
     def old_compose(self, name, log_root: Optional[Log] = None):
         """Old Model invocation.
 
@@ -329,12 +346,8 @@ class Compose:
     '''
 
 
-# This is a global variable so easy to find
-# this does not work, streamlit just runs the whole things all over again for
-# each page
-# compose: Optional[Compose] = None
-
 if __name__ == "__main__":
+    # TODO: longer term we will run a series of models
     # compose the entire model runs as a class so it is rentrant
     compose = Compose()
     Dashboard(compose.model)

@@ -18,17 +18,17 @@ TODO: Not implemented need to work out multiindex
 """
 from __future__ import annotations
 
-import logging
 from typing import Dict, List, Optional, Tuple
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
-from util import Log
+from base import BaseLog
+from log import Log
 
 
-class Data:
+class Data(BaseLog):
     """Base data class for the entire model.
 
     The main data is in an Numpy array
@@ -66,12 +66,9 @@ class Data:
         Mainly the descriptions
         """
         # since we have no log otherwise
-        self.log_root = log_root
-        if log_root is not None:
-            log: logging.Logger = log_root.log_class(self)
-        else:
-            log = logging.getLogger(__name__)
-        self.log = log
+        super().__init__(log_root=log_root)
+
+        log = self.log
         log.debug(f"{__name__=}")
 
         self.config = config

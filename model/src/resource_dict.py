@@ -2,13 +2,13 @@
 
 Reads from dictionary for defaults
 """
-import logging
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
 
+from log import Log
 from resourcemodel import Resource
-from util import Log, set_dataframe
+from util import set_dataframe
 
 
 class ResourceDict(Resource):
@@ -26,14 +26,7 @@ class ResourceDict(Resource):
         """
         # to pick up the description
         super().__init__(config, log_root=log_root)
-
-        # create a sublogger if a root exists in the model
-        self.log_root = log_root
-        if log_root is not None:
-            log = log_root.log_class(self)
-        else:
-            log = logging.getLogger(__name__)
-        self.log = log
+        log = self.log
         self.log.debug(f"in {__name__}")
 
         # need labels for later since we do not have access to model

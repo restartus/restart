@@ -31,7 +31,7 @@ if eval [[ -z \${$lib_name-} ]]
 then
     eval $lib_name=true
 
-    find_ws() 
+    find_ws()
     {
         local dir=${1:-$SCRIPT_DIR}
         local find_cmd='$(find "$dir" -maxdepth 2 \
@@ -80,5 +80,5 @@ then
                 source "$lib"; fi
             shift; done
     }
-    source_lib lib-debug.sh 
+    source_lib lib-debug.sh
 fi

@@ -3,17 +3,32 @@
 Base mainly includes the description fields
 """
 import logging
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 import pandas as pd  # type:ignore
 
-from util import Log
+from log import Log
 
 
-class Base:
+class BaseLog:
+    """Logging is at the very bottom."""
+
+    def __init__(self, log_root: Optional[Log] = None):
+        """Set the Root Log."""
+        # since we have no log otherwise
+        self.log_root = log_root
+        self.log = (
+            log_root.log_class(self)
+            if log_root is not None
+            else logging.getLogger(__name__)
+        )
+        self.log.debug(f"{self=}")
+
+
+class Base(BaseLog):
     """Base for all model classes.
 
-    Base strings.
+    Base strings and description.
     """
 
     # do not put variable here unless you want them the same
@@ -25,16 +40,8 @@ class Base:
 
         Mainly the descriptions
         """
+        super().__init__(log_root=log_root)
         self.description: Dict = {}
-
-        # since we have no log otherwise
-        if log_root is not None:
-            log: logging.Logger = log_root.log_class(self)
-        else:
-            log = logging.getLogger(__name__)
-        log.debug(f"{__name__=}")
-        log.debug("run base")
-        log.debug(f"{self=}")
 
     def set_description(self, name: str, description: str):
         """Set the variable description.

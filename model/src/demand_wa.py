@@ -2,7 +2,6 @@
 
 The original model based on DOH levels
 """
-import logging
 import os
 from typing import Optional
 
@@ -12,9 +11,10 @@ import pandas as pd  # type: ignore
 
 from demand import Demand
 from load_csv import LoadCSV
+from log import Log
 from population import Population
 from resourcemodel import Resource
-from util import Log, datetime_to_code, load_dataframe, set_dataframe
+from util import datetime_to_code, load_dataframe, set_dataframe
 
 
 class DemandWA(Demand):
@@ -36,12 +36,7 @@ class DemandWA(Demand):
         Do some matrix math
         """
         super().__init__(config, log_root=log_root)
-        self.log_root = log_root
-        if log_root is not None:
-            log = log_root.log_class(self)
-        else:
-            log = logging.getLogger(__name__)
-        self.log = log
+        log = self.log
         log.debug(f"In {__name__}")
 
         map_df: Optional[pd.DataFrame] = None

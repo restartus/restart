@@ -12,8 +12,9 @@ import pandas as pd  # type: ignore
 
 from filtermodel import Filter
 from load_csv import LoadCSV
+from log import Log
 from population import Population
-from util import Log, datetime_to_code, load_dataframe
+from util import datetime_to_code, load_dataframe
 
 
 class PopulationOES(Population):
@@ -41,15 +42,8 @@ class PopulationOES(Population):
 
         Read the paths in and create dataframes, generate mappings
         """
-        self.root_log: Optional[Log]
-        # global log
-        # log: logging.Logger = logging.getLogger(__name__)
-
-        if log_root is not None:
-            self.log_root = log_root
-            log = self.log = log_root.log_class(self)
-            log.debug(f"{self.log=} {log=}")
-            super().__init__(config, log_root=log_root)
+        super().__init__(config, log_root=log_root)
+        log = self.log
 
         log.debug(f"module {__name__=}")
 

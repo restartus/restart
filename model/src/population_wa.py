@@ -1,5 +1,4 @@
 """Population reading from QCEW data."""
-import logging
 import math
 import os
 from typing import Optional
@@ -10,8 +9,9 @@ import pandas as pd  # type: ignore
 
 from filtermodel import Filter
 from load_csv import LoadCSV
+from log import Log
 from population import Population
-from util import Log, load_dataframe
+from util import load_dataframe
 
 
 class PopulationWA(Population):
@@ -31,16 +31,8 @@ class PopulationWA(Population):
         # global log
         # log: logging.Logger = logging.getLogger(__name__)
 
-        if log_root is not None:
-            self.log_root = log_root
-            log = self.log = log_root.log_class(self)
-            log.debug(f"{self.log=} {log=}")
-            super().__init__(config, log_root=log_root)
-        else:
-            log = logging.getLogger(__name__)
-            log.debug(f"no log_root using {log=}")
-        self.log = log
-
+        super().__init__(config, log_root=log_root)
+        log = self.log
         log.debug(f"module {__name__=}")
 
         # get location and population from the filter

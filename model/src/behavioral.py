@@ -2,7 +2,6 @@
 
 Behavioral modeling
 """
-import logging
 from typing import Optional
 
 import confuse  # type: ignore
@@ -10,7 +9,7 @@ import numpy as np  # type: ignore # noqa: F401
 import pandas as pd  # type: ignore # noqa: F401
 
 from base import Base
-from util import Log
+from log import Log
 
 
 class Behavioral(Base):
@@ -36,18 +35,6 @@ class Behavioral(Base):
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__(log_root=log_root)
+        log = self.log
 
-        # create a sublogger if a root exists in the model
-        self.log_root = log_root
-        if log_root is not None:
-            log = log_root.log_class(self)
-            # demo code
-            log_root.con.setLevel(logging.DEBUG)
-            log.debug(f"in {__name__=}")
-            log_root.con.setLevel(logging.WARNING)
-        else:
-            log = logging.getLogger(__name__)
-        self.log = log
-
-        if type is not None:
-            log.debug(f"not implemented {type=}")
+        log.debug(f"not implemented {type=}")

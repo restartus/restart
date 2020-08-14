@@ -8,7 +8,6 @@ https://www.w3schools.com/python/python_classes.asp
 # this allows Model to refer to itself
 from __future__ import annotations
 
-import logging  # noqa: F401
 from typing import Dict, List, Optional, Tuple
 
 from activity import Activity
@@ -20,6 +19,8 @@ from demand_wa import DemandWA
 from disease import Disease
 from economy import Economy
 from filtermodel import Filter
+from log import Log
+from organization_dict import OrganizationDict
 from output import Output
 
 # import numpy as np  # type:ignore
@@ -31,7 +32,6 @@ from population_oes import PopulationOES
 from population_wa import PopulationWA
 from resource_dict import ResourceDict
 from resourcemodel import Resource
-from util import Log
 
 
 class Model(Base):
@@ -72,14 +72,7 @@ class Model(Base):
         # the long description of each
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__(log_root=log_root)
-
-        # https://reinout.vanrees.org/weblog/2015/06/05/logging-formatting.html
-        self.log_root = log_root
-        if log_root is not None:
-            log = log_root.log_class(self)
-        else:
-            log = logging.getLogger(__name__)
-        self.log = log
+        log = self.log
         log.debug(f"{__name__=}")
 
         self.name: str = name
@@ -143,6 +136,14 @@ class Model(Base):
             )
         else:
             raise ValueError(f"{type=} not implemented")
+        return self
+
+    def set_organization(self, type: str = None) -> Model:
+        """Set organization."""
+        if type == "dict":
+            self.organization = OrganizationDict(
+                self.config, log_root=self.log_root
+            )
         return self
 
     def set_resource(self, type: str = None) -> Model:

@@ -6,7 +6,6 @@ https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 # allows return self typing to work
 from __future__ import annotations
 
-import logging
 from typing import Optional, Union
 
 import confuse  # type: ignore
@@ -14,7 +13,8 @@ import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
 from base import Base
-from util import Log, set_dataframe
+from log import Log
+from util import set_dataframe
 
 
 class Resource(Base):
@@ -49,13 +49,9 @@ class Resource(Base):
         """
         # initialize logging and description
         super().__init__(log_root=log_root)
-        self.log_root = log_root
-        if log_root is not None:
-            log = log_root.log_class(self)
-        else:
-            log = logging.getLogger(__name__)
-        self.log = log
+        log = self.log
         self.config = config
+        log.debug(f"in {__name__}")
 
         # Filling these is the job of the child classes
         self.attr_na_df: Optional[pd.DataFrame] = None

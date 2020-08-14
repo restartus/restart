@@ -2,16 +2,16 @@
 
 The original model based on DOH levels
 """
-import logging
 from typing import Optional
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
 
 from demand import Demand
+from log import Log
 from population import Population
 from resourcemodel import Resource
-from util import Log, set_dataframe
+from util import set_dataframe
 
 
 class DemandDict(Demand):
@@ -35,12 +35,7 @@ class DemandDict(Demand):
         Do some matrix math
         """
         super().__init__(config, log_root=log_root)
-        self.log_root = log_root
-        if log_root is not None:
-            log = log_root.log_class(self)
-        else:
-            log = logging.getLogger(__name__)
-        self.log = log
+        log = self.log
         log.debug(f"In {__name__}")
 
         self.level_to_res_mn_arr = np.array(

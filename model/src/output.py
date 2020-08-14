@@ -2,7 +2,6 @@
 
 Automatically generates config files
 """
-import logging
 from typing import Dict
 
 import confuse  # type: ignore
@@ -11,9 +10,9 @@ import yaml
 
 from base import Base
 from demand import Demand
+from log import Log
 from population import Population
 from resourcemodel import Resource
-from util import Log
 
 
 class Output(Base):
@@ -34,12 +33,7 @@ class Output(Base):
         Generate the config files
         """
         super().__init__(log_root=log_root)
-        self.log_root = log_root
-        if log_root is not None:
-            log = log_root.log_class(self)
-        else:
-            log = logging.getLogger(__name__)
-        self.log = log
+        log = self.log
         log.debug(f"In {__name__}")
 
         self.config = config

@@ -7,7 +7,6 @@ It also includes a default() for setting up the main attribute matrix,
 detail_pd_arr and then a calc() which calculates the rest of the related data
 """
 
-import logging  # noqa: F401
 from typing import Dict, Optional
 
 # Insert the classes of data we support here
@@ -17,7 +16,7 @@ import pandas as pd  # type:ignore
 
 # Note that pip install data-science-types caused errors
 from base import Base
-from util import Log
+from log import Log
 
 # import pandas as pd  # type:ignore
 
@@ -94,14 +93,7 @@ class Population(Base):
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         # to pick up the description
         super().__init__(log_root=log_root)
-        # create a sublogger if a root exists in the model
-        self.log_root = log_root
-        if log_root is not None:
-            log = log_root.log_class(self)
-        else:
-            # The default logger if you don't get a root logger
-            log = logging.getLogger(__name__)
-        self.log = log
+        log = self.log
         log.debug("In %s", __name__)
 
         self.detail_pd_arr: Optional[np.ndarray] = None

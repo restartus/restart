@@ -20,7 +20,7 @@ import altair as alt  # type:ignore
 import pandas as pd  # type:ignore
 import streamlit as st  # type:ignore
 
-from base import Base
+from base import Base, BaseLog
 from model import Model
 
 # https://docs.python.org/3/howto/logging-cookbook.html
@@ -30,7 +30,7 @@ from model import Model
 # name: str = os.path.basename(__file__).split(".")[0]
 
 
-class Dashboard:
+class Dashboard(BaseLog):
     """Dashboard object.
 
     Streamlit dashboard
@@ -42,14 +42,13 @@ class Dashboard:
         Streamlit dashboard for a Model
         """
         # TODO: Put all this stuff into a library
-        self.log_root = model.log_root
-        if self.log_root is not None:
-            log = self.log_root.log_class(self)
-            log.debug(f"found {self.log_root=} and made {log=}")
-        else:
-            # backup logger
-            log = logging.getLogger(__name__)
-        self.log = log
+        super().__init__(log_root=model.log_root)
+        # if self.log_root is not None:
+        #     log = self.log_root.log_class(self)
+        #     log.debug(f"found {self.log_root=} and made {log=}")
+        # else:
+        #     log = logging.getLogger(__name__)
+        log = self.log
         log.debug(f"{__name__=}")
 
         # sample test data

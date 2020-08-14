@@ -1,10 +1,7 @@
-"""Econometric model.
+"""Organization Model.
 
-The main way we integrate economic activity.
+Organization modeling
 """
-# https://numpydoc.readthedocs.io/en/latest/format.html
-# https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html
-# note that the type ignor and noqa lines are space sensitive
 from typing import Optional
 
 import confuse  # type: ignore
@@ -15,10 +12,8 @@ from base import Base
 from log import Log
 
 
-class Economy(Base):
-    """Economy - Manages the economy.
-
-    This creates for all r resources, the list of attributes a
+class Organization(Base):
+    """The amount of use by Organization.
 
     This contains
     This uses https://realpython.com/documenting-python-code/
@@ -27,23 +22,29 @@ class Economy(Base):
     Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
     """
 
-    # no variable here unless you want them the same across all classes
-    # see https://docs.python.org/3/tutorial/classes.html
-
     def __init__(
         self,
         config: confuse.Configuration,
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):
-        """Initialize the Economy object.
+        """Initialize the Organization object.
 
         This uses the Frame object and populates it with default data unless yo
         override it
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
+        # pass the logger down
         super().__init__(log_root=log_root)
-
+        # create a sublogger if a root exists in the model
+        # self.log_root = log_root
+        # log = self.log = (
+        #     log_root.log_class(self)
+        #     if log_root is not None
+        #     else logging.getLogger(__name__)
+        # )
+        # the sample code to move up the logging for a period and then turn it
+        # off
         log = self.log
-
+        log.debug(f"in {__name__=}")
         log.debug(f"not implemented {type=}")

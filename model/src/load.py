@@ -1,14 +1,14 @@
 """Base class for Loader.
 
-BAse class
+Base class
 """
-import logging
 from typing import Dict, Optional
 
-from util import Log
+from base import BaseLog
+from log import Log
 
 
-class Load:
+class Load(BaseLog):
     """Base Load YAML Files.
 
     Base configuration from YAML files
@@ -23,16 +23,12 @@ class Load:
 
         Base class just sets a logger
         """
-        super().__init__()
+        super().__init__(log_root=log_root)
+        log = self.log
         self.data: Dict = {}
 
         # replace the standalone logger if asked
-        self.root_log = log_root
-        if log_root is not None:
-            log = self.log = log_root.log_class(self)
-        else:
-            log = logging.getLogger(__name__)
-        self.log = log
+        log = self.log
 
         log.debug(f"{self.log=} {log=}")
         log.debug(f"module {__name__=}")

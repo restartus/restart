@@ -2,7 +2,6 @@
 
 Activity modeling
 """
-import logging
 from typing import Optional
 
 import confuse  # type: ignore
@@ -10,7 +9,7 @@ import numpy as np  # type: ignore # noqa: F401
 import pandas as pd  # type: ignore # noqa: F401
 
 from base import Base
-from util import Log
+from log import Log
 
 
 class Activity(Base):
@@ -38,16 +37,15 @@ class Activity(Base):
 
         super().__init__(log_root=log_root)
         # create a sublogger if a root exists in the model
-        self.log_root = log_root
-        if log_root is not None:
-            log = self.log = log_root.log_class(self)
-            log_root.con.setLevel(logging.DEBUG)
-            log.debug(f"in {__name__=}")
-            log_root.con.setLevel(logging.WARNING)
-        else:
-            log = self.log = logging.getLogger(__name__)
+        log = self.log
+        # if log_root is not None:
+        #     log = self.log = log_root.log_class(self)
+        #     log_root.con.setLevel(logging.DEBUG)
+        #     log.debug(f"in {__name__=}")
+        #     log_root.con.setLevel(logging.WARNING)
+        # else:
+        #     log = self.log = logging.getLogger(__name__)
         # the sample code to move up the logging for a period and then turn it
         # off
 
-        if type is not None:
-            log.debug(f"not implemented {type=}")
+        log.debug(f"not implemented {type=}")

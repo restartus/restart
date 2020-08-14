@@ -1,5 +1,7 @@
 #
-## User commands:
+## Run this after you have includded include.python.mk
+## Specific to running airflow
+##
 #
 # Remember makefile *must* use tabs instead of spaces so use this vim line
 #
@@ -16,8 +18,7 @@
 #
 # https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
 airflow_data ?= $(PWD)
-AIRFLOW_PIP ?= apache-airflow mysqlclient datetime tables
-AIRFLOW_PIP_DEV ?=
+AIRFLOW_PIP ?= apache-airflow mysqlclient datetime
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 
@@ -25,54 +26,30 @@ AIRFLOW_PIP_DEV ?=
 ## airflow-install: configure airflow data directories
 # the side effect of airflow version is to create a default airflow.cfg
 # Which has the current directory as AIRFLOW_HOME
-# Make sure to use a relative path not absolute and .env is checked in!
 airflow-install: airflow-pipenv
-	# this great must run before any airflow command
-	grep ^AIRFLOW_HOME .env || echo AIRFLOW_HOME=. >> .env
-	# new safety check in MacOS since Catalina
-	grep ^OBJC_DISABLE_INITIALIZE_FORK_SAFETY .env || echo OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES >> .env
-	[[ ! -e airflow.cfg ]] && pipenv run airflow version || true
+	@echo add /usr/local/opt/mysql-client/bin
+	[[ ! -e airflow.cfg ]] && airflow version || true
+	grep AIRFLOW_HOME .env || echo AIRFLOW_HOME="$(airflow_data)" > .env
 	mkdir -p "$(airflow_data)/dags"
-	touch .gitignore
 	for file in airflow.cfg airflow.db; \
 		do grep $$file .gitignore || echo $$file >> .gitignore; \
 		done
 	pipenv run airflow initdb
 
+## airflow-pipenv install basic environment for airflow
+# dependency on include.mk
+.PHONY: python-pipenv
+airflow-pipenv:
+	pipenv install $(AIRFLOW_PIP)
 
-## scheduler: Run the Airflow scheduler (run before the web server)
+## airflow: initialize an airflow db
+.PHONY: airflow
+airflow:
+	pipenv run airflow webserver &
+	sleep 3
+	open http://localhost:8080
+
+## scheduler: Run the Airflow scheduler
 .PHONY: scheduler
 scheduler:
 	pipenv run airflow scheduler
-
-## airflow: initialize an airflow web server default port 8080 change with PORT
-.PHONY: airflow
-PORT?=8080
-airflow:
-	@echo goto http://localhost:$(PORT) to see console
-	pipenv run airflow webserver -p $(PORT)
-
-##
-## Installation helpers (you should need to ever call directly):
-## airflow-pipenv: install basic environment for airflow
-# dependency on include.mk
-.PHONY: airflow-pipenv
-# override to lower versino
-PYTHON = 3.7
-airflow-pipenv: airflow-clean pipenv-python
-	command -v mysql || brew install mysql-client
-	grep mysql-client "$$HOME/.bash_profile" || \
-		echo PATH="/usr/local/opt/mysql-client/bin:$$PATH" >> "$$HOME/.bash_profile"
-ifdef AIRFLOW_PIP
-	pipenv install $(AIRFLOW_PIP)
-	pipenv install --dev $(AIRFLOW_PIP_DEV) || true
-endif
-	pipenv update
-
-## airflow-clean: start over remove all config files
-.PHONY: airflow-clean
-airflow-clean:
-	for file in .env airflow.cfg airflow.db; \
-		do \
-			[[ -e $$file ]] && rm $$file || true; \
-		done

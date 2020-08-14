@@ -19,51 +19,22 @@
 # https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
 
 Dockerfile ?= Dockerfile
-repo ?= restartus
-USER ?= $$USER
-
-name ?= $$(basename "$(PWD)")-$(USER)
 image ?= $(repo)/$(name)
 container = $(name)
-ssh ?= $$HOME/.ssh
-ssh_dest ?= /home/$(USER)/.ssh
-ws ?= $$HOME/ws
-ws_dest ?= /home/$(USER)/ws
-vimrc ?= $$HOME/.vimrc
-vimrc_dest ?= /home/$(USER)/.vimrc
-vim ?= $$HOME/.vim
-vim_dest ?= /home/$(USER)/.vim
-aws ?= $$HOME/.aws
-aws_dest ?= $$HOME/.aws
-vol ?= /Volumes
-vol_dest ?= /Volumes
+docker_data ?= /var/media
+destination ?= $(HOME)/ws/runtime
 build_path ?= .
 MAIN ?= $$(basename $(PWD)).py
 # main.py includes streamlit code that only runs when streamlit invoked
 WEB ?= $(MAIN)
 LIB ?= lib
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
+flags ?= -p 8501:8501
 
-PYTHON ?= 3.8
-build-arg ?= --build-arg PYTHON_ARG=$(PYTHON) --build-arg USER_ARG=$(USER)
-flags ?= -p 8501:8501 -v "$(ws):$(ws_dest)" -v "$(ssh):$(ssh_dest)" \
-	-v "$(vimrc):$(vimrc_dest)" -v "$(vim):$(vim_dest)" \
-	-v "$(aws):$(aws_dest)" -v "$(vol):$(vol_dest)"
 
-# install: install the right bashrc
-#.PHONY: install
-#install:
-#	for str in "alias python=python3" "alias pip=pip3"; \
-#		do grep "$$str" "$$HOME/.bashrc" || \
-#			echo "$$str" >> "$$HOME/.bashrc"; \
-#		done
-
-## build: pull docker image and builds locally along with tag with git sha
-.PHONY: build
-build:
-	docker build --pull \
-		$(build-arg) \
-		-f $(Dockerfile) -t $(image) .
+## docker: pull docker image and builds locally along with tag with git sha
+docker:
+	docker build --pull --build-arg USER=$(user) -f $(Dockerfile) -t $(image) .
 	docker tag $(image) $(image):$$(git rev-parse HEAD)
 
 ## push: after a build will push the image up
@@ -84,7 +55,6 @@ for_containers = bash -c 'for container in $$(docker ps -a | grep "$$0" | awk "{
 						  	echo docker $$1 "$$container" $$2 $$3 $$4 $$5 $$6 $$7 $$8 $$9; \
 						  	docker $$1 "$$container" $$2 $$3 $$4 $$5 $$6 $$7 $$8 $$9; \
 						  done'
-last = $$(docker ps | grep $(image) | awk '{print $$NF}' | cut -d/ -f2 | awk 'BEGIN { FS="-" }; {print $$NF}' | sort -r | head -n1)
 
 ## stop: halts all running containers
 stop:
@@ -111,26 +81,23 @@ pull:
 ## docker-run: build then push up then run the image
 docker-run: push pull run-local
 
-## shell: run a container interactively to use as a dev environment
-.PHONY: shell
-shell: stop
-	last=$(last) && \
-	echo last found is $$last && \
-	docker run -it --name $(container)-$$((last+1)) $(flags) $(image) /bin/bash
-
-## run: stops all the containers and then runs one detached so ssh into it
+## run-local: stops all the containers and then runs one locally
 # docker pull $(image)
 # Find the last container number
 # Find the next free container name
 # https://jpetazzo.github.io/2015/01/19/dockerfile-and-data-in-volumes/
+# Remove the -v $(docker_data) will take it out of the COW file system
 # pass down the current USER
-.PHONY: run
-run: stop
-	last=$(last) && \
-	echo last found is $$last && \
+run-local: stop
+	last=$$(docker ps | grep $(image) | awk '{print $$NF}' | cut -d/ -f2 | awk 'BEGIN { FS="-" }; {print $$NF}' | sort -r | head -n1) ; \
+	echo last found is $$last ; \
 	docker run -dt --restart=unless-stopped --name $(container)-$$((last+1)) $(flags) $(image)
 	# show the logs because for some you need to know the url for the web server as with anaconda
 	docker logs $(container)-$$((last+1))
+
+shell: push pull stop
+	docker pull $(image)
+	docker run -it $(flags) --name $(container) $(image) bash
 
 ## docker-debug: interactive but do not pull for use offline
 docker-debug: stop
@@ -140,7 +107,7 @@ docker-debug: stop
 resume:
 	docker start -ai $(container)
 
-## prunes: cleanup the system
-.PHONY: prune
-prune:
-	docker system prune
+# Note we say only the type file because otherwise it tries to delete $(docker_data) itself
+## rm-images: remove docker images
+rm-images:
+	$(for_containers) $(container) exec find $(docker_data) -type f -delete

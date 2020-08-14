@@ -22,14 +22,15 @@
 # https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
 # If you need the infra/bin tools, then you need to set the build to run
 # relatively there
-MAIN ?= $$(basename $(PWD)).py
 # main.py includes streamlit code that only runs when streamlit invoked
-WEB ?= $(MAIN)
 LIB ?= lib
-NO_WEB ?= $$(find . -maxdepth 1 -name "*.py"  -not -name $(WEB))
 FLAGS ?=
+CA_FLAGS ?=
+all_py = $$(find . -name "*.py")
+all_yaml = $$(find . -name "*.yaml")
 flags ?= -p 8501:8501
-PIP ?= streamlit altair pandas pyyaml xlrd tables
+# As of july 2020, streamlit not compatible with Pandas 1.1
+PIP ?= streamlit altair "pandas<1.1" pyyaml xlrd tables confuse setuptools wheel twine
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 PIP_DEV ?=
@@ -39,37 +40,6 @@ DOC ?= doc
 
 .DEFAULT_GOAL := help
 
-## main: run the main program
-.PHONY: main
-main:
-	pipenv run python $(MAIN) $(FLAGS)
-
-# https://docs.python.org/3/library/pdb.html
-## pdb: run locally with python to test components from main (uses pipenv)
-.PHONY: pdb
-pdb:
-	pipenv run python -m pdb $(MAIN)
-
-## debug: run with debugging outputs on
-.PHONY: debug
-debug:
-	pipenv run python -d $(MAIN) $(FLAGS)
-
-## web: use streamlit to run the graphical interface
-# bug as of July 2020 cannot send flags to python
-# https://discuss.streamlit.io/t/command-line-arguments/386
-.PHONY: web
-web:
-	pipenv run streamlit run $(WEB) -- $(FLAGS)
-
-## web-pdb: single step debug
-web-pdb:
-	pipenv run pdb $(WEB) $(FLAGS)
-## web-debug: run web interface in debugger
-web-debug:
-	pipenv run python -m pdb $(WEB) $(FLAGS)
-
-#
 # https://pipenv.pypa.io/en/latest/install/
 # https://realpython.com/pipenv-guide/
 # install everything including things just needed for edevelopment
@@ -124,11 +94,20 @@ format:
 	pipenv run isort --profile=black -w 79 .
 	pipenv run black -l 79 *.py
 
-## pypi: push the package to the Python library (uses pipenv)
+## package: build package
+.PHONY: package
+package:
+	pipenv run python setu.py sdist bdist_wheel
+
+## pypi: build package and push to the python package index
 .PHONY: pypi
-pypi:
-	pipenv run python setup.py register -r pypi
-	pipenv run python setup.py sdit upload -r pypi
+pypi: package
+	pipenv run twine upload dist/*
+
+## pypi-test: build package and push to test python package index
+.PHONY: pypi-test
+pypi-test: package
+	pipenv run twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 ##
 ## gcloud: push up to Google Cloud

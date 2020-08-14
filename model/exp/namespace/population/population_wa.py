@@ -1,1 +1,0 @@
-"""Populate WA place holder."""

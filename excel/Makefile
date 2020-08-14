@@ -14,8 +14,9 @@
 
 # Note that this should be the release you want
 ## TAG: set a tag to the latest release you want
-TAG ?= v2.0.1
+TAG ?= v2.0.2
 COMMENT ?= test comment
+RELEASE ?= ../release
 
 FILES ?= covid-surge-who \
 		 covid-surge-who-reed \
@@ -30,7 +31,7 @@ FILES ?= covid-surge-who \
 release:
 	@echo if the tag does not exist we skip and use the older version
 	for file in $(FILES); do \
-		cp "$$file-$(TAG).xlsx" "../$$file.xlsx" || true; \
+		cp "$$file-$(TAG).xlsx" "$(RELEASE)/$$file.xlsx" || true; \
 	done
 
 ## action: pushes a new tag up while delete old to force the action

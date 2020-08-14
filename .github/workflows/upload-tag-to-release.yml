@@ -16,6 +16,7 @@
 name: Upload a Tag to a Release Multiple files
 
 env:
+  RELEASE_DIR: release
   WA_RELEASE: covid-surge-who.xlsx
   REED_RELEASE: covid-surge-who-reed.xlsx
   COUNTY_RELEASE: covid-surge-who-county.xlsx
@@ -63,7 +64,7 @@ jobs:
                          "$SINGLE_RELEASE" "$COUNTY_RELEASE" \
                          "$CA_RELEASE" "$REED_RELEASE"
           do
-            git lfs pull --include "$release"
+          git lfs pull --include "$RELEASE_DIR/$release"
           done
 
       # https://github.com/softprops/action-gh-release
@@ -78,13 +79,13 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ${{ env.WA_RELEASE }}
-            ${{ env.SINGLE_RELEASE }}
-            ${{ env.COOK_RELEASE }}
-            ${{ env.COUNTY_RELEASE }}
-            ${{ env.MIAMI_RELEASE }}
-            ${{ env.CA_RELEASE }}
-            ${{ env.REED_RELEASE }}
+            ${{ env.RELEASE_DIR}}/${{ env.WA_RELEASE }}
+            ${{ env.RELEASE_DIR}}/${{ env.SINGLE_RELEASE }}
+            ${{ env.RELEASE_DIR}}/${{ env.COOK_RELEASE }}
+            ${{ env.RELEASE_DIR}}/${{ env.COUNTY_RELEASE }}
+            ${{ env.RELEASE_DIR}}/${{ env.MIAMI_RELEASE }}
+            ${{ env.RELEASE_DIR}}/${{ env.CA_RELEASE }}
+            ${{ env.RELEASE_DIR}}/${{ env.REED_RELEASE }}
 
     # Need the tag name that is clean
     # We only have a tag, so make a release out of it
@@ -120,8 +121,8 @@ jobs:
     #    # Not there is no release tag_name so use the output of create_release
     #    # This will just give the sha and not the desired tag
     #    # https://github.com/actions/create-release
-    #    # asset_name: covid-surge-projection-release-${{ steps.create_release.outputs.id }}.xlsx
-    #    asset_name: covid-surge-projection-washington-${{ steps.vars.outputs.tag }}.xlsx
+    # asset_name: covid-surge-projection-release-${{ steps.create_release.outputs.id }}.xlsx
+    # asset_name: covid-surge-projection-washington-${{ steps.vars.outputs.tag }}.xlsx
     #    asset_content_type: application/zip
     #
     ## move it up there need one for each

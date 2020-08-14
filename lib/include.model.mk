@@ -1,5 +1,5 @@
-name = $$(basename $(PWD))
-MAIN ?= $$(basename $(PWD)).py
+name ?= $$(basename $(PWD))
+MAIN ?= $(name).py
 WEB ?= $(MAIN)
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py" -not -name $(WEB))
 FLAGS ?=

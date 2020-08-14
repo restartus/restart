@@ -11,18 +11,17 @@
 #
 # change the variables here
 ## streamlit-install: install for streamlit
+name = stock
 .PHONY: streamlit-install
 streamlit-install:
 	pipenv install opencv-python vega-datasets streamlit altair yfinance pandas
 	pipenv update
-
-MAIN = stock.py
 
 ## web2: run second apps
 .PHONY: web2
 web2:
 	pipenv run streamlit run cars.py
 
-include ../../../lib/include.model.py
-include ../../../lib/include.python.mk
-include ../../../lib/include.mk
+include ../../lib/include.model.mk
+include ../../lib/include.python.mk
+include ../../lib/include.mk

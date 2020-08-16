@@ -78,7 +78,6 @@ class Model(Base):
         self.name: str = name
         if not log.hasHandlers():
             print(f"{log=} has no handlers")
-
         log.debug(f"{self.name=}")
 
     def set_configure(self, config) -> Model:

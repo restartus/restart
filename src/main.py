@@ -73,22 +73,28 @@ class Compose:
             be as many different points as you need with lo, mid, hi typically
         p - population one for each class. Note that each object can have
             different summary levels, so p = p0 and l = p1 so the first level
-            summary. We allow an ulimited levels, but a single variable with a
+            summary. We allow an unlimited levels, but a single variable with a
             number indicates how much summarization with 0 being the most
             detailed.
-        d - a shortcut for the "columns" for this, the last element also called
-            phat and it is not and this is more formally known as p^(hat)
-            and there are arbitrarily summarizations from phat0 to the more
-            summarized p^(hat1, phat2,...
+        d - a shortcut for the "columns" that describe it for this,
+            the last element also called
 
         We normally use the shortest notation but all these are valid
         and should point to the same object. With the most common notation just
         noting the object_units_lastdimension_type
 
+        Also as an aside to render Latex correctly in Markdown, you need
+        (MathJAX)[http://flennerhag.com/2017-01-14-latex/]
+
         Pop_tot_desc_gtrpd_df = Pop_tot_gtrpd_df == Pop_tot_gtrp0phat_df ==
         Population_total_description_gtrp0phat0_df ==
         Population_geo_time_range_detail_description_detail_gtrp0phat0_dataframe
 
+        Summarization levels. Each of these dimensions has a hierarchy:
+        As an example with population, population details pd, but you also have
+        a summary level population level l, this is a shorthand for where you
+        can map say all the SOC or NAICS codes for healthcare professions or
+        companies into healthcare. The normal notation for this is
 
         """
         # set up the logging
@@ -180,7 +186,6 @@ class Compose:
 
         log.debug(f"{model.demand.total_demand_pn_df=}")
         log.debug(f"{model.demand.level_pl_df=}")
-
         log.debug(f"{model.resource.cost_ln_df=}")
 
         # model.demand.level_total_cost(model.resource.cost_ln_df)

@@ -29,17 +29,17 @@ jobs:
     - name: Lint with mypy
       run: |
         pip install mypy
-        mypy --namespace-packages $(find ./model/src -name "*.py")
+        mypy --namespace-packages $(find ./src -name "*.py")
 
     - name: Lint with bandit
       run: |
         pip install bandit
-        bandit $(find ./model/src -name "*.py")
+        bandit $(find ./src -name "*.py")
 
     - name: Lint with pydocstyle
       run: |
         pip install pydocstyle
-        pydocstyle --convention=google $(find ./model/src/ -name "*.py")
+        pydocstyle --convention=google $(find ./src/ -name "*.py")
 
     - name: Lint with yamllint
       run: |

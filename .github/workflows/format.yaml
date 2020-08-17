@@ -26,12 +26,12 @@ jobs:
     - name: Force formatting with isort
       run: |
         pip install isort
-        isort --profile=black -w 79 $(find ./model/src -name "*.py")
+        isort --profile=black -w 79 $(find ./src -name "*.py")
 
     - name: Force formatting with black
       run: |
         pip install black
-        black -l 79 $(find ./model/src/ -name "*.py")
+        black -l 79 $(find ./src/ -name "*.py")
 
     - name: Commit changes
       run: |

@@ -1,5 +1,5 @@
 # Model v2
-This reimplements the surge model with simple dummy data This uses Pipenv for managing packages because conda didn't install correctly an does not deal with streamlit properly. Eventually we will move this to a docker container. Here are the basic things we are doing:
+This re-implements the surge model with simple dummy data This uses Pipenv for managing packages because conda didn't install correctly an does not deal with streamlit properly. Eventually we will move this to a docker container. Here are the basic things we are doing:
 
 1. A decision workbench so that in one click you can get every data source and
    code base in the world on your desktop.

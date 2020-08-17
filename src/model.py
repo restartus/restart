@@ -37,26 +37,28 @@ from resourcemodel import Resource
 class Model(Base):
     """Main model for planning.
 
-    It sets the dimensionality of the problem and also the names of all the
-    elements. Each subsystem will take the dimensions and names as inputs.
-
     They then will create the correct tables for use by the main computation
     This model has pointers to the major elements of the model.
 
-    Attr:
-    name: the friendly string name
-    label: This is what structures the entire model with a list of labels
-            The defaults are what give us the simplified Bharat model
+    The model is made up of a series of classes for each of the major model
+    elements. Each of the major model elements are based on a class structure
+    that are kept in a network of links in the Model class. The Model acts as a
+    single global data structure for the entire project.
 
-    These are the name dimensions of each, the length of each is set to
-    parameters
+    It uses chaining so that you can in a single statement set all the modeling
+    elements. These include:
 
-    resources: n resources being modeled
-        resource Attribute: a attributes for a resource
-    population: p labels defines the populations
-        population Details: d details about each population
-        protection protection: m types of resource demand
-        population levels: l levels maps population down to a fewer levels
+    Real resources. Like Populations or Organizations
+    Transforms. Which computes mapping of Population onto say Resources
+    Actions. These are things that affect Real Objects like Demand.
+
+    - LogBase. Just for logging so every class that wants to log needs this as
+       a base class
+    - Base. This has the descriptions baked in. Used to traverse the Model
+      class
+    when you want to print or interrogate the Model.
+    - Resource. Every time you create a new way to read or manage resources,
+      base on this. en.utf-8.add
     """
 
     # https://satran.in/b/python--dangerous-default-value-as-argument
@@ -65,10 +67,7 @@ class Model(Base):
     # do not do default assignment, it remembers it on eash call
     # https://docs.python.org/3/library/typing.html
     def __init__(self, name, log_root: Optional[Log] = None):
-        """Initialize the model.
-
-        Use the data dictionary load data
-        """
+        """Initialize the model."""
         # the long description of each
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__(log_root=log_root)

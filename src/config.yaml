@@ -5,23 +5,125 @@ Config:
   stockpile: 30
   stockpile_high: 90
 
-# The base dictionary data
-Data:
-  "Population p":
-    "Pop Detail Data pd":
-      Size:
-        - 735.2
-        - 7179.6
-    "Protection pm":
+# Note each of these yaml files has an overall label, so you can copy and concat
+# as needed
+Dimension:
+  "Resource (n)":
+    - "N95 + Mask"
+    - "N95"
+    - "ASTM 3 Mask"
+    - "ASTM 1-2 Mask"
+    - "Non ASTM Mask"
+    - "Face Shield"
+    - "Gowns"
+    - "Gloves"
+    - "Shoe Covers"
+  "Resource Attribute (N)":
+    - Units
+    - Volume
+    - Area
+  "Population (p)":
+    - "Healthcare Workers"
+    - "Non-Heathcare Worker"
+  "Population Attributes (P)":
+    - Size
+    - Patients
+  "Population Summary Level (p1)":
+    - Essential
+    - Non-essential
+  "Organization o":
+    - Size
+    - Type
+  "Organization Summary Level (o1)":
+    - Front-line
+    - Essential
+    - Non-essential
+  "Demand of Resource (d)":
+    - WA0
+    - WA1
+    - WA2
+    - WA3
+    - WA4
+    - WA5
+    - WA6
+  "Range (r)":
+    - High
+    - Mid
+    - Low
+  "Geographical Location (g)":
+    - County
+    - State
+    - Country
+  "Time (t)":
+    - 0
+    - 1
+    - 2
+    - 3
+
+# Uses the dimensions above to create matrices
+Model:
+  pop_attr_pP_tr:
+    name: "Population Attributes Total (p->P:tr)"
+    description: |
+      There are p Populations in the model and each population
+      can have P attributes about them such as their degree of age,
+      ethnicity, attitudes and awareness behaviors. The first attribute is
+      the size of the sub-population. It models a real entity.
+    units: Total
+    type: Real
+    # The dimensinos for each
+    dimension:
+      - "Populations (p)"
+      - "Population Attributes (P)"
+    # note the data can be an array, or a file pointer
+    data:
+      - [735.2, 7179.6]
+
+  pop_to_demand_map_pdum:
+    name: "Population to Resource Demand Per-Unit Map (p->d:um)"
+    description: |
+      For each p Populations falls into which protection
+      category for the burn rate. That is what does each population p need
+      of each resource r.  For example, 1.18 would mean you need 1.18 N95
+      masks per day for a given population
+    units: "Per Person"
+    type: "Map"
+    dimension:
+      - "Populations p"
+      - "Demand for Resource d"
+    data:
       - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
       - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    "Pop to Level pl":
+
+  pop_to_summary_map_pp1um:
+    name: "Population Total to Population Level 1 Summary (p0->p1:us)"
+    description: |
+      This maps every population p into any number of summary levels p1
+      summarized by the p1 Level level used. In this model higher
+      levels mean more protection by convention, but that isn't necessary.
+      You can also a given population row spread across different levels
+      so that for instance a percentage of a population could go into
+      different rows
+    units: "Per Person"
+    type: "Summary"
+    dimension:
+      - "Populations (p)"
+      - "Population Summary Level 1 (p1)"
+    data:
       - [1, 0]
       - [0, 1]
-  "Demand m":
-    "Level to Resource mn":
-      # Using the Reed figures
-      # No protection
+
+  demand_to_resource_map_dnum:
+    name: "Demand Level to Resource Map (d->n:um)"
+    description: |
+      Demand levels for a given population for resources. This is the
+      consumption map that for each protection level shows which resources are
+      "burned".  Also now as the burn rates for PPE.
+    units: "Per Resource"
+    dimension:
+      - "Demand Level (d)"
+      - "Resource (n)"
+    data:
       - [0, 0, 0, 0, 0, 0, 0, 0, 0]
       # Resident or patient
       - [0, 0, 0, 0, 1, 0.02, 0.01, 0.5, 0]
@@ -35,8 +137,13 @@ Data:
       - [0, 1, 2, 1, 0, 0.18, 1.5, 8, 0.4]
       # Healthcare with direct contact
       - [2.36, 0, 3.03, 1, 0.05, 0.27, 3.65, 12, 0.6]
-  "Resource n":
-    "Res Attr Data na":
+
+  resource_nN_ur:
+    name: "Resource Attributes (n->N:ur)"
+    description: |
+        For all n Resources, these are the figures for each of the a Attributes
+        of each resource.
+    data:
       - [1, 2, 0.7]
       - [1, 1.5, 0.8]
       - [1, 4, 0.9]
@@ -46,135 +153,140 @@ Data:
       - [1, 1, 0.5]
       - [1, 0.9, 0.7]
       - [1, 2, 2]
-    "Pop Level Res Cost ln":
+
+  pop_sum_1_resource_cost_per_unit_p1nxt:
+    name: "Population Summary Level p1, the cost of Resources (p1->n:xt)"
+    description: |
+      For each of l summary levels, get the per capita cost for each of n
+      Resources.
+    data:
       - [5.0, 4.0, 1.0, 0.60, 0.20, 2.50, 4.0, 0.20, 0.15]
       - [5.0, 4.0, 1.0, 0.60, 0.06, 1.50, 4.0, 0.20, 0.15]
-    "Res Inventory Initial ln":
+
+  whse_pop_sum1_res_initial_total_p1n_tr:
+    name: "Warehouse Population Summary 1 of Resource n Initial (p1n:tr)"
+    description:: |
+      For each summarized population level l, this gives for every resource n
+      initial inventory.
+    dimension:
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
+    unit: "Total Units"
+    type: Real
+    data:
       - [1, 2, 3, 4, 5, 6, 7, 8, 9]
       - [10, 20, 30, 40, 50, 60, 70, 80, 90]
-    "Res Inventory EOC ln":
+
+  whse_pop_sum1_res_inv_min_total_p1n_tr:
+    name:
+      "Warehouse Population Summary 1 Minimum Inventory for Resources (p1n:tr)"
+    description: |
+      For each summarized population level l, this is the minimum inventory
+      also known as the safety stock
+    dimension:
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
+    units: "Total Units"
+    type: Real
+    data:
       - [101, 200, 300, 400, 500, 600, 700, 800, 900]
       - [102, 201, 301, 401, 501, 601, 701, 801, 901]
-    "Res Inventory Min ln":
-      - [201, 300, 500, 700, 900, 1001, 2003, 2004, 2006]
-      - [200, 400, 600, 800, 1000, 2001, 2002, 2005, 2007]
-    "Res Inventory Min in Periods ln":
+
+  whse_pop_sum_1_res_inv_min_p1n_pr:
+    name: |
+      Warehouse Population Summary 1 Resource n Inventory Min in Periods
+      (p0n:rp)
+    description: |
+      For each summaried population level l, this gives the number of periods
+      which are typically days that you have to hold. This is multiplied by
+      demand so Inventory Min should be Demand * Days.
+    dimension:
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
+    units: "Periods"
+    type: Real
       - [30, 15, 15, 15, 25, 20, 30, 15, 20]
       - [30, 15, 15, 15, 25, 20, 30, 15, 20]
 
+  whse_pop_sum_1_res_inv_eoq_p1n_tr:
+    name: |
+      Warehouse Economic Order Quantity Total by Population Summary Level 1
+      for Resources n (p1n:tc)
+    units: "Total Units"
+    type: Real
+    data:
+      - [201, 300, 500, 700, 900, 1001, 2003, 2004, 2006]
+      - [200, 400, 600, 800, 1000, 2001, 2002, 2005, 2007]
+
+# These tables are generated from the inputs above so they are derited values
+# These are typicalally meta values that are derived from real objectcs
+# And mapps that sever as input to processes
 Description:
-  "Population p":
-    "Pop Detail pd": |
-      ## Population Details (pd)
-      There are p Populations in the model and each population
-      can have d details about them such as their degree of age,
-      ethnicity, attitudes and awareness behaviors
-    "Protection pm": |
-      ## Population to Protection Level (pm)
-      For each p Populations falls into which protection
-      category m for the burn rates
-    "Population Demand pn": |
-      ## Population Demand for each of n Resources (pn)
-      This is the per person Demand for a given resource by every population
-    "Pop to Level pl": |
-      ## Population's mapped into Summary Levels (pl)
-      This maps every population p into any number of summary levels l
-      summarized by the l Level level used. In this model higher
-      levels mean more protection by convention, but that isn't necessary.
-      You can also a given population row spread across different levels
-      so that for instance a percentage of a population could go into
-      different rows
-    "Level Demand ln": |
-      ## Population Demand by Summary Level for Resources (ln)
+  pop_demand_res_pn_uc:
+    name: "Population Per Capita Demand for each Resource (pn:uc)"
+    description: |
+      This is the per capita demand for a give population so this is not the per
+      capita demand but for every n Resource for ever subpopulation p
+    dimension:
+      - "Population p"
+      - "Resource n"
+    units: "Per Capita"
+    type: Calculated
+
+  pop_summary1_demand_res_p0n_uc:
+    name: "Population Summary Level 1 Demand for Resources (p0n:uc)"
+    description: |
       This is the per capita demand for a set of n resources
       summarized by the l Summary Level used. It provides a view of demand
       aggregated by the summary level.
-    "Population Total Demand pn": |
-      ## Population Demand Resource pn
-      This is the total demand for all p sub-Population for every resource n
-    "Level Total Demand ln": |
-      ## Total Demand for all Population Summary Levels for Resources (ln)
-      For all L population summary levels, the total demand for a set
-      of n resources
-    "Level Total Cost ln": |
-        ## Population Demand Total Cost by N Summary Levels
-        For all L population summary levels, the total cost for a set of
-        n resources
-  "Demand m":
-    "Demand Resource mn": |
-      ## Protection by Level Demand for Resources aka Burn Rate (mn)
-      The burn rates per capita for resources
-      For example, 1.18 would mean you need 1.18 N95 masks per day for a
-      given population
-  "Resource n":
-    "Res Attr Data na": |
-        ## Resource Attributes Data (na)
-        For all n Resources, these are the figures for each of the a Attributes
-        of each resource.
-    "Pop Level Res Cost ln": |
-        ## For Each Summary Level, the cost of Resources
-        For each of l summary levels, get the per capita cost for each of n
-        Resources.
-    "Res Inventory Initial ln": |
-        ## Inventory by Population Summary Levels
-        For each summarized population level l, this gives for every resource n
-        the current inventory of each.
-    "Res Inventory EOC ln": |
-        ## Economic Order Quantity
-        For each summarized population level l, this gives for every resource n
-        the economic order quantity for reordering.
-    "Res Inventory Min ln": |
-        ## Inventory minimum
-        For each summarized population level l, this is the minimum inventory
-        also known as the safety stock
-    "Res Inventory Min in Periods ln": |
-        ## Days of Stockpile
-        For each summaried population level l, this gives the number of periods
-        which are typically days that you have to hold. This is multiplied by
-        demand so Inventory Min should be Demand * Days.
-    "Res Inventory ln": |
-        ## Current Resource Inventory ln
-        The current inventory held ready for deliver to Population levels l
-        of n resource
+    units: "Per Capita"
+    type: Calculated
+    dimensions:
+      - "Population Summary p1"
+      - "Resource n"
 
-# Dimensions of the model
-# Note each of these yaml files has an overall label, so you can copy and concat
-# as needed
-Label:
-  "Resource n":
-    - "N95 Surgical"
-    - "N95 Non-Surgical"
-    - "ASTM 3 Mask"
-    - "ASTM 1-2 Mask"
-    - "Non ASTM Mask"
-    - "Face Shield"
-    - "Gowns"
-    - "Gloves"
-    - "Shoe Covers"
-  "Population p":
-    - "Healthcare Workers"
-    - "Non-Heathcare Worker"
-  "Pop Detail d":
-    - Size
-  "Pop Level l":
-    - "Essential"
-    - "Non-essential"
-  "Demand m":
-    - WA0
-    - WA1
-    - WA2
-    - WA3
-    - WA4
-    - WA5
-    - WA6
-  "Res Attribute a":
-    - Units
-    - Volume
-    - Area
-  "Res Safety Stock s":
-    - High
-    - Mid
-    - Low
+  pop_demand_res_total_pn_tc:
+    name: "Population Total Demand for Resources (pn:tc)"
+    description: |
+      This is the total demand for all p sub-Population for every resource n
+    units: Total
+    type: Calculated
+    dimensions:
+      - "Population (p)"
+      - "Resource (n)"
+
+  pop_summary1_demand_res_total_p1n_tc:
+    name: "Population Summary Level 1 Total Demand for Resources (p1n:tc)"
+    description: |
+      For all population summary levels p1, the total demand for a set
+      of n resources
+    units: Total
+    type: Calculated
+    dimensions:
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
+
+  pop_summary1_demand_res_total_cost_p1n_xc:
+    name:
+      "Population Summary Level 1 Total Cost of Demand for Resources (p1n:xc)"
+    description: |
+      For all population summary levels (p1), the total cost for a set of
+      n resources
+    units: "Total Cost"
+    type: Calculated
+    dimensions:
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
+
+  whse_pop_summary1_res_inventory_p1n_tc:
+    name: |
+      "Warehouse Total Inventory by Population Summary p1 of Resources n
+      (p1n:tc)"
+    units: "Total Units"
+    type: Calculated
+    dimensions:
+      - "Population Summary 1 (p1)"
+      - "Resource (n)"
 
 Paths:
   Root: '../../data/ingestion/'

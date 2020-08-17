@@ -77,18 +77,22 @@ class Compose:
             number indicates how much summarization with 0 being the most
             detailed.
         d - a shortcut for the "columns" that describe it for this,
-            the last element also called
+            the last element also called the longer form of this is P0 for the
+            first level then P1,... as you summarize more. Because python
+            doesn't support the "hat" used in the equations hat{p} becomes a
+            capital letter P.
 
         We normally use the shortest notation but all these are valid
         and should point to the same object. With the most common notation just
-        noting the object_units_lastdimension_type
+        noting the object_units_lastdimension_type.
 
-        Also as an aside to render Latex correctly in Markdown, you need
-        (MathJAX)[http://flennerhag.com/2017-01-14-latex/]
+        The notation used here is not full Latex. Use the
+        [README.tex.md](README.tex.md) to see the full notation or the Jupyter
+        notebook for the long descriptions.
 
-        Pop_tot_desc_gtrpd_df = Pop_tot_gtrpd_df == Pop_tot_gtrp0phat_df ==
-        Population_total_description_gtrp0phat0_df ==
-        Population_geo_time_range_detail_description_detail_gtrp0phat0_dataframe
+        Pop_tot_desc_gtrpd_df == Pop_tot_gtrpd_df == Pop_tot_gtrp0phat_df ==
+        Population_total_description_gtrp0P0_df ==
+        Population_geo_time_range_detail_description_detail_gtrp0P0_dataframe
 
         Summarization levels. Each of these dimensions has a hierarchy:
         As an example with population, population details pd, but you also have

@@ -1,5 +1,5 @@
 # Model v2
-This reimplements the surge model with simple dummy data This uses Pipenv for managing packages because conda didn't install correctly an does not deal with streamlit properly. Eventually we will move this to a docker container. Here are the basic things we are doing:
+This re-implements the surge model with simple dummy data This uses Pipenv for managing packages because conda didn't install correctly an does not deal with streamlit properly. Eventually we will move this to a docker container. Here are the basic things we are doing:
 
 1. A decision workbench so that in one click you can get every data source and
    code base in the world on your desktop.
@@ -22,7 +22,7 @@ This file lives in README.tex.md and (Texify)[https://github.com/apps/texify] is
 a Github application that automatically renders README.md with Latex formulas
 which you add by putting the Latex between double dollar signs.
 
-$$\^{p}$$ LaTEX and it is not and this is more formally known as
+$$\^{p}$$ LaTeX and it is not and this is more formally known as
 and there are arbitrarily summarizations from $$\^{p}_0$$ to the more
 summarized as the nth summarization is $$\^{p}_n$$ in python we use the
 notation $$phat = \^{p}$$ and $$phat0 = \^{p}_0$$

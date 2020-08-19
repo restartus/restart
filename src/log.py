@@ -107,7 +107,6 @@ class Log:
         self.log.debug(f"{self.log=} f")
         # note we don't need self.fh, it is also accessible at
         # self.log.handlers[0] and self.log.handlers[1]
-        # breakpoint()
 
     def log_class(self, object):
         """Class Logger.

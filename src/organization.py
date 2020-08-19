@@ -5,8 +5,6 @@ Organization modeling
 from typing import Optional
 
 import confuse  # type: ignore
-import numpy as np  # type: ignore # noqa: F401
-import pandas as pd  # type: ignore # noqa: F401
 
 from base import Base
 from log import Log
@@ -36,6 +34,7 @@ class Organization(Base):
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         # pass the logger down
         super().__init__(log_root=log_root)
+        self.config = config
         # create a sublogger if a root exists in the model
         # self.log_root = log_root
         # log = self.log = (
@@ -47,4 +46,3 @@ class Organization(Base):
         # off
         log = self.log
         log.debug(f"in {__name__=}")
-        log.debug(f"not implemented {type=}")

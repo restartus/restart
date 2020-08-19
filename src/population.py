@@ -7,12 +7,8 @@ It also includes a default() for setting up the main attribute matrix,
 detail_pd_arr and then a calc() which calculates the rest of the related data
 """
 
-from typing import Dict, Optional
-
 # Insert the classes of data we support here
 import confuse  # type: ignore
-import numpy as np  # type: ignore
-import pandas as pd  # type:ignore
 
 # Note that pip install data-science-types caused errors
 from base import Base
@@ -28,7 +24,7 @@ class Population(Base):
     You should override it with a new child class
 
     Population statistics and model for population
-    Initially this containes population of p x 1
+    Initially this contains population of p x 1
     Later it will be p x d where d are the detail columns
     For instance the number of covid patients
     The number of trips or visits or runs for a given population
@@ -96,10 +92,4 @@ class Population(Base):
         log = self.log
         log.debug("In %s", __name__)
 
-        self.detail_pd_arr: Optional[np.ndarray] = None
-        self.detail_pd_df: Optional[pd.DataFrame] = None
-        self.level_pm_labs: Optional[list] = None
-        self.level_pm_arr: Optional[np.ndarray] = None
-        self.level_pm_df: Optional[pd.DataFrame] = None
-        self.config: Optional[Dict] = config
-        self.codes: Optional[list] = None
+        self.config = config

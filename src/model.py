@@ -8,7 +8,7 @@ https://www.w3schools.com/python/python_classes.asp
 # this allows Model to refer to itself
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 from activity import Activity
 from base import Base
@@ -21,6 +21,7 @@ from economy import Economy
 from filtermodel import Filter
 from log import Log
 from organization_dict import OrganizationDict
+from organization import Organization
 from output import Output
 
 # import numpy as np  # type:ignore
@@ -86,21 +87,21 @@ class Model(Base):
         """
         log = self.log
         self.config = config
+        log.debug(f"{self.config=}")
 
         # These are just as convenience functions for dimensions
         # and for type checking this is ugly should make it
         # for look for assign because we are just mapping label
-        # TODO: with the new labeling, this is easy to make a loop
-        self.dim: Dict[str, int] = {
-            "n": len(self.config["Label"]["Resource n"].get()),
-            "a": len(self.config["Label"]["Res Attribute a"].get()),
-            "p": len(self.config["Label"]["Population p"].get()),
-            "d": len(self.config["Label"]["Pop Detail d"].get()),
-            "m": len(self.config["Label"]["Demand m"].get()),
-            "l": len(self.config["Label"]["Pop Level l"].get()),
-            "s": len(self.config["Label"]["Res Safety Stock s"].get()),
-        }
-        log.debug(f"{self.dim=}")
+        # We never use this
+        # self.dim: Dict[str, int] = {
+        #     "n": len(self.config["Label"]["Resource n"].get()),
+        #     "N": len(self.config["Label"]["Res Attribute N"].get()),
+        #     "p": len(self.config["Label"]["Population p"].get()),
+        #     "P": len(self.config["Label"]["Pop Attribute P"].get()),
+        #     "d": len(self.config["Label"]["Demand d"].get()),
+        #     "p1": len(self.config["Label"]["Pop Level p1"].get()),
+        # }
+        # log.debug(f"{self.dim=}")
         return self
 
     # TODO: This should be a generated set of methods as they are all identical
@@ -129,8 +130,6 @@ class Model(Base):
             self.population = PopulationDict(
                 self.config,
                 log_root=self.log_root,
-                index="Population p",
-                columns="Pop Detail d",
             )
         else:
             raise ValueError(f"{type=} not implemented")
@@ -138,6 +137,8 @@ class Model(Base):
 
     def set_organization(self, type: str = None) -> Model:
         """Set organization."""
+        self.organization: Organization
+        breakpoint()
         if type == "dict":
             self.organization = OrganizationDict(
                 self.config, log_root=self.log_root

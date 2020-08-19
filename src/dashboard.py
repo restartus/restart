@@ -625,7 +625,6 @@ class Dashboard(BaseLog):
                 self.write_description(
                     df_name, df_value, base_value.description
                 )
-                # breakpoint()
                 # self.write_chart(df_name, df_value)
                 self.visualize_data(df_value)
 

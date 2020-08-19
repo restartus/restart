@@ -3,19 +3,13 @@
 Read in the population from the model dictionary
 """
 
-# import numpy as np  # type: ignore
-# https://www.python.org/dev/peps/pep-0420/
-# in this new version we cannot depend on Model to be preformed
-# from model import Model
-from typing import Optional
-
 import confuse  # type: ignore
-import numpy as np  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
 
 from log import Log
 from population import Population
-from util import set_dataframe
+
+from data import Data
 
 
 class PopulationDict(Population):
@@ -27,64 +21,33 @@ class PopulationDict(Population):
     def __init__(
         self,
         config: confuse.Configuration,
-        # TODO: unify indexing across classes
-        index: Optional[str] = None,
-        columns: Optional[str] = None,
         log_root: Log = None,
-        type: str = None,
     ):
         """Initialize the population object.
 
         This uses the Frame object and populates it with default data unless
         you override it
         """
-        # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
+        # the base class handles log management
         super().__init__(config, log_root=log_root)
-
-        # create a sublogger if a root exists in the model
+        # convenience name for log
         log = self.log
-
-        # type declarations
-        self.detail_pd_arr: np.ndarray
-        self.detail_pd_df: pd.DataFrame
-        self.level_pm_arr: np.ndarray
 
         if config is None:
             raise ValueError(f"{config=} is null")
 
         # get population data
-        # TODO: Only gets the size, long term need all addributes
-        self.detail_pd_arr = np.array(
-            config["Data"]["Population p"]["Pop Detail Data pd"]["Size"].get()
-        )
-        self.detail_pd_df = set_dataframe(
-            self.detail_pd_arr,
-            label=config["Label"].get(),
-            index=index,
-            columns=columns,
-        )
-        log.debug(f"{self.detail_pd_arr=}")
-        self.set_description(
-            f"{self.detail_pd_df=}",
-            config["Description"]["Population p"]["Pop Detail pd"].get(),
-        )
-        log.debug(f"{self.description['detail_pd_df']=}")
+        # Using the new Lucas data class
+        self.population_pP_tr = Data(
+            "population_pP_tr",
+            config,
+            log_root=log_root,)
+        log.debug(f"{self.population_pP_tr=}")
 
         # get mapping data
-        self.level_pm_arr = np.array(
-            config["Data"]["Population p"]["Protection pm"].get()
-        )
-        self.level_pm_df = set_dataframe(
-            self.level_pm_arr,
-            label=config["Label"].get(),
-            index="Population p",
-            columns="Demand m",
-        )
-        log.debug(f"{self.level_pm_df=}")
-        self.set_description(
-            f"{self.level_pm_df=}",
-            config["Description"]["Population p"]["Protection pm"].get(),
-        )
-        log.debug(f"{self.description['level_pm_df']=}")
-
-        self.level_pm_labs = config["Label"]["Population p"].get()
+        self.pop_demand_per_unit_map_pd_ut = Data(
+            "pop_demand_per_unit_map_pd_ut",
+            config,
+            log_root=log_root,
+            )
+        log.debug(f"{self.pop_demand_per_unit_map_pd_ut=}")

@@ -22,17 +22,7 @@ from dashboard import Dashboard
 from log import Log
 from model import Model
 
-# name collision https://docs.python.org/3/library/resource.html
-# so can't use resource.py
 from util import set_config
-
-# from pathlib import Path
-# from typing import Optional
-
-
-# This is the only way to get it to work needs to be in main
-# https://www.programcreek.com/python/example/192/logging.Formatter
-# the confit now seems to work
 
 
 class Compose:
@@ -105,8 +95,7 @@ class Compose:
         # This name should *not* be the same as any module name like main
         name = "model"
         self.log_root = Log(name)
-        # for convenience
-        self.log = log = self.log_root.log
+        log = self.log = self.log_root.log
         # There is a root logger we cannot shutoff so turn off propagation
         log.propagate = False
         # test that logging works
@@ -123,7 +112,10 @@ class Compose:
         # now set_configure is just used to change the base default
         self.config = set_config(args.config)
         # self.config = confuse.Configuration("config")
-        self.config.set_args(args)
+        # Arguments can use dot notation to change
+        # Anything in the yaml file
+        # https://confuse.readthedocs.io/en/latest/
+        self.config.set_args(args, dots=True)
 
         # uses method chaining
         self.model = model = (
@@ -235,12 +227,14 @@ class Compose:
         parser.add_argument(
             "-p",
             "--population",
+            default="dict",
             choices=["dict", "oes", "wa"],
             default="dict",
             help="Select population data cube",
         )
 
-        parser.add_argument("--organization", help=["hospital", "EMO"])
+        parser.add_argument("--organization",
+                            default="dict", help=["dict", "ca"])
 
         parser.add_argument("--csv", help="Select CSV file output")
 
@@ -276,31 +270,31 @@ class Compose:
         parser.add_argument(
             "-e",
             "--economy",
-            choices=["ml", "ensemble"],
-            default="ml",
+            choices=["dict", "ml", "ensemble"],
+            default="dict",
             help="Select Econometric model",
         )
         parser.add_argument(
             "-b",
             "--behavioral",
-            choices=["apple", "google", "ensemble"],
-            default="ensemble",
+            choices=["dict", "apple", "google", "ensemble"],
+            default="dict",
             help="Select Econometric model",
         )
 
         parser.add_argument(
             "-m",
             "--activity",
-            choices=["apple", "ensemble", "google"],
-            default="ensemble",
+            choices=["dict", "apple", "ensemble", "google"],
+            default="dict",
             help="Select Activity Model",
         )
 
         parser.add_argument(
             "-d",
             "--disease",
-            choices=["imhe", "ensemble", "jhu"],
-            default="imhe",
+            choices=["dict", "imhe", "ensemble", "jhu"],
+            default="dict",
             help="Select Epidemological Disease Model",
         )
 

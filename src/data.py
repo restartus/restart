@@ -18,7 +18,7 @@ TODO: Not implemented need to work out multiindex
 """
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
+from typing import Tuple, List
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
@@ -42,9 +42,17 @@ class Data(BaseLog):
                   [ Type: "Attribute a"
                     Kind: ["Unit", "Volume", "Area"]]
 
+    You can override what is in config by passing keyword arguments
+    like
+        Data(label="Overriding Label"
     The output data is
         - df(). Suitable for display
         - narrow(). Suitable for graphing
+
+    Uses config for initial configuration but probably that should be a
+    subclass of this as config can come in differently
+
+
     """
 
     # do not put variable here unless you want them the same
@@ -53,31 +61,46 @@ class Data(BaseLog):
     # https://stackoverflow.com/questions/9056957/correct-way-to-define-class-variables-in-python
     def __init__(
         self,
-        array: np.ndarray,
-        description: str,
+        key,
         config: confuse.Configuration,
-        index: str,
-        columns: str,
-        label: Optional[List[Dict]] = None,
         log_root: Log = None,
+        **kwargs,
     ):
-        """Set base varabiles.
+        """Set base variables.
 
         Mainly the descriptions
         """
-        # since we have no log otherwise
+        # Sets logging
         super().__init__(log_root=log_root)
-
         log = self.log
         log.debug(f"{__name__=}")
 
+        self.key = key
         self.config = config
-        self.index = index
-        self.columns = columns
+        self.data = config["Model"][key]
+        self.dimension = config["Dimension"]
 
-        self.description = description
-        self.label = label
-        self.array = array
+        # Override the YAML with a dictionary
+        # https://confuse.readthedocs.io/en/latest/
+        # https://www.pythoncentral.io/how-to-check-if-a-list-tuple-or-dictionary-is-empty-in-python/
+        if kwargs:
+            config.set_args(kwargs, dots=True)
+
+        self._array = np.array(self.data["array"].get())
+        log.debug(f"{self._array=}")
+
+        # convenience reference to underlying data
+        # note the confuse returns a list when slicing
+        self.index_name = self.data["dimension"].get()[:-1][0]
+        self.columns_name = self.data["dimension"].get()[-1]
+        self.index = self.dimension[self.index_name].get()
+        self.columns = self.dimension[self.columns_name].get()
+        self.set_df(
+            index=self.index,
+            columns=self.columns,
+            index_name=self.index_name,
+            columns_name=self.columns_name,
+            )
 
     # these are the functions called when something externally is changed
     @property
@@ -97,9 +120,9 @@ class Data(BaseLog):
         if self.config is None:
             raise ValueError(f"{self.config=} is null")
         self._array = array
-        self.set_df(
-            self.config["Label"].get(), index=self.index, columns=self.columns,
-        )
+        # self.set_df(
+        # self.config[self.key].get(), index=self.index, columns=self.columns,
+        # )
         self.set_alt()
 
     @property
@@ -135,23 +158,20 @@ class Data(BaseLog):
 
     def set_df(
         self,
-        label: Optional[Dict],
-        index: Optional[str] = None,
-        columns: Optional[str] = None,
+        index: List[str],
+        columns: List[str],
+        index_name: str,
+        columns_name: str,
     ):
         """Change the df when array changes."""
         df = pd.DataFrame(
             self.array,
-            index=label[index]
-            if label is not None and index is not None
-            else None,
-            columns=label[columns]
-            if label is not None and columns is not None
-            else None,
+            index=index,
+            columns=columns,
         )
 
-        df.index.name = index
-        df.columns.name = columns
+        df.index.name = index_name
+        df.columns.name = columns_name
 
         self._df = df
 

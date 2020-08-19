@@ -44,4 +44,4 @@ jobs:
     - name: Lint with yamllint
       run: |
         pip install yamllint
-        yamllint $(find ./model/src/ -name "*.yaml")
+        yamllint $(find ./src/ -name "*.yaml")

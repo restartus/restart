@@ -501,7 +501,23 @@ class Dashboard(BaseLog):
             # using the first item which is a string
             # Then the second is the function in Altair
             # to be called with which creates the right object
-            encoding[mapping[col][0]] = mapping[col][1](var + ":N")
+
+            # don't render title for x axis
+            if col == 0:
+                encoding[mapping[col][0]] = mapping[col][1](
+                    var + ":N", title=None
+                )
+                # title=None makes Pop Level l invisible
+            # increase spacing & cut off var name for columns
+            elif col == 1:
+                title = var.rsplit(" ", 1)[0]
+                # rsplit cuts off last word
+                encoding[mapping[col][0]] = mapping[col][1](
+                    var + ":N", spacing=28.0, title=title
+                )
+            # default configuration for color and size
+            else:
+                encoding[mapping[col][0]] = mapping[col][1](var + ":N")
         if self.debug_level <= logging.DEBUG:
             st.write(f"{encoding=}")
         chart = alt.Chart(df_melt, encoding=encoding).mark_bar()

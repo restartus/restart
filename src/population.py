@@ -59,27 +59,6 @@ class Population(Base):
     but for now it is a dictionary
     """
 
-    # https://satran.in/b/python--dangerous-default-value-as-argument
-    # https://stackoverflow.com/questions/2…
-
-    # These are the default structures
-    # detail_pd_arr = np.array([735.2, 7179.6])
-    # level_pm_arr = np.array(
-    #     [
-    #         [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5],
-    #         [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-    #     ]
-    # )
-
-    # res_demand_mn_arr = np.array(
-    #     [[0, 1], [0, 2], [0, 2], [0.1, 3], [0.2, 4], [0.3, 6], [1.18, 0]]
-    # )
-
-    # No need for initialization get it from model.data
-    #        detail_pd_df: Optional[pd.DataFrame] = None,
-    #        level_pm_df: Optional[pd.DataFrame] = None,
-    #        res_demand_mn_df: Optional[pd.DataFrame] = None,
-    #        level_pl_df: Optional[pd.DataFrame] = None,
     def __init__(self, config: confuse.Configuration, log_root: Log = None):
         """Initialize all variables.
 

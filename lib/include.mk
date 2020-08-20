@@ -44,7 +44,7 @@ BASE_PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
 help: $(MAKEFILE_LIST)
 	@sed -n 's/^##//p' $(MAKEFILE_LIST)
 
-## shell: run pipenv interactivelys
+## shell: Run interactive commands in Pipenv environment
 .PHONY: shell
 shell:
 	pipenv shell

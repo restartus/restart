@@ -22,7 +22,7 @@ This file lives in README.tex.md and (Texify)[https://github.com/apps/texify] is
 a Github application that automatically renders README.md with Latex formulas
 which you add by putting the Latex between double dollar signs.
 
-<p align="center"><img src="/src/tex/ce64ef4363eed7196ffc6ed3c4761042.svg?invert_in_darkmode&sanitize=true" align=middle width=9.61479915pt height=14.611878599999999pt/></p> LaTEX and it is not and this is more formally known as
+<p align="center"><img src="/src/tex/ce64ef4363eed7196ffc6ed3c4761042.svg?invert_in_darkmode&sanitize=true" align=middle width=9.61479915pt height=14.611878599999999pt/></p> LaTeX and it is not and this is more formally known as
 and there are arbitrarily summarizations from <p align="center"><img src="/src/tex/afa921d8065c9b75169abacf1ebafddf.svg?invert_in_darkmode&sanitize=true" align=middle width=14.8230951pt height=14.611878599999999pt/></p> to the more
 summarized as the nth summarization is <p align="center"><img src="/src/tex/ccfb8e56fa0de96aaf2384824f7ce8ee.svg?invert_in_darkmode&sanitize=true" align=middle width=16.3965714pt height=14.611878599999999pt/></p> in python we use the
 notation <p align="center"><img src="/src/tex/9671989d0ae023df99422a88c302a0a4.svg?invert_in_darkmode&sanitize=true" align=middle width=63.899361899999995pt height=14.611878599999999pt/></p> and <p align="center"><img src="/src/tex/12e5f573a7052c63116931fd4ffb9062.svg?invert_in_darkmode&sanitize=true" align=middle width=77.3268672pt height=14.611878599999999pt/></p>

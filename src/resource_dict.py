@@ -8,7 +8,7 @@ import numpy as np  # type: ignore
 
 from log import Log
 from resourcemodel import Resource
-from util import set_dataframe
+from data import Data
 
 
 class ResourceDict(Resource):
@@ -27,37 +27,19 @@ class ResourceDict(Resource):
         # to pick up the description
         super().__init__(config, log_root=log_root)
         log = self.log
-        self.log.debug(f"in {__name__}")
+        log.debug(f"in {__name__}")
 
-        # need labels for later since we do not have access to model
-        self.label = config["Label"].get()
+        self.resource_nN_ur = Data(
+            "resource_nN_ur",
+            config,
+            log_root=log_root)
+        log.debug(f"{self.resource_nN_ur=}")
 
-        self.attr_na_arr = config["Data"]["Resource n"][
-            "Res Attr Data na"
-        ].get()
-        self.attr_na_df = set_dataframe(
-            self.attr_na_arr,
-            config["Label"].get(),
-            index="Resource n",
-            columns="Res Attribute a",
-        )
-        self.attr_na_df.index.name = "Resources n"
-        self.attr_na_df.columns.name = "Res Attr a"
-        log.debug(f"{self.attr_na_df=}")
-        self.set_description(
-            f"{self.attr_na_df=}",
-            config["Description"]["Resource n"]["Res Attr Data na"].get(),
-        )
-
-        self.cost_ln_arr = config["Data"]["Resource n"][
-            "Pop Level Res Cost ln"
-        ].get()
-        self.cost_ln_df = self.res_dataframe(np.array(self.cost_ln_arr))
-        log.debug(f"{self.cost_ln_df=}")
-        self.set_description(
-            f"{self.cost_ln_df=}",
-            config["Description"]["Resource n"]["Pop Level Res Cost ln"].get(),
-        )
+        self.res_by_popsum1_cost_per_unit_p1n_ut = Data(
+            "res_by_popsum1_cost_per_unit_p1n_ut",
+            config,
+            log_root=log_root)
+        log.debug(f"{self.res_by_popsum1_cost_per_unit_p1n_ut=}")
 
         self.inv_initial_ln_arr = config["Data"]["Resource n"][
             "Res Inventory Initial ln"

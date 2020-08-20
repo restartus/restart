@@ -18,7 +18,7 @@ TODO: Not implemented need to work out multiindex
 """
 from __future__ import annotations
 
-from typing import Tuple, List
+from typing import Tuple, List, Union
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
@@ -158,21 +158,24 @@ class Data(BaseLog):
 
     def set_df(
         self,
-        index: List[str],
+        index: Union[List[str], List[List[str]]],
         columns: List[str],
         index_name: str,
         columns_name: str,
     ):
         """Change the df when array changes."""
-        df = pd.DataFrame(
-            self.array,
-            index=index,
-            columns=columns,
-        )
+        if isinstance(index, list):
+            # this is two dimensional
+            df = pd.DataFrame(
+                self.array,
+                index=index,
+                columns=columns,
+            )
+        else:
+            df = pd.MultiIndex.from_arrays(self.array, names=(index, columns))
 
         df.index.name = index_name
         df.columns.name = columns_name
-
         self._df = df
 
     def set_alt(self):

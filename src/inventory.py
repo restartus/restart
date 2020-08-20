@@ -1,12 +1,11 @@
-"""The Resource Model.
+"""The Inventory Model.
 
-What resources are and how they are consumed
-https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
+What inventory are and how they are consumed
 """
 # allows return self typing to work
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Union
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
@@ -17,53 +16,28 @@ from log import Log
 from util import set_dataframe
 
 
-class Resource(Base):
-    """Resource - Manages all the resources that are used in the model.
-
-    This creates for all r resources, the list of attributes a
-
-    This contains
-    This uses https://realpython.com/documenting-python-code/
-    docstrings using the NumPy/SciPy syntax
-    Uses a modified standard project
-    Uses https://www.sphinx-doc.org/en/master/ to generate the documentation
-
-    Stores all in lxn levels and items:
-        Resource. Attributes of each
-        Costs. Of the resource
-        Inventory. The current inventory level
-        Safety stock. the minimum inventory level in days since we have a surge
-        model this is simply right now the daily rate the model shows
-        Economic Order Quantity. inv_eoc_ln_df
-    """
-
-    # no variables here unless you want class variables the same across all
-    # instances
+class Inventory(Base):
+    """Inventory - Manages all the inventorys that are used in the model."""
 
     def __init__(
         self, config: confuse.Configuration, log_root: Log = None,
     ):
-        """Initialize the Resources.
+        """Initialize the Inventorys.
 
-        Does a read in
+        Does a read in parameters
         """
         # initialize logging and description
         super().__init__(log_root=log_root)
         log = self.log
         self.config = config
         log.debug(f"in {__name__}")
-
-        # Filling these is the job of the child classes
-        self.inventory_ln_df: Optional[pd.DataFrame] = None
-        self.inv_eoc_ln_df: Optional[pd.DataFrame] = None
-        self.average_demand_ln_df: Optional[pd.DataFrame] = None
-        self.inv_min_rln_df: Optional[pd.DataFrame] = None
+        self.inventory_ln_df: pd.DataFrame
 
     def set_inv_min(
         self,
         demand_per_period_ln_df: pd.DataFrame,
         periods_rln: Union[np.ndarray, int],
-    ) -> Resource:
+    ) -> Inventory:
         """Set the minimum inventory in periods_r.
 
         A helper function that sets the minimum inventory
@@ -99,7 +73,7 @@ class Resource(Base):
         self.supply_order()
         return self
 
-    def supply_order(self) -> Resource:
+    def supply_order(self) -> Inventory:
         """Order from supplier.
 
         Always order up to the safety stock
@@ -109,7 +83,7 @@ class Resource(Base):
         order_ln_df = self.inv_min_rln_arr[0] - self.inventory_ln_df
         # negative means we have inventory above safety levels
         # so get rid of those
-        # https://www.w3resource.com/python-exercises/numpy/python-numpy-exercise-90.php
+        # https://www.w3inventory.com/python-exercises/numpy/python-numpy-exercise-90.php
         order_ln_df[order_ln_df < 0] = 0
         # now gross up the order to the economic order quantity
         order_ln_df = self.round_up_to_eoc(order_ln_df)
@@ -154,7 +128,7 @@ class Resource(Base):
         self.log.debug("inventory\n%s", self.inventory_ln_df)
 
     def demand(self, demand_ln_df):
-        """Demand for resources.
+        """Demand for inventorys.
 
         Take the demand and then return what you can
         In this simple model which you can override
@@ -174,7 +148,7 @@ class Resource(Base):
         return deliver_ln_df
 
     def res_dataframe(self, arr: np.ndarray) -> pd.DataFrame:
-        """Resource Model.
+        """Inventory Model.
 
         Dataframe setting
         """
@@ -182,6 +156,6 @@ class Resource(Base):
             arr,
             self.config["Label"].get(),
             index="Pop Level l",
-            columns="Resource n",
+            columns="Inventory n",
         )
         return df

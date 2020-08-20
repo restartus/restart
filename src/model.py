@@ -23,6 +23,8 @@ from log import Log
 from organization_dict import OrganizationDict
 from organization import Organization
 from output import Output
+from inventory import Inventory
+from inventory_dict import InventoryDict
 
 # import numpy as np  # type:ignore
 # import pandas as pd  # type:ignore
@@ -138,7 +140,6 @@ class Model(Base):
     def set_organization(self, type: str = None) -> Model:
         """Set organization."""
         self.organization: Organization
-        breakpoint()
         if type == "dict":
             self.organization = OrganizationDict(
                 self.config, log_root=self.log_root
@@ -154,6 +155,13 @@ class Model(Base):
             self.resource: Resource = ResourceDict(
                 self.config, log_root=self.log_root
             )
+        return self
+
+    def set_inventory(self, type: str = None) -> Model:
+        """Create Inventory management for a specific warehouse."""
+        if type == "dict":
+            self.inventory: Inventory = InventoryDict(
+                self.config, log_root=self.log_root)
         return self
 
     def set_demand(self, type: str = None) -> Model:

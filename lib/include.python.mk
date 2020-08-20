@@ -30,8 +30,11 @@ all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 flags ?= -p 8501:8501
 # As of july 2020, streamlit not compatible with Pandas 1.1
-PIP ?= streamlit altair "pandas<1.1" pyyaml xlrd tables confuse \
-			 setuptools wheel twine voila ipywidgets ipysheet qgrid bqplot
+# test unpinning pandas<1.1
+PIP ?= streamlit altair pandas pyyaml xlrd tables confuse \
+			 setuptools wheel twine
+NB_PIP ?= voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify
+
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 PIP_DEV ?=
@@ -54,15 +57,19 @@ update:
 # Note that black is still prelease so need --pre
 # pipenv clean removes all packages not in the virtual environment
 .PHONY: install
-PYTHON = 3.8
+PYTHON ?= 3.8
 install: base-pipenv
 ifdef PIP_DEV
 	pipenv install --dev $(PIP_DEV) || true
+endif
+ifdef NB_PIP
+	pipenv install $(NB_PIP) || true
 endif
 ifdef PIP
 	pipenv install $(PIP) || true
 endif
 	pipenv lock
+
 
 # https://medium.com/@Tankado95/how-to-generate-a-documentation-for-python-code-using-pdoc-60f681d14d6e
 # https://medium.com/@peterkong/comparison-of-python-documentation-generators-660203ca3804

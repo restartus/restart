@@ -50,10 +50,17 @@ web-pdb:
 web-debug:
 	pipenv run python -m pdb $(WEB) $(FLAGS)
 
-.PHONY:
-web-ca:
+.PHONY: streamlit-ca
+## streamlit-ca: Run streamlit with California flags
+streamlit-ca:
 	pipenv run streamlit run $(WEB) -- $(CA_FLAGS)
 
-.PHONY:
-web-wa:
+.PHONY: streamlit-wa
+## streamlit-wa: Run streamlit with Washington flags
+streamlit-wa:
 	pipenv run streamlit run $(WEB) -- $(WA_FLAGS)
+
+.PHONY: voila
+## voila: Start Jupyter to interactive Dashboard in current directory
+voila:
+	pipenv run voila

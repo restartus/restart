@@ -122,6 +122,12 @@ class PopulationOES(Population):
         if self.subpop == "healthcare":
             df = self.health_filter(df)
 
+        elif self.subpop == "wa_tier2_opt1":
+            df = self.wa_tier2_opt1_filter(df)
+
+        elif self.subpop == "wa_tier2_opt2":
+            df = self.wa_tier2_opt2_filter(df)
+
         # the actual data passed onto the model
         detail_pd_df = self.drop_code(df)
         detail_pd_arr = detail_pd_df["Size"].to_numpy()
@@ -536,4 +542,59 @@ class PopulationOES(Population):
             (df["occ_code"].str.startswith("29-"))
             | (df["occ_code"].str.startswith("31-"))
         ]
+        return filt
+
+    def wa_tier2_opt1_filter(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Return a detailed breakdown of Washington tier 2 workers.
+
+        Args:
+            None
+
+        Returns:
+            Dataframe object with the detailed breakdown
+        """
+        filt = df[
+            (df["occ_code"].str.startswith("33-"))
+            | (df["occ_code"].str.startswith("29-"))
+            | (df["occ_code"].str.startswith("31-"))
+        ]
+
+        return filt
+
+    def wa_tier2_opt2_filter(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Return a detailed breakdown of Washington tier 2 workers.
+
+        Args:
+            None
+
+        Returns:
+            Dataframe object with the detailed breakdown
+        """
+        occ_list = [
+            "29-1292",
+            "29-2040",
+            "29-1215",
+            "29-1126",
+            "29-1223",
+            "29-1181",
+            "29-1221",
+            "31-1120",
+            "31-1131",
+            "39-4031",
+            "31-1132",
+            "39-4011",
+            "31-1133",
+            "33-2011",
+            "31-9091",
+            "33-3012",
+            "33-3021",
+            "33-9093",
+            "33-3041",
+            "33-3051",
+            "33-3052",
+            "29-2052",
+        ]
+
+        filt = df[df["occ_code"].isin(occ_list)]
+
         return filt

@@ -5,6 +5,7 @@ NO_WEB ?= $$(find . -maxdepth 1 -name "*.py" -not -name $(WEB))
 FLAGS ?=
 CA_FLAGS ?=
 WA_FLAGS ?=
+VOILA ?= $(name).ipynb
 
 ## main: run the main program
 .PHONY: main
@@ -63,4 +64,4 @@ streamlit-wa:
 .PHONY: voila
 ## voila: Start Jupyter to interactive Dashboard in current directory
 voila:
-	pipenv run voila
+	pipenv run voila $(VOILA)

@@ -6,6 +6,48 @@ Config:
   stockpile_high: 90
 
 # The base dictionary data
+
+# Dimensions of the model
+# Note each of these yaml files has an overall label, so you can copy and concat
+# as needed
+Label:
+  "Resource n":
+    - "N95 + Mask"
+    - "N95"
+    - "ASTM 3 Mask"
+    - "ASTM 1-2 Mask"
+    - "Non ASTM Mask"
+    - "Face Shield"
+    - "Gowns"
+    - "Gloves"
+    - "Shoe Covers"
+  "Population p":
+    - "Homeless"
+    - "Unemployed Pre-Covid"
+    - "Migrant Farm Workers"
+    - "Nursing Facility Patient"
+  "Pop Detail d":
+    - Size
+  "Pop Level l":
+    - "Essential"
+    - "Non-essential"
+  "Demand m":
+    - WA0
+    - WA1
+    - WA2
+    - WA3
+    - WA4
+    - WA5
+    - WA6
+  "Res Attribute a":
+    - Units
+    - Volume
+    - Area
+  "Res Safety Stock s":
+    - High
+    - Mid
+    - Low
+
 Data:
   "Population p":
     "Pop Detail Data pd":
@@ -135,47 +177,6 @@ Description:
         ## Current Resource Inventory ln
         The current inventory held ready for deliver to Population levels l
         of n resource
-
-# Dimensions of the model
-# Note each of these yaml files has an overall label, so you can copy and concat
-# as needed
-Label:
-  "Resource n":
-    - "N95 + Mask"
-    - "N95"
-    - "ASTM 3 Mask"
-    - "ASTM 1-2 Mask"
-    - "Non ASTM Mask"
-    - "Face Shield"
-    - "Gowns"
-    - "Gloves"
-    - "Shoe Covers"
-  "Population p":
-    - "Homeless"
-    - "Unemployed Pre-Covid"
-    - "Migrant Farm Workers"
-    - "Nursing Facility Patient"
-  "Pop Detail d":
-    - Size
-  "Pop Level l":
-    - "Essential"
-    - "Non-essential"
-  "Demand m":
-    - WA0
-    - WA1
-    - WA2
-    - WA3
-    - WA4
-    - WA5
-    - WA6
-  "Res Attribute a":
-    - Units
-    - Volume
-    - Area
-  "Res Safety Stock s":
-    - High
-    - Mid
-    - Low
 
 Paths:
   Root: '../../data/ingestion/'

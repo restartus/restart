@@ -30,10 +30,13 @@ all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 flags ?= -p 8501:8501
 # As of july 2020, streamlit not compatible with Pandas 1.1
-# test unpinning pandas<1.1
+# test unpinning "pandas<1.1"
 PIP ?= streamlit altair pandas pyyaml xlrd tables confuse \
 			 setuptools wheel twine
-NB_PIP ?= voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify
+# As of August 2020, Voila will not run with a later version and each 0.x
+# change is an API bump, current version is 0.2 and this version does generate
+# a pipenv check problem so we need to ignore it
+VOILA_PIP ?= voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify "jupyter-server~=0.1.1"
 
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
@@ -62,8 +65,8 @@ install: base-pipenv
 ifdef PIP_DEV
 	pipenv install --dev $(PIP_DEV) || true
 endif
-ifdef NB_PIP
-	pipenv install $(NB_PIP) || true
+ifdef VOILA_PIP
+	pipenv install $(VOILA_PIP) || true
 endif
 ifdef PIP
 	pipenv install $(PIP) || true

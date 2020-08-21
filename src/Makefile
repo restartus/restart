@@ -12,3 +12,8 @@ include ../lib/include.mk
 include ../lib/include.python.mk
 include ../lib/include.model.mk
 include ../lib/include.docker.mk
+
+.PHONY: config-gen
+config-gen:
+	pipenv run python main.py --pop oes --demand washington --state Indiana --county "St. Joseph" --output ../config/sj/config.yaml
+	pipenv run python main.py --pop wa --demand washington --output ../config/wa/config.yaml

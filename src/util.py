@@ -8,8 +8,10 @@ from pathlib import Path
 from typing import Dict, Optional, Union
 
 import confuse  # type: ignore
+import ipysheet  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
+from IPython.display import display  # type: ignore
 
 
 def set_config(path: str):
@@ -87,3 +89,35 @@ def datetime_to_code(code: Union[str, datetime.datetime]) -> str:
         return str(code.month) + "-" + str(code.year)  # type: ignore
     else:
         return str(code)
+
+
+def to_df(sheet):
+    """Shorter function call for sheet -> df."""
+    return ipysheet.pandas_loader.to_dataframe(sheet)
+
+
+def to_sheet(df):
+    """Shorter function call for df -> sheet."""
+    return ipysheet.pandas_loader.from_dataframe(df)
+
+
+def format_cells(sheet, money=False):
+    """Format ipysheet cells with specific attributes."""
+    for cell in sheet.cells:
+        setattr(cell, "read_only", True)
+        if money is True:
+            setattr(cell, "numeric_format", "$0,000")
+        else:
+            setattr(cell, "numeric_format", "0,000")
+
+
+def display_population(sheet, money=False):
+    """Specific formatting for displaying ipysheets with population index."""
+    df = to_df(sheet)
+    index_name = "Population"
+    headers = list(df.index)
+    df.insert(loc=0, column=index_name, value=headers)
+    sheet = to_sheet(df)
+    format_cells(sheet, money)
+    sheet.row_headers = False
+    display(sheet)

@@ -111,8 +111,8 @@ def format_cells(sheet, money=False):
             setattr(cell, "numeric_format", "0,000")
 
 
-def display_population(sheet, money=False):
-    """Specific formatting for displaying ipysheets with population index."""
+def format_population(sheet, money=False):
+    """Generate a formatted sheet optimized for displaying population."""
     df = to_df(sheet)
     index_name = "Population"
     headers = list(df.index)
@@ -120,4 +120,10 @@ def display_population(sheet, money=False):
     sheet = to_sheet(df)
     format_cells(sheet, money)
     sheet.row_headers = False
+    return sheet
+
+
+def display_population(sheet, money=False):
+    """Display sheet with specific, population-optimized formatting."""
+    sheet = format_population(sheet, money=money)
     display(sheet)

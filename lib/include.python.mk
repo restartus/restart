@@ -36,7 +36,7 @@ PIP ?= streamlit altair pandas pyyaml xlrd tables confuse \
 # As of August 2020, Voila will not run with a later version and each 0.x
 # change is an API bump, current version is 0.2 and this version does generate
 # a pipenv check problem so we need to ignore it
-VOILA_PIP ?= voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify "jupyter-server~=0.1.1"
+VOILA_PIP ?= voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify "jupyter-server~=0.1.1" voila-vuetify
 
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916

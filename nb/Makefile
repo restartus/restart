@@ -7,6 +7,11 @@
 #
 ## voila-wa: Run Washington Aggregate and Vulnerable Levels
 VOILA_WA ?= Washington.ipynb
+VOILA_DEMO ?= VuetifyDemo.ipynb
+
+.PHONY: voila-vuetify
+voila-vuetify:
+	pipenv run voila --template=voila-default $(VOILA_DEMO)
 
 .PHONY: voila-wa
 voila-wa:

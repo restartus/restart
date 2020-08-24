@@ -75,8 +75,7 @@ Description:
       category m for the burn rates
     "Population Demand pn": |
       ## Population Demand for each of n Resources (pn)
-      This is the per capita demand for a give population so this is not the per
-      capita demand but for every n Resource for ever subpopulation p
+      This is the per person Demand for a given resource by every population
     "Pop to Level pl": |
       ## Population's mapped into Summary Levels (pl)
       This maps every population p into any number of summary levels l

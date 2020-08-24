@@ -38,7 +38,7 @@ docker:
 	docker tag $(image) $(image):$$(git rev-parse HEAD)
 
 ## push: after a build will push the image up
-push: build
+push: docker
 	# need to push and pull to make sure the entire cluster has the right images
 	docker push $(image)
 

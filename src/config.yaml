@@ -9,8 +9,8 @@ Config:
 # as needed
 Dimension:
   "Resource (n)":
-    - "N95 + Mask"
-    - "N95"
+    - "N95 Surgical"
+    - "N95 Non-surgical"
     - "ASTM 3 Mask"
     - "ASTM 1-2 Mask"
     - "Non ASTM Mask"
@@ -52,15 +52,22 @@ Dimension:
     - WA4
     - WA5
     - WA6
-  "Warehouse (w)":
-    - State
-    - County
-    - Amazon
-    - Private
+  # Owner of the warehouse only hold the State for now
   "Inventory (i)":
+    - State
+  # Inventory attributes typically these are over different Resources
+  # So iIR will be typical so for instance State Backstop i=State
+  # might have N95 Surgical and ASTM 3 Masks in stock r=Resources
+  # And then each will have inventory parameters I
+  "Inventory (I)":
     - Initial
     - EOQ
     - Minimum
+  "Warehouse (w)":
+    - Tukwila
+  "Warehouse Attribute (W)":
+    - Area
+    - Capacity
   "Range (r)":
     - High
     - Mid
@@ -78,7 +85,7 @@ Dimension:
 # Uses the dimensions above to create matrices
 Model:
   population_pP_tr:
-    name: "Attribute of All Population (p->P:tr)"
+    name: "Population Attributes (p->P:tr)"
     description: |
       There are p Populations in the model and each population
       can have P attributes about them such as their degree of age,
@@ -95,8 +102,8 @@ Model:
       - [735.2, 0, 12]
       - [7179.6, 74, 234]
 
-  pop_demand_per_unit_map_pd_ut:
-    name: "Per Unit Demand by Population for Resources (p->d:ut)"
+  pop_demand_per_unit_map_pd_um:
+    name: "Per Unit Demand by Population for Resources (p->d:um)"
     description: |
       For each p Populations falls into which protection
       category for the burn rate. That is what does each population p need
@@ -111,8 +118,8 @@ Model:
       - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
       - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
-  pop_to_popsum1_per_unit_map_pp1um:
-    name: "Population to Population Level 1 Summary Mapping (p->p1:um)"
+  pop_to_popsum1_per_unit_map_pp1_us:
+    name: "Population to Population Level 1 Summary Map (p->p1:us)"
     description: |
       This maps every population p into any number of summary levels p1
       summarized by the p1 Level level used. In this model higher
@@ -144,7 +151,7 @@ Model:
       - [437, 21, 1, 0]
       - [58, 0, 0, 10]
 
-  demand_per_unit_map_dnum:
+  demand_per_unit_map_dn_um:
     name: "Demand Level for Resource Per Unit Map (d->n:um)"
     description: |
       Demand levels for a given population for resources. This is the
@@ -167,10 +174,10 @@ Model:
       # Lab and other likely contact
       - [0, 1, 2, 1, 0, 0.18, 1.5, 8, 0.4]
       # Healthcare with direct contact
-      - [2.36, 0, 3.03, 1, 0.05, 0.27, 3.65, 12, 0.6]
+      - [1.18, 0, 4.03, 1, 0.05, 0.27, 3.65, 12, 0.6]
 
   resource_nN_ur:
-    name: "Attribute of Resources (n->N:ur)"
+    name: "Resources Attributes (n->N:ur)"
     description: |
         For all n Resources, these are the figures for each of the N Attribute
         of each resource.
@@ -185,42 +192,14 @@ Model:
       - [1, 0.9, 0.7]
       - [1, 2, 2]
 
-  res_by_popsum1_cost_per_unit_p1nut:
-    name: "Cost of Resources by Population Summary Level p1 (p1->n:ut)"
+  res_by_popsum1_cost_per_unit_p1n_us:
+    name: "Cost of Resources by Population Summary Level 1 (p1->n:us)"
     description: |
       For each of p1 summary levels, get the per capita cost for each of n
       Resources.
     data:
       - [5.0, 4.0, 1.0, 0.60, 0.20, 2.50, 4.0, 0.20, 0.15]
       - [5.0, 4.0, 1.0, 0.60, 0.06, 1.50, 4.0, 0.20, 0.15]
-
-  whse_pop_sum1_res_initial_total_p1n_tr:
-    name: "Warehouse Population Summary 1 of Resource n Initial (p1n:tr)"
-    description:: |
-      For each summarized population level l, this gives for every resource n
-      initial inventory.
-    dimension:
-      - "Population Summary Level 1 (p1)"
-      - "Resource (n)"
-    unit: "Total Units"
-    type: Real
-    data:
-      - [1, 2, 3, 4, 5, 6, 7, 8, 9]
-      - [10, 20, 30, 40, 50, 60, 70, 80, 90]
-
-  whse_pop_sum1_res_inv_min_total_p1n_tr:
-    name:
-      "Warehouse Population Summary 1 Minimum Inventory for Resources (p1n:tr)"
-    description: |
-      For each summarized population level l, this is the minimum inventory
-      also known as the safety stock
-    kind: "Per Unit"
-    dimension:
-      - "Population Summary Level 1 (p1)"
-      - "Resource (n)"
-    array:
-      - [3, 4.5, 2, 4, 2, 1, 3.9, 2.3, 1.1]
-      - [0.5, 0.75, 0.8, 1, 0.9, 1.2, 0.7, 1.2, 1.14]
 
   inv_by_popsum1_parameters_ip1n_tp:
     name: |
@@ -307,12 +286,13 @@ Description:
       - "Population Summary Level 1 (p1)"
       - "Resource (n)"
 
-  inv_popsum1_wp1n_tc:
+  inv_popsum1_ip1n_tc:
     name: |
-      "Total Inventory by Population Summary (wp1n_tc)"
+      "Total Inventory by Population Summary of Resources (wp1n_tc)"
     units: "Total Units"
     kind: Calculated
     dimensions:
+      - "Inventory (i)"
       - "Population Summary 1 (p1)"
       - "Resource (n)"
 

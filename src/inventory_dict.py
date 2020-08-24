@@ -5,9 +5,9 @@ Reads from dictionary for defaults
 
 import confuse  # type: ignore
 
-from log import Log
-from inventory import Inventory
 from data import Data
+from inventory import Inventory
+from log import Log
 
 
 class InventoryDict(Inventory):
@@ -26,7 +26,6 @@ class InventoryDict(Inventory):
         log.debug(f"in {__name__}")
 
         self.inv_by_popsum1_parameters_ip1n_tp = Data(
-            "inv_by_popsum1_parameters_ip1n_tp",
-            config,
-            log_root=log_root)
+            "inv_by_popsum1_parameters_ip1n_tp", config, log_root=log_root
+        )
         log.debug(f"{self.inv_by_popsum1_parameters_ip1n_tp=}")

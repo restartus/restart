@@ -181,6 +181,9 @@ Model:
     description: |
         For all n Resources, these are the figures for each of the N Attribute
         of each resource.
+    dimension:
+      - "Resource (n)"
+      - "Resource Attribute (N)"
     array:
       - [1, 2, 0.7]
       - [1, 1.5, 0.8]
@@ -197,7 +200,10 @@ Model:
     description: |
       For each of p1 summary levels, get the per capita cost for each of n
       Resources.
-    data:
+    dimension:
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
+    array:
       - [5.0, 4.0, 1.0, 0.60, 0.20, 2.50, 4.0, 0.20, 0.15]
       - [5.0, 4.0, 1.0, 0.60, 0.06, 1.50, 4.0, 0.20, 0.15]
 
@@ -230,8 +236,8 @@ Model:
 # These are typicalally meta values that are derived from real objectcs
 # And mapps that sever as input to processes
 Description:
-  pop_demand_per_person_pn_uc:
-    name: "Per Capita Population Resource Demand (pn:uc)"
+  demand_by_pop_per_person_pn_uc:
+    name: "Per Capita Demand by Population for Resources (pn:uc)"
     description: |
       This is the per capita demand for a give population so this is not the per
       capita demand but for every n Resource for ever subpopulation p
@@ -241,8 +247,9 @@ Description:
     units: "Per Capita"
     kind: Calculated
 
-  popsum1_demand_per_person_p0n_uc:
-    name: "Demand for Resources by Population Summary Level 1 (p1n:uc)"
+  demand_by_popsum1_per_person_p0n_uc:
+    name: |
+      Per Capita Demand for Resources by Population Summary Level 1 (p1n:uc)
     description: |
       This is the per capita demand for a set of n resources
       summarized by the l Summary Level used. It provides a view of demand
@@ -253,8 +260,8 @@ Description:
       - "Population Summary (p1)"
       - "Resource (n)"
 
-  pop_demand_total_pn_tc:
-    name: "Total Demand for Resources of all Populations (pn:tc)"
+  demand_by_pop_total_pn_tc:
+    name: "Total Demand for Resources by Population (pn:tc)"
     description: |
       This is the total demand for all p sub-Population for every resource n
     units: Total
@@ -263,8 +270,8 @@ Description:
       - "Population (p)"
       - "Resource (n)"
 
-  popsum1_demand_total_p1n_tc:
-    name: "Total Resource Demand by Population Summary Level 1 (p1n:tc)"
+  demand_by_popsum1_total_p1n_tc:
+    name: "Total Demand for Resources by Population Summary Level 1 (p1n:tc)"
     description: |
       For all population summary levels p1, the total demand for a set
       of n resources
@@ -274,9 +281,9 @@ Description:
       - "Population Summary Level 1 (p1)"
       - "Resource (n)"
 
-  popsum1_demand_total_cost_p1n_xc:
-    name:
-      "Total Cost of Resource Demand by Population Summary Level 1 (p1n:xc)"
+  demand_by_popsum1_total_cost_p1n_xc:
+    name: |
+      Total Cost of Demand for Resources by Population Summary Level 1 (p1n:xc)
     description: |
       For all population summary levels (p1), the total cost for a set of
       n resources

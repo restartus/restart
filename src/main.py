@@ -77,7 +77,7 @@ class Compose:
         noting the object_units_lastdimension_type.
 
         The notation used here is not full Latex. Use the
-        [README.tex.md](README.tex.md) to see the full notation or the Jupyter
+        [README.md](README.tex.md) to see the full notation or the Jupyter
         notebook for the long descriptions.
 
         Pop_tot_desc_gtrpd_df == Pop_tot_gtrpd_df == Pop_tot_gtrp0phat_df ==
@@ -104,7 +104,6 @@ class Compose:
         log.debug(f"{__name__=}")  # goes to log file
         log.info("hello world")  # goes to console
 
-        parser = self.get_parser()
         args = parser.parse_args()
         log.debug(f"{args=}")
 
@@ -124,11 +123,10 @@ class Compose:
             .set_filter(
                 county=args.county, state=args.state, subpop=args.subpop
             )
-            # Create the real object in the world
             .set_population(type=args.population)
             .set_organization(type=args.organization)
             .set_resource(type=args.resource)
-            # Create the transformers
+            .set_inventory(type=args.inventory)
             .set_demand(type=args.demand)
             .set_economy(type=args.economy)
             .set_disease(type=args.disease)
@@ -212,16 +210,11 @@ class Compose:
         log.info("start dashboard ")
         log.debug("start dashboard")
 
-    def get_parser(self):
+    def create_parser(self):
         """Set Parser arguments.
 
-        For all the choices, returns an argparser object
+        For all the choices, returns an argparser object for use by confuse
         """
-        # TODO: Convert to using confuse to store parameters
-        # or maybe the configargparser
-        # https://github.com/beetbox/confuse
-        # expect a real file
-        # https://docs.python.org/3/library/argparse.html
         parser = argparse.ArgumentParser()
 
         parser.add_argument(
@@ -229,7 +222,6 @@ class Compose:
             "--population",
             default="dict",
             choices=["dict", "oes", "wa"],
-            default="dict",
             help="Select population data cube",
         )
 
@@ -258,6 +250,14 @@ class Compose:
             choices=["dict", "who", "eoc", "chelsea"],
             default="dict",
             help="Select Resource model",
+        )
+
+        parser.add_argument(
+            "-i",
+            "--inventory",
+            choices=["dict"],
+            default="dict",
+            help="Select inventory model",
         )
 
         parser.add_argument(

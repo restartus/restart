@@ -6,10 +6,9 @@ Read in the population from the model dictionary
 import confuse  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
 
+from data import Data
 from log import Log
 from population import Population
-
-from data import Data
 
 
 class PopulationDict(Population):
@@ -19,9 +18,7 @@ class PopulationDict(Population):
     """
 
     def __init__(
-        self,
-        config: confuse.Configuration,
-        log_root: Log = None,
+        self, config: confuse.Configuration, log_root: Log = None,
     ):
         """Initialize the population object.
 
@@ -39,15 +36,12 @@ class PopulationDict(Population):
         # get population data
         # Using the new Lucas data class
         self.population_pP_tr = Data(
-            "population_pP_tr",
-            config,
-            log_root=log_root,)
+            "population_pP_tr", config, log_root=log_root,
+        )
         log.debug(f"{self.population_pP_tr=}")
 
         # get mapping data
-        self.pop_demand_per_unit_map_pd_ut = Data(
-            "pop_demand_per_unit_map_pd_ut",
-            config,
-            log_root=log_root,
-            )
-        log.debug(f"{self.pop_demand_per_unit_map_pd_ut=}")
+        self.pop_demand_per_unit_map_pd_um = Data(
+            "pop_demand_per_unit_map_pd_um", config, log_root=log_root,
+        )
+        log.debug(f"{self.pop_demand_per_unit_map_pd_um=}")

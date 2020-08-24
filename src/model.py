@@ -19,12 +19,12 @@ from demand_wa import DemandWA
 from disease import Disease
 from economy import Economy
 from filtermodel import Filter
-from log import Log
-from organization_dict import OrganizationDict
-from organization import Organization
-from output import Output
 from inventory import Inventory
 from inventory_dict import InventoryDict
+from log import Log
+from organization import Organization
+from organization_dict import OrganizationDict
+from output import Output
 
 # import numpy as np  # type:ignore
 # import pandas as pd  # type:ignore
@@ -130,8 +130,7 @@ class Model(Base):
         elif type == "dict":
             # change this to the the naming of columns
             self.population = PopulationDict(
-                self.config,
-                log_root=self.log_root,
+                self.config, log_root=self.log_root,
             )
         else:
             raise ValueError(f"{type=} not implemented")
@@ -161,7 +160,8 @@ class Model(Base):
         """Create Inventory management for a specific warehouse."""
         if type == "dict":
             self.inventory: Inventory = InventoryDict(
-                self.config, log_root=self.log_root)
+                self.config, log_root=self.log_root
+            )
         return self
 
     def set_demand(self, type: str = None) -> Model:

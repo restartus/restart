@@ -5,13 +5,12 @@ Demand modeling
 from typing import Optional
 
 import confuse  # type: ignore
-import numpy as np  # type: ignore # noqa: F401
-import pandas as pd  # type: ignore # noqa: F401
 
 from base import Base
 from log import Log
 from population import Population
 from resourcemodel import Resource
+from data import Data
 
 
 class Demand(Base):
@@ -54,15 +53,9 @@ class Demand(Base):
         log = self.log
         log.debug(f"In {__name__}")
 
-        self.level_to_res_mn_arr: Optional[np.ndarray] = None
-        self.level_to_res_mn_df: Optional[pd.DataFrame] = None
-        self.level_pm_arr: Optional[np.ndarray] = None
-        self.level_pm_df: Optional[pd.DataFrame] = None
-        self.demand_pn_df: Optional[pd.DataFrame] = None
-        self.level_pl_arr: Optional[np.ndarray] = None
-        self.level_pl_df: Optional[pd.DataFrame] = None
-        self.level_demand_ln_df: Optional[pd.DataFrame] = None
-        self.total_demand_pn_arr: Optional[np.ndarray] = None
-        self.total_demand_pn_df: Optional[pd.DataFrame] = None
-        self.level_total_demand_ln_df: Optional[pd.DataFrame] = None
-        self.level_total_cost_ln_df: Optional[pd.DataFrame] = None
+        self.demand_per_unit_map_dn_um: Data
+        self.demand_by_pop_per_person_pn_uc: Data
+        self.demand_by_popsum1_per_person_p1n_uc: Data
+        self.demand_by_pop_total_pn_tc: Data
+        self.demand_by_popsum1_total_p1n_tc: Data
+        self.demand_by_popsum1_total_cost_p1n_tc: Data

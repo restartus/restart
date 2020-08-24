@@ -15,6 +15,7 @@ from log import Log
 from population import Population
 from resourcemodel import Resource
 from util import datetime_to_code, load_dataframe, set_dataframe
+from data import Data
 
 
 class DemandWA(Demand):
@@ -31,9 +32,10 @@ class DemandWA(Demand):
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):
-        """Initialize the dataframes.
+        """Initialize the DataFrames.
 
-        Do some matrix math
+        Calculate demand for resources by populations
+        TODO: Add organization demand so dimensions become p+o
         """
         super().__init__(config, log_root=log_root)
         log = self.log
@@ -50,26 +52,22 @@ class DemandWA(Demand):
         except KeyError:
             pass
 
-        self.level_to_res_mn_arr = config["Data"]["Demand m"][
-            "Level to Resource mn"
-        ].get()
-        self.level_to_res_mn_df = set_dataframe(
-            self.level_to_res_mn_arr,
-            label=config["Label"].get(),
-            index="Demand m",
-            columns="Resource n",
+        self.demand_per_unit_map_dn_um = Data(
+            "demand_per_unit_map_dn_um", config, log_root=log_root
         )
-        log.debug(f"{self.level_to_res_mn_df=}")
-        self.set_description(
-            f"{self.level_to_res_mn_df=}",
-            config["Description"]["Demand m"]["Demand Resource mn"].get(),
-        )
+        log.debug(f"{self.demand_per_unit_map_dn_um=}")
 
-        # protection level rates
+        # Demand relates population and resources
         if pop is None:
             raise ValueError("{pop=} should not be None")
         if res is None:
             raise ValueError("{res=} should not be None")
+
+        # define calculated data before use
+        self.demand_by_pop_per_person_pn_uc = Data(
+            "demand_by_pop_per_person_pn_uc", config, log_root=log_root
+        )
+        log.debug(f"{self.demand_by_pop_per_person_pn_uc=}")
 
         self.demand_pn_arr = np.array(pop.level_pm_df) @ np.array(
             self.level_to_res_mn_df

@@ -2,10 +2,11 @@
 
 Organization modeling
 """
-from log import Log
-from data import Data
-from organization import Organization
 import confuse  # type: ignore
+
+from data import Data
+from log import Log
+from organization import Organization
 
 
 class OrganizationDict(Organization):
@@ -17,8 +18,7 @@ class OrganizationDict(Organization):
         log = self.log
 
         self.organization_oO_tr = Data(
-            "organization_oO_tr",
-            config,
-            log_root=log_root)
+            "organization_oO_tr", config, log_root=log_root
+        )
 
         log.debug(f"{self.organization_oO_tr=}")

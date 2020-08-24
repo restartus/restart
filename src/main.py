@@ -21,7 +21,6 @@ from base import Base
 from dashboard import Dashboard
 from log import Log
 from model import Model
-
 from util import set_config
 
 
@@ -104,6 +103,7 @@ class Compose:
         log.debug(f"{__name__=}")  # goes to log file
         log.info("hello world")  # goes to console
 
+        parser = self.create_parser()
         args = parser.parse_args()
         log.debug(f"{args=}")
 
@@ -182,9 +182,6 @@ class Compose:
         log.debug(f"{model.demand.level_pl_df=}")
         log.debug(f"{model.resource.cost_ln_df=}")
 
-        # model.demand.level_total_cost(model.resource.cost_ln_df)
-        # log.debug(f"{model.demand.level_total_cost_ln_df=}")
-
         # test iteration
         for base_key, base_value in model:
             log.debug(f"{base_key=}")
@@ -225,8 +222,9 @@ class Compose:
             help="Select population data cube",
         )
 
-        parser.add_argument("--organization",
-                            default="dict", help=["dict", "ca"])
+        parser.add_argument(
+            "--organization", default="dict", help=["dict", "ca"]
+        )
 
         parser.add_argument("--csv", help="Select CSV file output")
 

@@ -89,18 +89,22 @@ class Data(BaseLog):
         self._array = np.array(self.data["array"].get())
         log.debug(f"{self._array=}")
 
-        # convenience reference to underlying data
         # note the confuse returns a list when slicing
-        self.index_name = self.data["dimension"].get()[:-1][0]
+
+        if len(self.data["dimension"] <= 2):
+            self.index_name = self.data["dimension"].get()[:-1][0]
+            self.columns_name = self.data["dimension"].get()[-1]
+            self.index = self.dimension[self.index_name].get()
+            self.columns = self.dimension[self.columns_name].get()
+            self.set_df(
+                index=self.index,
+                columns=self.columns,
+                index_name=self.index_name,
+                columns_name=self.columns_name,
+            )
+            return
+        # Create a multiindex
         self.columns_name = self.data["dimension"].get()[-1]
-        self.index = self.dimension[self.index_name].get()
-        self.columns = self.dimension[self.columns_name].get()
-        self.set_df(
-            index=self.index,
-            columns=self.columns,
-            index_name=self.index_name,
-            columns_name=self.columns_name,
-        )
 
     # these are the functions called when something externally is changed
     @property
@@ -163,14 +167,37 @@ class Data(BaseLog):
         index_name: str,
         columns_name: str,
     ):
-        """Change the df when array changes."""
-        if isinstance(index, list):
-            # this is two dimensional
-            df = pd.DataFrame(self.array, index=index, columns=columns,)
-        else:
-            df = pd.MultiIndex.from_arrays(self.array, names=(index, columns))
+        """Change the df when array changes.
 
-        df.index.name = index_name
+        The normal 2D case
+        index is the list of row names (e.g., ["Healthcare", "Non-healthcare"])
+        columns is the list of column names (e.g., ["N95", "Surgical Mask"])
+        index_name is name of index  (e.g., "Population")
+        column_name is the name of all the columns (e.g., "Resource")
+
+        The 3D cases we use a multiindex so
+        index is a list of a list of row names  for the 1..N-1 dimensions
+            [["Min Inv", "EOQ Inv", "Order Size"], ["HC", "Non-HC"]]
+        columns is the same the list of columns or the Nth dimension
+        index_name is a list ["Inv", "Population"]
+        column_name is the same just for the Nth index
+        """
+        if isinstance(index_name, str):
+            # this is two dimensional
+            # https://stackoverflow.com/questions/18691084/what-does-1-mean-in-numpy-reshape
+            df = pd.DataFrame(self.array, index=index, columns=columns,)
+            df.index.name = index_name
+        else:
+            # flatten the array into 2D so only column is there
+            # first -1 means compute it, second -1 means last dimension
+            self.flat2d_arr = self.array.reshape(-1, self.array.shape[-1])
+            self.multi_index = pd.MultiIndex.from_product(
+                index, names=index_name,
+            )
+            # https://docs.heliopy.org/en/0.1b5/examples/multiindex.html
+            df = pd.DataFrame(
+                self.flat2d_arr, index=self.multi_index, columns=columns,
+            )
         df.columns.name = columns_name
         self._df = df
 

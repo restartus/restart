@@ -34,7 +34,7 @@ Dimension:
     - Non-essential
   "Organization (o)":
     - Hospital
-    - "Rural EMT"
+    - "First Responders"
   "Organization Attribute (O)":
     - Employees
     - Patients
@@ -42,8 +42,7 @@ Dimension:
     - Runs
   "Organization Summary Level (o1)":
     - Front-line
-    - Essential
-    - Non-essential
+    - Non-frontline
   "Demand for Resource (d)":
     - WA0
     - WA1
@@ -118,6 +117,17 @@ Model:
       - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
       - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
+  # TODO: not yet used, but allows iteration in levels
+  pop_to_popsum_per_unit_dict_p_ul:
+    name: "Population to Summary Dictionary (p:ul)"
+    units: "Per Person"
+    kind: List
+    list:
+      - pop_to_popsum1_per_unit_map_pp1_us
+      # not yet implemented
+      - popsum1_to_popsum2_per_unit_map_p1p2_us
+      - popsum2_to_popsum3_per_unit_map—p2p3_us
+
   pop_to_popsum1_per_unit_map_pp1_us:
     name: "Population to Population Level 1 Summary Map (p->p1:us)"
     description: |
@@ -151,11 +161,24 @@ Model:
       - [437, 21, 1, 0]
       - [58, 0, 0, 10]
 
+  org_to_orgsum1_per_unit_map_oo1_us:
+    name: "Organization to Organization Level 1 Summary Map (o->o1:us)"
+    description: |
+      This map summarized every Organiation into a first summary level o1.
+    units: "Per Capita"
+    kind: Summary
+    dimension:
+      - "Organization (o)"
+      - "Organization Summary Level 1 (o1)"
+    array:
+      - [1, 0]
+      - [0, 1]
+
   demand_per_unit_map_dn_um:
     name: "Demand Level for Resource Per Unit Map (d->n:um)"
     description: |
       Demand levels for a given population for resources. This is the
-      consumption map that for each protection level shows which resources are
+      coesumption map that for each protection level shows which resources are
       "burned".  Also now as the burn rates for PPE.
     units: "Per Resource"
     dimension:
@@ -209,7 +232,7 @@ Model:
 
   inv_by_popsum1_parameters_ip1n_tp:
     name: |
-      "Inventory of Resources by Population Summary Level 1 Parameters (p1n:tr)"
+      Inventory of Resources by Population Summary Level 1 Parameters (ip1n:tr)
     description: |
       For each summarized population level l, this gives for every resource n
       initial inventory. The first plane is the initial inventory, the

@@ -40,8 +40,12 @@ class PopulationDict(Population):
         )
         log.debug(f"{self.population_pP_tr=}")
 
-        # get mapping data
         self.pop_demand_per_unit_map_pd_um = Data(
             "pop_demand_per_unit_map_pd_um", config, log_root=log_root,
         )
         log.debug(f"{self.pop_demand_per_unit_map_pd_um=}")
+
+        self.pop_to_popsum1_per_unit_map_pp1_us = Data(
+            "pop_to_popsum1_per_unit_map_pp1_us", config, log_root=log_root,
+        )
+        log.debug(f"{self.pop_to_popsum1_per_unit_map_pp1_us=}")

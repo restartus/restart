@@ -12,6 +12,7 @@ import confuse  # type: ignore
 
 # Note that pip install data-science-types caused errors
 from base import Base
+from data import Data
 from log import Log
 
 # import pandas as pd  # type:ignore
@@ -72,3 +73,9 @@ class Population(Base):
         log.debug("In %s", __name__)
 
         self.config = config
+
+        # these need to be filled out by the subclasses
+        # define them here for type checking purposes
+        self.population_pP_tr: Data
+        self.pop_demand_per_unit_map_pd_um: Data
+        self.pop_popsum1_per_unit_map_pp1_us: Data

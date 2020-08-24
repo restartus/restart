@@ -9,13 +9,13 @@ import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
+from data import Data
 from demand import Demand
 from load_csv import LoadCSV
 from log import Log
 from population import Population
 from resourcemodel import Resource
 from util import datetime_to_code, load_dataframe, set_dataframe
-from data import Data
 
 
 class DemandWA(Demand):

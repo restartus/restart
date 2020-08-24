@@ -5,15 +5,28 @@ What inventory are and how they are consumed
 # allows return self typing to work
 from __future__ import annotations
 
-from typing import Union
+# For slices of parameters
+from enum import Enum
+from typing import List, Union
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
 from base import Base
+from data import Data
 from log import Log
 from util import set_dataframe
+
+
+# https://docs.python.org/3/library/enum.html
+# These are the slices used
+class InvParameter(Enum):
+    """List positions in Inventory Parameter List."""
+
+    INV_INITIAL = 0
+    INV_EOQ = 1
+    INV_MIN = 2
 
 
 class Inventory(Base):
@@ -33,39 +46,43 @@ class Inventory(Base):
         log.debug(f"in {__name__}")
         self.inventory_ln_df: pd.DataFrame
 
+        # In the new world parameters are kept in a tuple
+        self.inv_by_popsum1_parameters_ip1n_tp: List[Data]
+        self.inv_min_in_periods_rp1n_arr: np.ndarray
+
     def set_inv_min(
         self,
-        demand_per_period_ln_df: pd.DataFrame,
-        periods_rln: Union[np.ndarray, int],
+        demand_per_period_p1n_df: pd.DataFrame,
+        periods_rp1n: Union[np.ndarray, int],
     ) -> Inventory:
         """Set the minimum inventory in periods_r.
 
         A helper function that sets the minimum inventory
         Based on how many periods_r (days) you want stored
-        TODO: Right now it is just using the actually demand since this is
-        surge model but it should use some sort of average or statistical
-        calculation
+
+        TODO: This uses the range attribute so that you could set and
+        inventory range of minimums
         """
         log = self.log
         # https://numpy.org/doc/stable/reference/generated/numpy.empty_like.html
-        if type(periods_rln) is int:
-            log.debug(f"{periods_rln=} scalar inventory")
+        if type(periods_rp1n) is int:
+            log.debug(f"{periods_rp1n=} scalar inventory")
             # note we need r=1 for this to work so we insert an empty dimension
             # https://numpy.org/doc/stable/reference/generated/numpy.expand_dims.html
             self.inv_min_in_periods_rln_arr: np.ndarray = (
-                periods_rln * np.ones_like(demand_per_period_ln_df)
+                periods_rp1n * np.ones_like(demand_per_period_p1n_df)
             )
-            self.inv_min_in_periods_rln_arr = np.expand_dims(
-                self.inv_min_in_periods_rln_arr, axis=0
+            self.inv_min_in_periods_rp1n_arr = np.expand_dims(
+                self.inv_min_in_periods_rp1n_arr, axis=0
             )
         else:
-            self.inv_min_in_periods_rln_arr = periods_rln
+            self.inv_min_in_periods_rp1n_arr = periods_rp1n
 
         log.debug(f"{self.inv_min_in_periods_rln_arr=} ")
         # need to do a dot product
         self.inv_min_rln_arr = np.einsum(
             "ln,rln->rln",
-            demand_per_period_ln_df.to_numpy(),
+            demand_per_period_p1n_df.to_numpy(),
             self.inv_min_in_periods_rln_arr,
         )
         # https://stackoverflow.com/questions/53375161/use-numpy-array-to-replace-pandas-dataframe-values

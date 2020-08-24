@@ -2,15 +2,15 @@
 
 Demand modeling
 """
-from typing import Optional
+from typing import Dict, Optional
 
 import confuse  # type: ignore
 
 from base import Base
+from data import Data
 from log import Log
 from population import Population
 from resourcemodel import Resource
-from data import Data
 
 
 class Demand(Base):
@@ -55,7 +55,11 @@ class Demand(Base):
 
         self.demand_per_unit_map_dn_um: Data
         self.demand_by_pop_per_person_pn_uc: Data
-        self.demand_by_popsum1_per_person_p1n_uc: Data
         self.demand_by_pop_total_pn_tc: Data
+        self.demand_by_pop_total_cost_pn_tc: Data
+
+        self.demand_by_popsum_ps_us: Dict
+
+        self.demand_by_popsum1_per_person_p1n_uc: Data
         self.demand_by_popsum1_total_p1n_tc: Data
         self.demand_by_popsum1_total_cost_p1n_tc: Data

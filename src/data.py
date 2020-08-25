@@ -46,8 +46,9 @@ class Data(BaseLog):
     like
         Data(label="Overriding Label"
     The output data is
-        - df(). Suitable for display
-        - narrow(). Suitable for graphing
+        - .array numpy array for computation
+        - .df Suitable for display
+        - .narrow Suitable for graphing
 
     Uses config for initial configuration but probably that should be a
     subclass of this as config can come in differently
@@ -80,6 +81,9 @@ class Data(BaseLog):
         self.data_cf: confuse.Configuration = config["Model"][key]
         self.dimension_cf: confuse.Configuration = config["Dimension"]
         self.index_cf: confuse.Configuration = self.data_cf["index"]
+        self._array: np.ndArray = None
+        self._df: pd.DataFrame = None
+        self._narrow: pd.DataFrame = None
 
         # Override the YAML with a dictionary
         # https://confuse.readthedocs.io/en/latest/
@@ -105,6 +109,13 @@ class Data(BaseLog):
         log.debug(f"{self._array=}")
 
         self.set_df()
+
+    # https://www.journaldev.com/22460/python-str-repr-functions
+    # so debugging make sense this does not work because
+    # if called early _df and others are not available
+    # def __repr__(self):
+    #     """Show more than just the type."""
+    # return {"df": self._df, "array": self._array, "narrow": self._narrow}
 
     # TODO: There must be a better way but there are three data structures that
     # can change and then the other two must switch:

@@ -238,7 +238,10 @@ Model:
       For each summarized population level l, this gives for every resource n
       initial inventory. The first plane is the initial inventory, the
       second plane is the economic order quantity and the initial inventory,
-      third plane is the minimum safety stock.
+      third plane is the minimum safety stock. The units are total units we
+      also keep an inventory expressed in periods separately for human readable
+      reasons. This is not used yet as we do not have an easy way to slice
+      apart this
     index:
       - "Inventory (i)"
       - "Inventory Attribute (I)"
@@ -318,15 +321,46 @@ Model:
       - "Population Summary Level 1 (p1)"
       - "Resource (n)"
 
-  inv_popsum1_ip1n_tc:
+  inv_by_popsum1_total_rp1n_tc:
     name: |
-      "Total Inventory by Population Summary of Resources (wp1n_tc)"
+      Total Inventory of Resources by Population Summary Level 1 (rp1n_tc)
+    description: |
+      For all population summary levels, the total inventory in stock for all
+      resources held in current inventory
+    index:
+      - "Range (r)"
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
     units: "Total Units"
     kind: Calculated
+
+  inv_min_by_popsum1_total_rp1n_tc:
+    name: |
+      Total Inventory Minimum of Resources by Population Summary Level 1
+      (p1n_tc)
+    description: |
+      The minimum inventory in total units that should be held calculated for
+      each Population Summary Level
     index:
-      - "Inventory (i)"
-      - "Population Summary 1 (p1)"
+      - "Range (r)"
+      - "Population Summary Level 1 (p1)"
       - "Resource (n)"
+    units: "Total Units"
+    kind: Calculated
+
+  inv_min_by_popsum1_per_period_rp1n_uc:
+    name: |
+      Inventory Minimum of Resources by Population Summary Level 1 in Periods
+      (p1n_tc)
+    description: |
+      The minimum inventory in days on hand of  units that should be held
+      calculated for each Population Summary Level
+    index:
+      - "Range (r)"
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
+    units: "Total Units"
+    kind: Calculated
 
 Paths:
   Root: '../../data/ingestion/'

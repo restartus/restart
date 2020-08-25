@@ -67,7 +67,7 @@ class Compose:
             summary. We allow an unlimited levels, but a single variable with a
             number indicates how much summarization with 0 being the most
             detailed.
-        d - a shortcut for the "columns" that describe it for this,
+        p1 - a shortcut for the "columns" that describe it for this,
             the last element also called the longer form of this is P0 for the
             first level then P1,... as you summarize more. Because python
             doesn't support the "hat" used in the equations hat{p} becomes a
@@ -159,18 +159,16 @@ class Compose:
                 log.debug(f"{df_value=}")
 
         # this just keeps increasing supply also test decreasing
-        return
         # TODO: fix stockpile to use the the new tuples
-        for s in [30, 60, 90, 40, 20]:
-            log.debug("reset inventory to minimum")
-            model.resource.demand(model.resource.inventory_ln_df)
-            log.critical(f"changing stockpile to {s=}")
-            log.debug(f"{model.demand.level_total_demand_ln_df=}")
-            model.resource.set_inv_min(
-                model.demand.level_total_demand_ln_df, s
+        for backstop_period in [30, 60, 90, 40, 20]:
+            log.debug("reset inventory to zero by ordering everything")
+            model.inventory.order(model.inventory.inv_by_popsum1_total_rp1n_tc)
+            log.critical(f"changing days of backstop to {backstop_period=}")
+            log.debug(f"{model.demand.demand_by_popsum1_total_p1n_tc=}")
+            model.inventory.set_inv_min(
+                model.demand.demand_by_popsum1_total_p1n_tc, backstop_period
             )
-            log.debug(f"{model.resource.inv_min_rln_df=}")
-            log.critical(f"{model.resource.inventory_ln_df=}")
+            log.debug(f"{model.inventory.inv_by_popsum1_total_rp1n_tc=}")
 
         # run with streamlit run and then this will not return until after
         # when run as just regular python this doesn't do anything

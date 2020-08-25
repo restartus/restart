@@ -119,8 +119,8 @@ class Dashboard(BaseLog):
             st.sidebar.markdown(f"{self.debug_level=}")
 
         # To make this work for the update, use up all the exiting inventory
-        model.inventory.order(model.inventory.in_stock_p1n_df)
-        model.inventory.set_inv_min(
+        model.inventory.order(model.inventory.inv_by_popsum1_total_rp1n_tc)
+        model.inventory.set_min(
             model.demand.demand_by_popsum1_total_p1n_tc, inv_min_in_periods
         )
 

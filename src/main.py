@@ -158,6 +158,7 @@ class Compose:
                 log.debug(f"{df_key=}")
                 log.debug(f"{df_value=}")
 
+        return
         # this just keeps increasing supply also test decreasing
         # TODO: fix stockpile to use the the new tuples
         for backstop_period in [30, 60, 90, 40, 20]:

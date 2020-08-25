@@ -7,7 +7,7 @@ from __future__ import annotations
 
 # For slices of parameters
 from enum import Enum
-from typing import Union, List
+from typing import List
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
@@ -59,21 +59,25 @@ class Inventory(Base):
             "inv_min_by_popsum1_per_period_rp1n_uc", config, log_root=log_root
         )
 
-    def set_min_by_list(self,
-                        min_period_rt_pc: List,
-                        min_demand_per_period_rp1n_df: pd.Dataframe,
-                        ) -> Inventory:
+    def set_min_by_list(
+        self,
+        min_period_rt_pc: List,
+        min_demand_per_period_rp1n_df: pd.Dataframe,
+    ) -> Inventory:
+        """Separating files."""
         log = self.log
         log.debug(f"{min_period_rt_pc=}")
         self.set_min_by_period(
-            min_period_rt_pc,
-            * np.ones_like(min_demand_per_period_rp1n_df)
+            min_period_rt_pc, *np.ones_like(min_demand_per_period_rp1n_df)
         )
 
         return self
 
-    def set_min_by_period(self,
-                          min_periods_rp1n_df: pd.Dataframe,) -> Inventory:
+    def set_min_by_period(
+        self, min_periods_rp1n_df: pd.Dataframe,
+    ) -> Inventory:
+        """Separting functions."""
+        log = self.log
         self.inv_min_by_popsum1_per_period_rp1n_uc.df = min_periods_rp1n_df
 
         # https://numpy.org/doc/stable/reference/generated/numpy.empty_like.html
@@ -84,17 +88,16 @@ class Inventory(Base):
         )
         log.debug(f"{self.inv_min_by_popsum1_per_period_rp1n_uc=} ")
         # need to do a dot product
-        set_min(np.einsum(
-            "rxn,rxn->rxn",
-            min_demand_per_period_rp1n_df.to_numpy(),
-            self.inv_min_by_popsum1_per_period_rp1n_uc.array,
-        ))
+        self.set_min(
+            np.einsum(
+                "rxn,rxn->rxn",
+                min_periods_rp1n_df.to_numpy(),
+                self.inv_min_by_popsum1_per_period_rp1n_uc.array,
+            )
+        )
         return self
 
-    def set_min(
-        self,
-        min_demand_total_rp1n_df: pd.Dataframe,
-    ) -> Inventory:
+    def set_min(self, min_demand_total_rp1n_df: pd.Dataframe,) -> Inventory:
         """Set the minimum inventory in periods_r.
 
         A helper function that sets the minimum inventory
@@ -106,8 +109,8 @@ class Inventory(Base):
         log = self.log
 
         # https://stackoverflow.com/questions/53375161/use-numpy-array-to-replace-pandas-dataframe-values
-        log.debug(f"{self.inv_min_rp1n_arr=}")
-        self.inv_min_rp1n_tc.array = np.einsum(
+        log.debug(f"{self.inv_min_by_popsum1_per_period_rp1n_uc=}")
+        self.inv_min_by_popsum1_per_period_rp1n_uc.array = np.einsum()
         self.supply_order()
         return self
 
@@ -119,7 +122,8 @@ class Inventory(Base):
         """
         # hack here because we only do ranges for min inventory
         order_p1n_df = (
-            self.inv_min_rp1n_arr[0] - self.inv_by_popsum1_total_rp1n_tc.array
+            self.inv_min_by_popsum1_per_period_rp1n_uc.array[0]
+            - self.inv_by_popsum1_total_rp1n_tc.array
         )
         # negative means we have inventory above safety levels
         # so get rid of those
@@ -180,9 +184,12 @@ class Inventory(Base):
         # the simple min won't work, need an element0-wise minimum
         # https://numpy.org/doc/stable/reference/generated/numpy.minimum.html
         order_by_popsum1_total_rp1n_tc_df = np.minimum(
-                                order_by_popsum1_total_rp1n_tc_df,
-                                self.inv_by_popsum1_parameters_iIp1n_tp.df)
-        self.inv_by_popsum1_total_rp1n_tc.array -= order_by_popsum1_total_rp1n_tc_df.to_numpy()
+            order_by_popsum1_total_rp1n_tc_df,
+            self.inv_by_popsum1_parameters_iIp1n_tp.df,
+        )
+        self.inv_by_popsum1_total_rp1n_tc.array -= (
+            order_by_popsum1_total_rp1n_tc_df.to_numpy()
+        )
 
         # now restock
         self.supply_order()

@@ -7,6 +7,7 @@ from typing import Optional
 import confuse  # type: ignore
 
 from base import Base
+from data import Data
 from log import Log
 
 
@@ -46,3 +47,5 @@ class Organization(Base):
         # off
         log = self.log
         log.debug(f"in {__name__=}")
+
+        self.organization_oO_tr: Optional[Data] = None

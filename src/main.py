@@ -18,7 +18,9 @@ import argparse
 import logging  # noqa:F401
 
 from base import Base
-from dashboard import Dashboard
+
+# Use jupyter voila instead
+# from dashboard import Dashboard
 from log import Log
 from model import Model
 from util import set_config
@@ -130,7 +132,6 @@ class Compose:
             .set_demand(type=args.demand)
             .set_econometric(type=args.econometric)
             .set_disease(type=args.disease)
-            .set_activity(type=args.activity)
             .set_mobility(type=args.mobility)
             .set_output(out=args.output, csv=args.csv)
         )
@@ -250,14 +251,6 @@ class Compose:
         )
 
         parser.add_argument(
-            "-m",
-            "--activity",
-            choices=["dict", "apple", "ensemble", "google"],
-            default="dict",
-            help="Select Activity Model",
-        )
-
-        parser.add_argument(
             "-d",
             "--disease",
             choices=["dict", "imhe", "ensemble", "jhu"],
@@ -309,8 +302,6 @@ class Compose:
         model.econometric = Econometric(model.data, log_root=model.log_root)
         log.debug("creating Disease")
         model.disease = Disease(model.data, log_root=model.log_root)
-        log.debug("creating Activity")
-        model.activity = Activity(model.data, log_root=model.log_root)
         log.debug("creating Mobility")
         model.mobility = Mobility(model.data, log_root=model.log_root)
         log.debug(f"{model=}")
@@ -320,4 +311,5 @@ class Compose:
 if __name__ == "__main__":
     # compose the entire model runs as a class so it is rentrant
     compose = Compose()
-    Dashboard(compose.model)
+    # Abandon dashboard, use voila and vuetify
+    # Dashboard(compose.model)

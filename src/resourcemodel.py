@@ -6,6 +6,8 @@ https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
 # allows return self typing to work
 from __future__ import annotations
 
+from typing import Optional
+
 import confuse  # type: ignore
 
 from base import Base
@@ -50,5 +52,5 @@ class Resource(Base):
         log.debug(f"in {__name__}")
 
         # Filling these is the job of the child classes
-        self.resource_nN_ur: Data
-        self.res_by_popsum1_cost_per_unit_p1n_us: Data
+        self.resource_nN_ur: Optional[Data] = None
+        self.res_by_popsum1_cost_per_unit_p1n_us: Optional[Data] = None

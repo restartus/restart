@@ -7,6 +7,8 @@ It also includes a default() for setting up the main attribute matrix,
 detail_pd_arr and then a calc() which calculates the rest of the related data
 """
 
+from typing import Optional
+
 # Insert the classes of data we support here
 import confuse  # type: ignore
 
@@ -76,6 +78,7 @@ class Population(Base):
 
         # these need to be filled out by the subclasses
         # define them here for type checking purposes
-        self.population_pP_tr: Data
-        self.pop_demand_per_unit_map_pd_um: Data
-        self.pop_to_popsum1_per_unit_map_pp1_us: Data
+        # And to have them instantiated for subclasses
+        self.population_pP_tr: Optional[Data] = None
+        self.pop_demand_per_unit_map_pd_um: Optional[Data] = None
+        self.pop_to_popsum1_per_unit_map_pp1_us: Optional[Data] = None

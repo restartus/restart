@@ -7,7 +7,7 @@ from __future__ import annotations
 
 # For slices of parameters
 from enum import Enum
-from typing import List, Union
+from typing import List, Optional, Union
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
@@ -45,10 +45,11 @@ class Inventory(Base):
         self.config = config
         log.debug(f"in {__name__}")
 
-        self.in_stock_p1n_df: pd.DataFrame
+        # You have to instantiate all of these for the subclasses
+        self.in_stock_p1n_df: Optional[pd.DataFrame] = None
         # In the new world parameters are kept in a tuple
-        self.inv_by_popsum1_parameters_ip1n_tp: List[Data]
-        self.inv_min_in_periods_rp1n_arr: np.ndarray
+        self.inv_by_popsum1_parameters_ip1n_tp: Optional[List[Data]] = None
+        self.inv_min_in_periods_rp1n_arr: Optional[np.ndarray] = None
 
     def set_inv_min(
         self,

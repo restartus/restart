@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from typing import Generator, List, Optional, Tuple
 
-from activity import Activity
 from base import Base
 from demand import Demand
 from demand_dict import DemandDict
@@ -227,17 +226,6 @@ class Model(Base):
         Disease create
         """
         self.disease = Disease(self.config, log_root=self.log_root, type=type)
-        return self
-
-    def set_activity(self, type: str = None) -> Model:
-        """Create Social activity model.
-
-        Includes social activity, restaurant usage, credit card use and
-        other indicators of people out and about
-        """
-        self.activity = Activity(
-            self.config, log_root=self.log_root, type=type
-        )
         return self
 
     def set_mobility(self, type: str = None) -> Model:

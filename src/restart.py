@@ -23,7 +23,6 @@ class NoteCompose:
         demand: str = "dict",
         econometric: str = "ml",
         mobility: str = "ensemble",
-        activity: str = "ensemble",
         disease: str = "imhe",
     ):
         """Initialize a model object."""
@@ -47,7 +46,6 @@ class NoteCompose:
             .set_demand(type=demand)
             .set_econometric(type=econometric)
             .set_disease(type=disease)
-            .set_activity(type=activity)
             .set_mobility(type=mobility)
             .set_output(out=output, csv=csv)
         )

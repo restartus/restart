@@ -53,13 +53,14 @@ class Demand(Base):
         log = self.log
         log.debug(f"In {__name__}")
 
-        self.demand_per_unit_map_dn_um: Data
-        self.demand_by_pop_per_person_pn_uc: Data
-        self.demand_by_pop_total_pn_tc: Data
-        self.demand_by_pop_total_cost_pn_tc: Data
+        # Make sure to instantiate each of these for inheritance purposes
+        self.demand_per_unit_map_dn_um: Optional[Data] = None
+        self.demand_by_pop_per_person_pn_uc: Optional[Data] = None
+        self.demand_by_pop_total_pn_tc: Optional[Data] = None
+        self.demand_by_pop_total_cost_pn_tc: Optional[Data] = None
 
-        self.demand_by_popsum_ps_us: Dict
+        self.demand_by_popsum_ps_us: Optional[Dict] = None
 
-        self.demand_by_popsum1_per_person_p1n_uc: Data
-        self.demand_by_popsum1_total_p1n_tc: Data
-        self.demand_by_popsum1_total_cost_p1n_tc: Data
+        self.demand_by_popsum1_per_person_p1n_uc: Optional[Data] = None
+        self.demand_by_popsum1_total_p1n_tc: Optional[Data] = None
+        self.demand_by_popsum1_total_cost_p1n_tc: Optional[Data] = None

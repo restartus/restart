@@ -58,7 +58,7 @@ Dimension:
   # So iIR will be typical so for instance State Backstop i=State
   # might have N95 Surgical and ASTM 3 Masks in stock r=Resources
   # And then each will have inventory parameters I
-  "Inventory (I)":
+  "Inventory Attribute (I)":
     - Initial
     - EOQ
     - Minimum
@@ -93,7 +93,7 @@ Model:
     units: Total
     kind: Real
     # The dimensinos for each
-    dimension:
+    index:
       - "Population (p)"
       - "Population Attribute (P)"
     # note the data can be an array, or a file pointer
@@ -110,7 +110,7 @@ Model:
       masks per day for a given population
     units: "Per Person"
     kind: Map
-    dimension:
+    index:
       - "Population (p)"
       - "Demand for Resource (d)"
     array:
@@ -139,7 +139,7 @@ Model:
       different rows
     units: "Per Person"
     kind: "Summary"
-    dimension:
+    index:
       - "Population (p)"
       - "Population Summary Level 1 (p1)"
     array:
@@ -154,7 +154,7 @@ Model:
       employees or how many patients that have if the are a hospital
     units: "Total"
     kind: Real
-    dimension:
+    index:
       - "Organization (o)"
       - "Organization Attribute (O)"
     array:
@@ -167,7 +167,7 @@ Model:
       This map summarized every Organiation into a first summary level o1.
     units: "Per Capita"
     kind: Summary
-    dimension:
+    index:
       - "Organization (o)"
       - "Organization Summary Level 1 (o1)"
     array:
@@ -178,11 +178,11 @@ Model:
     name: "Demand Level for Resource Per Unit Map (d->n:um)"
     description: |
       Demand levels for a given population for resources. This is the
-      coesumption map that for each protection level shows which resources are
+      consumption map that for each protection level shows which resources are
       "burned".  Also now as the burn rates for PPE.
     units: "Per Resource"
-    dimension:
-      - "Demand Level (d)"
+    index:
+      - "Demand for Resource (d)"
       - "Resource (n)"
     array:
       - [0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -204,7 +204,7 @@ Model:
     description: |
         For all n Resources, these are the figures for each of the N Attribute
         of each resource.
-    dimension:
+    index:
       - "Resource (n)"
       - "Resource Attribute (N)"
     array:
@@ -223,48 +223,50 @@ Model:
     description: |
       For each of p1 summary levels, get the per capita cost for each of n
       Resources.
-    dimension:
+    index:
       - "Population Summary Level 1 (p1)"
       - "Resource (n)"
     array:
       - [5.0, 4.0, 1.0, 0.60, 0.20, 2.50, 4.0, 0.20, 0.15]
       - [5.0, 4.0, 1.0, 0.60, 0.06, 1.50, 4.0, 0.20, 0.15]
 
-  inv_by_popsum1_parameters_ip1n_tp:
+  inv_by_popsum1_parameters_iIp1n_tp:
     name: |
-      Inventory of Resources by Population Summary Level 1 Parameters (ip1n:tr)
+      Inventory by Attributes of Resources by
+      Population Summary Level 1 Parameters (iIp1n:tr)
     description: |
       For each summarized population level l, this gives for every resource n
       initial inventory. The first plane is the initial inventory, the
       second plane is the economic order quantity and the initial inventory,
       third plane is the minimum safety stock.
-    dimension:
+    index:
       - "Inventory (i)"
+      - "Inventory Attribute (I)"
       - "Population Summary Level 1 (p1)"
       - "Resource (n)"
     unit: "Total Units"
     kind: Real
     array:
       -
-        - [201, 300, 500, 700, 900, 1001, 2003, 2004, 2006]
-        - [200, 400, 600, 800, 1000, 2001, 2002, 2005, 2007]
-      -
-        - [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        - [10, 20, 30, 40, 50, 60, 70, 80, 90]
-      -
-        - [101, 200, 300, 400, 500, 600, 700, 800, 900]
-        - [102, 201, 301, 401, 501, 601, 701, 801, 901]
+        -
+          - [201, 300, 500, 700, 900, 1001, 2003, 2004, 2006]
+          - [200, 400, 600, 800, 1000, 2001, 2002, 2005, 2007]
+        -
+          - [1, 2, 3, 4, 5, 6, 7, 8, 9]
+          - [10, 20, 30, 40, 50, 60, 70, 80, 90]
+        -
+          - [101, 200, 300, 400, 500, 600, 700, 800, 900]
+          - [102, 201, 301, 401, 501, 601, 701, 801, 901]
 
-# These tables are generated from the inputs above so they are derited values
-# These are typicalally meta values that are derived from real objectcs
-# And mapps that sever as input to processes
-Description:
+  # These tables are generated from the inputs above so they are derited values
+  # These are typicalally meta values that are derived from real objectcs
+  # And mapps that sever as input to processes
   demand_by_pop_per_person_pn_uc:
     name: "Per Capita Demand by Population for Resources (pn:uc)"
     description: |
       This is the per capita demand for a give population so this is not the per
       capita demand but for every n Resource for ever subpopulation p
-    dimension:
+    index:
       - "Population (p)"
       - "Resource (n)"
     units: "Per Capita"
@@ -279,7 +281,7 @@ Description:
       aggregated by the summary level.
     units: "Per Capita"
     kind: Calculated
-    dimensions:
+    index:
       - "Population Summary (p1)"
       - "Resource (n)"
 
@@ -289,7 +291,7 @@ Description:
       This is the total demand for all p sub-Population for every resource n
     units: Total
     kind: Calculated
-    dimensions:
+    index:
       - "Population (p)"
       - "Resource (n)"
 
@@ -300,7 +302,7 @@ Description:
       of n resources
     units: Total
     kind: Calculated
-    dimensions:
+    index:
       - "Population Summary Level 1 (p1)"
       - "Resource (n)"
 
@@ -312,7 +314,7 @@ Description:
       n resources
     units: "Total Cost"
     kind: Calculated
-    dimensions:
+    index:
       - "Population Summary Level 1 (p1)"
       - "Resource (n)"
 
@@ -321,7 +323,7 @@ Description:
       "Total Inventory by Population Summary of Resources (wp1n_tc)"
     units: "Total Units"
     kind: Calculated
-    dimensions:
+    index:
       - "Inventory (i)"
       - "Population Summary 1 (p1)"
       - "Resource (n)"

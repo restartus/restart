@@ -123,7 +123,6 @@ class Log:
 
         Creates a logger specficaly for a file (a module in Python speak)
         """
-        # breakpoint()
         module_log_name = self.name + "." + name
         log = logging.getLogger(module_log_name)
         return log

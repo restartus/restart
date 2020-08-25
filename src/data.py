@@ -18,7 +18,7 @@ TODO: Not implemented need to work out multiindex
 """
 from __future__ import annotations
 
-from typing import List, Tuple, Union
+from typing import Tuple
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
@@ -79,6 +79,7 @@ class Data(BaseLog):
         self.config = config
         self.data = config["Model"][key]
         self.dimension = config["Dimension"]
+        self.index = self.data["index"]
 
         # Override the YAML with a dictionary
         # https://confuse.readthedocs.io/en/latest/
@@ -86,26 +87,29 @@ class Data(BaseLog):
         if kwargs:
             config.set_args(kwargs, dots=True)
 
-        self._array = np.array(self.data["array"].get())
+        # if there is no value it is a calculate amount and fill with NaNs
+        try:
+            self._array = np.array(self.data["array"].get())
+        # user create exceptions must include the import module name
+        # https://www.geeksforgeeks.org/user-defined-exceptions-python-examples/
+        except confuse.NotFoundError:
+            log.debug(f"set null array based on {self.index.get()=}")
+            shape = [len(self.dimension.get()[x]) for x in self.index.get()]
+            log.debug(f"of {shape=}")
+            self._array = np.empty(
+                [len(self.dimension.get()[x]) for x in self.index.get()]
+            )
+
         log.debug(f"{self._array=}")
 
-        # note the confuse returns a list when slicing
+        self.set_df()
 
-        if len(self.data["dimension"] <= 2):
-            self.index_name = self.data["dimension"].get()[:-1][0]
-            self.columns_name = self.data["dimension"].get()[-1]
-            self.index = self.dimension[self.index_name].get()
-            self.columns = self.dimension[self.columns_name].get()
-            self.set_df(
-                index=self.index,
-                columns=self.columns,
-                index_name=self.index_name,
-                columns_name=self.columns_name,
-            )
-            return
-        # Create a multiindex
-        self.columns_name = self.data["dimension"].get()[-1]
-
+    # TODO: There must be a better way but there are three data structures that
+    # can change and then the other two must switch:
+    # - array. This is the numpy array
+    # - df. This is the wide format dataframe suitable for printing
+    # - narrow. This is the narrow frame for charting
+    # Each setter when called must active the other two
     # these are the functions called when something externally is changed
     @property
     def array(self):
@@ -119,15 +123,14 @@ class Data(BaseLog):
     def array(self, array: np.ndarray):
         """Change display and graph values when array changes.
 
-        When this changes update other representations
+        When this changes update other representations such as the df and wide
         """
         if self.config is None:
             raise ValueError(f"{self.config=} is null")
         self._array = array
-        # self.set_df(
-        # self.config[self.key].get(), index=self.index, columns=self.columns,
-        # )
-        self.set_alt()
+        self.set_df()
+        # note set_narrow assumes set_df is done first
+        self.set_narrow()
 
     @property
     def df(self):
@@ -142,17 +145,18 @@ class Data(BaseLog):
         """Change the array and narrow when df changes."""
         self._df = df
         self.set_array(self._df)
-        self.set_alt()
+        self.set_narrow()
         return self
 
     @property
-    def alt(self):
-        """Property method for narrow."""
+    def narrow(self):
+        """Property method for narrow form used for charting."""
         return self._narrow
 
-    @alt.setter
-    def alt(self, alt: pd.DataFrame):
-        self._alt = alt
+    # TODO: Not implemented should rebuild the indices
+    @narrow.setter
+    def narrow(self, narrow: pd.DataFrame):
+        self._narrow = narrow
         return self
 
     # set functions called internally after external changes made
@@ -160,63 +164,67 @@ class Data(BaseLog):
         """Change the array when df changes."""
         self._array = np.array(df)
 
-    def set_df(
-        self,
-        index: Union[List[str], List[List[str]]],
-        columns: List[str],
-        index_name: str,
-        columns_name: str,
-    ):
-        """Change the df when array changes.
+    def set_df(self):
+        """Change the df when array changes in self._array.
 
-        The normal 2D case
-        index is the list of row names (e.g., ["Healthcare", "Non-healthcare"])
-        columns is the list of column names (e.g., ["N95", "Surgical Mask"])
-        index_name is name of index  (e.g., "Population")
-        column_name is the name of all the columns (e.g., "Resource")
+        The normal 2D case when len(dimensions) <=2
+        dimension[0] or index is the list of row names
+            (e.g., ["Healthcare", "Non-healthcare"])
+        dimension[1] or columns is the list of column names
+            (e.g., ["N95", "Surgical Mask"])
+        index[0] or index_name is name of index  (e.g., "Population")
+        index[1] column_name is the name of all the columns (e.g., "Resource")
 
-        The 3D cases we use a multiindex so
+        The 3D cases we use a multiindex when len(dimensions) >2
         index is a list of a list of row names  for the 1..N-1 dimensions
             [["Min Inv", "EOQ Inv", "Order Size"], ["HC", "Non-HC"]]
-        columns is the same the list of columns or the Nth dimension
-        index_name is a list ["Inv", "Population"]
-        column_name is the same just for the Nth index
+        dimension[-1] or columns is the value of the last dimension
+        index[-1] or column_name is the same just for the Nth index
+        dimension[:-1] or the 1st to N-1st dimensions
+        index[:-1] index_name is a list ["Inv", "Population"]
+
+        Note that if you change the data value, the only way to do it appears
+        to be to construct a new DataFrame
+        https://note.nkmk.me/en/python-pandas-numpy-conversion/
         """
-        if isinstance(index_name, str):
+        # Assume that once we set the Data we never change the
+        # dimensions or lables, but only the data inside
+        self.index_name = self.index.get()[:-1]
+        self.columns_name = self.index.get()[-1]
+        self.columns = self.dimension[self.columns_name].get()
+        if len(self.index_name) <= 1:
             # this is two dimensional
             # https://stackoverflow.com/questions/18691084/what-does-1-mean-in-numpy-reshape
-            df = pd.DataFrame(self.array, index=index, columns=columns,)
-            df.index.name = index_name
+            # Also note that we need .get for a confus object
+            # And need to dereference the index_name
+            self.index_name = self.index_name[0]
+            self.index = self.dimension.get()[self.index_name]
+            df = pd.DataFrame(
+                self.array, index=self.index, columns=self.columns,
+            )
+            df.index.name = self.index_name
         else:
             # flatten the array into 2D so only column is there
             # first -1 means compute it, second -1 means last dimension
             self.flat2d_arr = self.array.reshape(-1, self.array.shape[-1])
+            # Do a lookup of the index in dimension
+            # https://stackoverflow.com/questions/49542348/using-a-list-comprehension-to-look-up-variables-works-with-globals-but-not-loc/49542378
+            self.index = [self.dimension.get()[x] for x in self.index_name]
             self.multi_index = pd.MultiIndex.from_product(
-                index, names=index_name,
+                self.index, names=self.index_name,
             )
             # https://docs.heliopy.org/en/0.1b5/examples/multiindex.html
             df = pd.DataFrame(
-                self.flat2d_arr, index=self.multi_index, columns=columns,
+                self.flat2d_arr, index=self.multi_index, columns=self.columns,
             )
-        df.columns.name = columns_name
+        df.columns.name = self.columns_name
         self._df = df
 
-    def set_alt(self):
+    def set_narrow(self):
         """Convert self.wide to self.narrow."""
         narrow = self.df.reset_index()
         narrow = narrow.melt()
         self._narrow = narrow
-
-    def from_narrow_to_wide(self) -> Data:
-        """Convert narrow to wide dataframe."""
-        self.log.debug("not implemented")
-        return self
-
-    def from_wide_to_array(self) -> Data:
-        """Convert wide to a multi-dimenstional array."""
-        self.log.debug("not implemented")
-        self.array = self.df.to_numpy()
-        return self
 
     def __iter__(self):
         """Iterate over all Pandas DataFrames.

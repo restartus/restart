@@ -25,7 +25,7 @@ class InventoryDict(Inventory):
         log = self.log
         log.debug(f"in {__name__}")
 
-        self.inv_by_popsum1_parameters_ip1n_tp = Data(
-            "inv_by_popsum1_parameters_ip1n_tp", config, log_root=log_root
+        self.inv_by_popsum1_parameters_iIp1n_tp = Data(
+            "inv_by_popsum1_parameters_iIp1n_tp", config, log_root=log_root
         )
-        log.debug(f"{self.inv_by_popsum1_parameters_ip1n_tp=}")
+        log.debug(f"{self.inv_by_popsum1_parameters_iIp1n_tp=}")

@@ -37,27 +37,24 @@ pdb-ca:
 debug:
 	pipenv run python -d $(MAIN) $(FLAGS)
 
-## web: use streamlit to run the graphical interface
+## streamlit: use streamlit to run the graphical interface (deprecated)
 # bug as of July 2020 cannot send flags to python
 # https://discuss.streamlit.io/t/command-line-arguments/386
-.PHONY: web
-web:
+.PHONY: streamlit
+streamlit:
 	pipenv run streamlit run $(WEB) -- $(FLAGS)
 
-## web-pdb: single step debug
-web-pdb:
-	pipenv run pdb $(WEB) $(FLAGS)
-## web-debug: run web interface in debugger
-web-debug:
+## web-debug: run web interface in debugger (deprecated)
+streamlit-debug:
 	pipenv run python -m pdb $(WEB) $(FLAGS)
 
 .PHONY: streamlit-ca
-## streamlit-ca: Run streamlit with California flags
+## streamlit-ca: Run streamlit with California flags (deprecated)
 streamlit-ca:
 	pipenv run streamlit run $(WEB) -- $(CA_FLAGS)
 
 .PHONY: streamlit-wa
-## streamlit-wa: Run streamlit with Washington flags
+## streamlit-wa: Run streamlit with Washington flags (deprecated)
 streamlit-wa:
 	pipenv run streamlit run $(WEB) -- $(WA_FLAGS)
 

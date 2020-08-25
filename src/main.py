@@ -128,10 +128,10 @@ class Compose:
             .set_resource(type=args.resource)
             .set_inventory(type=args.inventory)
             .set_demand(type=args.demand)
-            .set_economy(type=args.economy)
+            .set_econometric(type=args.econometric)
             .set_disease(type=args.disease)
             .set_activity(type=args.activity)
-            .set_behavioral(type=args.behavioral)
+            .set_mobility(type=args.mobility)
             .set_output(out=args.output, csv=args.csv)
         )
         # run the loader and put everything into a super dictionary
@@ -236,14 +236,14 @@ class Compose:
         )
         parser.add_argument(
             "-e",
-            "--economy",
+            "--econometric",
             choices=["dict", "ml", "ensemble"],
             default="dict",
             help="Select Econometric model",
         )
         parser.add_argument(
             "-b",
-            "--behavioral",
+            "--mobility",
             choices=["dict", "apple", "google", "ensemble"],
             default="dict",
             help="Select Econometric model",
@@ -305,14 +305,14 @@ class Compose:
         model.demand = Demand(model.data, log_root=model.log_root)
         # log.debug("creating Filter")
         # model.filter = Filter(model.data, log_root=model.log_root)
-        log.debug("creating Economy")
-        model.economy = Economy(model.data, log_root=model.log_root)
+        log.debug("creating Econometric")
+        model.econometric = Econometric(model.data, log_root=model.log_root)
         log.debug("creating Disease")
         model.disease = Disease(model.data, log_root=model.log_root)
         log.debug("creating Activity")
         model.activity = Activity(model.data, log_root=model.log_root)
-        log.debug("creating Behavioral")
-        model.behavioral = Behavioral(model.data, log_root=model.log_root)
+        log.debug("creating Mobility")
+        model.mobility = Mobility(model.data, log_root=model.log_root)
         log.debug(f"{model=}")
     '''
 

@@ -15,8 +15,8 @@ from base import Base
 from log import Log
 
 
-class Economy(Base):
-    """Economy - Manages the economy.
+class Econometric(Base):
+    """Econometric - Manages the econometric.
 
     This creates for all r resources, the list of attributes a
 
@@ -36,7 +36,7 @@ class Economy(Base):
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):
-        """Initialize the Economy object.
+        """Initialize the Econometric object.
 
         This uses the Frame object and populates it with default data unless yo
         override it

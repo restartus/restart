@@ -21,8 +21,8 @@ class NoteCompose:
         output: Optional[str] = None,
         resource: str = "dict",
         demand: str = "dict",
-        economy: str = "ml",
-        behavioral: str = "ensemble",
+        econometric: str = "ml",
+        mobility: str = "ensemble",
         activity: str = "ensemble",
         disease: str = "imhe",
     ):
@@ -45,9 +45,9 @@ class NoteCompose:
             .set_organization(type=organization)
             .set_resource(type=resource)
             .set_demand(type=demand)
-            .set_economy(type=economy)
+            .set_econometric(type=econometric)
             .set_disease(type=disease)
             .set_activity(type=activity)
-            .set_behavioral(type=behavioral)
+            .set_mobility(type=mobility)
             .set_output(out=output, csv=csv)
         )

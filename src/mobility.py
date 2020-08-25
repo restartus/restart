@@ -1,6 +1,6 @@
-"""Behavioral Model.
+"""Mobility Model.
 
-Behavioral modeling
+Mobility modeling
 """
 from typing import Optional
 
@@ -12,7 +12,7 @@ from base import Base
 from log import Log
 
 
-class Behavioral(Base):
+class Mobility(Base):
     """Governs how we act.
 
     This contains

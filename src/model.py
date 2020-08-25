@@ -12,16 +12,16 @@ from typing import Generator, List, Optional, Tuple
 
 from activity import Activity
 from base import Base
-from behavioral import Behavioral
 from demand import Demand
 from demand_dict import DemandDict
 from demand_wa import DemandWA
 from disease import Disease
-from economy import Economy
+from econometric import Econometric
 from filtermodel import Filter
 from inventory import Inventory
 from inventory_dict import InventoryDict
 from log import Log
+from mobility import Mobility
 from organization import Organization
 from organization_dict import OrganizationDict
 from output import Output
@@ -211,12 +211,14 @@ class Model(Base):
 
         return self
 
-    def set_economy(self, type: str = None) -> Model:
+    def set_econometric(self, type: str = None) -> Model:
         """Create Econometric model.
 
-        Economy creation
+        Econometric creation
         """
-        self.economy = Economy(self.config, log_root=self.log_root, type=type)
+        self.econometric = Econometric(
+            self.config, log_root=self.log_root, type=type
+        )
         return self
 
     def set_disease(self, type: str = None) -> Model:
@@ -238,12 +240,12 @@ class Model(Base):
         )
         return self
 
-    def set_behavioral(self, type: str = None) -> Model:
+    def set_mobility(self, type: str = None) -> Model:
         """Create Behavior model.
 
         Behavior create
         """
-        self.behavioral = Behavioral(
+        self.mobility = Mobility(
             self.config, log_root=self.log_root, type=type
         )
         return self

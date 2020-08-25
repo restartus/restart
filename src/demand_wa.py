@@ -27,8 +27,8 @@ class DemandWA(Demand):
     def __init__(
         self,
         config: confuse.Configuration,
-        pop: Population = None,
-        res: Resource = None,
+        pop: Population,
+        res: Resource,
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):

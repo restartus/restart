@@ -65,6 +65,7 @@ class Dashboard(BaseLog):
         log.debug(f"{vars(model.population)}=")
         # https://stackoverflow.com/questions/11637293/iterate-over-object-attributes-in-python
         # this gives all kinds of things that are hidden functions;
+        # TODO: replace with model.walk() a generator
         log.debug(f"{dir(model.population)=}")
         for name, value in vars(model).items():
             log.debug(f"{name=}")
@@ -118,9 +119,9 @@ class Dashboard(BaseLog):
             st.sidebar.markdown(f"{self.debug_level=}")
 
         # To make this work for the update, use up all the exiting inventory
-        model.resource.demand(model.resource.inventory_ln_df)
-        model.resource.set_inv_min(
-            model.demand.level_total_demand_ln_df, inv_min_in_periods
+        model.inventory.order(model.inventory.in_stock_p1n_df)
+        model.inventory.set_inv_min(
+            model.demand.demand_by_popsum1_total_p1n_tc, inv_min_in_periods
         )
 
         if self.page == "Home":

@@ -8,7 +8,7 @@ https://www.w3schools.com/python/python_classes.asp
 # this allows Model to refer to itself
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
+from typing import Generator, List, Optional, Tuple
 
 from activity import Activity
 from base import Base
@@ -193,8 +193,6 @@ class Model(Base):
                 self.config,
                 self.population,
                 self.resource,
-                index="Demand m",
-                columns="Resource n",
                 log_root=self.log_root,
                 type=type,
             )
@@ -250,18 +248,29 @@ class Model(Base):
         )
         return self
 
+    # https://docs.python.org/3/library/typing.html#typing.Generator
+    # returns yield type, send type return type which are null
+    def walk(self) -> Generator[Tuple[str, Base], None, None]:
+        """Walk through all Base objects in Model.
+
+        This is needed for things like Output which are called by Model
+        and you cannot mutually import it. Use a generator instead. Because
+        python cannot interpret this correctly.
+        """
+        log = self.log
+        for name, value in self:
+            log.debug(f"{name=} {value=}")
+            yield name, value
+
     def set_output(self, out: str = None, csv: str = None) -> Model:
         """Generate output."""
         self.output = Output(
+            self.walk,
             config=self.config,
-            pop=self.population,
-            resource=self.resource,
-            demand=self.demand,
             log_root=self.log_root,
             out=out,
             csv=csv,
         )
-
         return self
 
     # https://stackoverflow.com/questions/37835179/how-can-i-specify-the-function-type-in-my-type-hints

@@ -78,4 +78,4 @@ class Population(Base):
         # define them here for type checking purposes
         self.population_pP_tr: Data
         self.pop_demand_per_unit_map_pd_um: Data
-        self.pop_popsum1_per_unit_map_pp1_us: Data
+        self.pop_to_popsum1_per_unit_map_pp1_us: Data

@@ -40,7 +40,7 @@ Dimension:
     - Patients
     - "ICU Patients"
     - Runs
-  "Organization Summary Level (o1)":
+  "Organization Summary Level 1 (o1)":
     - Front-line
     - Non-frontline
   "Demand for Resource (d)":
@@ -272,7 +272,7 @@ Model:
     units: "Per Capita"
     kind: Calculated
 
-  demand_by_popsum1_per_person_p0n_uc:
+  demand_by_popsum1_per_person_p1n_uc:
     name: |
       Per Capita Demand for Resources by Population Summary Level 1 (p1n:uc)
     description: |
@@ -282,7 +282,7 @@ Model:
     units: "Per Capita"
     kind: Calculated
     index:
-      - "Population Summary (p1)"
+      - "Population Summary Level 1 (p1)"
       - "Resource (n)"
 
   demand_by_pop_total_pn_tc:

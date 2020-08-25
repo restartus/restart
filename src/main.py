@@ -137,7 +137,7 @@ class Compose:
         # run the loader and put everything into a super dictionary
         # To change the model, just replace LoadYAML and the configuration
         # of it which starts off the entire model
-        # TODO: confuse breaks the old model
+        # TODO: confuse breaks the old model system
         # self.model1 = self.old_compose("old_" + name, log_root=log_root)
         # log.debug(f"{self.model1=}")
 
@@ -149,39 +149,6 @@ class Compose:
             if isinstance(value, Base):
                 log.debug(f"object {name} holds {value} subclass of Base")
 
-        # model.resource.set_inv_min(model.population.level_total_demand_ln_df)
-        # log.debug("Safety stock\n%s", model.resource.safety_stock_ln_df)
-
-        # create the resource object that is p populations and n items
-        log.debug("resource attributes\n%s", model.resource.attr_na_df)
-
-        # This is a population p by d dimension, eventually the second column
-        # should be a call back that calculates demand based
-        # Eventually, this will be multi dimenstional, so in addition to the
-        # total but there will also be the number of COVID patients And other
-        # tempo data like number of runs so eventually this is d dimensinoal
-        log.debug("Population\n%s", model.population.detail_pd_df)
-
-        # Now bucket population into a set of levels
-        # So we have a table is p x l
-        log.debug("Population by level\n%s", model.demand.level_pl_df)
-
-        # This is rows that are levels adn then usage of each resource  or l, n
-        # When population become n x d, then there will be a usage
-        # level for each do, so this become d x p x n
-        log.debug(f"{model.demand.level_demand_ln_df=}")
-
-        # p x l * l x n -> p x n
-        log.debug(f"{model.demand.demand_pn_df=}")
-
-        # Now it get's easier, this is the per unit value, so multiply by the
-        # population and the * with values does an element wise multiplication
-        # With different tempos, this will be across all d dimensions
-
-        log.debug(f"{model.demand.total_demand_pn_df=}")
-        log.debug(f"{model.demand.level_pl_df=}")
-        log.debug(f"{model.resource.cost_ln_df=}")
-
         # test iteration
         for base_key, base_value in model:
             log.debug(f"{base_key=}")
@@ -191,6 +158,8 @@ class Compose:
                 log.debug(f"{df_value=}")
 
         # this just keeps increasing supply also test decreasing
+        return
+        # TODO: fix stockpile to use the the new tuples
         for s in [30, 60, 90, 40, 20]:
             log.debug("reset inventory to minimum")
             model.resource.demand(model.resource.inventory_ln_df)
@@ -349,7 +318,6 @@ class Compose:
 
 
 if __name__ == "__main__":
-    # TODO: longer term we will run a series of models
     # compose the entire model runs as a class so it is rentrant
     compose = Compose()
     Dashboard(compose.model)

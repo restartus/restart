@@ -25,8 +25,6 @@ class DemandDict(Demand):
         config: confuse.Configuration,
         pop: Population,
         res: Resource,
-        index: Optional[str] = None,
-        columns: Optional[str] = None,
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):
@@ -76,16 +74,23 @@ class DemandDict(Demand):
         #   np.array(self.demand_pn_df).T * np.array(pop.detail_pd_df["Size"])
         # ).T
         # uses a double transpose because broadcast
-        # only works against the last dimension, all other must match
+        # https://numpy.org/doc/stable/user/basics.broadcasting.html
+        # broadcast means start from the lowest dimension
+        # each dimenion must match from left to right of be one
+        # so if we have pn = (2,9) and p = (2,) we need to invert
+        # them to be np=(9,2) and p =(1,2) note that 2, must be converted
+        # to a real column matrix
+        # Also the size only is just a vector so you need newaxis to promote it
+        # https://stackoverflow.com/questions/29241056/how-does-numpy-newaxis-work-and-when-to-use-it
         self.demand_by_pop_total_pn_tc.array = (
             self.demand_by_pop_per_person_pn_uc.array.T
-            * pop.population_pP_tr.df["Size"]
+            * pop.population_pP_tr.df["Size"].to_numpy().T
         ).T
         log.debug(f"{self.demand_by_pop_total_pn_tc.df=}")
         test = np.einsum(
             "pn,p->pn",
             self.demand_by_pop_per_person_pn_uc.array,
-            pop.population_pP_tr.df["Size"],
+            pop.population_pP_tr.df["Size"].to_numpy(),
         )
         log.debug(f"{test=}")
         if np.array_equal(self.demand_by_pop_per_person_pn_uc.array, test):
@@ -99,8 +104,13 @@ class DemandDict(Demand):
         # self.level_demand_ln_df = np.array(self.level_pl_df).T @ np.array(
         #     self.demand_pn_df
         # )
+        # need to instantiate variables first
+        self.demand_by_popsum1_per_person_p1n_uc = Data(
+            "demand_by_popsum1_per_person_p1n_uc", config, logroot=log_root
+        )
+        # then add to them
         self.demand_by_popsum1_per_person_p1n_uc.array = (
-            pop.pop_popsum1_per_unit_map_pp1_us.array.T
+            pop.pop_to_popsum1_per_unit_map_pp1_us.array
             @ self.demand_by_pop_per_person_pn_uc.array
         )
         log.debug(f"{self.demand_by_popsum1_per_person_p1n_uc.df=}")
@@ -108,7 +118,7 @@ class DemandDict(Demand):
         # single character
         test = np.einsum(
             "px,pn->xn",
-            pop.pop_popsum1_per_unit_map_pp1_us.array,
+            pop.pop_to_popsum1_per_unit_map_pp1_us.array,
             self.demand_by_pop_per_person_pn_uc.array,
         )
         log.debug(f"{test=}")
@@ -124,30 +134,29 @@ class DemandDict(Demand):
         self.demand_by_popsum1_total_p1n_tc = Data(
             "demand_by_popsum1_total_p1n_tc", config, log_root=log_root
         )
-
         # Original math
         # self.level_total_demand_ln_df = (
         #    self.level_pl_df.T @ self.total_demand_pn_df
         # )
         self.demand_by_popsum1_total_p1n_tc.array = (
-            pop.pop_popsum1_per_unit_map_pp1_us.array.T
+            pop.pop_to_popsum1_per_unit_map_pp1_us.array.T
             @ self.demand_by_pop_total_pn_tc.array
         )
-        log.debug(f"{self.demand_by_pop_per_person_pn_uc=}")
+        log.debug(f"{self.demand_by_pop_per_person_pn_uc.df=}")
         test = np.einsum(
             "px,pn->xn",
-            pop.pop_popsum1_per_unit_map_pp1_us,
-            self.demand_by_pop_total_pn_tc,
+            pop.pop_to_popsum1_per_unit_map_pp1_us.array,
+            self.demand_by_pop_total_pn_tc.array,
         )
 
-        self.demand_by_popsum1_total_cost_p1n_tc = Data(
-            "demand_by_popsum1_total_cost_p1n_tc", config, log_root=log_root
+        self.demand_by_popsum1_total_cost_p1n_xc = Data(
+            "demand_by_popsum1_total_cost_p1n_xc", config, log_root=log_root
         )
-        log.debug(f"{self.demand_by_popsum1_total_cost_p1n_tc=}")
+        log.debug(f"{self.demand_by_popsum1_total_cost_p1n_xc.df=}")
         # original formula
         # self.level_total_cost_ln_df = (
         #       self.level_total_demand_ln_df * cost_ln_df.values)
-        self.demand_by_popsum1_total_cost_p1n_tc.array = (
+        self.demand_by_popsum1_total_cost_p1n_xc.array = (
             self.demand_by_popsum1_total_p1n_tc.array
             * res.res_by_popsum1_cost_per_unit_p1n_us.array
         )

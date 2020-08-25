@@ -75,11 +75,11 @@ class Data(BaseLog):
         log = self.log
         log.debug(f"{__name__=}")
 
-        self.key = key
-        self.config = config
-        self.data = config["Model"][key]
-        self.dimension = config["Dimension"]
-        self.index = self.data["index"]
+        self.key: str = key
+        self.config_cf: confuse.Configuration = config
+        self.data_cf: confuse.Configuration = config["Model"][key]
+        self.dimension_cf: confuse.Configuration = config["Dimension"]
+        self.index_cf: confuse.Configuration = self.data_cf["index"]
 
         # Override the YAML with a dictionary
         # https://confuse.readthedocs.io/en/latest/
@@ -89,15 +89,17 @@ class Data(BaseLog):
 
         # if there is no value it is a calculate amount and fill with NaNs
         try:
-            self._array = np.array(self.data["array"].get())
+            self._array = np.array(self.data_cf["array"].get())
         # user create exceptions must include the import module name
         # https://www.geeksforgeeks.org/user-defined-exceptions-python-examples/
         except confuse.NotFoundError:
-            log.debug(f"set null array based on {self.index.get()=}")
-            shape = [len(self.dimension.get()[x]) for x in self.index.get()]
+            log.debug(f"set null array based on {self.index_cf.get()=}")
+            shape = [
+                len(self.dimension_cf.get()[x]) for x in self.index_cf.get()
+            ]
             log.debug(f"of {shape=}")
             self._array = np.empty(
-                [len(self.dimension.get()[x]) for x in self.index.get()]
+                [len(self.dimension_cf.get()[x]) for x in self.index_cf.get()]
             )
 
         log.debug(f"{self._array=}")
@@ -125,8 +127,8 @@ class Data(BaseLog):
 
         When this changes update other representations such as the df and wide
         """
-        if self.config is None:
-            raise ValueError(f"{self.config=} is null")
+        if self.config_cf is None:
+            raise ValueError(f"{self.config_cf=} is null")
         self._array = array
         self.set_df()
         # note set_narrow assumes set_df is done first
@@ -189,16 +191,16 @@ class Data(BaseLog):
         """
         # Assume that once we set the Data we never change the
         # dimensions or lables, but only the data inside
-        self.index_name = self.index.get()[:-1]
-        self.columns_name = self.index.get()[-1]
-        self.columns = self.dimension[self.columns_name].get()
+        self.index_name = self.index_cf.get()[:-1]
+        self.columns_name = self.index_cf.get()[-1]
+        self.columns = self.dimension_cf[self.columns_name].get()
         if len(self.index_name) <= 1:
             # this is two dimensional
             # https://stackoverflow.com/questions/18691084/what-does-1-mean-in-numpy-reshape
             # Also note that we need .get for a confus object
             # And need to dereference the index_name
             self.index_name = self.index_name[0]
-            self.index = self.dimension.get()[self.index_name]
+            self.index = self.dimension_cf.get()[self.index_name]
             df = pd.DataFrame(
                 self.array, index=self.index, columns=self.columns,
             )
@@ -209,7 +211,7 @@ class Data(BaseLog):
             self.flat2d_arr = self.array.reshape(-1, self.array.shape[-1])
             # Do a lookup of the index in dimension
             # https://stackoverflow.com/questions/49542348/using-a-list-comprehension-to-look-up-variables-works-with-globals-but-not-loc/49542378
-            self.index = [self.dimension.get()[x] for x in self.index_name]
+            self.index = [self.dimension_cf.get()[x] for x in self.index_name]
             self.multi_index = pd.MultiIndex.from_product(
                 self.index, names=self.index_name,
             )

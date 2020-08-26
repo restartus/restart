@@ -70,13 +70,19 @@ class Demand(Base):
             "demand_by_pop_total_pn_tc", config, log_root=log_root
         )
 
+        # not used
         self.demand_by_popsum_ps_us: Optional[Dict] = None
 
         self.demand_by_popsum1_per_person_p1n_uc = Data(
             "demand_by_popsum1_per_person_p1n_uc", config, logroot=log_root
         )
+
         self.demand_by_popsum1_total_p1n_tc = Data(
             "demand_by_popsum1_total_p1n_tc", config, log_root=log_root
+        )
+        # get a range enabled version of the above for inventory
+        self.demand_by_popsum1_total_rp1n_tc = Data(
+            "demand_by_popsum1_total_rp1n_tc", config, log_root=log_root
         )
 
         self.demand_by_popsum1_total_cost_p1n_xc = Data(
@@ -212,6 +218,15 @@ class Demand(Base):
         )
         if np.array_equal(self.demand_by_popsum1_total_p1n_tc.array, test):
             log.debug("einsum works!")
+
+        log.debug("for future calculate a dummy range version")
+        # https://stackoverflow.com/questions/32171917/copy-2d-array-into-3rd-dimension-n-times-python
+        # repeat along the first axis
+        self.demand_by_popsum1_total_rp1n_tc.array = np.repeat(
+            self.demand_by_popsum1_total_p1n_tc.array[np.newaxis, ...],
+            self.demand_by_popsum1_total_rp1n_tc.array.shape[0],
+            axis=0,
+        )
 
     def set_demand_by_popsum1_total_cost_p1n_xc(self, res):
         """Recalc the total cost of demand by Population Level 1."""

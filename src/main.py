@@ -16,6 +16,7 @@ import argparse
 # Before we move to full modules, just import locally
 # https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
 import logging  # noqa:F401
+from typing import List
 
 from base import Base
 
@@ -158,18 +159,27 @@ class Compose:
                 log.debug(f"{df_key=}")
                 log.debug(f"{df_value=}")
 
-        return
+        # TODO: when the rest of the world uses ranges we don't need to this
+        # but we need rp1n not p1n, so just stack this
+        log.debug("setting average orders")
+        model.inventory.set_average_orders_per_period(
+            model.demand.demand_by_popsum1_total_rp1n_tc
+        )
+        log.debug(f"{model.demand.demand_by_popsum1_total_rp1n_tc.df=}")
         # this just keeps increasing supply also test decreasing
         # TODO: fix stockpile to use the the new tuples
-        for backstop_period in [30, 60, 90, 40, 20]:
+        backstops: List[int] = [30, 60, 90, 120]
+        # https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
+        # fill up the entire range no matter how there are
+        range_len = model.inventory.inv_by_popsum1_total_rp1n_tc.array.shape[0]
+        for index in range(0, len(backstops), range_len):
+            # note on the :, Black and flake8 are fighting
+            backstop = backstops[index : index + range_len]  # noqa:E203
+            log.critical(f"changing days of backstop to {backstop=}")
             log.debug("reset inventory to zero by ordering everything")
             model.inventory.order(model.inventory.inv_by_popsum1_total_rp1n_tc)
-            log.critical(f"changing days of backstop to {backstop_period=}")
-            log.debug(f"{model.demand.demand_by_popsum1_total_p1n_tc=}")
-            model.inventory.set_inv_min(
-                model.demand.demand_by_popsum1_total_p1n_tc, backstop_period
-            )
-            log.debug(f"{model.inventory.inv_by_popsum1_total_rp1n_tc=}")
+            model.inventory.set_min_in_periods(backstop)
+            log.debug(f"{model.inventory.inv_by_popsum1_total_rp1n_tc.df=}")
 
         # run with streamlit run and then this will not return until after
         # when run as just regular python this doesn't do anything

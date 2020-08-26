@@ -11,12 +11,10 @@ from typing import List
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
-import pandas as pd  # type: ignore
 
 from base import Base
 from data import Data
 from log import Log
-from util import set_dataframe
 
 
 # https://docs.python.org/3/library/enum.html
@@ -45,134 +43,183 @@ class Inventory(Base):
         self.config = config
         log.debug(f"in {__name__}")
 
-        self.inv_by_popsum1_parameters_iIp1n_tp = Data(
-            "inv_by_popsum1_parameters_iIp1n_tp", config, log_root=log_root
-        )
-        log.debug(f"{self.inv_by_popsum1_parameters_iIp1n_tp=}")
-
         self.inv_by_popsum1_total_rp1n_tc = Data(
             "inv_by_popsum1_total_rp1n_tc", config, log_root=log_root
         )
 
-        # a helper function
-        self.inv_min_by_popsum1_per_period_rp1n_uc = Data(
-            "inv_min_by_popsum1_per_period_rp1n_uc", config, log_root=log_root
+        self.inv_by_popsum1_param_iIp1n_tp = Data(
+            "inv_by_popsum1_param_iIp1n_tp", config, log_root=log_root
+        )
+        log.debug(f"{self.inv_by_popsum1_param_iIp1n_tp.df=}")
+
+        # TODO: This should be taken from the param file
+        self.inv_init_by_popsum1_total_rp1n_tc = Data(
+            "inv_init_by_popsum1_total_rp1n_tc", config, log_root=log_root
+        )
+        log.debug(f"set inv to {self.inv_init_by_popsum1_total_rp1n_tc=}")
+        self.inv_eoq_by_popsum1_total_rp1n_tc = Data(
+            "inv_eoq_by_popsum1_total_rp1n_tc", config, log_root=log_root
+        )
+        self.inv_min_by_popsum1_total_rp1n_tc = Data(
+            "inv_min_by_popsum1_total_rp1n_tc", config, log_root=log_root
         )
 
-    def set_min_by_list(
-        self,
-        min_period_rt_pc: List,
-        min_demand_per_period_rp1n_df: pd.Dataframe,
-    ) -> Inventory:
-        """Separating files."""
+        # Helpers to handle period calculations
+        self.inv_min_by_popsum1_in_periods_rp1n_pc = Data(
+            "inv_min_by_popsum1_in_periods_rp1n_pc", config, log_root=log_root
+        )
+        self.inv_average_orders_by_popsum1_per_period_rp1n_uf = Data(
+            "inv_average_orders_by_popsum1_per_period_rp1n_uf",
+            config,
+            log_root=log_root,
+        )
+
+        self.inv_order_by_popsum1_total_rp1n_tc = Data(
+            "inv_order_by_popsum1_total_rp1n_tc", config, log_root=log_root
+        )
+
+        # can only set minmum once inv_min exists and order too
+        self.set_min(self.inv_init_by_popsum1_total_rp1n_tc)
+
+    def set_average_orders_per_period(
+        self, inv_average_orders_by_popsum1_per_period_rp1n_uf: Data
+    ):
+        """Set Average Inventory Used Every Period.
+
+        This could just be a simple set but leave here for clarity
+        """
+        self.inv_average_orders_by_popsum1_per_period_rp1n_uf = (
+            inv_average_orders_by_popsum1_per_period_rp1n_uf
+        )
+
+    def set_min_in_periods(self, min_periods_r_pc: List,) -> Inventory:
+        """Sets the Minimum Inventory as measured in Average Days Shipments.
+
+        A Helper function that fill out an entire array and then passes it
+        down
+        """
         log = self.log
-        log.debug(f"{min_period_rt_pc=}")
-        self.set_min_by_period(
-            min_period_rt_pc, *np.ones_like(min_demand_per_period_rp1n_df)
+        log.debug(f"{min_periods_r_pc=}")
+        self.inv_min_by_popsum1_in_periods_rp1n_pc.array = np.einsum(
+            "r,rxn->rxn",
+            min_periods_r_pc,
+            np.ones_like(self.inv_min_by_popsum1_in_periods_rp1n_pc.array),
         )
-
+        self.set_min_in_periods_array(
+            self.inv_min_by_popsum1_in_periods_rp1n_pc
+        )
         return self
 
-    def set_min_by_period(
-        self, min_periods_rp1n_df: pd.Dataframe,
+    def set_min_in_periods_array(
+        self, min_periods_rp1n_tc: Data,
     ) -> Inventory:
-        """Separting functions."""
+        """Set with an array that is for all resources in periods."""
         log = self.log
-        self.inv_min_by_popsum1_per_period_rp1n_uc.df = min_periods_rp1n_df
+        self.inv_min_by_popsum1_in_periods_rp1n_pc.array = (
+            min_periods_rp1n_tc.array
+        )
+        log.debug(f"{self.inv_min_by_popsum1_in_periods_rp1n_pc.df=} ")
 
         # https://numpy.org/doc/stable/reference/generated/numpy.empty_like.html
         # note we need r=1 for this to work so we insert an empty dimension
         # https://numpy.org/doc/stable/reference/generated/numpy.expand_dims.html
-        self.inv_min_by_popsum1_per_period_rp1n_uc.array = np.expand_dims(
-            self.inv_min_by_popsum1_per_period_rp1n_uc.array, axis=0
-        )
-        log.debug(f"{self.inv_min_by_popsum1_per_period_rp1n_uc=} ")
+        # needed this before we started calling with full range
+        # self.inv_min_by_popsum1_per_period_rp1n_uc.array = np.expand_dims(
+        #     self.inv_min_by_popsum1_per_period_rp1n_uc.array, axis=0
+        # )
         # need to do a dot product
-        self.set_min(
-            np.einsum(
-                "rxn,rxn->rxn",
-                min_periods_rp1n_df.to_numpy(),
-                self.inv_min_by_popsum1_per_period_rp1n_uc.array,
-            )
+        self.inv_min_by_popsum1_total_rp1n_tc.array = np.einsum(
+            "rxn,rxn->rxn",
+            min_periods_rp1n_tc.array,
+            self.inv_average_orders_by_popsum1_per_period_rp1n_uf.array,
         )
+        self.set_min(self.inv_min_by_popsum1_total_rp1n_tc)
         return self
 
-    def set_min(self, min_demand_total_rp1n_df: pd.Dataframe,) -> Inventory:
+    def set_min(self, min_by_popsum1_total_rp1n_tc: Data) -> Inventory:
         """Set the minimum inventory in periods_r.
 
-        A helper function that sets the minimum inventory
-        Based on how many periods_r (days) you want stored
-
-        This handles ranges so you can do [30, 60, 90]
-        all at once but this is not handled anywhere else
+        This sets the minimum inventory and then forces an order in case we are
+        below the minimum
         """
         log = self.log
 
         # https://stackoverflow.com/questions/53375161/use-numpy-array-to-replace-pandas-dataframe-values
-        log.debug(f"{self.inv_min_by_popsum1_per_period_rp1n_uc=}")
-        self.inv_min_by_popsum1_per_period_rp1n_uc.array = np.einsum()
+        self.inv_by_popsum1_total_rp1n_tc.array = (
+            min_by_popsum1_total_rp1n_tc.array
+        )
+        log.debug(f"{self.inv_by_popsum1_total_rp1n_tc.df=}")
         self.supply_order()
         return self
 
     def supply_order(self) -> Inventory:
         """Order from supplier.
 
-        Always order up to the safety stock
-        Does not calculate economic order quantity yet
+        Order up to the minimum inventory
         """
         # hack here because we only do ranges for min inventory
-        order_p1n_df = (
-            self.inv_min_by_popsum1_per_period_rp1n_uc.array[0]
+        self.inv_order_by_popsum1_total_rp1n_tc.array = (
+            self.inv_min_by_popsum1_total_rp1n_tc.array
             - self.inv_by_popsum1_total_rp1n_tc.array
         )
         # negative means we have inventory above safety levels
         # so get rid of those
         # https://www.w3inventory.com/python-exercises/numpy/python-numpy-exercise-90.php
-        order_p1n_df[order_p1n_df < 0] = 0
+        self.inv_order_by_popsum1_total_rp1n_tc.array[
+            self.inv_order_by_popsum1_total_rp1n_tc.array < 0
+        ] = 0
         # now gross up the order to the economic order quantity
-        order_p1n_df = self.round_up_to_eoc(order_p1n_df)
-        self.log.debug("supply order\n%s", order_p1n_df)
-        self.fulfill(order_p1n_df)
+        self.round_up_to_eoq(self.inv_order_by_popsum1_total_rp1n_tc)
+        self.log.debug(f"{self.inv_order_by_popsum1_total_rp1n_tc.df=}")
+
+        # now that we have an order rounded up and ready, let's get supply
+        self.fulfill(self.inv_order_by_popsum1_total_rp1n_tc)
         return self
 
     # https://stackoverflow.com/questions/2272149/round-to-5-or-other-number-in-python
-    def round_up_to_eoc(self, order_p1n_df):
+    def round_up_to_eoq(self, order_by_popsum1_total_rp1n_tc: Data) -> Data:
         """Round order up the economic order quantity.
 
-        Roundup
+        Each order needs to get rounded up to an economic quantity
         """
+        if np.any(self.inv_eoq_by_popsum1_total_rp1n_tc.array <= 0):
+            raise ValueError(
+                f"EOQ not positive {self.inv_eoq_by_popsum1_total_rp1n_tc.df=}"
+            )
+
+        if np.any(order_by_popsum1_total_rp1n_tc.array < 0):
+            raise ValueError(
+                f"Negative order in {order_by_popsum1_total_rp1n_tc.df=}"
+            )
+
         # So take the order and then get the distance to the eoc
         # by using modulo
         # https://stackoverflow.com/questions/50767452/check-if-dataframe-has-a-zero-element
         # https://numpy.org/doc/stable/reference/generated/numpy.any.html
         # https://softwareengineering.stackexchange.com/questions/225956/python-assert-vs-if-return
         # do not use asserts they are stripped with optimization, raise errors
-        if np.any(self.inv_eoc_p1n_df < 1):
-            raise ValueError(
-                f"EOC should never be less than 1 {self.inv_eoc_p1n_df=}"
-            )
-
-        if np.any(order_p1n_df < 0):
-            raise ValueError(
-                f"Orders should be never be negative {order_p1n_df=}"
-            )
-
         return (
-            order_p1n_df
-            + (self.inv_eoc_p1n_df - order_p1n_df) % self.inv_eoc_p1n_df
+            order_by_popsum1_total_rp1n_tc.array
+            + (
+                self.inv_eoq_by_popsum1_total_rp1n_tc.array
+                - order_by_popsum1_total_rp1n_tc.array
+            )
+            % self.inv_eoq_by_popsum1_total_rp1n_tc.array
         )
 
-    def fulfill(self, order_p1n_df):
+    def fulfill(self, order_by_popsum1_total_rp1n_tc: Data):
         """Fulfill an order form supplier.
 
         This is a stub in that all orders are immediatley fulfilled
         """
         log = self.log
-        log.debug("fulfilled immediately\n%s", order_p1n_df)
-        self.inv_by_popsum1_total_rp1n_tc.array += order_p1n_df.to_numpy()
+        log.debug(f"fulfill {order_by_popsum1_total_rp1n_tc=}")
+        self.inv_by_popsum1_total_rp1n_tc.array += (
+            order_by_popsum1_total_rp1n_tc.array
+        )
         log.debug(f"{self.inv_by_popsum1_total_rp1n_tc.df=}")
 
-    def order(self, order_by_popsum1_total_rp1n_tc_df):
+    def order(self, order_by_popsum1_total_rp1n_tc: Data) -> Data:
         """Order by Customer from Inventory.
 
         Take a new order and then return what you can
@@ -180,30 +227,20 @@ class Inventory(Base):
         It will check what is in inventory and then call the delivery method
         returns: whats available to ship
         """
-        # Return as much as we can
+        # Return as much as we can so if the order is bigger than
+        # the inventory, just ship it all out.
         # the simple min won't work, need an element0-wise minimum
         # https://numpy.org/doc/stable/reference/generated/numpy.minimum.html
-        order_by_popsum1_total_rp1n_tc_df = np.minimum(
-            order_by_popsum1_total_rp1n_tc_df,
-            self.inv_by_popsum1_parameters_iIp1n_tp.df,
+        self.inv_order_by_popsum1_total_rp1n_tc.array = np.minimum(
+            order_by_popsum1_total_rp1n_tc.array,
+            self.inv_by_popsum1_total_rp1n_tc.array,
         )
+
+        # ship it!
         self.inv_by_popsum1_total_rp1n_tc.array -= (
-            order_by_popsum1_total_rp1n_tc_df.to_numpy()
+            self.inv_order_by_popsum1_total_rp1n_tc.array
         )
 
         # now restock
         self.supply_order()
-        return order_by_popsum1_total_rp1n_tc_df
-
-    def res_dataframe(self, arr: np.ndarray) -> pd.DataFrame:
-        """Inventory Model.
-
-        Dataframe setting
-        """
-        df = set_dataframe(
-            arr,
-            self.config["Label"].get(),
-            index="Pop Level l",
-            columns="Inventory n",
-        )
-        return df
+        return self.inv_order_by_popsum1_total_rp1n_tc

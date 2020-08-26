@@ -68,9 +68,7 @@ Dimension:
     - Area
     - Capacity
   "Range (r)":
-    - High
     - Mid
-    - Low
   "Geographical Location (g)":
     - County
     - State
@@ -230,7 +228,8 @@ Model:
       - [5.0, 4.0, 1.0, 0.60, 0.20, 2.50, 4.0, 0.20, 0.15]
       - [5.0, 4.0, 1.0, 0.60, 0.06, 1.50, 4.0, 0.20, 0.15]
 
-  inv_by_popsum1_parameters_iIp1n_tp:
+  # TODO: will eventually merge init, eoq and min frames into this one
+  inv_by_popsum1_param_iIp1n_tp:
     name: |
       Inventory by Attributes of Resources by
       Population Summary Level 1 Parameters (iIp1n:tr)
@@ -260,6 +259,60 @@ Model:
         -
           - [101, 200, 300, 400, 500, 600, 700, 800, 900]
           - [102, 201, 301, 401, 501, 601, 701, 801, 901]
+
+  inv_init_by_popsum1_total_rp1n_tc:
+    name: |
+      Total Initial Inventory of Resources by Population Summary Level 1
+      (p1n_tc)
+    description: |
+      The Initial inventory in total units that should be held calculated for
+      each Population Summary Level
+    index:
+      - "Range (r)"
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
+    units: "Total Units"
+    kind: Calculated
+    array:
+      -
+        - [201, 300, 500, 700, 900, 1001, 2003, 2004, 2006]
+        - [200, 400, 600, 800, 1000, 2001, 2002, 2005, 2007]
+
+  inv_eoq_by_popsum1_total_rp1n_tc:
+    name: |
+      Economic Order Quantity for Inventory Minimum of Resources by Population
+      Summary Level 1 (p1n_tc)
+    description: |
+      The minimum inventory in total units that should be held calculated for
+      each Population Summary Level
+    index:
+      - "Range (r)"
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
+    units: "Total Units"
+    kind: Calculated
+    array:
+      -
+        - [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        - [10, 20, 30, 40, 50, 60, 70, 80, 90]
+
+  inv_min_by_popsum1_total_rp1n_tc:
+    name: |
+      Total Inventory Minimum of Resources by Population Summary Level 1
+      (p1n_tc)
+    description: |
+      The minimum inventory in total units that should be held calculated for
+      each Population Summary Level
+    index:
+      - "Range (r)"
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
+    units: "Total Units"
+    kind: Calculated
+    array:
+      -
+        - [101, 200, 300, 400, 500, 600, 700, 800, 900]
+        - [102, 201, 301, 401, 501, 601, 701, 801, 901]
 
   # These tables are generated from the inputs above so they are derited values
   # These are typicalally meta values that are derived from real objectcs
@@ -309,6 +362,22 @@ Model:
       - "Population Summary Level 1 (p1)"
       - "Resource (n)"
 
+  # TODO: As we start the conversion to range, inventory goes first
+  # So this dupliction the p1n_tc version above
+  demand_by_popsum1_total_rp1n_tc:
+    name: |
+      Total Demand for Resources by Population Summary Level 1 with Ranges
+      (rp1n:tc)
+    description: |
+      For all populatio summary levels p1, the total demand for a set of
+      resources with a range r of values
+    units: Total
+    kind: Calculated
+    index:
+      - "Range (r)"
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
+
   demand_by_popsum1_total_cost_p1n_xc:
     name: |
       Total Cost of Demand for Resources by Population Summary Level 1 (p1n:xc)
@@ -334,21 +403,7 @@ Model:
     units: "Total Units"
     kind: Calculated
 
-  inv_min_by_popsum1_total_rp1n_tc:
-    name: |
-      Total Inventory Minimum of Resources by Population Summary Level 1
-      (p1n_tc)
-    description: |
-      The minimum inventory in total units that should be held calculated for
-      each Population Summary Level
-    index:
-      - "Range (r)"
-      - "Population Summary Level 1 (p1)"
-      - "Resource (n)"
-    units: "Total Units"
-    kind: Calculated
-
-  inv_min_by_popsum1_per_period_rp1n_uc:
+  inv_min_by_popsum1_in_periods_rp1n_pc:
     name: |
       Inventory Minimum of Resources by Population Summary Level 1 in Periods
       (p1n_tc)
@@ -359,8 +414,37 @@ Model:
       - "Range (r)"
       - "Population Summary Level 1 (p1)"
       - "Resource (n)"
-    units: "Total Units"
+    units: "Period"
     kind: Calculated
+
+  inv_average_orders_by_popsum1_per_period_rp1n_uf:
+    name: |
+      Average Inventory Orders of Resource by Population Summary Level 1 for a
+      Period (rp1n:uf)
+    description: |
+      Average Inventory needed for a given period (normally a day)
+      for Resources by Population Summary Level 1. This is the flow of units
+      needed every period.
+    index:
+      - "Range (r)"
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
+    units: "Units Per Period"
+    kind: Calculated
+
+  inv_order_by_popsum1_total_rp1n_tc:
+    name: |
+      Inventory Order of Resources by Population Summary Level 1
+    description: |
+      The order for resources from population by Summary Level 1
+      (rp1nL:tc)
+    index:
+      - "Range (r)"
+      - "Population Summary Level 1 (p1)"
+      - "Resource (n)"
+    units: "Period"
+    kind: Calculated
+
 
 Paths:
   Root: '../../data/ingestion/'

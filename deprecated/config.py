@@ -19,7 +19,9 @@ class Config:
 
     # no variables here unless you want them same across all instances
     def __init__(
-        self, *files, log_root: Optional[Log] = None,
+        self,
+        *files,
+        log_root: Optional[Log] = None,
     ):
         """Read Configuration YAML.
 

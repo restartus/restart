@@ -13,7 +13,7 @@ from typing import Generator, List, Optional, Tuple
 from base import Base
 from demand import Demand
 from demand_dict import DemandDict
-from disease import Disease
+from epi import Epi
 from econometric import Econometric
 from filtermodel import Filter
 from inventory import Inventory
@@ -225,12 +225,12 @@ class Model(Base):
         )
         return self
 
-    def set_disease(self, type: str = None) -> Model:
-        """Create Disease model.
+    def set_epi(self, type: str = None) -> Model:
+        """Create Epi model.
 
-        Disease create
+        Epi create
         """
-        self.disease = Disease(self.config, log_root=self.log_root, type=type)
+        self.epi = Epi(self.config, log_root=self.log_root, type=type)
         return self
 
     def set_mobility(self, type: str = None) -> Model:

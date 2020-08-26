@@ -103,7 +103,10 @@ class Dashboard(BaseLog):
         )
 
         inv_min_in_periods = st.sidebar.slider(
-            "Stockpile", max_value=120, value=30, step=15,
+            "Stockpile",
+            max_value=120,
+            value=30,
+            step=15,
         )
         log.debug(f"{inv_min_in_periods=}")
 
@@ -319,7 +322,9 @@ class Dashboard(BaseLog):
                 # https://kite.com/python/answers/how-to-check-if-a-value-is-in-a-dictionary-in-python
                 # https://www.geeksforgeeks.org/python-check-whether-given-key-already-exists-in-a-dictionary/
                 self.write_description(
-                    df_name, df_value, base_value.description,
+                    df_name,
+                    df_value,
+                    base_value.description,
                 )
                 # if df_name in base_value.description:
                 #     log.debug("found description")

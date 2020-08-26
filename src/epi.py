@@ -1,6 +1,6 @@
-"""Disease model.
+"""Epi model.
 
-The disease model work.
+The epi model work.
 """
 
 # https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
@@ -16,7 +16,7 @@ from base import Base
 from log import Log
 
 
-class Disease(Base):
+class Epi(Base):
     """Resource - Manages all the resources that are used in the model.
 
     This creates for all r resources, the list of attributes a
@@ -36,7 +36,7 @@ class Disease(Base):
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):
-        """Initialize the Disease object.
+        """Initialize the Epi object.
 
         This uses the Frame object and populates it with default data unless yo
         override it

@@ -74,10 +74,13 @@ Dimension:
     - State
     - Country
   "Time (t)":
-    - 0
-    - 1
-    - 2
-    - 3
+    - August 20, 2020
+  "Disease (d)":
+    - COVID-19
+  "Disease Attribute (D)":
+    - Cases
+    - Deaths
+    - Hospitalization
 
 # Uses the dimensions above to create matrices
 Model:

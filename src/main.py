@@ -132,7 +132,7 @@ class Compose:
             .set_inventory(type=args.inventory)
             .set_demand(type=args.demand)
             .set_econometric(type=args.econometric)
-            .set_disease(type=args.disease)
+            .set_epi(type=args.epi)
             .set_mobility(type=args.mobility)
             .set_output(out=args.output, csv=args.csv)
         )
@@ -144,7 +144,7 @@ class Compose:
         # log.debug(f"{self.model1=}")
 
         # http://net-informations.com/python/iq/instance.htm
-        log.debug(f"{model} is {vars(model)}")
+        log.debug(f"{model=} is {vars(model)=}")
         for name, value in vars(model).items():
             # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
             # if issubclass(value, Base):
@@ -261,10 +261,10 @@ class Compose:
 
         parser.add_argument(
             "-d",
-            "--disease",
+            "--epi",
             choices=["dict", "imhe", "ensemble", "jhu"],
             default="dict",
-            help="Select Epidemological Disease Model",
+            help="Select Epidemological Epi Model",
         )
 
         return parser
@@ -309,8 +309,8 @@ class Compose:
         # model.filter = Filter(model.data, log_root=model.log_root)
         log.debug("creating Econometric")
         model.econometric = Econometric(model.data, log_root=model.log_root)
-        log.debug("creating Disease")
-        model.disease = Disease(model.data, log_root=model.log_root)
+        log.debug("creating Epi")
+        model.epi = Epi(model.data, log_root=model.log_root)
         log.debug("creating Mobility")
         model.mobility = Mobility(model.data, log_root=model.log_root)
         log.debug(f"{model=}")

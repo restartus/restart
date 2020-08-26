@@ -10,6 +10,7 @@ import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
+from data import Data
 from filtermodel import Filter
 from load_csv import LoadCSV
 from log import Log
@@ -43,6 +44,7 @@ class PopulationOES(Population):
         Read the paths in and create dataframes, generate mappings
         """
         super().__init__(config, log_root=log_root)
+        self.log_root = log_root
         log = self.log
 
         log.debug(f"module {__name__=}")
@@ -59,33 +61,30 @@ class PopulationOES(Population):
         self.subpop = filt.subpop
         self.codes: list
 
+        self.load_data(config, self.location)
+
         # get population data
-        log.debug(f"loading {self.location=}")
-        df_dict = self.load_data(config, self.location)
-        self.detail_pd_df = df_dict["detail_pd_df"]
-        self.detail_pd_arr = df_dict["detail_pd_arr"]
-        self.detail_pd_df.index.name = "Population p"
-        self.detail_pd_df.columns.name = "Pop Detail d"
-        self.set_description(
-            f"{self.detail_pd_df=}",
-            config["Description"]["Population p"]["Pop Detail pd"].get(),
-        )
-        log.debug(f"{self.description['detail_pd_df']=}")
+        # log.debug(f"loading {self.location=}")
+        # df_dict = self.load_data(config, self.location)
+        # self.population_pP_tr: Data = df_dict["detail_pd_df"]
+        # self.detail_pd_df = df_dict["detail_pd_df"]
+        # self.detail_pd_arr = df_dict["detail_pd_arr"]
 
         # get mapping data
-        self.level_pm_arr = df_dict["map_arr"]
-        self.level_pm_labs = df_dict["map_labs"]
-        self.level_pm_df = pd.DataFrame(
-            self.level_pm_arr,
-            index=self.level_pm_labs,
-            columns=config["Label"]["Demand m"].get(),
-        )
-        log.debug(f"{self.level_pm_df=}")
-        self.set_description(
-            f"{self.level_pm_df=}",
-            config["Description"]["Population p"]["Protection pm"].get(),
-        )
-        log.debug(f"{self.description['level_pm_df']=}")
+        # self.pop_demand_per_unit_map_pd_um: Data = df_dict["map_arr"]
+        # self.level_pm_arr = df_dict["map_arr"]
+        # self.level_pm_labs = df_dict["map_labs"]
+        # self.level_pm_df = pd.DataFrame(
+        #     self.level_pm_arr,
+        #     index=self.level_pm_labs,
+        #     columns=config["Label"]["Demand m"].get(),
+        # )
+        # log.debug(f"{self.level_pm_df=}")
+        # self.set_description(
+        #     f"{self.level_pm_df=}",
+        #    config["Description"]["Population p"]["Protection pm"].get(),
+        # )
+        # log.debug(f"{self.description['level_pm_df']=}")
 
     def load_data(self, config, location):
         """Do most of the initializing here.
@@ -129,18 +128,38 @@ class PopulationOES(Population):
             df = self.wa_tier2_opt2_filter(df)
 
         # the actual data passed onto the model
-        detail_pd_df = self.drop_code(df)
-        detail_pd_arr = detail_pd_df["Size"].to_numpy()
-        map_labs, map_arr = self.create_map(df, map_df)
+        # self.population_pP_tr: Data = self.drop_code(df)
+        self.population_pP_tr = Data(
+            "population_pP_tr",
+            config,
+            log_root=self.log_root,
+            p_index=list(self.drop_code(df).index),
+            P_index=["Size"],
+            array=self.drop_code(df).to_numpy(),
+        )
+
+        pop_to_burn_df = self.pop_to_burn_rate(df, map_df)
+        self.pop_demand_per_unit_map_pd_um: Data = Data(
+            "pop_demand_per_unit_map_pd_um",
+            config,
+            log_root=self.log_root,
+            p_index=list(pop_to_burn_df.index),
+            array=pop_to_burn_df.to_numpy(),
+        )
+
+        # detail_pd_arr = detail_pd_df["Size"].to_numpy()
+        # self.pop_demand_per_unit_map_pd_um: Data = self.pop_to_burn_rate(
+        #         df,
+        #         map_df
+        # )
+        # map_labs, map_arr = self.create_map(df, map_df)
 
         # load into dictionary
-        df_dict = {}
-        df_dict["detail_pd_df"] = detail_pd_df
-        df_dict["detail_pd_arr"] = detail_pd_arr
-        df_dict["map_labs"] = map_labs
-        df_dict["map_arr"] = map_arr
-
-        return df_dict
+        # df_dict = {}
+        # df_dict["detail_pd_df"] = detail_pd_df
+        # df_dict["detail_pd_arr"] = detail_pd_arr
+        # df_dict["map_labs"] = map_labs
+        # df_dict["map_arr"] = map_arr
 
     def format_code(self, df: pd.DataFrame) -> pd.DataFrame:
         """Perform dataframe transformations specific to list1_2020.xls.
@@ -215,7 +234,7 @@ class PopulationOES(Population):
         df = df.dropna(axis="rows").reset_index(drop=True)
         return df
 
-    def create_map(
+    def pop_to_burn_rate(
         self, df: pd.DataFrame, map_df: pd.DataFrame
     ) -> Tuple[list, np.ndarray]:
         """Generate mappings for OCC codes and population levels.
@@ -253,7 +272,9 @@ class PopulationOES(Population):
             labels.append(name)
             map_arr.append(arr)
 
-        return labels, np.array(map_arr)
+        pop_to_level_df = pd.DataFrame(map_arr, index=labels)
+
+        return pop_to_level_df
 
     def find_code(self, location: Dict, code_df: pd.DataFrame) -> int:
         """Finds the MSA code of given county.

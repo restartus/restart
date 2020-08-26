@@ -78,6 +78,31 @@ class Data(BaseLog):
 
         self.key: str = key
         self.config_cf: confuse.Configuration = config
+
+        # Override the YAML with a dictionary
+        # https://confuse.readthedocs.io/en/latest/
+        # https://www.pythoncentral.io/how-to-check-if-a-list-tuple-or-dictionary-is-empty-in-python/
+        if kwargs:
+            for k, v in kwargs.items():
+                if "index" in k:
+                    k = k.split("_")[0]
+                    ind = [
+                        i
+                        for i in config["Model"][self.key]["index"].get()
+                        if f"({k})" in i
+                    ][0]
+                    args = {"Dimension": {ind: v}}
+                else:
+                    args = {"Model": {self.key: {k: v}}}
+
+                config.set_args(args, dots=True)
+
+                # model_args = {"Model": {self.key: {k[1]: v}}}
+                # dim_args = {"Dimension": {
+                # config.set_args(args, dots=True)
+                # print(config[self.key][k].get())
+                # breakpoint()
+
         self.data_cf: confuse.Configuration = config["Model"][key]
         self.dimension_cf: confuse.Configuration = config["Dimension"]
         self.index_cf: confuse.Configuration = self.data_cf["index"]
@@ -88,8 +113,6 @@ class Data(BaseLog):
         # Override the YAML with a dictionary
         # https://confuse.readthedocs.io/en/latest/
         # https://www.pythoncentral.io/how-to-check-if-a-list-tuple-or-dictionary-is-empty-in-python/
-        if kwargs:
-            config.set_args(kwargs, dots=True)
 
         # if there is no value it is a calculate amount and fill with NaNs
         try:
@@ -99,11 +122,11 @@ class Data(BaseLog):
         except confuse.NotFoundError:
             log.debug(f"set null array based on {self.index_cf.get()=}")
             shape = [
-                len(self.dimension_cf.get()[x]) for x in self.index_cf.get()
+                len(self.dimension_cf[x].get()) for x in self.index_cf.get()
             ]
             log.debug(f"of {shape=}")
             self._array = np.empty(
-                [len(self.dimension_cf.get()[x]) for x in self.index_cf.get()]
+                [len(self.dimension_cf[x].get()) for x in self.index_cf.get()]
             )
 
         log.debug(f"{self._array=}")
@@ -211,7 +234,7 @@ class Data(BaseLog):
             # Also note that we need .get for a confus object
             # And need to dereference the index_name
             self.index_name = self.index_name[0]
-            self.index = self.dimension_cf.get()[self.index_name]
+            self.index = self.dimension_cf[self.index_name].get()
             df = pd.DataFrame(
                 self.array, index=self.index, columns=self.columns,
             )
@@ -222,7 +245,7 @@ class Data(BaseLog):
             self.flat2d_arr = self.array.reshape(-1, self.array.shape[-1])
             # Do a lookup of the index in dimension
             # https://stackoverflow.com/questions/49542348/using-a-list-comprehension-to-look-up-variables-works-with-globals-but-not-loc/49542378
-            self.index = [self.dimension_cf.get()[x] for x in self.index_name]
+            self.index = [self.dimension_cf[x].get() for x in self.index_name]
             self.multi_index = pd.MultiIndex.from_product(
                 self.index, names=self.index_name,
             )

@@ -90,7 +90,7 @@ Model:
       the size of the sub-population. It models a real entity.
     units: Total
     kind: Real
-    # The dimensinos for each
+    # The dimensions for each
     index:
       - "Population (p)"
       - "Population Attribute (P)"

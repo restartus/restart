@@ -36,11 +36,11 @@ class DemandWA(Demand):
         Calculate demand for resources by populations
         TODO: Add organization demand so dimensions become p+o
         """
-        log = self.log
-        log.debug(f"In {__name__}")
-
-        # By default demand base sets all variable from config
         super().__init__(config, pop, res, log_root=log_root)
+        log = self.log
+
+        if config is None:
+            raise ValueError(f"{config=} is null")
 
         # now override the variables you want changed
         map_df: Optional[pd.DataFrame] = None

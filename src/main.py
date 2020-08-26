@@ -191,19 +191,17 @@ class Compose:
 
         For all the choices, returns an argparser object for use by confuse
         """
+        # TODO: remove all defaults and set them in the config file
         parser = argparse.ArgumentParser()
 
         parser.add_argument(
             "-p",
             "--population",
-            default="dict",
             choices=["dict", "oes", "wa"],
             help="Select population data cube",
         )
 
-        parser.add_argument(
-            "--organization", default="dict", help=["dict", "ca"]
-        )
+        parser.add_argument("--organization", help=["dict", "ca"])
 
         parser.add_argument("--csv", help="Select CSV file output")
 

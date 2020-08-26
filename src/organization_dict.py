@@ -21,4 +21,12 @@ class OrganizationDict(Organization):
             "organization_oO_tr", config, log_root=log_root
         )
 
+        self.org_demand_per_unit_map_od_um = Data(
+            "org_demand_per_unit_map_od_um", config, log_root=log_root
+        )
+
+        self.org_to_orgsum1_per_unit_map_oo1_us = Data(
+            "org_to_orgsum1_per_unit_map_oo1_us", config, log_root=log_root
+        )
+
         log.debug(f"{self.organization_oO_tr=}")

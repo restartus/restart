@@ -8,6 +8,7 @@ import confuse  # type: ignore
 
 from demand import Demand
 from log import Log
+from organization import Organization
 from population import Population
 from resourcemodel import Resource
 
@@ -22,8 +23,9 @@ class DemandDict(Demand):
     def __init__(
         self,
         config: confuse.Configuration,
-        pop: Population,
         res: Resource,
+        pop: Optional[Population] = None,
+        org: Optional[Organization] = None,
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):
@@ -32,9 +34,9 @@ class DemandDict(Demand):
         Calculates the total, costs and per capita demand
         """
         # the init sets all variables from dictionary by default
-        super().__init__(config, pop, res, log_root=log_root)
+        super().__init__(config, res, pop, org, log_root=log_root)
         log = self.log
         log.debug(f"In {__name__}")
 
         # These are the core calculations are run wth a single recalc
-        self.recalc(pop, res)
+        self.recalc(res)

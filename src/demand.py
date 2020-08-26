@@ -2,7 +2,7 @@
 
 Demand modeling
 """
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
@@ -10,6 +10,7 @@ import numpy as np  # type: ignore
 from base import Base
 from data import Data
 from log import Log
+from organization import Organization
 from population import Population
 from resourcemodel import Resource
 
@@ -39,8 +40,9 @@ class Demand(Base):
     def __init__(
         self,
         config: confuse.Configuration,
-        pop: Population,
         res: Resource,
+        pop: Optional[Population] = None,
+        org: Optional[Organization] = None,
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):
@@ -53,6 +55,8 @@ class Demand(Base):
         super().__init__(log_root=log_root)
         log = self.log
         log.debug(f"In {__name__}")
+
+        self.input = DemandInput(pop, org)
 
         # Make sure to instantiate each of these for inheritance purposes
         self.demand_per_unit_map_dn_um = Data(
@@ -90,20 +94,20 @@ class Demand(Base):
         )
         log.debug(f"{self.demand_by_popsum1_total_cost_p1n_xc.df=}")
 
-        self.recalc(pop, res)
+        self.recalc(res)
 
-    def recalc(self, pop, res):
+    def recalc(self, res):
         """Recalculate all demands.
 
         Right now it must be run in this order
         """
-        self.set_demand_by_pop_per_person_pn_uc(pop)
-        self.set_demand_by_pop_total_pn_tc(pop)
-        self.set_demand_by_popsum1_per_person_p1n_uc(pop)
-        self.set_demand_by_popsum1_total_p1n_tc(pop)
+        self.set_demand_by_pop_per_person_pn_uc()
+        self.set_demand_by_pop_total_pn_tc()
+        self.set_demand_by_popsum1_per_person_p1n_uc()
+        self.set_demand_by_popsum1_total_p1n_tc()
         self.set_demand_by_popsum1_total_cost_p1n_xc(res)
 
-    def set_demand_by_pop_per_person_pn_uc(self, pop):
+    def set_demand_by_pop_per_person_pn_uc(self):
         """Sets the Demand by Population Per Person."""
         log = self.log
 
@@ -112,11 +116,11 @@ class Demand(Base):
         #     self.level_to_res_mn_df
         # )
 
-        if pop.pop_demand_per_unit_map_pd_um is None:
+        if self.input.demand_per_unit_map_um is None:
             raise ValueError("pop.pop_demand_per_unit_map_pd_um")
 
         self.demand_by_pop_per_person_pn_uc.array = (
-            pop.pop_demand_per_unit_map_pd_um.array
+            self.input.demand_per_unit_map_um.array
             @ self.demand_per_unit_map_dn_um.array
         )
 
@@ -124,14 +128,14 @@ class Demand(Base):
         # Einsum equivalent for automatic generation
         test = np.einsum(
             "pd,dn->pn",
-            pop.pop_demand_per_unit_map_pd_um.array,
+            self.input.demand_per_unit_map_um.array,
             self.demand_per_unit_map_dn_um.array,
         )
         log.debug(f"{test=}")
         if np.array_equal(self.demand_by_pop_per_person_pn_uc.array, test):
             log.debug("einsum works!")
 
-    def set_demand_by_pop_total_pn_tc(self, pop):
+    def set_demand_by_pop_total_pn_tc(self):
         """Recalcs the Demand by Population for Resources."""
         # Note there is a big hack here as we should really calculate
         # demand across many parameters, but we just pick size
@@ -149,23 +153,23 @@ class Demand(Base):
         # https://stackoverflow.com/questions/29241056/how-does-numpy-newaxis-work-and-when-to-use-it
         # need this to prevent type check problems
         log = self.log
-        if pop.population_pP_tr is None:
-            raise ValueError("pop.population_pP_tr")
+        if self.input.input_to_tr is None:
+            raise ValueError("self.input.input_to_tr")
         self.demand_by_pop_total_pn_tc.array = (
             self.demand_by_pop_per_person_pn_uc.array.T
-            * pop.population_pP_tr.df["Size"].to_numpy().T
+            * self.input.input_to_tr.df["Size"].to_numpy().T
         ).T
         log.debug(f"{self.demand_by_pop_total_pn_tc.df=}")
         test = np.einsum(
             "pn,p->pn",
             self.demand_by_pop_per_person_pn_uc.array,
-            pop.population_pP_tr.df["Size"].to_numpy(),
+            self.input.input_to_tr.df["Size"].to_numpy(),
         )
         log.debug(f"{test=}")
         if np.array_equal(self.demand_by_pop_per_person_pn_uc.array, test):
             log.debug("einsum works!")
 
-    def set_demand_by_popsum1_per_person_p1n_uc(self, pop):
+    def set_demand_by_popsum1_per_person_p1n_uc(self):
         """Recalcs the Demand by Population Summary Level 1 for Resources."""
         log = self.log
         # TODO: Convert this single level calculation to a general one based on
@@ -175,12 +179,12 @@ class Demand(Base):
         # self.level_demand_ln_df = np.array(self.level_pl_df).T @ np.array(
         #     self.demand_pn_df
         # )
-        if pop.pop_to_popsum1_per_unit_map_pp1_us is None:
-            raise ValueError("pop.pop_to_popsum1_per_unit_map_pp1_us")
+        if self.input.input_to_sum1_per_unit_map_us is None:
+            raise ValueError("self.input.input_to_sum1_per_unit_map_us")
         # then add to them
 
         self.demand_by_popsum1_per_person_p1n_uc.array = (
-            pop.pop_to_popsum1_per_unit_map_pp1_us.array.T
+            self.input.input_to_sum1_per_unit_map_us.array.T
             @ self.demand_by_pop_per_person_pn_uc.array
         )
         log.debug(f"{self.demand_by_popsum1_per_person_p1n_uc.df=}")
@@ -200,7 +204,7 @@ class Demand(Base):
             log.debug("einsum works!")
         """
 
-    def set_demand_by_popsum1_total_p1n_tc(self, pop):
+    def set_demand_by_popsum1_total_p1n_tc(self):
         """Recalcs the Demand by Population Level 1 for Total Resource."""
         log = self.log
         # TODO: Eventually we will want to calculate this iteration
@@ -212,13 +216,13 @@ class Demand(Base):
         #    self.level_pl_df.T @ self.total_demand_pn_df
         # )
         self.demand_by_popsum1_total_p1n_tc.array = (
-            pop.pop_to_popsum1_per_unit_map_pp1_us.array.T
+            self.input.input_to_sum1_per_unit_map_us.array.T
             @ self.demand_by_pop_total_pn_tc.array
         )
         log.debug(f"{self.demand_by_pop_per_person_pn_uc.df=}")
         test = np.einsum(
             "px,pn->xn",
-            pop.pop_to_popsum1_per_unit_map_pp1_us.array,
+            self.input.input_to_sum1_per_unit_map_us.array,
             self.demand_by_pop_total_pn_tc.array,
         )
         if np.array_equal(self.demand_by_popsum1_total_p1n_tc.array, test):
@@ -255,3 +259,54 @@ class Demand(Base):
         if np.array_equal(self.demand_by_popsum1_total_cost_p1n_xc, test):
             log.debug("einsum works!")
         """
+
+
+class DemandInput:
+    """Class that generalizes input to the demand module.
+
+    This way you can either pass in an organization or demand and they
+    both will work
+    """
+
+    def __init__(self, pop: Optional[Population], org: Optional[Organization]):
+        """Resolve input as either population or organization."""
+        if pop is None and org is None:
+            raise ValueError("Must pass either a population or organization")
+
+        if pop is not None and org is not None:
+            raise ValueError("Cannot pass both a population and organization")
+
+        self.input: Union[Population, Organization]
+
+        if pop is not None:
+            self.input = pop
+            self.generalize_input(type=Population)
+
+        elif org is not None:
+            self.input = org
+            self.generalize_input(type=Organization)
+
+    def generalize_input(self, type):
+        """Create set of outputs that is generalizable to pop or org."""
+        if type is Population:
+            self.set_pop()
+        elif type is Organization:
+            self.set_org()
+        else:
+            raise ValueError("Type must either be Population or Organization")
+
+    def set_pop(self):
+        """Set data structures with population input."""
+        self.demand_per_unit_map_um = self.input.pop_demand_per_unit_map_pd_um
+        self.input_to_tr = self.input.population_pP_tr
+        self.input_to_sum1_per_unit_map_us = (
+            self.input.pop_to_popsum1_per_unit_map_pp1_us
+        )
+
+    def set_org(self):
+        """Set data structures with organization input."""
+        self.demand_per_unit_map_um = self.input.org_demand_per_unit_map_od_um
+        self.input_to_tr = self.input.organization_oO_tr
+        self.input_to_sum1_per_unit_map_us = (
+            self.input.org_to_orgsum1_per_unit_map_oo1_us
+        )

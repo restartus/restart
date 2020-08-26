@@ -36,7 +36,9 @@ Dimension:
     - Hospital
     - "First Responders"
   "Organization Attribute (O)":
-    - Employees
+    # TODO: this needs to be Size to match population
+    - Size
+    # - Employees
     - Patients
     - "ICU Patients"
     - Runs
@@ -161,6 +163,22 @@ Model:
     array:
       - [437, 21, 1, 0]
       - [58, 0, 0, 10]
+
+  org_demand_per_unit_map_od_um:
+    name: "Per Unit Demand by Organization for Resources (p->d:um)"
+    description: |
+      For each o Organizations falls into which protection
+      category for the burn rate. That is what does each population o need
+      of each resource r. For example, 1.18 would mean you need 1.18 N95
+      masks per day for a given organization
+    units: "Per Organization"
+    kind: Map
+    index:
+      - "Organization (o)"
+      - "Demand for Resource (d)"
+    array:
+      - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
+      - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
   org_to_orgsum1_per_unit_map_oo1_us:
     name: "Organization to Organization Level 1 Summary Map (o->o1:us)"

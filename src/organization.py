@@ -49,3 +49,5 @@ class Organization(Base):
         log.debug(f"in {__name__=}")
 
         self.organization_oO_tr: Optional[Data] = None
+        self.org_demand_per_unit_map_od_um: Optional[Data] = None
+        self.org_to_orgsum1_per_unit_map_oo1_us: Optional[Data] = None

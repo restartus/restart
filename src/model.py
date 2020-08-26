@@ -13,8 +13,8 @@ from typing import Generator, List, Optional, Tuple
 from base import Base
 from demand import Demand
 from demand_dict import DemandDict
-from epi import Epi
 from econometric import Econometric
+from epi import Epi
 from filtermodel import Filter
 from inventory import Inventory
 from inventory_dict import InventoryDict
@@ -116,7 +116,7 @@ class Model(Base):
         # )
         # the super class population uses type to return the exact model
         # filter is by happens after this
-        self.population: Population
+        self.population: Optional[Population]
         if type == "oes":
             self.population = PopulationOES(
                 self.config,
@@ -134,16 +134,19 @@ class Model(Base):
                 log_root=self.log_root,
             )
         else:
-            raise ValueError(f"{type=} not implemented")
+            # raise ValueError(f"{type=} not implemented")
+            self.population = None
         return self
 
     def set_organization(self, type: str = None) -> Model:
         """Set organization."""
-        self.organization: Organization
+        self.organization: Optional[Organization]
         if type == "dict":
             self.organization = OrganizationDict(
                 self.config, log_root=self.log_root
             )
+        else:
+            self.organization = None
         return self
 
     def set_resource(self, type: str = None) -> Model:
@@ -182,8 +185,9 @@ class Model(Base):
         elif type == "washington":
             self.demand = Demand(
                 self.config,
-                self.population,
-                self.resource,
+                res=self.resource,
+                pop=self.population,
+                org=self.organization,
                 log_root=self.log_root,
                 type=type,
             )
@@ -192,8 +196,9 @@ class Model(Base):
             log.debug("Use default yaml dictionary data")
             self.demand = DemandDict(
                 self.config,
-                self.population,
-                self.resource,
+                res=self.resource,
+                pop=self.population,
+                org=self.organization,
                 log_root=self.log_root,
                 type=type,
             )

@@ -13,7 +13,6 @@ from typing import Generator, List, Optional, Tuple
 from base import Base
 from demand import Demand
 from demand_dict import DemandDict
-from demand_wa import DemandWA
 from disease import Disease
 from econometric import Econometric
 from filtermodel import Filter
@@ -178,7 +177,7 @@ class Model(Base):
             log.debug("Use JHU burn rate model")
             raise ValueError("{type=} not implemented")
         elif type == "washington":
-            self.demand = DemandWA(
+            self.demand = Demand(
                 self.config,
                 self.population,
                 self.resource,

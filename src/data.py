@@ -97,22 +97,12 @@ class Data(BaseLog):
 
                 config.set_args(args, dots=True)
 
-                # model_args = {"Model": {self.key: {k[1]: v}}}
-                # dim_args = {"Dimension": {
-                # config.set_args(args, dots=True)
-                # print(config[self.key][k].get())
-                # breakpoint()
-
         self.data_cf: confuse.Configuration = config["Model"][key]
         self.dimension_cf: confuse.Configuration = config["Dimension"]
         self.index_cf: confuse.Configuration = self.data_cf["index"]
         self._array: np.ndArray = None
         self._df: pd.DataFrame = None
         self._narrow: pd.DataFrame = None
-
-        # Override the YAML with a dictionary
-        # https://confuse.readthedocs.io/en/latest/
-        # https://www.pythoncentral.io/how-to-check-if-a-list-tuple-or-dictionary-is-empty-in-python/
 
         # if there is no value it is a calculate amount and fill with NaNs
         try:

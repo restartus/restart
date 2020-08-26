@@ -119,6 +119,7 @@ class Demand(Base):
             pop.pop_demand_per_unit_map_pd_um.array
             @ self.demand_per_unit_map_dn_um.array
         )
+
         log.debug(f"{self.demand_by_pop_per_person_pn_uc.df=}")
         # Einsum equivalent for automatic generation
         test = np.einsum(
@@ -177,13 +178,16 @@ class Demand(Base):
         if pop.pop_to_popsum1_per_unit_map_pp1_us is None:
             raise ValueError("pop.pop_to_popsum1_per_unit_map_pp1_us")
         # then add to them
+
         self.demand_by_popsum1_per_person_p1n_uc.array = (
-            pop.pop_to_popsum1_per_unit_map_pp1_us.array
+            pop.pop_to_popsum1_per_unit_map_pp1_us.array.T
             @ self.demand_by_pop_per_person_pn_uc.array
         )
         log.debug(f"{self.demand_by_popsum1_per_person_p1n_uc.df=}")
         # Einsum equivalent of the above, we use x since index needs to be a
         # single character
+        # TODO: the einsum is broken
+        """
         test = np.einsum(
             "px,pn->xn",
             pop.pop_to_popsum1_per_unit_map_pp1_us.array,
@@ -194,6 +198,7 @@ class Demand(Base):
             self.demand_by_popsum1_per_person_p1n_uc.array, test
         ):
             log.debug("einsum works!")
+        """
 
     def set_demand_by_popsum1_total_p1n_tc(self, pop):
         """Recalcs the Demand by Population Level 1 for Total Resource."""
@@ -230,7 +235,7 @@ class Demand(Base):
 
     def set_demand_by_popsum1_total_cost_p1n_xc(self, res):
         """Recalc the total cost of demand by Population Level 1."""
-        log = self.log
+        # log = self.log
         # original formula
         # self.level_total_cost_ln_df = (
         #       self.level_total_demand_ln_df * cost_ln_df.values)
@@ -240,6 +245,8 @@ class Demand(Base):
             self.demand_by_popsum1_total_p1n_tc.array
             * res.res_by_popsum1_cost_per_unit_p1n_us.array
         )
+        # TODO: the einsum is broken
+        """
         test = np.einsum(
             "xn,xn->xn",
             self.demand_by_pop_total_pn_tc.array,
@@ -247,3 +254,4 @@ class Demand(Base):
         )
         if np.array_equal(self.demand_by_popsum1_total_cost_p1n_xc, test):
             log.debug("einsum works!")
+        """

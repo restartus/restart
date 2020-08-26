@@ -2,7 +2,6 @@
 
 The original model based on DOH levels
 """
-import os
 from typing import List, Optional
 
 import confuse  # type: ignore
@@ -14,7 +13,7 @@ from load_csv import LoadCSV
 from log import Log
 from population import Population
 from resourcemodel import Resource
-from util import datetime_to_code, load_dataframe
+from util import datetime_to_code
 
 
 class DemandWA(Demand):
@@ -37,31 +36,27 @@ class DemandWA(Demand):
         TODO: Add organization demand so dimensions become p+o
         """
         super().__init__(config, pop, res, log_root=log_root)
-        log = self.log
 
         if config is None:
             raise ValueError(f"{config=} is null")
 
         # now override the variables you want changed
-        map_df: Optional[pd.DataFrame] = None
         try:
             source = config["Paths"].get()
             source = LoadCSV(source=source).data
-            map_df = load_dataframe(
-                os.path.join(source["Root"], source["MAP"])
-            )
         except KeyError:
             pass
 
         if pop.population_pP_tr is None:
             raise ValueError("pop.population_pP_tr")
-        self.level_pl_arr = self.calculate_essential(map_df, config, pop)
-        self.level_pl_df = pd.DataFrame(
-            self.level_pl_arr,
-            index=pop.population_pP_tr.index,
-            columns=pop.population_pP_tr.columns,
-        )
-        log.debug(f"{self.level_pl_df=}")
+
+        # self.level_pl_arr = self.calculate_essential(map_df, config, pop)
+        # self.level_pl_df = pd.DataFrame(
+        #     self.level_pl_arr,
+        #     index=pop.population_pP_tr.index,
+        #     columns=pop.population_pP_tr.columns,
+        # )
+        # log.debug(f"{self.level_pl_df=}")
 
         # Now calculate everything
         self.recalc(pop, res)

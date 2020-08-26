@@ -4,7 +4,7 @@ Population is working
 """
 import math
 import os
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, List
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
@@ -62,7 +62,6 @@ class PopulationOES(Population):
         self.codes: list
 
         self.load_data(config, self.location)
-
         # get population data
         # log.debug(f"loading {self.location=}")
         # df_dict = self.load_data(config, self.location)
@@ -104,8 +103,8 @@ class PopulationOES(Population):
             pop_df = load_dataframe(
                 os.path.join(source["Root"], source["POP"])
             )
-            map_df = self.format_map(
-                load_dataframe(os.path.join(source["Root"], source["MAP"]))
+            xls_df = self.format_map(
+                load_dataframe(os.path.join(source["Root"], source["XLS"]))
             )
 
         # initialize unsliced dataframe from oes data
@@ -129,16 +128,17 @@ class PopulationOES(Population):
 
         # the actual data passed onto the model
         # self.population_pP_tr: Data = self.drop_code(df)
+        self.pop_detail_df = self.drop_code(df)
         self.population_pP_tr = Data(
             "population_pP_tr",
             config,
             log_root=self.log_root,
-            p_index=list(self.drop_code(df).index),
+            p_index=list(self.pop_detail_df.index),
             P_index=["Size"],
             array=self.drop_code(df).to_numpy(),
         )
 
-        pop_to_burn_df = self.pop_to_burn_rate(df, map_df)
+        pop_to_burn_df = self.pop_to_burn_rate(df, xls_df)
         self.pop_demand_per_unit_map_pd_um: Data = Data(
             "pop_demand_per_unit_map_pd_um",
             config,
@@ -147,6 +147,7 @@ class PopulationOES(Population):
             array=pop_to_burn_df.to_numpy(),
         )
 
+        self.set_essential(xls_df, config)
         # detail_pd_arr = detail_pd_df["Size"].to_numpy()
         # self.pop_demand_per_unit_map_pd_um: Data = self.pop_to_burn_rate(
         #         df,
@@ -619,3 +620,40 @@ class PopulationOES(Population):
         filt = df[df["occ_code"].isin(occ_list)]
 
         return filt
+
+    def set_essential(self, df: pd.DataFrame, config) -> pd.DataFrame:
+        """Get population essential levels from the excel model.
+
+        Manually slice the dataframe
+        """
+        # df.columns = df.iloc[2528]
+        # df = df.iloc[2529:3303]
+        # df = df[["SOC", "Essential (0 lowest)"]]
+
+        pop_level: List = []
+        df["SOC"] = df["SOC"].apply(datetime_to_code)
+        df.reset_index(drop=True, inplace=True)
+
+        for code in list(self.codes):
+            arr = np.zeros(2)
+            try:
+                ind = df[df["SOC"] == code].index[0]
+            except IndexError:
+                ind = -1
+            if ind > 0:
+                level = df.iloc[ind]["Essential (0 lowest)"]
+            else:
+                level = np.random.randint(0, high=6)
+            if level >= 5:
+                arr[0] = 1
+            else:
+                arr[1] = 1
+            pop_level.append(arr)
+
+        self.pop_to_popsum1_per_unit_map_pp1_us = Data(
+            "pop_to_popsum1_per_unit_map_pp1_us",
+            config,
+            log_root=self.log_root,
+            p_index=list(self.pop_detail_df.index),
+            array=np.array(pop_level),
+        )

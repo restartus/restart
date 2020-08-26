@@ -314,9 +314,9 @@ Model:
         - [101, 200, 300, 400, 500, 600, 700, 800, 900]
         - [102, 201, 301, 401, 501, 601, 701, 801, 901]
 
-  # These tables are generated from the inputs above so they are derited values
-  # These are typicalally meta values that are derived from real objectcs
-  # And mapps that sever as input to processes
+  # These tables are generated from the inputs above so they are derived values
+  # These are typically meta values that are derived from real objectcs
+  # And maps that serve as input to processes
   demand_by_pop_per_person_pn_uc:
     name: "Per Capita Demand by Population for Resources (pn:uc)"
     description: |
@@ -451,4 +451,4 @@ Paths:
   OES: 'all_data_M_2019.xlsx'
   CODE: 'list1_2020.xls'
   POP: 'co-est2019-alldata.csv'
-  MAP: 'covid-surge-who.xlsx'
+  XLS: 'covid-surge-who.xlsx'

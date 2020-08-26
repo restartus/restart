@@ -5,7 +5,7 @@
 TAG ?= v2.3
 name=model
 FLAGS = --pop dict
-CA_FLAGS = --pop oes --state California --demand washington --subpop healthcare
+CA_FLAGS = --pop oes --state California --subpop healthcare
 WA_FLAGS = --pop wa --demand washington
 MAIN = main.py
 
@@ -17,5 +17,5 @@ include ../lib/include.docker.mk
 ## config-gen create config yaml files
 .PHONY: config-gen
 config-gen:
-	pipenv run python main.py --pop oes --demand washington --state Indiana --county "St. Joseph" --output ../config/sj/config.yaml
-	pipenv run python main.py --pop wa --demand washington --output ../config/wa/config.yaml
+	pipenv run python main.py --pop oes --state Indiana --county "St. Joseph" --output ../config/sj/config.yaml
+	pipenv run python main.py --pop wa --output ../config/wa/config.yaml

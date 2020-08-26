@@ -4,7 +4,7 @@ Population is working
 """
 import math
 import os
-from typing import Dict, Optional, Tuple, List
+from typing import Dict, List, Optional, Tuple
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore

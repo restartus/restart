@@ -18,6 +18,7 @@
 #
 # Two entry points in MAIN and WEB
 # https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
+TAG ?= v1
 SHELL :- /bin/bash
 repo ?= restartus
 name ?= $$(basename "$(PWD)")
@@ -124,3 +125,11 @@ pipenv-python: pipenv-clean
 pipenv-clean:
 	pipenv --rm || true
 	rm Pipfile* || true
+
+## tag: pushes a new tag up while delete old to force the action
+.PHONY: tag
+tag:
+	git tag -d "$(TAG)"; \
+	git push origin :"$(TAG)" ; \
+	git tag -a "$(TAG)" -m "$(COMMENT)" && \
+	git push origin "$(TAG)"

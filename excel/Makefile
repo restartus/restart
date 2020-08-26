@@ -34,12 +34,4 @@ release:
 		cp "$$file-$(TAG).xlsx" "$(RELEASE)/$$file.xlsx" || true; \
 	done
 
-## action: pushes a new tag up while delete old to force the action
-.PHONY: action
-action:
-	git tag -d "$(TAG)"; \
-	git push origin :"$(TAG)" ; \
-	git tag -a "$(TAG)" -m "$(COMMENT)" && \
-	git push origin "$(TAG)"
-
 include ../lib/include.mk

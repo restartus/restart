@@ -2,6 +2,7 @@
 # Makefile tuned for Python and Streamlit
 #
 # overriding the name
+TAG ?= v2.3
 name=model
 FLAGS = --pop dict
 CA_FLAGS = --pop oes --state California --demand washington --subpop healthcare
@@ -13,6 +14,7 @@ include ../lib/include.python.mk
 include ../lib/include.model.mk
 include ../lib/include.docker.mk
 
+## config-gen create config yaml files
 .PHONY: config-gen
 config-gen:
 	pipenv run python main.py --pop oes --demand washington --state Indiana --county "St. Joseph" --output ../config/sj/config.yaml

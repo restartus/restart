@@ -39,7 +39,9 @@ class Resource(Base):
     # instances
 
     def __init__(
-        self, config: confuse.Configuration, log_root: Log = None,
+        self,
+        config: confuse.Configuration,
+        log_root: Log = None,
     ):
         """Initialize the Resources.
 

@@ -13,7 +13,9 @@ class InventoryDict(Inventory):
     """InventoryDict - manages inventory reads from dictionary."""
 
     def __init__(
-        self, config: confuse.Configuration, log_root: Log = None,
+        self,
+        config: confuse.Configuration,
+        log_root: Log = None,
     ):
         """Initialize the inventorys.
 

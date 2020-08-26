@@ -31,7 +31,9 @@ class Inventory(Base):
     """Inventory - Manages all the inventorys that are used in the model."""
 
     def __init__(
-        self, config: confuse.Configuration, log_root: Log = None,
+        self,
+        config: confuse.Configuration,
+        log_root: Log = None,
     ):
         """Initialize the Inventorys.
 
@@ -92,7 +94,10 @@ class Inventory(Base):
             inv_average_orders_by_popsum1_per_period_rp1n_uf
         )
 
-    def set_min_in_periods(self, min_periods_r_pc: List,) -> Inventory:
+    def set_min_in_periods(
+        self,
+        min_periods_r_pc: List,
+    ) -> Inventory:
         """Sets the Minimum Inventory as measured in Average Days Shipments.
 
         A Helper function that fill out an entire array and then passes it
@@ -111,7 +116,8 @@ class Inventory(Base):
         return self
 
     def set_min_in_periods_array(
-        self, min_periods_rp1n_tc: Data,
+        self,
+        min_periods_rp1n_tc: Data,
     ) -> Inventory:
         """Set with an array that is for all resources in periods."""
         log = self.log

@@ -17,7 +17,9 @@ class Load(BaseLog):
     # no variable unless they are the same across all instances
 
     def __init__(
-        self, *paths, log_root: Optional[Log] = None,
+        self,
+        *paths,
+        log_root: Optional[Log] = None,
     ):
         """Initialize Loader Base Class.
 

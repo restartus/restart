@@ -100,6 +100,7 @@ class Data(BaseLog):
         self.data_cf: confuse.Configuration = config["Model"][key]
         self.dimension_cf: confuse.Configuration = config["Dimension"]
         self.index_cf: confuse.Configuration = self.data_cf["index"]
+
         self._array: np.ndArray = None
         self._df: pd.DataFrame = None
         self._narrow: pd.DataFrame = None
@@ -226,7 +227,9 @@ class Data(BaseLog):
             self.index_name = self.index_name[0]
             self.index = self.dimension_cf[self.index_name].get()
             df = pd.DataFrame(
-                self.array, index=self.index, columns=self.columns,
+                self.array,
+                index=self.index,
+                columns=self.columns,
             )
             df.index.name = self.index_name
         else:
@@ -237,11 +240,14 @@ class Data(BaseLog):
             # https://stackoverflow.com/questions/49542348/using-a-list-comprehension-to-look-up-variables-works-with-globals-but-not-loc/49542378
             self.index = [self.dimension_cf[x].get() for x in self.index_name]
             self.multi_index = pd.MultiIndex.from_product(
-                self.index, names=self.index_name,
+                self.index,
+                names=self.index_name,
             )
             # https://docs.heliopy.org/en/0.1b5/examples/multiindex.html
             df = pd.DataFrame(
-                self.flat2d_arr, index=self.multi_index, columns=self.columns,
+                self.flat2d_arr,
+                index=self.multi_index,
+                columns=self.columns,
             )
         df.columns.name = self.columns_name
         self._df = df

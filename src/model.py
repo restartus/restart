@@ -119,7 +119,9 @@ class Model(Base):
         self.population: Population
         if type == "oes":
             self.population = PopulationOES(
-                self.config, self.filter, log_root=self.log_root,
+                self.config,
+                self.filter,
+                log_root=self.log_root,
             )
         elif type == "wa":
             self.population = PopulationWA(
@@ -128,7 +130,8 @@ class Model(Base):
         elif type == "dict":
             # change this to the the naming of columns
             self.population = PopulationDict(
-                self.config, log_root=self.log_root,
+                self.config,
+                log_root=self.log_root,
             )
         else:
             raise ValueError(f"{type=} not implemented")
@@ -204,7 +207,10 @@ class Model(Base):
         Shrink the model to relevant population, resource
         """
         self.filter = Filter(
-            log_root=self.log_root, county=county, state=state, subpop=subpop,
+            log_root=self.log_root,
+            county=county,
+            state=state,
+            subpop=subpop,
         )
 
         return self

@@ -223,9 +223,14 @@ class PopulationOES(Population):
             The dataframe sliced to give the mappings
         """
         # manually redo indexing and select the rows we need
-        # TODO: un-hardcode
-        df.columns = df.iloc[2528]
-        df = df.iloc[2529:3303]
+
+        # TODO: need new sheet that isn't precariously sliced like this
+        DF_COLUMNS = 2528
+        DF_START = 2529
+        DF_END = 3303
+
+        df.columns = df.iloc[DF_COLUMNS]
+        df = df.iloc[DF_START:DF_END]
         df = df[
             ["Washington SOT", "SOC", "Type", "Level", "Essential (0 lowest)"]
         ]

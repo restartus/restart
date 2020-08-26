@@ -18,7 +18,9 @@ class PopulationDict(Population):
     """
 
     def __init__(
-        self, config: confuse.Configuration, log_root: Log = None,
+        self,
+        config: confuse.Configuration,
+        log_root: Log = None,
     ):
         """Initialize the population object.
 
@@ -36,16 +38,22 @@ class PopulationDict(Population):
         # get population data
         # Using the new Lucas data class
         self.population_pP_tr = Data(
-            "population_pP_tr", config, log_root=log_root,
+            "population_pP_tr",
+            config,
+            log_root=log_root,
         )
         log.debug(f"{self.population_pP_tr=}")
 
         self.pop_demand_per_unit_map_pd_um = Data(
-            "pop_demand_per_unit_map_pd_um", config, log_root=log_root,
+            "pop_demand_per_unit_map_pd_um",
+            config,
+            log_root=log_root,
         )
         log.debug(f"{self.pop_demand_per_unit_map_pd_um=}")
 
         self.pop_to_popsum1_per_unit_map_pp1_us = Data(
-            "pop_to_popsum1_per_unit_map_pp1_us", config, log_root=log_root,
+            "pop_to_popsum1_per_unit_map_pp1_us",
+            config,
+            log_root=log_root,
         )
         log.debug(f"{self.pop_to_popsum1_per_unit_map_pp1_us=}")

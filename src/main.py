@@ -140,9 +140,6 @@ class Compose:
         # run the loader and put everything into a super dictionary
         # To change the model, just replace LoadYAML and the configuration
         # of it which starts off the entire model
-        # TODO: confuse breaks the old model system
-        # self.model1 = self.old_compose("old_" + name, log_root=log_root)
-        # log.debug(f"{self.model1=}")
 
         # http://net-informations.com/python/iq/instance.htm
         log.debug(f"{model=} is {vars(model)=}")

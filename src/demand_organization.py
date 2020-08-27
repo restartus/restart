@@ -131,8 +131,6 @@ class DemandOrganization(Demand):
     def set_demand_by_popsum1_per_person_p1n_uc(self, org):
         """Recalcs the Demand by Population Summary Level 1 for Resources."""
         log = self.log
-        # TODO: Convert this single level calculation to a general one based on
-        # a dictionary of conversion
         # Original math put the level or popsum1 data here now move to
         # population
         # self.level_demand_ln_df = np.array(self.level_pl_df).T @ np.array(

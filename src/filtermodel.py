@@ -11,7 +11,7 @@ from base import Base
 from log import Log
 
 
-# TODO: now we can just add this to config with confuse
+# TODO: This will be much easier once we add geo to it
 class Filter(Base):
     """Governs how we act.
 

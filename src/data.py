@@ -12,9 +12,6 @@ structures in sync:
 
 The idea is that when the numpy array changes, then we automatically update the
 other two representations
-
-TODO: Not implemented need to work out multiindex
-
 """
 from __future__ import annotations
 
@@ -131,8 +128,13 @@ class Data(BaseLog):
     #     """Show more than just the type."""
     # return {"df": self._df, "array": self._array, "narrow": self._narrow}
 
-    # TODO: There must be a better way but there are three data structures that
+    # Three data structures that
     # can change and then the other two must switch:
+    # TODO: Instead of all this manually, change so that we have a
+    # an array of transforms so we can index in and call a function
+    # The call will look like transform = [ unity, to_numpy ], [ to_df, unity
+    # ]]
+    # and then the generic function is convert[from][to]
     # - array. This is the numpy array
     # - df. This is the wide format dataframe suitable for printing
     # - narrow. This is the narrow frame for charting

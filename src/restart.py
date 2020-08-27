@@ -20,6 +20,7 @@ class NoteCompose:
         configdir: str = ".",
         output: Optional[str] = None,
         resource: str = "dict",
+        inventory: str = "dict",
         demand: str = "dict",
         econometric: str = "ml",
         mobility: str = "ensemble",
@@ -43,6 +44,7 @@ class NoteCompose:
             .set_population(type=population)
             .set_organization(type=organization)
             .set_resource(type=resource)
+            .set_inventory(type=inventory)
             .set_demand(type=demand)
             .set_econometric(type=econometric)
             .set_epi(type=epi)

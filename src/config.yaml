@@ -21,6 +21,7 @@ Dimension:
     - Area
   "Population (p)":
     - "CA Projected COVID Surge Patients"
+    - "CA Projected Non-COVID Surge Patients"
   "Population Attribute (P)":
     - Size
   "Population Summary Level 1 (p1)":
@@ -38,13 +39,8 @@ Dimension:
     - Front-line
     - Non-frontline
   "Demand for Resource (d)":
-    - WA0
-    - WA1
-    - WA2
-    - WA3
-    - WA4
-    - WA5
-    - WA6
+    - "California COVID Burn Rates"
+    - "California Non-COVID Burn Rates"
   # Owner of the warehouse only hold the State for now
   "Inventory (i)":
     - State
@@ -93,7 +89,10 @@ Model:
       - "Population Attribute (P)"
     # note the data can be an array, or a file pointer
     array:
+      # CA projected COVID max surge hospitalized COVID patients
       - [6000]
+      # CA surge non-COVID hospitalizations max
+      - [58000]
 
   pop_demand_per_unit_map_pd_um:
     name: "Per Unit Demand by Population for Resources (p->d:um)"
@@ -108,7 +107,8 @@ Model:
       - "Population (p)"
       - "Demand for Resource (d)"
     array:
-      - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+      - [1, 0]
+      - [0, 1]
 
   # TODO: not yet used, but allows iteration in levels
   pop_to_popsum_per_unit_dict_p_ul:
@@ -136,6 +136,7 @@ Model:
       - "Population (p)"
       - "Population Summary Level 1 (p1)"
     array:
+      - [1, 0]
       - [1, 0]
 
   organization_oO_tr:
@@ -192,16 +193,25 @@ Model:
     index:
       - "Demand for Resource (d)"
       - "Resource (n)"
+
+    # Each row represents a different set of burn rates
     array:
-      - [0, 0, 0, 0, 0, 0, 0]
-      - [0, 0, 0, 0, 1, 0.02, 0.01]
-      - [0, 0, 0, 0, 2, 0.04, 0.02]
-      - [0, 0, 0, 1, 2, 0.08, 0.03]
-      - [0, 0.05, 1, 0, 3, 0.12, 0.05]
-      - [0, 1, 2, 1, 0, 0.18, 1.5]
-      # CA projected burn rates based on number of COVID patients
-      # Each of these rows can represent a different burn rate
-      - [0.243, 72, 72, 0.067, 72, 7.2, 768]
+      # CA projected burn rates for COVID patients
+      - [0.243, 72.0, 0.0, 0.067, 72.0, 7.2, 72.0]
+      # CA projected burn rates for non-COVID patients
+      - [0.05, 2.0, 76.0, 0.0, 2.0, 0.2, 72.0]
+
+
+  # NOTE: this is a hack for the CA surge calculations
+  ca_demand_per_day_dn_tc:
+    name: "California-specific daily demand calculations"
+    description: |
+      Calculations for CA surge.
+    units: "Per Resource"
+    index:
+      - "Demand for Resource (d)"
+      - "Resource (n)"
+    kind: Calculated
 
   resource_nN_ur:
     name: "Resources Attributes (n->N:ur)"

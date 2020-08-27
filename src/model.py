@@ -13,7 +13,6 @@ from typing import Generator, List, Optional, Tuple
 from base import Base
 from demand import Demand
 from demand_dict import DemandDict
-from demand_organization import DemandOrganization
 from econometric import Econometric
 from epi import Epi
 from filtermodel import Filter
@@ -170,15 +169,6 @@ class Model(Base):
         elif type == "jhu":
             log.debug("Use JHU burn rate model")
             raise ValueError("{type=} not implemented")
-        elif type == "organization":
-            log.debug("Use organizational demand")
-            self.demand = DemandOrganization(
-                self.config,
-                res=self.resource,
-                org=self.organization,
-                log_root=self.log_root,
-                type=type,
-            )
         else:
             log.debug("Use default yaml dictionary data")
             self.demand = DemandDict(

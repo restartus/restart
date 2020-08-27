@@ -22,10 +22,6 @@ main-ca:
 main-wa:
 	pipenv run python $(MAIN) $(WA_FLAGS)
 
-## main-org: run model with organization demand
-main-org:
-	pipenv run python $(MAIN) --organization dict
-
 ## pdb-org: run pdb with model and organization demand
 pdb-org:
 	pipenv run python -m pdb $(MAIN) --organization dict

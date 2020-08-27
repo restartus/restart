@@ -8,28 +8,34 @@ Parameter:
 # as needed
 Dimension:
   "Resource (n)":
-    - "Ventilators"
-    - "N95 Masks"
-    - "Surgical Masks"
-    - "PAPR"
+    - "N95 Surgical"
+    - "N95 Non-surgical"
+    - "ASTM 3 Mask"
+    - "ASTM 1-2 Mask"
+    - "Non ASTM Mask"
+    - "Face Shield"
     - "Gowns"
-    - "Coveralls"
     - "Gloves"
+    - "Shoe Covers"
   "Resource Attribute (N)":
     - Units
     - Volume
     - Area
   "Population (p)":
-    - "CA Projected COVID Surge Patients"
+    - "Healthcare Workers"
+    - "Non-Heathcare Worker"
   "Population Attribute (P)":
     - Size
+    - Sick
+    - Diabetes
   "Population Summary Level 1 (p1)":
-    - Front-line
-    - Non-frontline
+    - Essential
+    - Non-essential
   "Organization (o)":
     - Hospital
     - "First Responders"
   "Organization Attribute (O)":
+    # TODO: this needs to be Size to match population
     - Employees
     - Patients
     - "ICU Patients"
@@ -93,7 +99,8 @@ Model:
       - "Population Attribute (P)"
     # note the data can be an array, or a file pointer
     array:
-      - [6000]
+      - [735.2, 0, 12]
+      - [7179.6, 74, 234]
 
   pop_demand_per_unit_map_pd_um:
     name: "Per Unit Demand by Population for Resources (p->d:um)"
@@ -108,7 +115,8 @@ Model:
       - "Population (p)"
       - "Demand for Resource (d)"
     array:
-      - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+      - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
+      - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
   # TODO: not yet used, but allows iteration in levels
   pop_to_popsum_per_unit_dict_p_ul:
@@ -137,6 +145,7 @@ Model:
       - "Population Summary Level 1 (p1)"
     array:
       - [1, 0]
+      - [0, 1]
 
   organization_oO_tr:
     name: "Organization Attributes (o->O:tr)"
@@ -193,15 +202,19 @@ Model:
       - "Demand for Resource (d)"
       - "Resource (n)"
     array:
-      - [0, 0, 0, 0, 0, 0, 0]
-      - [0, 0, 0, 0, 1, 0.02, 0.01]
-      - [0, 0, 0, 0, 2, 0.04, 0.02]
-      - [0, 0, 0, 1, 2, 0.08, 0.03]
-      - [0, 0.05, 1, 0, 3, 0.12, 0.05]
-      - [0, 1, 2, 1, 0, 0.18, 1.5]
-      # CA projected burn rates based on number of COVID patients
-      # Each of these rows can represent a different burn rate
-      - [0.243, 72, 72, 0.067, 72, 7.2, 768]
+      - [0, 0, 0, 0, 0, 0, 0, 0, 0]
+      # Resident or patient
+      - [0, 0, 0, 0, 1, 0.02, 0.01, 0.5, 0]
+      # Office worker
+      - [0, 0, 0, 0, 2, 0.04, 0.02, 1, 0]
+      # Customer facing worker (teacher)
+      - [0, 0, 0, 1, 2, 0.08, 0.03, 2, 0.05]
+      # Blue collar
+      - [0, 0.05, 1, 0, 3, 0.12, 0.05, 4, 0.2]
+      # Lab and other likely contact
+      - [0, 1, 2, 1, 0, 0.18, 1.5, 8, 0.4]
+      # Healthcare with direct contact
+      - [1.18, 0, 4.03, 1, 0.05, 0.27, 3.65, 12, 0.6]
 
   resource_nN_ur:
     name: "Resources Attributes (n->N:ur)"
@@ -219,6 +232,8 @@ Model:
       - [1, 2.3, 0.7]
       - [1, 2, 1]
       - [1, 1, 0.5]
+      - [1, 0.9, 0.7]
+      - [1, 2, 2]
 
   res_by_popsum1_cost_per_unit_p1n_us:
     name: "Cost of Resources by Population Summary Level 1 (p1->n:us)"
@@ -229,8 +244,8 @@ Model:
       - "Population Summary Level 1 (p1)"
       - "Resource (n)"
     array:
-      - [5.0, 4.0, 1.0, 0.60, 0.20, 2.50, 4.0]
-      - [5.0, 4.0, 1.0, 0.60, 0.06, 1.50, 4.0]
+      - [5.0, 4.0, 1.0, 0.60, 0.20, 2.50, 4.0, 0.20, 0.15]
+      - [5.0, 4.0, 1.0, 0.60, 0.06, 1.50, 4.0, 0.20, 0.15]
 
   # TODO: will eventually merge init, eoq and min frames into this one
   inv_by_popsum1_param_iIp1n_tp:
@@ -255,14 +270,14 @@ Model:
     array:
       -
         -
-          - [201, 300, 500, 700, 900, 1001, 2003]
-          - [200, 400, 600, 800, 1000, 2001, 2002]
+          - [201, 300, 500, 700, 900, 1001, 2003, 2004, 2006]
+          - [200, 400, 600, 800, 1000, 2001, 2002, 2005, 2007]
         -
-          - [1, 2, 3, 4, 5, 6, 7]
-          - [10, 20, 30, 40, 50, 60, 70]
+          - [1, 2, 3, 4, 5, 6, 7, 8, 9]
+          - [10, 20, 30, 40, 50, 60, 70, 80, 90]
         -
-          - [101, 200, 300, 400, 500, 600, 700]
-          - [102, 201, 301, 401, 501, 601, 701]
+          - [101, 200, 300, 400, 500, 600, 700, 800, 900]
+          - [102, 201, 301, 401, 501, 601, 701, 801, 901]
 
   inv_init_by_popsum1_total_rp1n_tc:
     name: |
@@ -279,8 +294,8 @@ Model:
     kind: Calculated
     array:
       -
-        - [201, 300, 500, 700, 900, 1001, 2003]
-        - [200, 400, 600, 800, 1000, 2001, 2002]
+        - [201, 300, 500, 700, 900, 1001, 2003, 2004, 2006]
+        - [200, 400, 600, 800, 1000, 2001, 2002, 2005, 2007]
 
   inv_eoq_by_popsum1_total_rp1n_tc:
     name: |
@@ -297,8 +312,8 @@ Model:
     kind: Calculated
     array:
       -
-        - [1, 2, 3, 4, 5, 6, 7]
-        - [10, 20, 30, 40, 50, 60, 70]
+        - [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        - [10, 20, 30, 40, 50, 60, 70, 80, 90]
 
   inv_min_by_popsum1_total_rp1n_tc:
     name: |
@@ -315,8 +330,8 @@ Model:
     kind: Calculated
     array:
       -
-        - [101, 200, 300, 400, 500, 600, 700]
-        - [102, 201, 301, 401, 501, 601, 701]
+        - [101, 200, 300, 400, 500, 600, 700, 800, 900]
+        - [102, 201, 301, 401, 501, 601, 701, 801, 901]
 
   # These tables are generated from the inputs above so they are derived values
   # These are typically meta values that are derived from real objectcs

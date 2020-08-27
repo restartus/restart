@@ -7,8 +7,8 @@ from typing import Optional
 import confuse  # type: ignore
 import numpy as np  # type: ignore
 
-from log import Log
 from demand import Demand
+from log import Log
 from organization import Organization
 from resourcemodel import Resource
 

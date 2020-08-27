@@ -6,7 +6,6 @@ TAG ?= v2.3
 name=model
 FLAGS = --pop dict
 CA_FLAGS = --pop oes --state California --subpop healthcare
-WA_FLAGS = --pop wa --demand washington
 MAIN = main.py
 
 include ../lib/include.mk

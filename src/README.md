@@ -71,6 +71,104 @@ want to see any particular entry, the look there for the html file:
    The test one is done in YAML. The real OES data is there as well but is not
    yet filtered
 
+## Naming scheme
+
+While configuration files are typically used to set defaults and make small
+tweaks, this model heavily relies on its configuration to define all aspects
+of itself. The core architecture can be found in `config.yaml`, which relies
+on a slightly complex but consistent naming scheme. Below we'll go through
+an example that explains this scheme.
+
+An example variable in the config file is:
+
+```yaml
+Model:
+  population_pP_tr:
+    name: "Population Attributes (p->P:tr)"
+    description: |
+      There are p Populations in the model and each population
+      can have P attributes about them such as their degree of age,
+      ethnicity, attitudes and awareness behaviors. The first attribute is
+      the size of the sub-population. It models a real entity.
+    units: Total
+    kind: Real
+    index:
+      - "Population (p)"
+      - "Population Attribute (P)"
+    array:
+      - [735.2, 0, 12]
+      - [7179.6, 74, 234]
+```
+In this case, `population_pP_tr` refers to counts of different populations.
+Let's break this down further.
+
+All variables are named in a consistent manner. In this case, the first field
+(`population`) signifies that this variable describes something about
+populations. The second field (`pP`) defines the dimensions. This tells us
+that its `array` has dimensions `p x P` (see the `Dimension` section of
+`config.yaml` for a complete list of dimensions). Finally, `tr` represents
+the units and kind of the array. In this case, the `t` tells us that these
+are "Totals", and the kind is "Real", which makes sense since people are
+tangible (not calculated or used to map), and we're counting totals here.
+
+Using this scheme, you can learn to look at any variable and instantly
+understand what it represents, what its dimensions are, and what its units are.
+
+## Data Class
+
+We use a custom data class in order to pass information throughout the model.
+We do this because every array we use must be used to perform matrix math,
+but carries certain metadata like labels or descriptions, and also must be
+able to be easily graphed or displayed. This custom class allows us to easily
+instantiate and pass around complex data structures without the need to
+manually manage several different representations of the same data. A quick
+example usage of the data class is below.
+
+Say you want to instantiate a data object using the default value found in
+`config.yaml`. This can be done as follows:
+
+```python
+population_pP_tr = Data(
+  "population_pP_tr",
+  config,
+  log_root=self.log_root
+)
+```
+
+The variable name passed to the `Data` class is used as a key in `config.yaml`,
+allowing for easy access to all of its various fields. Now we can easily
+access its array representation as `population_pP_tr.array`, and its
+dataframe representation as `population_pP_tr.df`. We can also change one of
+these values, and all the others will automatically update. This would look
+something like
+
+```python
+population_pP_tr.array = new_array
+```
+
+Now the `df` attribute of `population_pP_tr` will be updated to reflect the
+change.
+
+If you need to override certain values of the default configuration, this
+is also easily achievable. For example, if I want to override `population_pP_tr`
+with my own generated array and set of indices, I can do it as follows:
+
+```python
+population_pP_tr = Data(
+  "population_pP_tr",
+  config,
+  log_root=self.log_root,
+  p_index=new_p_indices,  # a list-like object
+  P_index=new_P_indices,  # a list-like object
+  array=new_array
+)
+```
+
+Because the prefixes to the index are all unique keys, the `Data` class uses
+them to intelligently update the correct fields in the configuration, which
+take precedent over the defaults. This is implemented using `**kwargs`, so
+you can pass any valid fields in the model and it will work.
+
 # Building your development environment
 
 If you are editing with an editor like vim which uses the external python

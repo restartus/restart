@@ -62,28 +62,6 @@ class PopulationOES(Population):
         self.codes: list
 
         self.load_data(config, self.location)
-        # get population data
-        # log.debug(f"loading {self.location=}")
-        # df_dict = self.load_data(config, self.location)
-        # self.population_pP_tr: Data = df_dict["detail_pd_df"]
-        # self.detail_pd_df = df_dict["detail_pd_df"]
-        # self.detail_pd_arr = df_dict["detail_pd_arr"]
-
-        # get mapping data
-        # self.pop_demand_per_unit_map_pd_um: Data = df_dict["map_arr"]
-        # self.level_pm_arr = df_dict["map_arr"]
-        # self.level_pm_labs = df_dict["map_labs"]
-        # self.level_pm_df = pd.DataFrame(
-        #     self.level_pm_arr,
-        #     index=self.level_pm_labs,
-        #     columns=config["Label"]["Demand m"].get(),
-        # )
-        # log.debug(f"{self.level_pm_df=}")
-        # self.set_description(
-        #     f"{self.level_pm_df=}",
-        #    config["Description"]["Population p"]["Protection pm"].get(),
-        # )
-        # log.debug(f"{self.description['level_pm_df']=}")
 
     def load_data(self, config, location):
         """Do most of the initializing here.
@@ -127,7 +105,6 @@ class PopulationOES(Population):
             df = self.wa_tier2_opt2_filter(df)
 
         # the actual data passed onto the model
-        # self.population_pP_tr: Data = self.drop_code(df)
         self.pop_detail_df = self.drop_code(df)
         self.population_pP_tr = Data(
             "population_pP_tr",

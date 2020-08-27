@@ -10,6 +10,7 @@ import pandas as pd  # type: ignore # noqa: F401
 
 from base import Base
 from log import Log
+from data import Data
 
 
 class Mobility(Base):
@@ -37,4 +38,5 @@ class Mobility(Base):
         super().__init__(log_root=log_root)
         log = self.log
 
-        log.debug(f"not implemented {type=}")
+        self.mobility_mM_tr: Optional[Data] = None
+        log.debug(f"{self.mobility_mM_tr=}")

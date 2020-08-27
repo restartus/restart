@@ -90,19 +90,6 @@ class Model(Base):
         self.config = config
         log.debug(f"{self.config=}")
 
-        # These are just as convenience functions for dimensions
-        # and for type checking this is ugly should make it
-        # for look for assign because we are just mapping label
-        # We never use this
-        # self.dim: Dict[str, int] = {
-        #     "n": len(self.config["Label"]["Resource n"].get()),
-        #     "N": len(self.config["Label"]["Res Attribute N"].get()),
-        #     "p": len(self.config["Label"]["Population p"].get()),
-        #     "P": len(self.config["Label"]["Pop Attribute P"].get()),
-        #     "d": len(self.config["Label"]["Demand d"].get()),
-        #     "p1": len(self.config["Label"]["Pop Level p1"].get()),
-        # }
-        # log.debug(f"{self.dim=}")
         return self
 
     # TODO: This should be a generated set of methods as they are all identical

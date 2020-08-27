@@ -48,7 +48,7 @@ class Output(Base):
         log = self.log
         new_config: Dict = {}
 
-        for section in ["Config", "Dimension", "Paths", "Model"]:
+        for section in ["Parameter", "Dimension", "Paths", "Model"]:
             new_config[section] = self.config[section].get()
         log.debug(f"Wrote all config data into {new_config=}")
 

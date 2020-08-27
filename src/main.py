@@ -118,6 +118,7 @@ class Compose:
         # Anything in the yaml file
         # https://confuse.readthedocs.io/en/latest/
         self.config.set_args(args, dots=True)
+        self.parameter = self.config["Parameter"]
 
         # uses method chaining
         self.model = model = (
@@ -167,14 +168,13 @@ class Compose:
         )
         log.debug(f"{model.demand.demand_by_popsum1_total_rp1n_tc.df=}")
         # this just keeps increasing supply also test decreasing
-        # TODO: fix stockpile to use the the new tuples
-        backstops: List[int] = [30, 60, 90, 120]
         # https://stackoverflow.com/questions/312443/how-do-you-split-a-list-into-evenly-sized-chunks
         # fill up the entire range no matter how there are
+        backstop_list: List = self.parameter["backstop"].get()
         range_len = model.inventory.inv_by_popsum1_total_rp1n_tc.array.shape[0]
-        for index in range(0, len(backstops), range_len):
+        for index in range(0, len(backstop_list), range_len):
             # note on the :, Black and flake8 are fighting
-            backstop = backstops[index : index + range_len]  # noqa:E203
+            backstop = backstop_list[index : index + range_len]  # noqa:E203
             log.critical(f"changing days of backstop to {backstop=}")
             log.debug("reset inventory to zero by ordering everything")
             model.inventory.order(model.inventory.inv_by_popsum1_total_rp1n_tc)

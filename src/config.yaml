@@ -1,9 +1,8 @@
 ---
-Config:
+Parameter:
   modules: 7
   dashboard: true
-  stockpile: 30
-  stockpile_high: 90
+  backstop: [30, 60, 90, 120]
 
 # Note each of these yaml files has an overall label, so you can copy and concat
 # as needed

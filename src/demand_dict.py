@@ -34,9 +34,9 @@ class DemandDict(Demand):
         Calculates the total, costs and per capita demand
         """
         # the init sets all variables from dictionary by default
-        super().__init__(config, res, pop, org, log_root=log_root)
+        super().__init__(config, res, pop, log_root=log_root)
         log = self.log
         log.debug(f"In {__name__}")
 
         # These are the core calculations are run wth a single recalc
-        self.recalc(res)
+        self.recalc(pop, res)

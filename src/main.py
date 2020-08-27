@@ -238,8 +238,8 @@ class Compose:
         parser.add_argument(
             "-c",
             "--demand",
-            choices=["mitre", "jhu", "washington", "dict"],
-            default="dict",
+            choices=["mitre", "jhu", "population", "organization"],
+            default="population",
             help="Select Demand model",
         )
         parser.add_argument(

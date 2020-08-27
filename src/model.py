@@ -13,6 +13,7 @@ from typing import Generator, List, Optional, Tuple
 from base import Base
 from demand import Demand
 from demand_dict import DemandDict
+from demand_organization import DemandOrganization
 from econometric import Econometric
 from epi import Epi
 from filtermodel import Filter
@@ -116,7 +117,8 @@ class Model(Base):
         # )
         # the super class population uses type to return the exact model
         # filter is by happens after this
-        self.population: Optional[Population]
+        self.population: Population
+
         if type == "oes":
             self.population = PopulationOES(
                 self.config,
@@ -134,19 +136,17 @@ class Model(Base):
                 log_root=self.log_root,
             )
         else:
-            # raise ValueError(f"{type=} not implemented")
-            self.population = None
+            raise ValueError(f"{type=} not implemented")
         return self
 
     def set_organization(self, type: str = None) -> Model:
         """Set organization."""
-        self.organization: Optional[Organization]
+        self.organization: Organization
         if type == "dict":
             self.organization = OrganizationDict(
                 self.config, log_root=self.log_root
             )
-        else:
-            self.organization = None
+
         return self
 
     def set_resource(self, type: str = None) -> Model:
@@ -182,23 +182,21 @@ class Model(Base):
         elif type == "jhu":
             log.debug("Use JHU burn rate model")
             raise ValueError("{type=} not implemented")
-        elif type == "washington":
-            self.demand = Demand(
+        elif type == "organization":
+            log.debug("Use organizational demand")
+            self.demand = DemandOrganization(
                 self.config,
                 res=self.resource,
-                pop=self.population,
                 org=self.organization,
                 log_root=self.log_root,
                 type=type,
             )
-
         else:
             log.debug("Use default yaml dictionary data")
             self.demand = DemandDict(
                 self.config,
                 res=self.resource,
                 pop=self.population,
-                org=self.organization,
                 log_root=self.log_root,
                 type=type,
             )

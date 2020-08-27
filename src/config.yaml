@@ -37,8 +37,7 @@ Dimension:
     - "First Responders"
   "Organization Attribute (O)":
     # TODO: this needs to be Size to match population
-    - Size
-    # - Employees
+    - Employees
     - Patients
     - "ICU Patients"
     - Runs

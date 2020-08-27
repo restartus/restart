@@ -111,9 +111,11 @@ def format_cells(sheet, money=False):
             setattr(cell, "numeric_format", "0,000")
 
 
-def format_population(sheet, money=False):
+def format_population(sheet, money=False, round=False):
     """Generate a formatted sheet optimized for displaying population."""
     df = to_df(sheet)
+    if round:
+        df = df.round()
     index_name = "Population"
     headers = list(df.index)
     df.insert(loc=0, column=index_name, value=headers)

@@ -22,6 +22,8 @@ Dimension:
   "Population (p)":
     - "CA Projected COVID Surge Patients"
     - "CA Projected Non-COVID Surge Patients"
+    - "IHME COVID Surge Patients"
+    - "MIT COVID Surge Patients"
   "Population Attribute (P)":
     - Size
   "Population Summary Level 1 (p1)":
@@ -93,6 +95,10 @@ Model:
       - [6000]
       # CA surge non-COVID hospitalizations max
       - [58000]
+      # IHME COVID Surge
+      - [34111]
+      # MIT COVID Surge
+      - [25268]
 
   pop_demand_per_unit_map_pd_um:
     name: "Per Unit Demand by Population for Resources (p->d:um)"
@@ -109,6 +115,8 @@ Model:
     array:
       - [1, 0]
       - [0, 1]
+      - [1, 0]
+      - [1, 0]
 
   # TODO: not yet used, but allows iteration in levels
   pop_to_popsum_per_unit_dict_p_ul:
@@ -136,6 +144,8 @@ Model:
       - "Population (p)"
       - "Population Summary Level 1 (p1)"
     array:
+      - [1, 0]
+      - [1, 0]
       - [1, 0]
       - [1, 0]
 

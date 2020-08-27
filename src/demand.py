@@ -125,7 +125,6 @@ class Demand(Base):
             pop.pop_demand_per_unit_map_pd_um.array
             @ self.demand_per_unit_map_dn_um.array
         )
-
         log.debug(f"{self.demand_by_pop_per_person_pn_uc.df=}")
         # Einsum equivalent for automatic generation
         test = np.einsum(
@@ -134,8 +133,8 @@ class Demand(Base):
             self.demand_per_unit_map_dn_um.array,
         )
         log.debug(f"{test=}")
-        if np.array_equal(self.demand_by_pop_per_person_pn_uc.array, test):
-            log.debug("einsum works!")
+        if not np.array_equal(self.demand_by_pop_per_person_pn_uc.array, test):
+            log.critical("einsum fails!")
 
     def set_demand_by_pop_total_pn_tc(self, pop):
         """Recalcs the Demand by Population for Resources."""
@@ -168,14 +167,13 @@ class Demand(Base):
             pop.population_pP_tr.df["Size"].to_numpy(),
         )
         log.debug(f"{test=}")
-        if np.array_equal(self.demand_by_pop_per_person_pn_uc.array, test):
-            log.debug("einsum works!")
+        if not np.array_equal(self.demand_by_pop_total_pn_tc.array, test):
+            breakpoint()
+            log.critical("einsum fails!")
 
     def set_demand_by_popsum1_per_person_p1n_uc(self, pop):
         """Recalcs the Demand by Population Summary Level 1 for Resources."""
         log = self.log
-        # TODO: Convert this single level calculation to a general one based on
-        # a dictionary of conversion
         # Original math put the level or popsum1 data here now move to
         # population
         # self.level_demand_ln_df = np.array(self.level_pl_df).T @ np.array(
@@ -192,27 +190,26 @@ class Demand(Base):
         log.debug(f"{self.demand_by_popsum1_per_person_p1n_uc.df=}")
         # Einsum equivalent of the above, we use x since index needs to be a
         # single character
-        # TODO: the einsum is broken
-        """
+        breakpoint
         test = np.einsum(
             "px,pn->xn",
             pop.pop_to_popsum1_per_unit_map_pp1_us.array,
             self.demand_by_pop_per_person_pn_uc.array,
         )
         log.debug(f"{test=}")
-        if np.array_equal(
+        if not np.array_equal(
             self.demand_by_popsum1_per_person_p1n_uc.array, test
         ):
-            log.debug("einsum works!")
-        """
+            log.debug("einsum fails!")
 
     def set_demand_by_popsum1_total_p1n_tc(self, pop):
         """Recalcs the Demand by Population Level 1 for Total Resource."""
         log = self.log
         # TODO: Eventually we will want to calculate this iteration
         # across all summaries so p -> p1 -> p2...
-        # And do this in a function because demand for instance
-        # should not have to know the population dimension
+        # We need a general function that knows how to walk
+        # a series of transforms so you feed it any point and it knows how to
+        # get to any other level
         # Original math
         # self.level_total_demand_ln_df = (
         #    self.level_pl_df.T @ self.total_demand_pn_df
@@ -227,8 +224,8 @@ class Demand(Base):
             pop.pop_to_popsum1_per_unit_map_pp1_us.array,
             self.demand_by_pop_total_pn_tc.array,
         )
-        if np.array_equal(self.demand_by_popsum1_total_p1n_tc.array, test):
-            log.debug("einsum works!")
+        if not np.array_equal(self.demand_by_popsum1_total_p1n_tc.array, test):
+            log.debug("einsum fails f{self.demand_by_popsum1_total_p1n_tc=}")
 
         log.debug("for future calculate a dummy range version")
         # https://stackoverflow.com/questions/32171917/copy-2d-array-into-3rd-dimension-n-times-python
@@ -245,6 +242,7 @@ class Demand(Base):
         # original formula
         # self.level_total_cost_ln_df = (
         #       self.level_total_demand_ln_df * cost_ln_df.values)
+        log = self.log
         if res.res_by_popsum1_cost_per_unit_p1n_us is None:
             raise ValueError("res_by_popsum1_cost_per_unit_p1n_us")
         self.demand_by_popsum1_total_cost_p1n_xc.array = (
@@ -252,12 +250,14 @@ class Demand(Base):
             * res.res_by_popsum1_cost_per_unit_p1n_us.array
         )
         # TODO: the einsum is broken
-        """
         test = np.einsum(
             "xn,xn->xn",
-            self.demand_by_pop_total_pn_tc.array,
+            self.demand_by_popsum1_total_p1n_tc.array,
             res.res_by_popsum1_cost_per_unit_p1n_us.array,
         )
-        if np.array_equal(self.demand_by_popsum1_total_cost_p1n_xc, test):
-            log.debug("einsum works!")
-        """
+        if not np.array_equal(
+            self.demand_by_popsum1_total_cost_p1n_xc.array, test
+        ):
+            log.critical(
+                f"einsum fail f{self.demand_by_popsum1_total_p1n_tc=}"
+            )

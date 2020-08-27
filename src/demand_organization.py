@@ -148,18 +148,17 @@ class DemandOrganization(Demand):
         # Einsum equivalent of the above, we use x since index needs to be a
         # single character
         # TODO: the einsum is broken
-        """
+        breakpoint()
         test = np.einsum(
-            "px,pn->xn",
-            pop.pop_to_popsum1_per_unit_map_pp1_us.array,
+            "ox,on->xn",
+            org.org_to_orgsum1_per_unit_map_oo1_us.array,
             self.demand_by_pop_per_person_pn_uc.array,
         )
         log.debug(f"{test=}")
-        if np.array_equal(
+        if not np.array_equal(
             self.demand_by_popsum1_per_person_p1n_uc.array, test
         ):
-            log.debug("einsum works!")
-        """
+            log.debug("einsum fails!")
 
     def set_demand_by_popsum1_total_p1n_tc(self, org):
         """Recalcs the Demand by Population Level 1 for Total Resource."""

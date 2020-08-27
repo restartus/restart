@@ -17,9 +17,18 @@ main:
 main-ca:
 	pipenv run python $(MAIN) $(CA_FLAGS)
 
+## main-wa: run washington model
 .PHONY: main-wa
 main-wa:
 	pipenv run python $(MAIN) $(WA_FLAGS)
+
+## main-org: run model with organization demand
+main-org:
+	pipenv run python $(MAIN) --organization dict
+
+## pdb-org: run pdb with model and organization demand
+pdb-org:
+	pipenv run python -m pdb $(MAIN) --organization dict
 
 # https://docs.python.org/3/library/pdb.html
 ## pdb: run locally with python to test components from main (uses pipenv)
@@ -30,7 +39,7 @@ pdb:
 ## pdb-ca: run debugging on california model
 .PHONY: pdb-ca
 pdb-ca:
-	pipenv run python -m pdb $(MAIN) $(CA-FLAGS)
+	pipenv run python -m pdb $(MAIN) $(CA_FLAGS)
 
 ## debug: run with debugging outputs on
 .PHONY: debug

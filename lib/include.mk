@@ -27,7 +27,6 @@ all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 
 # These are the base packages that we always use
-# includes above this are for specific purposes like airflow
 BASE_PIP ?=
 BASE_PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
 								 black tox pytest pytest-cov pytest-xdist tox yamllint \

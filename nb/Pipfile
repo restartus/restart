@@ -21,6 +21,16 @@ isort = "*"
 seed-isort-config = "*"
 
 [packages]
+voila = "*"
+ipywidgets = "*"
+ipysheet = "*"
+qgrid = "*"
+bqplot = "*"
+ipympl = "*"
+ipyvolume = "*"
+ipyvuetify = "*"
+jupyter-server = "~=0.1.1"
+voila-vuetify = "*"
 streamlit = "*"
 altair = "*"
 pandas = "*"
@@ -31,17 +41,8 @@ confuse = "*"
 setuptools = "*"
 wheel = "*"
 twine = "*"
-voila = "*"
-ipywidgets = "*"
-ipysheet = "*"
-qgrid = "*"
-bqplot = "*"
-ipympl = "*"
-ipyvolume = "*"
-ipyvuetify = "*"
-jupyter-server = "~=0.1.1"
 
-[packages]
+[requires]
 python_version = "3.8"
 
 [pipenv]

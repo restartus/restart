@@ -1,18 +1,28 @@
-<<<<<<< HEAD
-## run Voila
-
+#
 # https://voila.readthedocs.io/en/stable/deploy.html
+# Only need voila for deployment
+# Use jupyter ot edit
 #
-# Only need voila
-#
-## voila-wa: Run Washington Aggregate and Vulnerable Levels
 VOILA_WA ?= Washington.ipynb
 VOILA_DEMO ?= VuetifyDemo.ipynb
+CALIFORNIA ?= CaliforniaDash.ipynb
 
+## ca: edit the California notebook
+.PHONY: ca
+ca:
+	pipenv run jupyter notebook $(CALIFORNIA)
+
+## voila-ca: deployment view of California
+.PHONY: ca-voila
+ca-voila:
+	pipenv run voila $(CALIFORNIA)
+
+## voila-vuetify: Voila demo
 .PHONY: voila-vuetify
 voila-vuetify:
 	pipenv run voila --template=voila-default $(VOILA_DEMO)
 
+## voila-wa: Run Washington Aggregate and Vulnerable Levels
 .PHONY: voila-wa
 voila-wa:
 	pipenv run voila $(VOILA_WA)

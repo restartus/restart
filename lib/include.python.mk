@@ -32,7 +32,7 @@ flags ?= -p 8501:8501
 # As of july 2020, streamlit not compatible with Pandas 1.1
 # test unpinning "pandas<1.1"
 PIP ?= streamlit altair pandas pyyaml xlrd tables confuse \
-			 setuptools wheel twine
+			 setuptools wheel twine scipy
 # As of August 2020, Voila will not run with a later version and each 0.x
 # change is an API bump, current version is 0.2 and this version does generate
 # a pipenv check problem so we need to ignore it

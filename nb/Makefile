@@ -13,8 +13,8 @@ ca:
 	pipenv run jupyter notebook $(CALIFORNIA)
 
 ## voila-ca: deployment view of California
-.PHONY: ca-voila
-ca-voila:
+.PHONY: voila-ca
+voila-ca:
 	pipenv run voila $(CALIFORNIA)
 
 ## voila-vuetify: Voila demo

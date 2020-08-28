@@ -41,6 +41,7 @@ confuse = "*"
 setuptools = "*"
 wheel = "*"
 twine = "*"
+scipy = "*"
 
 [requires]
 python_version = "3.8"

@@ -125,7 +125,7 @@ def format_population(sheet, money=False, round=False):
     return sheet
 
 
-def display_population(sheet, money=False):
+def display_population(sheet, money=False, round=False):
     """Display sheet with specific, population-optimized formatting."""
-    sheet = format_population(sheet, money=money)
+    sheet = format_population(sheet, money=money, round=round)
     display(sheet)

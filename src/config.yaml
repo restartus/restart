@@ -24,6 +24,11 @@ Dimension:
     - "CA Projected Non-COVID Surge Patients"
     - "IHME COVID Surge Patients"
     - "MIT COVID Surge Patients"
+    - "RAND: Lift Shelter-in-Place Now"
+    - "RAND: Reopen Non-Essential"
+    - "RAND: Reopen Bars/Restaurants/Large"
+    - "CAN: Delay/Distancing"
+
   "Population Attribute (P)":
     - Size
   "Population Summary Level 1 (p1)":
@@ -91,6 +96,7 @@ Model:
       - "Population Attribute (P)"
     # note the data can be an array, or a file pointer
     array:
+      # NOTE: These are all upperbounds
       # CA projected COVID max surge hospitalized COVID patients
       - [6000]
       # CA surge non-COVID hospitalizations max
@@ -99,6 +105,15 @@ Model:
       - [34111]
       # MIT COVID Surge
       - [25268]
+      # RAND Lift SIP
+      - [50000]
+      # RAND Reopen NonEssential
+      - [55000]
+      # RAND Reopen Bars/Restaurants/Large
+      - [55000]
+      # CAN: Delay/Distancing
+      - [36300]
+
 
   pop_demand_per_unit_map_pd_um:
     name: "Per Unit Demand by Population for Resources (p->d:um)"
@@ -115,6 +130,10 @@ Model:
     array:
       - [1, 0]
       - [0, 1]
+      - [1, 0]
+      - [1, 0]
+      - [1, 0]
+      - [1, 0]
       - [1, 0]
       - [1, 0]
 
@@ -144,6 +163,10 @@ Model:
       - "Population (p)"
       - "Population Summary Level 1 (p1)"
     array:
+      - [1, 0]
+      - [1, 0]
+      - [1, 0]
+      - [1, 0]
       - [1, 0]
       - [1, 0]
       - [1, 0]
@@ -209,7 +232,7 @@ Model:
       # CA projected burn rates for COVID patients
       - [0.243, 72.0, 0.0, 0.067, 72.0, 7.2, 72.0]
       # CA projected burn rates for non-COVID patients
-      - [0.05, 2.0, 76.0, 0.0, 2.0, 0.2, 72.0]
+      - [0, 2.0, 76.0, 0.0, 2.0, 0.2, 72.0]
 
 
   # NOTE: this is a hack for the CA surge calculations

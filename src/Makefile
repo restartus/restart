@@ -3,36 +3,49 @@
 #
 # overriding the name
 TAG ?= v2.2
-name=model
+name ?= model
+MAIN ?= main.py
 FLAGS = --pop dict
-CA_FLAGS = --config ../config/ca-v2.2 --pop oes --state California --subpop healthcare
-MAIN = main.py
+CA_FLAGS ?= --config ../config/ca-oes --pop oes --state California --subpop healthcare
+CA_VENT_FLAGS = --config ../config/ca-vent
 
-## config-gen create config yaml files
-.PHONY: config-gen
-config-gen:
-	pipenv run python main.py --pop oes --state Indiana --county "St. Joseph" --output ../config/sj/config.yaml
-	pipenv run python main.py --pop wa --output ../config/wa/config.yaml
+# Note that main run
 
-## main-ca: run the california model
-.PHONY: main-ca
-main-ca:
+## main-ca: run the california model using oes data
+.PHONY: ca-main
+ca-main:
 	pipenv run python $(MAIN) $(CA_FLAGS)
 
-## main-wa: run washington model
-.PHONY: main-wa
-main-wa:
+## ca-vent: Ventilator analysis for California
+.PHONY: ca-vent
+ca-vent:
+	pipenv run python $(MAIN) $(CA_VENT_FLAGS)
+
+## ca-vent-pdb: Debug California ventilator analysis
+.PHONE: ca-vent-pdb
+ca-vent-pdb:
+	pipenv run python -m pdb $(MAIN) $(CA_VENT_FLAGS)
+
+## wa-main run washington model
+.PHONY: wa-main
+wa-main:
 	pipenv run python $(MAIN) $(WA_FLAGS)
 
-## pdb-ca: run debugging on california model
-.PHONY: pdb-ca
-pdb-ca:
+## ca-pdb: run debugging on california model
+.PHONY: ca-pdb
+ca-pdb:
 	pipenv run python -m pdb $(MAIN) $(CA_FLAGS)
 
 ## debug: run with debugging outputs on
 .PHONY: debug
 debug:
 	pipenv run python -d $(MAIN) $(FLAGS)
+
+## config-gen create config yaml files
+.PHONY: config-gen
+config-gen:
+	pipenv run python main.py --pop oes --state Indiana --county "St. Joseph" --output ../config/sj/config.yaml
+	pipenv run python main.py --pop wa --output ../config/wa/config.yaml
 
 .PHONY: streamlit-ca
 ## streamlit-ca: Run streamlit with California flags (deprecated)

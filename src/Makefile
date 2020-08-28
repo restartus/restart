@@ -2,7 +2,7 @@
 # Makefile tuned for Python and Streamlit
 #
 # overriding the name
-TAG ?= v2.3
+TAG ?= v2.2
 name=model
 FLAGS = --pop dict
 CA_FLAGS = --config ../config/ca-v2.2 --pop oes --state California --subpop healthcare

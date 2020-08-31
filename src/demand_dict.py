@@ -38,5 +38,7 @@ class DemandDict(Demand):
         log = self.log
         log.debug(f"In {__name__}")
 
+        self.pop = pop
+        self.res = res
         # These are the core calculations are run wth a single recalc
-        self.recalc(pop, res)
+        self.recalc()

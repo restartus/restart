@@ -3,7 +3,6 @@ MAIN ?= $(name).py
 WEB ?= $(MAIN)
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py" -not -name $(WEB))
 FLAGS ?=
-VOILA ?= $(name).ipynb
 
 ## main: run the main program
 .PHONY: main
@@ -26,8 +25,3 @@ streamlit:
 ## web-debug: run web interface in debugger (deprecated)
 streamlit-debug:
 	pipenv run python -m pdb $(WEB) $(FLAGS)
-
-.PHONY: voila
-## voila: Start Jupyter to interactive Dashboard in current directory
-voila:
-	pipenv run voila $(VOILA)

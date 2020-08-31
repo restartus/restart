@@ -10,17 +10,16 @@ from __future__ import annotations
 
 from typing import Generator, List, Optional, Tuple
 
-from epi import Epi
-from epi_dict import EpiDict
-from epi_table import EpiTable
-from financial import Financial
-from financial_dict import FinancialDict
-from financial_table import FinancialTable
-
 from base import Base
 from demand import Demand
 from demand_dict import DemandDict
+from epi import Epi
+from epi_dict import EpiDict
+from epi_table import EpiTable
 from filtermodel import Filter
+from financial import Financial
+from financial_dict import FinancialDict
+from financial_table import FinancialTable
 from inventory import Inventory
 from inventory_dict import InventoryDict
 from log import Log

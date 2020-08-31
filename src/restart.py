@@ -22,7 +22,7 @@ class NoteCompose:
         resource: str = "dict",
         inventory: str = "dict",
         demand: str = "dict",
-        econometric: str = "ml",
+        financial: str = "dict",
         mobility: str = "ensemble",
         epi: str = "imhe",
     ):
@@ -46,7 +46,7 @@ class NoteCompose:
             .set_resource(type=resource)
             .set_inventory(type=inventory)
             .set_demand(type=demand)
-            .set_econometric(type=econometric)
+            .set_financial(type=financial)
             .set_epi(type=epi)
             .set_mobility(type=mobility)
             .set_output(out=output, csv=csv)

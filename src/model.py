@@ -1,4 +1,4 @@
-"""Define Model definition.
+"""Model definition.
 
 The model shape is configured here.
 And this uses chained methods as decorators
@@ -10,16 +10,23 @@ from __future__ import annotations
 
 from typing import Generator, List, Optional, Tuple
 
+from epi import Epi
+from epi_dict import EpiDict
+from epi_table import EpiTable
+from financial import Financial
+from financial_dict import FinancialDict
+from financial_table import FinancialTable
+
 from base import Base
 from demand import Demand
 from demand_dict import DemandDict
-from econometric import Econometric
-from epi import Epi
 from filtermodel import Filter
 from inventory import Inventory
 from inventory_dict import InventoryDict
 from log import Log
 from mobility import Mobility
+from mobility_dict import MobilityDict
+from mobility_table import MobilityTable
 from organization import Organization
 from organization_dict import OrganizationDict
 from output import Output
@@ -141,18 +148,16 @@ class Model(Base):
 
         Resource
         """
+        self.resource: Resource
         if type == "dict":
-            self.resource: Resource = ResourceDict(
-                self.config, log_root=self.log_root
-            )
+            self.resource = ResourceDict(self.config, log_root=self.log_root)
         return self
 
     def set_inventory(self, type: str = None) -> Model:
         """Create Inventory management for a specific warehouse."""
+        self.inventory: Inventory
         if type == "dict":
-            self.inventory: Inventory = InventoryDict(
-                self.config, log_root=self.log_root
-            )
+            self.inventory = InventoryDict(self.config, log_root=self.log_root)
         return self
 
     def set_demand(self, type: str = None) -> Model:
@@ -161,7 +166,6 @@ class Model(Base):
         Demand by population levels l
         """
         log = self.log
-
         self.demand: Demand
         if type == "mitre":
             log.debug("Use Mitre demand")
@@ -196,14 +200,23 @@ class Model(Base):
 
         return self
 
-    def set_econometric(self, type: str = None) -> Model:
-        """Create Econometric model.
+    def set_financial(self, type: str = None) -> Model:
+        """Create Financial model.
 
-        Econometric creation
+        Financial creation
         """
-        self.econometric = Econometric(
-            self.config, log_root=self.log_root, type=type
-        )
+        log = self.log
+        self.financial: Financial
+        if type == "dict":
+            self.financial = FinancialDict(
+                self.config, log_root=self.log_root, type=type
+            )
+        elif type == "table":
+            self.financial = FinancialTable(
+                self.config, log_root=self.log_root, type=type
+            )
+        else:
+            log.error(f"Financial Model {type=} not implemented")
         return self
 
     def set_epi(self, type: str = None) -> Model:
@@ -211,7 +224,14 @@ class Model(Base):
 
         Epi create
         """
-        self.epi = Epi(self.config, log_root=self.log_root, type=type)
+        log = self.log
+        self.epi: Epi
+        if type == "dict":
+            self.epi = EpiDict(self.config, log_root=self.log_root, type=type)
+        elif type == "table":
+            self.epi = EpiTable(self.config, log_root=self.log_root, type=type)
+        else:
+            log.error(f"Epi Model {type=} not implemented")
         return self
 
     def set_mobility(self, type: str = None) -> Model:
@@ -219,9 +239,18 @@ class Model(Base):
 
         Behavior create
         """
-        self.mobility = Mobility(
-            self.config, log_root=self.log_root, type=type
-        )
+        log = self.log
+        self.mobility: Mobility
+        if type == "dict":
+            self.mobility = MobilityDict(
+                self.config, log_root=self.log_root, type=type
+            )
+        elif type == "table":
+            self.mobility = MobilityTable(
+                self.config, log_root=self.log_root, type=type
+            )
+        else:
+            log.error("Behavior not implemented")
         return self
 
     # https://docs.python.org/3/library/typing.html#typing.Generator

@@ -1,6 +1,6 @@
 """Epi model.
 
-The epi model work.
+The disease model work.
 """
 
 # https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
@@ -13,6 +13,7 @@ import numpy as np  # type: ignore # noqa: F401
 import pandas as pd  # type: ignore # noqa: F401
 
 from base import Base
+from data import Data
 from log import Log
 
 
@@ -45,4 +46,5 @@ class Epi(Base):
         super().__init__(log_root=log_root)
         log = self.log
 
-        log.debug(f"not implemented {type=}")
+        self.epi_eE_pr: Optional[Data] = None
+        log.debug(f"{self.epi_eE_pr=}")

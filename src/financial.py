@@ -1,4 +1,4 @@
-"""Econometric model.
+"""Financial model.
 
 The main way we integrate economic activity.
 """
@@ -12,11 +12,12 @@ import numpy as np  # type: ignore # noqa: F401
 import pandas as pd  # type: ignore # noqa: F401
 
 from base import Base
+from data import Data
 from log import Log
 
 
-class Econometric(Base):
-    """Econometric - Manages the econometric.
+class Financial(Base):
+    """Financial - Manages the econometric.
 
     This creates for all r resources, the list of attributes a
 
@@ -36,7 +37,7 @@ class Econometric(Base):
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):
-        """Initialize the Econometric object.
+        """Initialize the Financial object.
 
         This uses the Frame object and populates it with default data unless yo
         override it
@@ -46,4 +47,5 @@ class Econometric(Base):
 
         log = self.log
 
-        log.debug(f"not implemented {type=}")
+        self.financial_fF_pr: Optional[Data] = None
+        log.debug("base financial")

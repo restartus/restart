@@ -38,5 +38,7 @@ class Mobility(Base):
         super().__init__(log_root=log_root)
         log = self.log
 
-        self.mobility_mM_tr: Optional[Data] = None
-        log.debug(f"{self.mobility_mM_tr=}")
+        self.mobility_mM_pr: Optional[Data] = None
+        log.debug(f"{self.mobility_mM_pr=}")
+
+        self.mob_to_pop_map_mp_pm: Optional[Data] = None

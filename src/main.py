@@ -132,9 +132,9 @@ class Compose:
             .set_resource(type=args.resource)
             .set_inventory(type=args.inventory)
             .set_demand(type=args.demand)
-            .set_econometric(type=args.econometric)
-            .set_epi(type=args.epi)
+            .set_financial(type=args.financial)
             .set_mobility(type=args.mobility)
+            .set_epi(type=args.epi)
             .set_output(out=args.output, csv=args.csv)
         )
         # run the loader and put everything into a super dictionary
@@ -233,33 +233,33 @@ class Compose:
         )
 
         parser.add_argument(
-            "-c",
+            "-d",
             "--demand",
             choices=["mitre", "jhu", "population", "organization"],
             default="population",
             help="Select Demand model",
         )
         parser.add_argument(
-            "-e",
-            "--econometric",
+            "-f",
+            "--financial",
             choices=["dict", "ml", "ensemble"],
             default="dict",
-            help="Select Econometric model",
+            help="Select Financial model",
         )
         parser.add_argument(
-            "-b",
+            "-m",
             "--mobility",
             choices=["dict", "apple", "google", "ensemble"],
             default="dict",
-            help="Select Econometric model",
+            help="Select mobility  model",
         )
 
         parser.add_argument(
-            "-d",
+            "-e",
             "--epi",
             choices=["dict", "imhe", "ensemble", "jhu"],
             default="dict",
-            help="Select Epidemological Epi Model",
+            help="Select Epi Model",
         )
 
         return parser
@@ -302,8 +302,8 @@ class Compose:
         model.demand = Demand(model.data, log_root=model.log_root)
         # log.debug("creating Filter")
         # model.filter = Filter(model.data, log_root=model.log_root)
-        log.debug("creating Econometric")
-        model.econometric = Econometric(model.data, log_root=model.log_root)
+        log.debug("creating Financial")
+        model.financial = Financial(model.data, log_root=model.log_root)
         log.debug("creating Epi")
         model.epi = Epi(model.data, log_root=model.log_root)
         log.debug("creating Mobility")

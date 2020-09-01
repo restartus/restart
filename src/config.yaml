@@ -79,8 +79,11 @@ Dimension:
     - COVID-19
   Epi Attribute (E):
     - Cases
-    - Hospitalization
-    - ICU
+    - Hospitalizations
+    - Deaths
+  # all Reich Lab collected forecasts for now
+  # cases, deaths by week, hosps by day
+  # counties only have case data
   Mobility (m):
     - Apple
   Mobility Attribute (M):
@@ -524,3 +527,9 @@ Paths:
   CODE: list1_2020.xls
   POP: co-est2019-alldata.csv
   XLS: covid-surge-who.xlsx
+
+Reich:
+  Root: ../../data/epidemiological/processed
+  country: reichcountrydf.csv
+  state: reichstatedf.csv
+  county: reichcountydf.csv

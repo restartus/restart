@@ -226,7 +226,15 @@ class Model(Base):
         self.epi: Epi
         if type == "dict":
             self.epi = EpiDict(self.config, log_root=self.log_root, type=type)
-        elif type == "table":
+        elif type in [
+            "ihme",
+            "delphi",
+            "icl",
+            "lanl",
+            "sikjalpha",
+            "yyg",
+            "chensemble",
+        ]:
             self.epi = EpiTable(self.config, log_root=self.log_root, type=type)
         else:
             log.error(f"Epi Model {type=} not implemented")

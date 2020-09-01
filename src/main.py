@@ -257,8 +257,17 @@ class Compose:
 
         parser.add_argument(
             "-e",
-            "--epi",
-            choices=["dict", "imhe", "ensemble", "jhu"],
+            "--epi",  # only ihme works for now
+            choices=[
+                "dict",
+                "ihme",
+                "delphi",
+                "icl",
+                "lanl",
+                "sikjalpha",
+                "yyg",
+                "chensemble",
+            ],
             default="dict",
             help="Select Epi Model",
         )

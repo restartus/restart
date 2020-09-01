@@ -2,7 +2,7 @@
 # Makefile tuned for Python and Streamlit
 #
 # overriding the name
-TAG ?= v2.3
+TAG ?= v2.3.2
 name ?= model
 MAIN ?= main.py
 FLAGS = --pop dict

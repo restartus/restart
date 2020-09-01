@@ -29,19 +29,22 @@ CA_FLAGS ?=
 all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 flags ?= -p 8501:8501
-# As of july 2020, streamlit not compatible with Pandas 1.1
-# test unpinning "pandas<1.1"
-PIP ?= streamlit altair pandas pyyaml xlrd tables confuse \
-			 setuptools wheel twine scipy
+# These should only be for python development
+SRC_PIP ?= pandas pyyaml xlrd tables confuse \
+# These are for development time
+SRC_SRC_PIP_DEV ?= nptyping pydocstyle pdoc3 flake8 mypy bandit \
+				   black tox pytest pytest-cov pytest-xdist tox yamllint \
+				   pre-commit isort seed-isort-config \
+				   setuptools wheel twine
 # As of August 2020, Voila will not run with a later version and each 0.x
-# change is an API bump, current version is 0.2 and this version does generate
+# change is an API bump, curren version is 0.2 and this version does generate
 # a pipenv check problem so we need to ignore it
-VOILA_PIP ?= voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify voila-vuetify \
-			 jupyter-server
+# this is for notebook development
+NB_PIP ?= voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify voila-vuetify \
+		  jupyter-server scipy
 PIPENV_CHECK_FLAGS ?= --ignore 38212
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
-PIP_DEV ?=
 
 DOC ?= doc
 
@@ -62,18 +65,19 @@ update:
 # pipenv clean removes all packages not in the virtual environment
 .PHONY: install
 PYTHON ?= 3.8
-install: base-pipenv
-ifdef PIP_DEV
-	pipenv install --dev $(PIP_DEV) || true
+install:
+ifdef SRC_PIP_DEV
+	pipenv install --dev $(SRC_PIP_DEV) || true
 endif
-ifdef VOILA_PIP
-	pipenv install $(VOILA_PIP) || true
+ifdef SRC_PIP
+	pipenv install $(SRC_PIP) || true
 endif
-ifdef PIP
-	pipenv install $(PIP) || true
+ifdef NB_PIP
+	pipenv install $(NB_PIP) || true
 endif
 	pipenv lock
-
+	pipenv update
+	[[ -e .pre-commit-config.yaml ]] && pipenv run pre-commit install || true
 
 # https://medium.com/@Tankado95/how-to-generate-a-documentation-for-python-code-using-pdoc-60f681d14d6e
 # https://medium.com/@peterkong/comparison-of-python-documentation-generators-660203ca3804

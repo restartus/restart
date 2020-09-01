@@ -27,15 +27,6 @@ user ?= $$USER
 all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 
-PIPENV_CHECK_FLAGS ?=
-
-# These are the base packages that we always use
-BASE_PIP ?=
-BASE_PIP_FLAGS ?=
-BASE_PIP_DEV_FLAGS ?= --pre
-BASE_PIP_DEV ?= nptyping pydocstyle pdoc3 flake8 mypy bandit \
-								 black tox pytest pytest-cov pytest-xdist tox yamllint \
-								 pre-commit isort seed-isort-config
 # set -i if you need to ignore pipenv checks
 PIPENV_CHECK_FLAGS ?=
 CONDA_RUN ?= eval "$$(conda shell.bash hook)" &&
@@ -111,25 +102,15 @@ ifdef all_yaml
 	pipenv run yamllint $(all_yaml) || true
 endif
 	@echo if you want destructive formatting run make format
+
+## pre-commit: Run pre-commit hooks
+.PHONY: pre-commit
+pre-commit:
 	[[ -e .pre-commit-config.yaml ]] && pipenv run pre-commit autoupdate || true
 	[[ -e .pre-commit-config.yaml ]] && pipenv run pre-commit run --all-files || true
 
 ##
 ## Installation helpers (users should not need to invoke):
-## base-pipenv: Install with pipenv as virtual environment (defaults to 3.8 and clean)
-# Note that black is still prelease so need --pre
-# pipenv clean removes all packages not in the virtual environment
-.PHONY: base-pipenv
-base-pipenv: pipenv-python
-	echo $$SHELL
-ifdef BASE_PIP_DEV
-	pipenv install --dev $(BASE_PIP_DEV_FLAGS) $(BASE_PIP_DEV) || true
-endif
-ifdef PIP_DEV
-	pipenv install $(BASE_PIP_FLAGS) $(BASE_PIP) || true
-endif
-	pipenv update
-	[[ -e .pre-commit-config.yaml ]] && pipenv run pre-commit install || true
 
 ## pipenv-python: Install python version in $(PYTHON)
 # also add to the python path

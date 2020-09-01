@@ -30,6 +30,15 @@ voila-vuetify:
 voila-wa:
 	pipenv run voila $(VOILA_WA)
 
+VOILA_TEMPLATES ?= $$HOME/Library/Jupyter/voila
+# assumes we are submodule
+## voila-templates: Make sure we are using our default templates
+.PHONY: voila-templates
+voila-templates:
+	mkdir -p $(VOILA_TEMPLATES)
+	rm -rf "$(VOILA_TEMPLATES)/templates"
+	ln -s "$(PWD)/voila" "$(VOILA_TEMPLATES)/templates"
+
 ## jupyter-wa: Editing the Washington template
 .PHONY: jupyter-wa
 jupyter-wa:

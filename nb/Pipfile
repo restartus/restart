@@ -21,7 +21,6 @@ isort = "*"
 seed-isort-config = "*"
 
 [packages]
-voila = "*"
 ipywidgets = "*"
 ipysheet = "*"
 qgrid = "*"

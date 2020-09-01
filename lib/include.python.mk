@@ -30,9 +30,10 @@ all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 flags ?= -p 8501:8501
 # These should only be for python development
-SRC_PIP ?= pandas pyyaml xlrd tables confuse \
+SRC_PIP ?= pandas confuse \
+		   # pyyaml tables xlrd
 # These are for development time
-SRC_SRC_PIP_DEV ?= nptyping pydocstyle pdoc3 flake8 mypy bandit \
+SRC_PIP_DEV ?= nptyping pydocstyle pdoc3 flake8 mypy bandit \
 				   black tox pytest pytest-cov pytest-xdist tox yamllint \
 				   pre-commit isort seed-isort-config \
 				   setuptools wheel twine
@@ -40,7 +41,9 @@ SRC_SRC_PIP_DEV ?= nptyping pydocstyle pdoc3 flake8 mypy bandit \
 # change is an API bump, curren version is 0.2 and this version does generate
 # a pipenv check problem so we need to ignore it
 # this is for notebook development
-NB_PIP ?= voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify voila-vuetify \
+# Current bug with bqplot
+NB_PIP_DEV ?= pre-commit
+NB_PIP ?= voila ipywidgets ipysheet qgrid bqplo ipympl ipyvolume ipyvuetify voila-vuetify \
 		  jupyter-server scipy
 PIPENV_CHECK_FLAGS ?= --ignore 38212
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
@@ -71,6 +74,9 @@ ifdef SRC_PIP_DEV
 endif
 ifdef SRC_PIP
 	pipenv install $(SRC_PIP) || true
+endif
+ifdef NB_PIP_DEV
+	pipenv install --dev $(NB_PIP_DEV) || true
 endif
 ifdef NB_PIP
 	pipenv install $(NB_PIP) || true

@@ -9,8 +9,10 @@ FLAGS = --pop dict
 CA_FLAGS ?= --config ../config/ca-oes --pop oes --state California --subpop healthcare
 CA_VENT_FLAGS ?= --config ../config/ca-vent
 # voila requires jupyter-server 0.1.1
-PIPENV_CHECK_FLAGS ?= -i 38212
+# PIPENV_CHECK_FLAGS ?= -i 38212
 
+# turn off notebook output
+NB_PIP =
 # Note that main run
 ## test: run system test
 # note do not run lint as well causes a loop

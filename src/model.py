@@ -109,7 +109,7 @@ class Model(Base):
         # )
         # the super class population uses type to return the exact model
         # filter is by happens after this
-        self.population: Optional[Population]
+        self.population: Population
 
         if type == "oes":
             self.population = PopulationOES(
@@ -128,8 +128,7 @@ class Model(Base):
                 log_root=self.log_root,
             )
         else:
-            # raise ValueError(f"{type=} not implemented")
-            self.population = None
+            raise ValueError(f"{type=} not implemented")
         return self
 
     def set_organization(self, type: str = None) -> Model:

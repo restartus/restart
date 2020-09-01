@@ -9,7 +9,9 @@ FLAGS = --pop dict
 CA_FLAGS ?= --config ../config/ca-oes --pop oes --state California --subpop healthcare
 CA_VENT_FLAGS = --config ../config/ca-vent
 
-# Note that main run
+## conda-install: setup the conda environment
+conda-install:
+	conda env update -f environment.yml
 
 ## main-ca: run the california model using oes data
 .PHONY: ca-main

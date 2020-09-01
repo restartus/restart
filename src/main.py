@@ -195,6 +195,7 @@ class Compose:
             "-p",
             "--population",
             choices=["dict", "oes", "wa"],
+            default="dict",
             help="Select population data cube",
         )
 

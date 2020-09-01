@@ -26,6 +26,8 @@ user ?= $$USER
 all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 
+PIPENV_CHECK_FLAGS ?=
+
 # These are the base packages that we always use
 BASE_PIP ?=
 BASE_PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
@@ -49,6 +51,11 @@ help: $(MAKEFILE_LIST)
 pipenv:
 	pipenv shell
 
+## pipenv-lock: Install from the lock file (for deployment and test)
+.PHONY: pipenv-lock
+pipenv-lock:
+	pipenv install --ignore-pipfile
+
 # Flake8 does not handle streamlit correctly so exclude it
 # Nor does pydocstyle
 # If the web can pass then you can use these lines
@@ -59,7 +66,7 @@ pipenv:
 ## lint: cleans code for you
 .PHONY: lint
 lint:
-	pipenv check
+	pipenv check $(PIPENV_CHECK_FLAGS)
 	# ensures isortworks correctly
 	# mypy finds more errors than flake and we are using namespace
 	# https://mypy.readthedocs.io/en/latest/running_mypy.html#missing-imports

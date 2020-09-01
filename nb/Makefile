@@ -6,6 +6,9 @@
 VOILA_WA ?= Washington.ipynb
 VOILA_DEMO ?= VuetifyDemo.ipynb
 CALIFORNIA ?= CaliforniaDash.ipynb
+# voila requires jupyter-server 0.1.1
+PIPENV_CHECK_FLAGS ?= -i 38212
+
 
 ## ca: edit the California notebook
 .PHONY: ca

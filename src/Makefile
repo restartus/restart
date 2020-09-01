@@ -7,11 +7,20 @@ name ?= model
 MAIN ?= main.py
 FLAGS = --pop dict
 CA_FLAGS ?= --config ../config/ca-oes --pop oes --state California --subpop healthcare
-CA_VENT_FLAGS = --config ../config/ca-vent
+CA_VENT_FLAGS ?= --config ../config/ca-vent
+# voila requires jupyter-server 0.1.1
+PIPENV_CHECK_FLAGS ?= -i 38212
 
 ## conda-install: setup the conda environment
+.PHONY: conda-install
 conda-install:
 	conda env update -f environment.yml
+
+# Note that main run
+## test: run system test
+# note do not run lint as well causes a loop
+.PHONY: test
+test: ca-main main
 
 ## main-ca: run the california model using oes data
 .PHONY: ca-main

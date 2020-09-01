@@ -33,6 +33,8 @@ BASE_PIP ?=
 BASE_PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
 								 black tox pytest pytest-cov pytest-xdist tox yamllint \
 								 pre-commit isort seed-isort-config
+# set -i if you need to ignore pipenv checks
+PIPENV_CHECK_FLAGS ?=
 
 .DEFAULT_GOAL := help
 

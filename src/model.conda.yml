@@ -1,0 +1,47 @@
+---
+name: model
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - numpy
+  - pandas
+  - pip
+  - xlrd
+
+  # python testing only
+  - black
+  - pydocstyle
+  - pdoc3
+  - flake8
+  - mypy
+  - isort
+
+  - pip:
+      # the model only
+      - tables
+
+      # only for python development
+      - pre-commit
+      - confuse
+      - yamllint
+      - seed-isort-config
+      - nptyping
+      - bandit
+      # only for pip package creation
+      - setuptools
+      - wheel
+      - twine
+
+
+      # Only for jupyter
+      # - bqplot
+      # - ipympl
+      # - ipyvolume
+      # - ipyvuetify
+      # - voila
+      # - voila-vuetify
+      # - ipywidgets
+      # - ipysheet
+      # - jupyter-server==0.1.1

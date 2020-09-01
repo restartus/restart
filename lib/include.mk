@@ -19,6 +19,7 @@
 # Two entry points in MAIN and WEB
 # https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
 TAG ?= v1
+# run everything in one shell needed for condat activate
 SHELL :- /bin/bash
 repo ?= restartus
 name ?= $$(basename "$(PWD)")
@@ -30,11 +31,14 @@ PIPENV_CHECK_FLAGS ?=
 
 # These are the base packages that we always use
 BASE_PIP ?=
-BASE_PIP_DEV ?= --pre nptyping pydocstyle pdoc3 flake8 mypy bandit \
+BASE_PIP_FLAGS ?=
+BASE_PIP_DEV_FLAGS ?= --pre
+BASE_PIP_DEV ?= nptyping pydocstyle pdoc3 flake8 mypy bandit \
 								 black tox pytest pytest-cov pytest-xdist tox yamllint \
 								 pre-commit isort seed-isort-config
 # set -i if you need to ignore pipenv checks
 PIPENV_CHECK_FLAGS ?=
+CONDA_RUN ?= eval "$$(conda shell.bash hook)" &&
 
 .DEFAULT_GOAL := help
 
@@ -57,6 +61,23 @@ pipenv:
 .PHONY: pipenv-lock
 pipenv-lock:
 	pipenv install --ignore-pipfile
+
+# https://stackoverflow.com/questions/53382383/makefile-cant-use-conda-activate
+# https://github.com/conda/conda/issues/7980
+## conda-install: Install conda from yaml
+.PHONY: conda-install
+conda-install:
+	echo $$SHELL
+	$(CONDA_RUN) conda deactivate || true
+	conda env remove -n $(name) || true
+	conda env update -f $(name).conda.yml
+	$(CONDA_RUN) conda activate $(name) || true
+	# note that an update also activate
+
+## conda: activate conda environment
+.PHONY: conda
+conda:
+	eval "$$(conda shell.bash hook)" && conda deactivate || true
 
 # Flake8 does not handle streamlit correctly so exclude it
 # Nor does pydocstyle
@@ -102,10 +123,10 @@ endif
 base-pipenv: pipenv-python
 	echo $$SHELL
 ifdef BASE_PIP_DEV
-	pipenv install --dev $(BASE_PIP_DEV) || true
+	pipenv install --dev $(BASE_PIP_DEV_FLAGS) $(BASE_PIP_DEV) || true
 endif
 ifdef PIP_DEV
-  pipenv install $(BASE_PIP) || true
+	pipenv install $(BASE_PIP_FLAGS) $(BASE_PIP) || true
 endif
 	pipenv update
 	[[ -e .pre-commit-config.yaml ]] && pipenv run pre-commit install || true

@@ -23,9 +23,15 @@ conda-install:
 test: ca-main main
 
 ## main-ca: run the california model using oes data
-.PHONY: ca-main
+## pipenv-main-ca: run the California model using OES data (deprecated)
+.PHONY: pipenv-ca-main
 ca-main:
 	pipenv run python $(MAIN) $(CA_FLAGS)
+
+## conda-ca-main: run California model
+.PHONY: conda-ca-main
+conda-ca-main: conda
+	python $(MAIN) $(CA_FLAGS)
 
 ## ca-vent: Ventilator analysis for California
 .PHONY: ca-vent

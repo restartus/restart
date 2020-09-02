@@ -86,7 +86,7 @@ run: stop
 	docker run -dt \
 		--name $(container)-$$((last+1)) \
 		$(volumes) $(flags) $(image); \
-	sleep 2; \
+	sleep 4; \
 	docker logs $(container)-$$((last+1))
 
 ## shell: run the interactive shell in the container

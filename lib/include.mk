@@ -19,17 +19,17 @@
 # Two entry points in MAIN and WEB
 # https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
 TAG ?= v1
-# run everything in one shell needed for condat activate
 SHELL :- /bin/bash
 repo ?= restartus
 name ?= $$(basename "$(PWD)")
-user ?= $$USER
 all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
+PYTHON ?= 3.8
 
 # set -i if you need to ignore pipenv checks
 PIPENV_CHECK_FLAGS ?=
-CONDA_RUN ?= eval "$$(conda shell.bash hook)" &&
+CONDA_ACTIVATE ?= eval "$$(conda shell.bash hook)"
+CONDA_RUN ?= conda run -n $(name)
 
 .DEFAULT_GOAL := help
 
@@ -55,20 +55,31 @@ pipenv-lock:
 
 # https://stackoverflow.com/questions/53382383/makefile-cant-use-conda-activate
 # https://github.com/conda/conda/issues/7980
-## conda-install: Install conda from yaml
-.PHONY: conda-install
-conda-install:
-	echo $$SHELL
-	$(CONDA_RUN) conda deactivate || true
+## conda-clean: Remove conda and start all over
+.PHONY: conda-clean
+conda-clean:
+	$(CONDA_ACTIVATE) && conda activate base
 	conda env remove -n $(name) || true
-	conda env update -f $(name).conda.yml
-	$(CONDA_RUN) conda activate $(name) || true
-	# note that an update also activate
+	conda clean -afy
 
 ## conda: activate conda environment
 .PHONY: conda
 conda:
-	eval "$$(conda shell.bash hook)" && conda deactivate || true
+	$(CONDA_ACTIVATE) && conda activate $(name)
+
+## lint : code check (conda)
+.PHONY: lint
+lint:
+	$(CONDA_RUN) flake8
+ifdef all_py
+	$(CONDA_RUN) seed-isort-config ||ture
+	$(CONDA_RUN) mypy --namespace-packages $(all_py) || true
+	$(CONDA_RUN) bandit $(all_py) || true
+	$(CONDA_RUN) pydocstyle --convention=google $(all_py) || true
+endif
+ifdef all_yaml
+	$(CONDA_RUN) yamllint ($all_yaml) || true
+endif
 
 # Flake8 does not handle streamlit correctly so exclude it
 # Nor does pydocstyle
@@ -77,9 +88,9 @@ conda:
 #	pipenv run mypy $(NO_WEB)
 #	pipenv run pydocstyle --convention=google --match='(?!$(WEB))'
 #
-## lint: cleans code for you
-.PHONY: lint
-lint:
+## pipenv-lint: cleans code for you
+.PHONY: pipenv-lint
+pipenv-lint:
 	pipenv check $(PIPENV_CHECK_FLAGS)
 	# ensures isortworks correctly
 	# mypy finds more errors than flake and we are using namespace
@@ -106,6 +117,12 @@ endif
 ## pre-commit: Run pre-commit hooks
 .PHONY: pre-commit
 pre-commit:
+	[[ -e .pre-commit-config.yaml ]] && $(CONDA_RUN) pre-commit autoupdate || true
+	[[ -e .pre-commit-config.yaml ]] && $(CONDA_RUN) pre-commit run --all-files || true
+
+## pipenv-pre-commit: Run pre-commit hooks
+.PHONY: pipenv-pre-commit
+pipenv-pre-commit:
 	[[ -e .pre-commit-config.yaml ]] && pipenv run pre-commit autoupdate || true
 	[[ -e .pre-commit-config.yaml ]] && pipenv run pre-commit run --all-files || true
 
@@ -115,7 +132,6 @@ pre-commit:
 ## pipenv-python: Install python version in $(PYTHON)
 # also add to the python path
 # This faile if we don't have brew
-PYTHON ?= 3.8
 .PHONY: pipenv-python
 pipenv-python: pipenv-clean
 	@echo currently using python $(PYTHON) override changing PYTHON make flag

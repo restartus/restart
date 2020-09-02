@@ -8,7 +8,18 @@ VOILA_DEMO ?= VuetifyDemo.ipynb
 CALIFORNIA ?= CaliforniaDash.ipynb
 # voila requires jupyter-server 0.1.1
 PIPENV_CHECK_FLAGS ?= -i 38212
+# do not need src stuff only notebook
+SRC_PIP =
+SRC_PIP_DEV =
 
+# For docker config link in key directories
+DOCKER_USER ?= jovyan
+dest_dir ?= /home/jovyan/work
+flags ?= -p 8888:8888
+volumes ?= -v $$(readlink -f "../src"):$(dest_dir)/src \
+		   -v $$(readlink -f "../nb"):$(dest_dir)/nb \
+		   -v $$(readlink -f "../lib"):$(dest_dir)/lib \
+		   -v $$(readlink -f "../config"):$(dest_dir)/config
 
 ## ca: edit the California notebook
 .PHONY: ca
@@ -46,6 +57,6 @@ jupyter-wa:
 
 ##
 
-include ../lib/include.model.mk
+include ../lib/include.docker.mk
 include ../lib/include.python.mk
 include ../lib/include.mk

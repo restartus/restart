@@ -6,14 +6,14 @@ import os
 from typing import Dict, Optional
 
 import confuse  # type: ignore
-import pandas as pd  # type: ignore # noqa: F401
 import numpy as np  # type: ignore
+import pandas as pd  # type: ignore # noqa: F401
 
-from util import load_dataframe
 from data import Data
-from load_csv import LoadCSV
 from epi import Epi
+from load_csv import LoadCSV
 from log import Log
+from util import load_dataframe
 
 
 class EpiTable(Epi):

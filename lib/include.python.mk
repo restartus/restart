@@ -3,13 +3,7 @@
 # Configure by setting PIP for pip packages and optionally name
 # requires include.mk
 #
-#
 # Remember makefile *must* use tabs instead of spaces so use this vim line
-#
-# Remember when writing makefile commands, you must use a hard tab and each line
-# is run in its own shell, so you cannot pass shell variables between them
-# If you want to refer to shell variables, you must make it one virtual line
-# http://stackoverflow.com/questions/10121182/multiline-bash-commands-in-makefile
 #
 # The makefiles are self documenting, you use two leading
 # for make help to produce output
@@ -17,18 +11,53 @@
 # These should be overridden in the makefile that includes this, but this sets
 # defaults use to add comments when running make help
 #
-# Two entry points in MAIN and WEB
-# https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
-# If you need the infra/bin tools, then you need to set the build to run
-# relatively there
-# main.py includes streamlit code that only runs when streamlit invoked
-LIB ?= lib
 FLAGS ?=
 CA_FLAGS ?=
 all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 PYTHON ?= 3.8
 DOC ?= doc
+LIB ?= lib
+name ?= $$(basename $(PWD))
+MAIN ?= $(name).py
+WEB ?= $(MAIN)
+NO_WEB ?= $$(find . -maxdepth 1 -name "*.py" -not -name $(WEB))
+FLAGS ?=
+
+## main: run the main program
+.PHONY: main
+main:
+	$(CONDA_RUN) python $(MAIN) $(FLAGS)
+
+## pipenv-main: run the main program
+.PHONY: pipenv-main
+pipenv-main:
+	pipenv run python $(MAIN) $(FLAGS)
+
+# https://docs.python.org/3/library/pdb.html
+## pdb: run locally with python to test components from main (uses pipenv)
+.PHONY: pdb
+pdb:
+	$(CONDA_RUN) python -m pdb $(MAIN) $(FLAGS)
+
+# https://docs.python.org/3/library/pdb.html
+## pipenv-pdb: run locally with python to test components from main (uses pipenv)
+.PHONY: pipenv-pdb
+pipenv-pdb:
+	pipenv run python -m pdb $(MAIN) $(FLAGS)
+
+## pipenv-streamlit: use streamlit to run the graphical interface (deprecated)
+# bug as of July 2020 cannot send flags to python
+# https://discuss.streamlit.io/t/command-line-arguments/386
+.PHONY: pipenv-streamlit
+pipenv-streamlit:
+	pipenv run streamlit run $(WEB) -- $(FLAGS)
+
+## pipenv-streamlit-debug: run web interface in debugger (deprecated)
+.PHONY: pipenv-streamlit-debug
+pipenv-streamlit-debug:
+	pipenv run python -m pdb $(WEB) $(FLAGS)
+
 # These should only be for python development
 SRC_PIP ?= pandas confuse ipysheet
 		   # pyyaml xlrd

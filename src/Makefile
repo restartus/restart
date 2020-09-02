@@ -102,5 +102,4 @@ streamlit-wa:
 
 include ../lib/include.mk
 include ../lib/include.python.mk
-include ../lib/include.model.mk
 include ../lib/include.docker.mk

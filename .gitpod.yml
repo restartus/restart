@@ -1,0 +1,9 @@
+---
+# https://www.gitpod.io/blog/gitpodify/
+github:
+  prebuilds:
+    pullRequests: true
+    addBadge: true
+    addLabel: Prebuild in Gitpod
+  image:
+    file: .gitpod.dockerfile

@@ -21,8 +21,31 @@ LIB ?= lib
 name ?= $$(basename $(PWD))
 MAIN ?= $(name).py
 WEB ?= $(MAIN)
+
+.DEFAULT_GOAL := help
+
 NO_WEB ?= $$(find . -maxdepth 1 -name "*.py" -not -name $(WEB))
-FLAGS ?=
+# These should only be for python development
+SRC_PIP ?= pandas confuse ipysheet
+		   # pyyaml xlrd
+SRC_PIP_ONLY ?= tables
+# These are for development time
+SRC_PIP_DEV ?= nptyping pydocstyle pdoc3 flake8 mypy bandit \
+  		   	   black tox pytest pytest-cov pytest-xdist tox yamllint \
+			   pre-commit isort seed-isort-config \
+			   setuptools wheel twine
+# As of August 2020, Voila will not run with a later version and each 0.x
+# change is an API bump, curren version is 0.2 and this version does generate
+# a pipenv check problem so we need to ignore it
+# this is for notebook development
+# Current bug with bqplot
+NB_PIP_DEV ?= pre-commit
+NB_PIP ?= voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify voila-vuetify \
+		  scipy confuse
+NB_PIP_ONLY ?= jupyter-server
+PIPENV_CHECK_FLAGS ?= --ignore 38212
+# https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
+# https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 
 ## main: run the main program
 .PHONY: main
@@ -57,34 +80,6 @@ pipenv-streamlit:
 .PHONY: pipenv-streamlit-debug
 pipenv-streamlit-debug:
 	pipenv run python -m pdb $(WEB) $(FLAGS)
-
-# These should only be for python development
-SRC_PIP ?= pandas confuse ipysheet
-		   # pyyaml xlrd
-
-SRC_PIP_ONLY ?= tables
-# These are for development time
-SRC_PIP_DEV ?= nptyping pydocstyle pdoc3 flake8 mypy bandit \
-  		   	   black tox pytest pytest-cov pytest-xdist tox yamllint \
-			   pre-commit isort seed-isort-config \
-			   setuptools wheel twine
-
-# As of August 2020, Voila will not run with a later version and each 0.x
-# change is an API bump, curren version is 0.2 and this version does generate
-# a pipenv check problem so we need to ignore it
-# this is for notebook development
-# Current bug with bqplot
-NB_PIP_DEV ?= pre-commit
-NB_PIP ?= voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify voila-vuetify \
-		  scipy confuse
-NB_PIP_ONLY ?= jupyter-server
-
-PIPENV_CHECK_FLAGS ?= --ignore 38212
-
-# https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
-# https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
-
-.DEFAULT_GOAL := help
 
 # https://pipenv.pypa.io/en/latest/install/
 # https://realpython.com/pipenv-guide/

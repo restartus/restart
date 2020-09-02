@@ -25,9 +25,10 @@ RUN apt-get update && \
                     sudo \
                     git && \
     apt-get clean && rm -rf /var/lib/apt/list/*
-
-# need sudo
-RUN usermod -aG sudo $DOCKER_USER
+# https://linuxconfig.org/configure-sudo-without-password-on-ubuntu-20-04-focal-fossa-linux
+# https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
+RUN usermod -aG sudo $DOCKER_USER && \
+    echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 USER $DOCKER_USER
 # Emulate activate for the Makefiles
@@ -45,3 +46,5 @@ RUN conda create --name $ENV && \
     conda run -n $ENV pip install tables && \
     conda clean -afy && \
     conda init
+
+RUN sudo ls

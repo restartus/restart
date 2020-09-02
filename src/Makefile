@@ -10,13 +10,13 @@ CA_VENT_FLAGS ?= --config ../config/ca-vent
 # voila requires jupyter-server 0.1.1
 # PIPENV_CHECK_FLAGS ?= -i 38212
 # For docker config link in key directories
+flags ?= -e GRANT_SUDO=1
 DOCKER_USER ?= jovyan
 dest_dir ?= /home/$(DOCKER_USER)/ws
 volumes ?= -v $$(readlink -f "../src"):$(dest_dir)/restart/src \
 		   -v $$(readlink -f "../config"):$(dest_dir)/restart/config \
 		   -v $$(readlink -f "../lib"):$(dest_dir)/restart/lib \
 		   -v $$(readlink -f "../../data"):$(dest_dir)/data
-
 # turn off notebook output
 NB_PIP =
 # Note that main run

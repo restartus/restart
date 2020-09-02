@@ -14,7 +14,7 @@ SRC_PIP_DEV =
 
 # For docker config link in key directories
 DOCKER_USER ?= jovyan
-dest_dir ?= /home/jovyan/work
+dest_dir ?= /home/jovyan/ws/restart
 flags ?= -p 8888:8888
 volumes ?= -v $$(readlink -f "../src"):$(dest_dir)/src \
 		   -v $$(readlink -f "../nb"):$(dest_dir)/nb \

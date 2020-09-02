@@ -14,4 +14,4 @@ RUN conda config --add channels conda-forge && \
                 ipyvuetify \
                 voila-vuetify
 
-WORKDIR /home/jovyan/work/nb
+WORKDIR /home/jovyan/ws/restart

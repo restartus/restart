@@ -24,6 +24,7 @@ RUN conda config --add channels conda-forge && \
                 ipysheet \
                 bqplot \
                 ipyvuetify \
+                voila-reveal
                 && \
     pip install \
                 tables \

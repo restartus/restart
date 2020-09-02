@@ -41,7 +41,7 @@ SRC_PIP_DEV ?= nptyping pydocstyle pdoc3 flake8 mypy bandit \
 # Current bug with bqplot
 NB_PIP_DEV ?= pre-commit
 NB_PIP ?= voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify voila-vuetify \
-		  scipy confuse
+		  scipy confuse voila-reveal
 NB_PIP_ONLY ?= jupyter-server
 PIPENV_CHECK_FLAGS ?= --ignore 38212
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines

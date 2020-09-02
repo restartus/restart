@@ -2,9 +2,14 @@
 # https://www.gitpod.io/blog/gitpodify/
 github:
   prebuilds:
-    pullRequests: true
+    branches: true
+    pullRequestsFromForks: true
     addBadge: true
-    addLabel: Prebuild in Gitpod
-  image:
-    # file: .gitpod.dockerfile
-    file: src/Dockerfile
+    addComment: true
+    addLabel: true
+
+# https://www.gitpod.io/blog/docker-in-gitpod/
+image:
+  file: .gitpod.Dockerfile
+#  does not not seem to work need to run as root at the end
+# image: restartus/src

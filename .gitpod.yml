@@ -6,4 +6,5 @@ github:
     addBadge: true
     addLabel: Prebuild in Gitpod
   image:
-    file: .gitpod.dockerfile
+    # file: .gitpod.dockerfile
+    file: src/Dockerfile

@@ -1,0 +1,21 @@
+FROM restartus/src
+LABEL MAINTAINER="Admin Restart<admin@restart.us>"
+
+# To be used in gitpod.io must be debian/ubuntu or alpine based
+# Must also have a gitpod use
+# With the jupyter/scipy-notebook base we end up with two users
+# gitpod and joyvan
+include(lib/lib.docker)
+include(src/src.docker)
+include(nb/nb.docker)
+
+#create the environment for the joyvan user which is used for notebooks
+create_conda_nb(nb)
+
+# this creation is required for gitpod
+# https://github.com/gitpod-io/workspace-images/blob/master/full/Dockerfile
+# '-l': see https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
+create_user(gitpod)
+# which will use the source package
+
+USER gitpod

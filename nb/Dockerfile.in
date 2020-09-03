@@ -1,0 +1,14 @@
+FROM jupyter/scipy-notebook
+LABEL maintainer="Restart Us <admin@restart.us>"
+ARG DOCKER_USER=jovyan
+ARG ENV=nb
+
+include(../lib/lib.docker)
+include(nb.docker)
+
+# https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
+add_sudo($DOCKER_USER)
+
+create_conda_nb($ENV)
+
+WORKDIR /home/jovyan/ws/restart

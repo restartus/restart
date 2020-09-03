@@ -1,0 +1,33 @@
+
+
+# https://linuxconfig.org/configure-sudo-without-password-on-ubuntu-20-04-focal-fossa-linux
+# https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
+
+define(add_sudo,
+USER root
+RUN usermod -aG sudo $1 && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# Testing sudo
+USER $1
+RUN sudo ls
+)
+
+# taken from $1
+define(create_user,
+# '-l': see https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
+USER root
+RUN useradd -l -u 33333 -G sudo -md /home/$1 -s /bin/bash -p $1 $1 \
+    # passwordless sudo for users in the 'sudo' group
+    && sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
+ENV HOME=/home/$1
+WORKDIR $HOME
+# Testing sudo
+USER $1
+RUN sudo ls
+
+USER $1
+# use sudo so that user does not get sudo usage info on (the first) login
+RUN sudo echo "Running 'sudo' for Gitpod: success" && \
+    # create .bashrc.d folder and source it in the bashrc
+    mkdir /home/$1/.bashrc.d && \
+    (echo; echo "for i in \$(ls \$HOME/.bashrc.d/*); do source \$i; done"; echo) >> /home/$1/.bashrc
+)

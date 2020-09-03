@@ -24,14 +24,18 @@ PIP += pandas confuse ipysheet
 PIP_ONLY += tables
 # These are for development time
 PIP_DEV += nptyping pydocstyle pdoc3 flake8 mypy bandit \
-  		   	   black tox pytest pytest-cov pytest-xdist tox yamllint \
-			   pre-commit isort seed-isort-config \
-			   setuptools wheel twine
+  		   black tox pytest pytest-cov pytest-xdist tox yamllint \
+		   pre-commit isort seed-isort-config \
+		   setuptools wheel twine
+
+Dockerfile = Dockerfile
+Dockerfile.in = $(Dockerfile).in
+$(Dockerfile): $(Dockerfile.in) ../lib/debug.docker ../lib/lib.docker src.docker
+
 # Note that main run
 ## test: run system test
 .PHONY: test
 test: main ca-main ca-vent wa-main
-
 
 ## main: run the main program
 .PHONY: main

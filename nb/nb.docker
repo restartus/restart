@@ -1,0 +1,21 @@
+
+# Emulate activate for the Makefiles
+# https://pythonspeed.com/articles/activate-conda-dockerfile/
+define(create_conda_nb,
+RUN conda create --name $1 && \
+    conda config --add channels conda-forge && \
+    conda config --set channel_priority strict && \
+    conda install --name $1 --quiet --yes \
+                voila \
+                confuse \
+                ipysheet \
+                bqplot \
+                ipyvuetify \
+                voila-reveal \
+                && \
+    conda run -n $1 pip install \
+                tables \
+                && \
+    conda clean -afy && \
+    conda init
+)

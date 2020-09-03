@@ -1,0 +1,18 @@
+# src specific for Docker
+# https://pythonspeed.com/articles/activate-conda-dockerfile/
+
+define(create_conda_src,
+RUN conda create --name $1 && \
+    conda config --add channels conda-forge && \
+    conda config --set channel_priority strict && \
+    conda install --name $1 --quiet --yes \
+            python=3.8 \
+            pandas confuse ipysheet \
+            nptyping pydocstyle pdoc3 flake8 mypy bandit \
+            black tox pytest pytest-cov pytest-xdist tox yamllint \
+            pre-commit isort seed-isort-config \
+            setuptools wheel twine && \
+    conda run -n $1 pip install tables && \
+    conda clean -afy && \
+    conda init
+)

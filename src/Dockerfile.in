@@ -1,0 +1,17 @@
+FROM jupyter/base-notebook
+LABEL maintainer="Restart Us <admin@restart.us>"
+# Using this as the base to get user working right
+ARG DOCKER_USER=jovyan
+ARG ENV=src
+
+include(../lib/lib.docker)
+include(src.docker)
+
+# debug tools and sudo need for conda activate
+USER root
+include(../lib/debug.docker)
+
+# make a sudo user
+add_sudo($DOCKER_USER)
+
+create_conda_src($ENV)

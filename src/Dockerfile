@@ -4,35 +4,42 @@ LABEL maintainer="Restart Us <admin@restart.us>"
 ARG DOCKER_USER=jovyan
 ARG ENV=src
 
-# https://medium.com/@chadlagore/conda-environments-with-docker-82cdc9d25754
-# RUN conda create -n src python=3.8 && \
-    #     echo "source activate src" > ~/.bashrc \
-    # ENV PATH /opt/conda/env/src/bin:$PATH
 
-# https://jupyter-docker-stacks.readthedocs.io/en/latest/using/recipes.html#using-pip-install-or-conda-install-in-a-child-docker-image
-# Use conda but some things are only in pip
-# https://conda-forge.org/#about
-#
-# to make tings smllaer
-# https://jcristharif.com/conda-docker-tips.html
+
+# https://linuxconfig.org/configure-sudo-without-password-on-ubuntu-20-04-focal-fossa-linux
+# https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
+
+
+
+# taken from $1
+
+
+# src specific for Docker
+# https://pythonspeed.com/articles/activate-conda-dockerfile/
+
+
 
 
 # debug tools and sudo need for conda activate
 USER root
+
+# Ubuntu debug for docker containers (use with m4)
 RUN apt-get update && \
     apt-get install -y make \
                     vim \
                     sudo \
                     git && \
     apt-get clean && rm -rf /var/lib/apt/list/*
-# https://linuxconfig.org/configure-sudo-without-password-on-ubuntu-20-04-focal-fossa-linux
-# https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
-RUN usermod -aG sudo $DOCKER_USER && \
-    echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
+
+# make a sudo user
+USER root
+RUN usermod -aG sudo $DOCKER_USER && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# Testing sudo
 USER $DOCKER_USER
-# Emulate activate for the Makefiles
-# https://pythonspeed.com/articles/activate-conda-dockerfile/
+RUN sudo ls
+
+
 RUN conda create --name $ENV && \
     conda config --add channels conda-forge && \
     conda config --set channel_priority strict && \
@@ -46,5 +53,3 @@ RUN conda create --name $ENV && \
     conda run -n $ENV pip install tables && \
     conda clean -afy && \
     conda init
-
-RUN sudo ls

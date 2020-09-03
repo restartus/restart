@@ -4,21 +4,17 @@
 # Remember makefile *must* use tabs instead of spaces so use this vim line
 # requires include.mk
 #
-# Remember when writing makefile commands, you must use a hard tab and each line
-# is run in its own shell, so you cannot pass shell variables between them
-# If you want to refer to shell variables, you must make it one virtual line
-# http://stackoverflow.com/questions/10121182/multiline-bash-commands-in-makefile
+# The makefiles are self documenting, you use two leading for make help to produce output
 #
-# The makefiles are self documenting, you use two leading
-# for make help to produce output
+# Uses m4 for includes so Dockerfile.in are processed this way
+# since docker does not support a macro language
+# https://www3.physnet.uni-hamburg.de/physnet/Tru64-Unix/HTML/APS32DTE/M4XXXXXX.HTM
+# Assumes GNU M4 is installed
+# https://github.com/moby/moby/issues/735
 #
-# These should be overridden in the makefile that includes this, but this sets
-# defaults use to add comments when running make help
-#
-# Two entry points in MAIN and WEB
-# https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
 
 Dockerfile ?= Dockerfile
+Dockerfile.in ?= $(Dockerfile).in
 image ?= $(repo)/$(name)
 container := $(name)
 build_path ?= .
@@ -33,8 +29,11 @@ flags ?=
 # --restart=unless-stopped  not needed now
 
 ## docker: pull docker image and builds locally along with tag with git sha
+$(Dockerfile): $(Dockerfile.in)
+	m4 <"$(Dockerfile.in)" >"$(Dockerfile)"
+
 .PHONY: docker
-docker:
+docker: $(Dockerfile)
 	docker build --pull \
 				 --build-arg DOCKER_USER=$(DOCKER_USER) \
 				 --build-arg NB_USER=$(DOCKER_USER) \

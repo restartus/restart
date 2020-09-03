@@ -25,6 +25,10 @@ volumes ?= -v $$(readlink -f "../src"):$(dest_dir)/src \
 		   -v $$(readlink -f "../lib"):$(dest_dir)/lib \
 		   -v $$(readlink -f "../config"):$(dest_dir)/config
 
+Dockerfile = Dockerfile
+Dockerfile.in = $(Dockerfile).in
+$(Dockerfile): $(Dockerfile).in ../lib/lib.docker nb.docker
+
 ## ca: edit the California notebook
 .PHONY: ca
 ca:

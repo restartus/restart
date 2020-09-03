@@ -1,0 +1,8 @@
+
+# Ubuntu debug for docker containers (use with m4)
+RUN apt-get update && \
+    apt-get install -y make \
+                    vim \
+                    sudo \
+                    git && \
+    apt-get clean && rm -rf /var/lib/apt/list/*

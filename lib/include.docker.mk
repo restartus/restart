@@ -20,7 +20,7 @@
 
 Dockerfile ?= Dockerfile
 image ?= $(repo)/$(name)
-container = $(name)
+container := $(name)
 build_path ?= .
 MAIN ?= $$(basename $(PWD)).py
 DOCKER_USER ?= jovyan
@@ -36,7 +36,7 @@ flags ?=
 .PHONY: docker
 docker:
 	docker build --pull \
-				 --build-arg USER=$(DOCKER_USER) \
+				 --build-arg DOCKER_USER=$(DOCKER_USER) \
 				 --build-arg NB_USER=$(DOCKER_USER) \
 				 --build-arg ENV=$(DOCKER_ENV) \
 				 -f $(Dockerfile) \

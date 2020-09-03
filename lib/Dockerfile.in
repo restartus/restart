@@ -1,0 +1,9 @@
+# The test docker system
+# Note that we are tyring to use
+# cpp -o Dockerfile Dockerfile.in
+# But this doesn't work because the cpp
+# Thinks are hashtags are preprocessor directives
+FORM jupyter:scipy-notebook
+MAINTAINER admin@restart.us
+
+#include "src.docker"

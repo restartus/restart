@@ -8,9 +8,12 @@ VOILA_DEMO ?= VuetifyDemo.ipynb
 CALIFORNIA ?= CaliforniaDash.ipynb
 # voila requires jupyter-server 0.1.1
 PIPENV_CHECK_FLAGS ?= -i 38212
-# do not need src stuff only notebook
-SRC_PIP =
-SRC_PIP_DEV =
+
+# consumed by include.python.mk for makes
+PIP_DEV = pre-commit
+PIP = voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify voila-vuetify \
+		  scipy confuse voila-reveal
+PIP_ONLY = jupyter-server
 
 # For docker config link in key directories
 DOCKER_USER ?= jovyan
@@ -25,36 +28,27 @@ volumes ?= -v $$(readlink -f "../src"):$(dest_dir)/src \
 ## ca: edit the California notebook
 .PHONY: ca
 ca:
-	pipenv run jupyter notebook $(CALIFORNIA)
+	$(RUN) jupyter notebook $(CALIFORNIA)
 
 ## voila-ca: deployment view of California
 .PHONY: voila-ca
 voila-ca:
-	pipenv run voila $(CALIFORNIA)
+	$(RUN) voila $(CALIFORNIA)
 
 ## voila-vuetify: Voila demo
 .PHONY: voila-vuetify
 voila-vuetify:
-	pipenv run voila --template=voila-default $(VOILA_DEMO)
+	$(RUN) voila --template=voila-default $(VOILA_DEMO)
 
 ## voila-wa: Run Washington Aggregate and Vulnerable Levels
 .PHONY: voila-wa
 voila-wa:
-	pipenv run voila $(VOILA_WA)
-
-VOILA_TEMPLATES ?= $$HOME/Library/Jupyter/voila
-# assumes we are submodule
-## voila-templates: Make sure we are using our default templates
-.PHONY: voila-templates
-voila-templates:
-	mkdir -p $(VOILA_TEMPLATES)
-	rm -rf "$(VOILA_TEMPLATES)/templates"
-	ln -s "$(PWD)/voila" "$(VOILA_TEMPLATES)/templates"
+	$(RUN) voila $(VOILA_WA)
 
 ## jupyter-wa: Editing the Washington template
 .PHONY: jupyter-wa
 jupyter-wa:
-	pipenv run jupyter notebook $(VOILA_WA)
+	$(RUN) jupyter notebook $(VOILA_WA)
 
 ##
 

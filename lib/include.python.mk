@@ -1,5 +1,5 @@
 ## Model user commands:
-# Python Makefile template (install python 3.8 and test tools)
+# Python Makefile template (install python 3.8 and test tools)CTI
 # Configure by setting PIP for pip packages and optionally name
 # requires include.mk
 #
@@ -12,7 +12,6 @@
 # defaults use to add comments when running make help
 #
 FLAGS ?=
-CA_FLAGS ?=
 all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 PYTHON ?= 3.8
@@ -20,129 +19,85 @@ DOC ?= doc
 LIB ?= lib
 name ?= $$(basename $(PWD))
 MAIN ?= $(name).py
-WEB ?= $(MAIN)
-
-.DEFAULT_GOAL := help
-
-NO_WEB ?= $$(find . -maxdepth 1 -name "*.py" -not -name $(WEB))
-# These should only be for python development
-SRC_PIP ?= pandas confuse ipysheet
-		   # pyyaml xlrd
-SRC_PIP_ONLY ?= tables
-# These are for development time
-SRC_PIP_DEV ?= nptyping pydocstyle pdoc3 flake8 mypy bandit \
-  		   	   black tox pytest pytest-cov pytest-xdist tox yamllint \
-			   pre-commit isort seed-isort-config \
-			   setuptools wheel twine
-# As of August 2020, Voila will not run with a later version and each 0.x
-# change is an API bump, curren version is 0.2 and this version does generate
-# a pipenv check problem so we need to ignore it
-# this is for notebook development
-# Current bug with bqplot
-NB_PIP_DEV ?= pre-commit
-NB_PIP ?= voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify voila-vuetify \
-		  scipy confuse voila-reveal
-NB_PIP_ONLY ?= jupyter-server
+STREAMLIT ?= $(MAIN)
+# As of September 2020, run jupyter 0.2 and this generates a pipenv error
+# so ignore it
 PIPENV_CHECK_FLAGS ?= --ignore 38212
+
+# https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
+# The virtual environment [ pipenv | conda | docker | none ]
+ENV ?= pipenv
+RUN ?=
+ACTIVATE ?=
+UPDATE ?=
+INSTALL ?=
+DEV_INSTALL ?= $(INSTALL)
+ifeq ($(ENV),pipenv)
+	RUN := pipenv run
+	ACTIVATE :=
+	UPDATE := pipenv update
+	INSTALL := pipenv install
+	INSTALL_DEV := $(INSTALL) --dev --pre
+else ifeq ($(ENV),conda)
+	RUN := conda run -n $(name)
+	ACTIVATE := eval "$$(conda shell.bash hook)" &&
+	UPDATE := $(RUN) conda update --all
+	INSTALL := conda install -y -n $(name)
+	INSTALL_DEV := $(INSTALL)
+else ifeq ($(ENV),docker)
+	RUN :=
+	ACTIVATE :=
+	# need a noop as this is not a modifier
+	# https://stackoverflow.com/questions/12404661/what-is-the-use-case-of-noop-in-bash
+	UPDATE := :
+	INSTALL :=
+	INSTALL_DEV := $(INSTALL)
+endif
+
+
+# test-env: Test environment
+.PHONY: test-env
+test-env:
+	@echo 'ENV="$(ENV)" RUN="$(RUN)"'
+# The calling Makefile should set these should be at least one
+
+PIP ?=
+PIP_DEV ?=
+# These cannot be installed in the environment must use pip install
+PIP_ONLY ?=
+
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
+#
+## test-type: Test the types NB, SRC and STREAMLIT
+.PHONY: test-type
+test-type:
+	@echo 'SRC="$(SRC)" NB="$(NB)" STREAMLIT="$(STREAMLIT)"'
 
-## main: run the main program
-.PHONY: main
-main:
-	$(CONDA_RUN) python $(MAIN) $(FLAGS)
+## update: installs all pipenv packages
+.PHONY: update
+update:
+	$(UPDATE)
 
-## pipenv-main: run the main program
-.PHONY: pipenv-main
-pipenv-main:
-	pipenv run python $(MAIN) $(FLAGS)
-
-# https://docs.python.org/3/library/pdb.html
-## pdb: run locally with python to test components from main (uses pipenv)
-.PHONY: pdb
-pdb:
-	$(CONDA_RUN) python -m pdb $(MAIN) $(FLAGS)
-
-# https://docs.python.org/3/library/pdb.html
-## pipenv-pdb: run locally with python to test components from main (uses pipenv)
-.PHONY: pipenv-pdb
-pipenv-pdb:
-	pipenv run python -m pdb $(MAIN) $(FLAGS)
-
-## pipenv-streamlit: use streamlit to run the graphical interface (deprecated)
-# bug as of July 2020 cannot send flags to python
-# https://discuss.streamlit.io/t/command-line-arguments/386
-.PHONY: pipenv-streamlit
-pipenv-streamlit:
-	pipenv run streamlit run $(WEB) -- $(FLAGS)
-
-## pipenv-streamlit-debug: run web interface in debugger (deprecated)
-.PHONY: pipenv-streamlit-debug
-pipenv-streamlit-debug:
-	pipenv run python -m pdb $(WEB) $(FLAGS)
-
-# https://pipenv.pypa.io/en/latest/install/
-# https://realpython.com/pipenv-guide/
-# install everything including things just needed for edevelopment
-##
-## pipenv-update: installs all pipenv packages
-.PHONY: pipenv-update
-pipenv-update:
-	pipenv update
-
-
-## conda-update: update everything
-.PHONY: conda-update
-conda-update:
-	$(CONDA_RUN) conda update --all
-
-## pipenv-install: Install with pipenv as virtual environment (runs pipenv-clean first)
+## install: install packages
 # Note that black is still prelease so need --pre
-# pipenv clean removes all packages not in the virtual environment
-.PHONY: pipenv-install
-pipenv-install:
-ifdef SRC_PIP_DEV
-	pipenv install --dev $(SRC_PIP_DEV) || true
+.PHONY: install
+install:
+ifeq ($(ENV),conda)
+		conda env list | grep ^$(name) || conda create --name -y $(name)
+		$(ACTIVATE) conda activate $(name)
+		conda config --env --add channels conda-forge
+		conda config --env --set channel_priority strict
 endif
-ifdef SRC_PIP
-	pipenv install $(SRC_PIP) || true
-endif
-ifdef NB_PIP_DEV
-	pipenv install --dev $(NB_PIP_DEV) || true
-endif
-ifdef NB_PIP
-	pipenv install $(NB_PIP) $(NB_PIP_ONLY) || true
-endif
-	pipenv lock
-	pipenv update
-	[[ -e .pre-commit-config.yaml ]] && pipenv run pre-commit install || true
+	$(INSTALL) $(PIP) || true
+	$(INSTALL_DEV) $(PIP_DEV) || true
+	$(RUN) pip install -y $(PIP_ONLY) || true
 
-## conda-install: Create the conda environtment
-# https://conda-forge.org/#about
-.PHONY: conda-install
-conda-install:
-	conda env list | grep ^$(name) || conda create --name $(name)
-	$(CONDA_ACTIVATE) && conda activate $(name)
-	conda config --env --add channels conda-forge
-	conda config --env --set channel_priority strict
-ifdef SRC_PIP_DEV
-	conda install --yes -n $(name) -y $(SRC_PIP_DEV) || true
+ifeq ($(ENV),pipenv)
+		pipenv lock
+		pipenv update
 endif
-ifdef SRC_PIP
-	conda install --yes -n $(name) $(SRC_PIP) || true
-endif
-ifdef NB_PIP_DEV
-	conda install --yes -n $(name) $(NB_PIP_DEV) || true
-endif
-ifdef NB_PIP
-	conda install --yes -n $(name) $(NB_PIP) || true
-endif
-ifdef NB_PIP_ONLY
-	$(CONDA_RUN)  pip install $(NB_PIP_ONLY) || true
-endif
-ifdef SRC_PIP_ONLY
-	$(CONDA_RUN) pip install -y $(SRC_PIP_ONLY) || true
-endif
+	[[ -e .pre-commit-config.yaml ]] && $(RUN) pre-commit install || true
 
 
 # https://medium.com/@Tankado95/how-to-generate-a-documentation-for-python-code-using-pdoc-60f681d14d6e
@@ -150,58 +105,117 @@ endif
 ## doc: make the documentation for the Python project (uses pipenv)
 .PHONY: doc
 doc:
-	for file in $(all_py); do $(CONDA_RUN) pdoc --force --html --output $(DOC) $$file; done
+	for file in $(all_py); \
+		do $(RUN) pdoc --force --html --output $(DOC) $$file; \
+	done
 
-## pipenv-doc: make the documentation for the Python project (uses pipenv)
-.PHONY: pipenv-doc
-pipenv-doc:
-	for file in $(all_py); do pipenv run pdoc --force --html --output $(DOC) $$file; done
-
-## pipenv-doc-debug: run web server to look at docs (uses pipenv)
-.PHONY: pipenv-doc-debug
-pipenv-doc-debug:
+## doc-debug: run web server to look at docs (uses pipenv)
+.PHONY: doc-debug
+doc-debug:
 	@echo browse to http://localhost:8080 and CTRL-C when done
-	for file in $(all_py); do pipenv run pdoc --http : $(DOC) $$file; done
-
-## pipenv-doc-debug-web: For the web interface
-.PHONY: pipenv-doc-debug-web
-pipenv-doc-debug-web:
-	@echo browse to http://localhost:8080 and CTRL-C when done
-	pipenv run pdoc --http : $(WEB)
+	for file in $(all_py); \
+		do pipenv run pdoc --http : $(DOC) $$file; \
+	done
 
 ## format: reformat python code to standards
 .PHONY: format
 format:
 	# the default is 88 but pyflakes wants 79
-	$(CONDA_RUN) isort --profile=black -w 79 .
-	$(CONDA_RUN) black -l 79 *.py
-
-## pipenv-format: reformat python code to standards
-# exclude web black does not grok streamlit but not conformas
-# pipenv run black -l 79 $(NO_WEB)
-.PHONY: pipenv-format
-pipenv-format:
-	# the default is 88 but pyflakes wants 79
-	pipenv run isort --profile=black -w 79 .
-	pipenv run black -l 79 *.py
+	$(RUN) isort --profile=black -w 79 .
+	$(RUN) black -l 79 *.py
 
 ## pipenv-package: build package
-.PHONY: pipenv-package
-pipenv-package:
-	pipenv run python setu.py sdist bdist_wheel
+.PHONY: package
+package:
+	$(RUN) python setup.y sdist bdist_wheel
 
-## pipenv-pypi: build package and push to the python package index
-.PHONY: pipenv-pypi
-pipenv-pypi: package
-	pipenv run twine upload dist/*
+## pypi: build package and push to the python package index
+.PHONY: pypi
+pypi: package
+	$(RUN) twine upload dist/*
 
-## pipenv-pypi-test: build package and push to test python package index
-.PHONY: pipenv-pypi-test
-pipenv-pypi-test: package
-	pipenv run twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+## pypi-test: build package and push to test python package index
+.PHONY: pypi-test
+pypi-test: package
+	$(RUN) twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
+## pipenv: Run interactive commands in Pipenv environment
+.PHONY: pipenv
+pipenv:
+	pipenv shell
+
+## pipenv-lock: Install from the lock file (for deployment and test)
+.PHONY: pipenv-lock
+pipenv-lock:
+	pipenv install --ignore-pipfile
+
+# https://stackoverflow.com/questions/53382383/makefile-cant-use-conda-activate
+# https://github.com/conda/conda/issues/7980
+## conda-clean: Remove conda and start all over
+.PHONY: conda-clean
+conda-clean:
+	$(ACTIVATE) && conda activate base
+	conda env remove -n $(name) || true
+	conda clean -afy
+
+## conda: activate conda environment
+.PHONY: conda
+conda:
+	$(ACTIVATE) && conda activate $(name)
+
+## lint : code check (conda)
+.PHONY: lint
+lint:
+	$(RUN) flake8
+ifdef all_py
+	$(RUN) seed-isort-config ||ture
+	$(RUN) mypy --namespace-packages $(all_py) || true
+	$(RUN) bandit $(all_py) || true
+	$(RUN) pydocstyle --convention=google $(all_py) || true
+endif
+ifdef all_yaml
+	$(RUN) yamllint ($all_yaml) || true
+endif
+
+# Flake8 does not handle streamlit correctly so exclude it
+# Nor does pydocstyle
+# If the web can pass then you can use these lines
+# pipenv run flake8 --exclude $(STREAMLIT)
+#	pipenv run mypy $(NO_STREAMLIT)
+#	pipenv run pydocstyle --convention=google --match='(?!$(STREAMLIT))'
+#
+## pipenv-lint: cleans code for you
+.PHONY: pipenv-lint
+pipenv-lint: lint
+	pipenv check $(PIPENV_CHECK_FLAGS)
+
+## pre-commit: Run pre-commit hooks
+.PHONY: pre-commit
+pre-commit:
+	[[ -e .pre-commit-config.yaml ]] && $(RUN) pre-commit autoupdate || true
+	[[ -e .pre-commit-config.yaml ]] && $(RUN) pre-commit run --all-files || true
 ##
-## gcloud: push up to Google Cloud
-.PHONY: gcloud
-gcloud:
-	gcloud projects list
+## Installation helpers (users should not need to invoke):
+
+## pipenv-python: Install python version in $(PYTHON)
+# also add to the python path
+# This faile if we don't have brew
+.PHONY: pipenv-python
+pipenv-python: pipenv-clean
+	@echo currently using python $(PYTHON) override changing PYTHON make flag
+	brew upgrade python@$(PYTHON) pipenv
+	@echo pipenv sometimes corrupts after python $(PYTHON) install so reinstall if needed
+	pipenv --version || brew reinstall pipenv
+	PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --python /usr/local/opt/python@$(PYTHON)/bin/python3
+	pipenv clean
+	@echo use .env to ensure we can see all packages
+	grep ^PYTHONPATH .env ||  echo "PYTHONPATH=." >> .env
+
+## pipenv-clean: cleans the pipenv completely
+# note pipenv --rm will fail if there is nothing there so ignore that
+# do not do a pipenv clean until later otherwise it creats an environment
+# Same with the remove if the files are not there
+.PHONY: pipenv-clean
+pipenv-clean:
+	pipenv --rm || true
+	rm Pipfile* || true

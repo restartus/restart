@@ -24,24 +24,24 @@ jobs:
     - name: Lint with flake8
       run: |
         pip install flake8
-        flake8 --exclude ./model/model0,./model/streamlit
+        flake8 --exclude ./model/model0,./model/streamlit ./deprecated ./exp
 
     - name: Lint with mypy
       run: |
         pip install mypy
-        mypy --namespace-packages $(find ./src -name "*.py")
+        mypy --namespace-packages $(find ./restart -name "*.py")
 
     - name: Lint with bandit
       run: |
         pip install bandit
-        bandit $(find ./src -name "*.py")
+        bandit $(find ./restart -name "*.py")
 
     - name: Lint with pydocstyle
       run: |
         pip install pydocstyle
-        pydocstyle --convention=google $(find ./src/ -name "*.py")
+        pydocstyle --convention=google $(find ./restart/ -name "*.py")
 
     - name: Lint with yamllint
       run: |
         pip install yamllint
-        yamllint $(find ./src/ -name "*.yaml")
+        yamllint $(find ./restart/ -name "*.yaml")

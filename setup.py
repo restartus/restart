@@ -21,7 +21,6 @@ setuptools.setup(
     url="https://github.com/restartus/covid-projection",
     packages=setuptools.find_namespace_packages(),
     include_package_data=True,
-    install_requires=["streamlit"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",

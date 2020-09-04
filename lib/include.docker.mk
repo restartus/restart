@@ -22,7 +22,7 @@ MAIN ?= $$(basename $(PWD)).py
 DOCKER_USER ?= jovyan
 DOCKER_ENV ?= $(name)
 
-dest_dir ?= /home/$(DOCKER_USER)
+dest_dir ?= /home/$(DOCKER_USER)/$(name)
 volumes ?= -v $$(readlink -f "."):$(dest_dir)
 flags ?=
 # main.py includes streamlit code that only runs when streamlit invoked
@@ -43,6 +43,11 @@ docker: $(Dockerfile)
 				 $(build_path)
 	docker tag $(image) $(image):$$(git rev-parse HEAD)
 	docker push $(image)
+
+## docker-lint
+.PHONY: docker-lint
+docker-lint: $(Dockerfile)
+	dockerfilelint $(Dockerfile)
 
 ## push: after a build will push the image up
 .PHONY: push

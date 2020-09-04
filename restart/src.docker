@@ -7,7 +7,7 @@ RUN conda create --name $1 && \
     conda config --set channel_priority strict && \
     conda install --name $1 --quiet --yes \
             python=3.8 \
-            pandas confuse ipysheet \
+            pandas confuse ipysheet h5py \
             nptyping pydocstyle pdoc3 flake8 mypy bandit \
             black tox pytest pytest-cov pytest-xdist tox yamllint \
             pre-commit isort seed-isort-config \

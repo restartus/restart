@@ -11,5 +11,3 @@ github:
 # https://www.gitpod.io/blog/docker-in-gitpod/
 image:
   file: .gitpod.Dockerfile
-#  does not not seem to work need to run as root at the end
-# image: restartus/src

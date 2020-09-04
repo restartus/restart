@@ -1,33 +1,31 @@
-
-
-# https://linuxconfig.org/configure-sudo-without-password-on-ubuntu-20-04-focal-fossa-linux
+#
+# library for docker files
+# Desigend for docker files
+# https://github.com/gitpod-io/gitpod/tree/master/components/image-builder/workspace-image-layer/gitpod-layer
+#
 # https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
+# https://linuxconfig.org/configure-sudo-without-password-on-ubuntu-20-04-focal-fossa-linux
 
-define(add_sudo,
+define(add_group,
 USER root
-RUN usermod -aG sudo $1 && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN usermod -aG $1 $2 && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 # Testing sudo
-USER $1
-RUN sudo ls
+USER $2
 )
 
-# taken from $1
+# create_user(user, group, groupuserid)
 define(create_user,
 # '-l': see https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
 USER root
-RUN useradd -l -u 33333 -G sudo -md /home/$1 -s /bin/bash -p $1 $1 \
-    # passwordless sudo for users in the 'sudo' group
-    && sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
+
+# adapted from 
+# https://github.com/restartus/gitpod/blob/master/components/image-builder/workspace-image-layer/gitpod-layer/debian/gitpod/layer.sh
+        # users in the 'sudo' group for non gitpod entires, gitpod does not
+        # allow sudo so this is for other dockerfile
+RUN getent group $2 || addgroup --gid $3 $2
+RUN useradd --no-log-init --create-home --home-dir  /home/$1 --shell /bin/bash \
+            --uid $3 --gid $3 $1 && \
+    sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
 ENV HOME=/home/$1
 WORKDIR $HOME
-# Testing sudo
-USER $1
-RUN sudo ls
-
-USER $1
-# use sudo so that user does not get sudo usage info on (the first) login
-RUN sudo echo "Running 'sudo' for Gitpod: success" && \
-    # create .bashrc.d folder and source it in the bashrc
-    mkdir /home/$1/.bashrc.d && \
-    (echo; echo "for i in \$(ls \$HOME/.bashrc.d/*); do source \$i; done"; echo) >> /home/$1/.bashrc
 )

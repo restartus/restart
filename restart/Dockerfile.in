@@ -12,6 +12,6 @@ USER root
 include(../lib/debug.docker)
 
 # make a sudo user
-add_sudo($DOCKER_USER)
+add_group(sudo,$DOCKER_USER)
 
 create_conda_src($ENV)

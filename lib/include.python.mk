@@ -174,7 +174,7 @@ ifdef all_py
 	$(RUN) pydocstyle --convention=google $(all_py) || true
 endif
 ifdef all_yaml
-	$(RUN) yamllint ($all_yaml) || true
+	$(RUN) yamllint $(all_yaml) || true
 endif
 
 # Flake8 does not handle streamlit correctly so exclude it

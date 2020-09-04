@@ -19,7 +19,7 @@ volumes ?= -v $$(readlink -f "../src"):$(dest_dir)/restart/src \
 		   -v $$(readlink -f "../lib"):$(dest_dir)/restart/lib \
 		   -v $$(readlink -f "../../data"):$(dest_dir)/data
 
-PIP += pandas confuse ipysheet pyomo
+PIP += pandas confuse ipysheet pyomo h5py
 		   # pyyaml xlrd
 PIP_ONLY += tables
 # These are for development time

@@ -95,7 +95,6 @@ Dimension:
   Financial Attribute (F):
     - GDP
     - Unemployment
-    - Files
 
 # Uses the dimensions above to create matrices
 Model:

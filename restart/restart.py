@@ -6,7 +6,7 @@ from restart.src.model import Model
 from restart.src.util import set_config
 
 
-class NoteCompose:
+class RestartModel:
     """Bootstrap a model object in a notebook environment."""
 
     def __init__(

@@ -127,7 +127,7 @@ format:
 ## pipenv-package: build package
 .PHONY: package
 package:
-	$(RUN) python setup.y sdist bdist_wheel
+	$(RUN) python setup.py sdist bdist_wheel
 
 ## pypi: build package and push to the python package index
 .PHONY: pypi

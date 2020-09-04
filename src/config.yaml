@@ -85,16 +85,16 @@ Dimension:
   # cases, deaths by week, hosps by day
   # counties only have case data
   Mobility (m):
-    - Apple
+    - Mobility
   Mobility Attribute (M):
-    - Driving
-    - Walking
-    - Transit
+    - Apple Driving
+    - Apple Walking
+    - Apple Transit
   Financial (f):
-    - Bank of America
+    - Finance
   Financial Attribute (F):
     - GDP
-    - Sell Side Indicator
+    - Unemployment
 
 # Uses the dimensions above to create matrices
 Model:

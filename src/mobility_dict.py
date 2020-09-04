@@ -43,4 +43,4 @@ class MobilityDict(Mobility):
             config,
             log_root=log_root,
         )
-        log.debug(f"{self.mobility_mM_pr.df=}")
+        log.critical(f"{self.mobility_mM_pr.df=}")

@@ -530,6 +530,5 @@ Paths:
 
 Reich:
   Root: ../../data/epidemiological/processed
-  country: reichcountrydf.csv
-  state: reichstatedf.csv
-  county: reichcountydf.csv
+  CUBE: reich.hdf5
+  INDEX: reichindex.csv

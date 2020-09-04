@@ -1,24 +1,23 @@
-"""Epi model.
+"""Financial model.
 
-The disease model work.
+The main way we integrate economic activity.
 """
-
-# https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html
-# note the noqa: and type: are space sensitive
-# https://stackoverflow.com/questions/51179109/set-pyflake-and-mypy-ignore-same-line
+# https://numpydoc.readthedocs.io/en/latest/format.html
+# https://flake8.pycqa.org/en/3.1.1/user/ignoring-errors.html
+# note that the type ignor and noqa lines are space sensitive
 from typing import Optional
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore # noqa: F401
 import pandas as pd  # type: ignore # noqa: F401
 
-from base import Base
-from data import Data
-from log import Log
+from .base import Base  # type: ignore
+from .data import Data  # type: ignore
+from .log import Log  # type: ignore
 
 
-class Epi(Base):
-    """Resource - Manages all the resources that are used in the model.
+class Financial(Base):
+    """Financial - Manages the econometric.
 
     This creates for all r resources, the list of attributes a
 
@@ -31,20 +30,22 @@ class Epi(Base):
 
     # no variable here unless you want them the same across all classes
     # see https://docs.python.org/3/tutorial/classes.html
+
     def __init__(
         self,
         config: confuse.Configuration,
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):
-        """Initialize the Epi object.
+        """Initialize the Financial object.
 
         This uses the Frame object and populates it with default data unless yo
         override it
         """
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__(log_root=log_root)
+
         log = self.log
 
-        self.epi_eE_pr: Optional[Data] = None
-        log.debug(f"{self.epi_eE_pr=}")
+        self.financial_fF_pr: Optional[Data] = None
+        log.debug("base financial")

@@ -10,12 +10,12 @@ import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
-from data import Data
-from filtermodel import Filter
-from load_csv import LoadCSV
-from log import Log
-from population import Population
-from util import datetime_to_code, load_dataframe
+from .data import Data  # type: ignore
+from .filtermodel import Filter  # type: ignore
+from .load_csv import LoadCSV  # type: ignore
+from .log import Log  # type: ignore
+from .population import Population  # type: ignore
+from .util import datetime_to_code, load_dataframe  # type: ignore
 
 
 class PopulationOES(Population):

@@ -4,9 +4,9 @@ Organization modeling
 """
 import confuse  # type: ignore
 
-from data import Data
-from log import Log
-from organization import Organization
+from .data import Data  # type: ignore
+from .log import Log  # type: ignore
+from .organization import Organization  # type: ignore
 
 
 class OrganizationDict(Organization):

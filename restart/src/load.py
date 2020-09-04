@@ -4,8 +4,8 @@ Base class
 """
 from typing import Dict, Optional
 
-from base import BaseLog
-from log import Log
+from .base import BaseLog  # type: ignore
+from .log import Log  # type: ignore
 
 
 class Load(BaseLog):

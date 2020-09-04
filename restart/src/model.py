@@ -10,35 +10,31 @@ from __future__ import annotations
 
 from typing import Generator, List, Optional, Tuple
 
-from base import Base
-from demand import Demand
-from demand_dict import DemandDict
-from epi import Epi
-from epi_dict import EpiDict
-from epi_table import EpiTable
-from filtermodel import Filter
-from financial import Financial
-from financial_dict import FinancialDict
-from financial_table import FinancialTable
-from inventory import Inventory
-from inventory_dict import InventoryDict
-from log import Log
-from mobility import Mobility
-from mobility_dict import MobilityDict
-from mobility_table import MobilityTable
-from organization import Organization
-from organization_dict import OrganizationDict
-from output import Output
-
-# import numpy as np  # type:ignore
-# import pandas as pd  # type:ignore
-# from population import Population
-from population import Population
-from population_dict import PopulationDict
-from population_oes import PopulationOES
-from population_wa import PopulationWA
-from resource_dict import ResourceDict
-from resourcemodel import Resource
+from .base import Base  # type: ignore
+from .demand import Demand  # type: ignore
+from .demand_dict import DemandDict  # type: ignore
+from .epi import Epi  # type: ignore
+from .epi_dict import EpiDict  # type: ignore
+from .epi_table import EpiTable  # type: ignore
+from .filtermodel import Filter  # type: ignore
+from .financial import Financial  # type: ignore
+from .financial_dict import FinancialDict  # type: ignore
+from .financial_table import FinancialTable  # type: ignore
+from .inventory import Inventory  # type: ignore
+from .inventory_dict import InventoryDict  # type: ignore
+from .log import Log  # type: ignore
+from .mobility import Mobility  # type: ignore
+from .mobility_dict import MobilityDict  # type: ignore
+from .mobility_table import MobilityTable  # type: ignore
+from .organization import Organization  # type: ignore
+from .organization_dict import OrganizationDict  # type: ignore
+from .output import Output  # type: ignore
+from .population import Population  # type: ignore
+from .population_dict import PopulationDict  # type: ignore
+from .population_oes import PopulationOES  # type: ignore
+from .population_wa import PopulationWA  # type: ignore
+from .resource_dict import ResourceDict  # type: ignore
+from .resourcemodel import Resource  # type: ignore
 
 
 class Model(Base):
@@ -110,6 +106,7 @@ class Model(Base):
         # the super class population uses type to return the exact model
         # filter is by happens after this
         self.population: Population
+        self.filter: Filter
 
         if type == "oes":
             self.population = PopulationOES(

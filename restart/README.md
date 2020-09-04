@@ -22,10 +22,10 @@ This file lives in README.tex.md and (Texify)[https://github.com/apps/texify] is
 a Github application that automatically renders README.md with Latex formulas
 which you add by putting the Latex between double dollar signs.
 
-<p align="center"><img src="/src/tex/ce64ef4363eed7196ffc6ed3c4761042.svg?invert_in_darkmode&sanitize=true" align=middle width=9.61479915pt height=14.611878599999999pt/></p> LaTeX and it is not and this is more formally known as
-and there are arbitrarily summarizations from <p align="center"><img src="/src/tex/afa921d8065c9b75169abacf1ebafddf.svg?invert_in_darkmode&sanitize=true" align=middle width=14.8230951pt height=14.611878599999999pt/></p> to the more
-summarized as the nth summarization is <p align="center"><img src="/src/tex/ccfb8e56fa0de96aaf2384824f7ce8ee.svg?invert_in_darkmode&sanitize=true" align=middle width=16.3965714pt height=14.611878599999999pt/></p> in python we use the
-notation <p align="center"><img src="/src/tex/9671989d0ae023df99422a88c302a0a4.svg?invert_in_darkmode&sanitize=true" align=middle width=63.899361899999995pt height=14.611878599999999pt/></p> and <p align="center"><img src="/src/tex/12e5f573a7052c63116931fd4ffb9062.svg?invert_in_darkmode&sanitize=true" align=middle width=77.3268672pt height=14.611878599999999pt/></p>
+<p align="center"><img src="/restart/tex/ce64ef4363eed7196ffc6ed3c4761042.svg?invert_in_darkmode&sanitize=true" align=middle width=9.61479915pt height=14.611878599999999pt/></p> LaTeX and it is not and this is more formally known as
+and there are arbitrarily summarizations from <p align="center"><img src="/restart/tex/afa921d8065c9b75169abacf1ebafddf.svg?invert_in_darkmode&sanitize=true" align=middle width=14.8230951pt height=14.611878599999999pt/></p> to the more
+summarized as the nth summarization is <p align="center"><img src="/restart/tex/ccfb8e56fa0de96aaf2384824f7ce8ee.svg?invert_in_darkmode&sanitize=true" align=middle width=16.3965714pt height=14.611878599999999pt/></p> in python we use the
+notation <p align="center"><img src="/restart/tex/9671989d0ae023df99422a88c302a0a4.svg?invert_in_darkmode&sanitize=true" align=middle width=63.899361899999995pt height=14.611878599999999pt/></p> and <p align="center"><img src="/restart/tex/12e5f573a7052c63116931fd4ffb9062.svg?invert_in_darkmode&sanitize=true" align=middle width=77.3268672pt height=14.611878599999999pt/></p>
 
 ## The model structure over view in a nutshell
 In a nutshell, to create any model, you just create a chain with parameters by
@@ -71,104 +71,6 @@ want to see any particular entry, the look there for the html file:
    The test one is done in YAML. The real OES data is there as well but is not
    yet filtered
 
-## Naming scheme
-
-While configuration files are typically used to set defaults and make small
-tweaks, this model heavily relies on its configuration to define all aspects
-of itself. The core architecture can be found in `config.yaml`, which relies
-on a slightly complex but consistent naming scheme. Below we'll go through
-an example that explains this scheme.
-
-An example variable in the config file is:
-
-```yaml
-Model:
-  population_pP_tr:
-    name: "Population Attributes (p->P:tr)"
-    description: |
-      There are p Populations in the model and each population
-      can have P attributes about them such as their degree of age,
-      ethnicity, attitudes and awareness behaviors. The first attribute is
-      the size of the sub-population. It models a real entity.
-    units: Total
-    kind: Real
-    index:
-      - "Population (p)"
-      - "Population Attribute (P)"
-    array:
-      - [735.2, 0, 12]
-      - [7179.6, 74, 234]
-```
-In this case, `population_pP_tr` refers to counts of different populations.
-Let's break this down further.
-
-All variables are named in a consistent manner. In this case, the first field
-(`population`) signifies that this variable describes something about
-populations. The second field (`pP`) defines the dimensions. This tells us
-that its `array` has dimensions `p x P` (see the `Dimension` section of
-`config.yaml` for a complete list of dimensions). Finally, `tr` represents
-the units and kind of the array. In this case, the `t` tells us that these
-are "Totals", and the kind is "Real", which makes sense since people are
-tangible (not calculated or used to map), and we're counting totals here.
-
-Using this scheme, you can learn to look at any variable and instantly
-understand what it represents, what its dimensions are, and what its units are.
-
-## Data Class
-
-We use a custom data class in order to pass information throughout the model.
-We do this because every array we use must be used to perform matrix math,
-but carries certain metadata like labels or descriptions, and also must be
-able to be easily graphed or displayed. This custom class allows us to easily
-instantiate and pass around complex data structures without the need to
-manually manage several different representations of the same data. A quick
-example usage of the data class is below.
-
-Say you want to instantiate a data object using the default value found in
-`config.yaml`. This can be done as follows:
-
-```python
-population_pP_tr = Data(
-  "population_pP_tr",
-  config,
-  log_root=self.log_root
-)
-```
-
-The variable name passed to the `Data` class is used as a key in `config.yaml`,
-allowing for easy access to all of its various fields. Now we can easily
-access its array representation as `population_pP_tr.array`, and its
-dataframe representation as `population_pP_tr.df`. We can also change one of
-these values, and all the others will automatically update. This would look
-something like
-
-```python
-population_pP_tr.array = new_array
-```
-
-Now the `df` attribute of `population_pP_tr` will be updated to reflect the
-change.
-
-If you need to override certain values of the default configuration, this
-is also easily achievable. For example, if I want to override `population_pP_tr`
-with my own generated array and set of indices, I can do it as follows:
-
-```python
-population_pP_tr = Data(
-  "population_pP_tr",
-  config,
-  log_root=self.log_root,
-  p_index=new_p_indices,  # a list-like object
-  P_index=new_P_indices,  # a list-like object
-  array=new_array
-)
-```
-
-Because the prefixes to the index are all unique keys, the `Data` class uses
-them to intelligently update the correct fields in the configuration, which
-take precedent over the defaults. This is implemented using `**kwargs`, so
-you can pass any valid fields in the model and it will work.
-
 # Building your development environment
 
 If you are editing with an editor like vim which uses the external python
@@ -193,7 +95,7 @@ We are assuming you have a Mac and it is naked so from
 [Python](https://docs.python-guide.org/starting/install3/osx/) itself
 ```
 # install homebrew as a bootstrap
-ruby -e "<img src="/src/tex/f1550fa5f2cbf10ea3db3f744456de91.svg?invert_in_darkmode&sanitize=true" align=middle width=1537.0778642999999pt height=24.7161288pt/>PATH =~ /usr/local/opt/python/libexec/bin ]] || export PATH="/usr/local/opt/python/libexec/bin:<img src="/src/tex/c5119ae286a706d4518cf2bd0e46f3f3.svg?invert_in_darkmode&sanitize=true" align=middle width=3388.0543884pt height=5364.0913095pt/>{{ matrix.python-version }}
+ruby -e "<img src="/restart/tex/f1550fa5f2cbf10ea3db3f744456de91.svg?invert_in_darkmode&sanitize=true" align=middle width=1537.0778642999999pt height=24.7161288pt/>PATH =~ /usr/local/opt/python/libexec/bin ]] || export PATH="/usr/local/opt/python/libexec/bin:<img src="/restart/tex/c5119ae286a706d4518cf2bd0e46f3f3.svg?invert_in_darkmode&sanitize=true" align=middle width=3388.0543884pt height=5364.0913095pt/>{{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}

@@ -1,20 +1,20 @@
-"""Epi Data Read.
+"""Financial Data Read.
 
-Read in the epi from the model dictionary
+Read in the financial from the model dictionary
 """
 
 import confuse  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
 
-from data import Data
-from epi import Epi
-from log import Log
+from .data import Data  # type: ignore
+from .financial import Financial  # type: ignore
+from .log import Log  # type: ignore
 
 
-class EpiDict(Epi):
-    """Epi Data Readers.
+class FinancialDict(Financial):
+    """Financial Data Readers.
 
-    Reads the epi data. The default is to read from the model.data
+    Reads the financial data. The default is to read from the model.data
     """
 
     def __init__(
@@ -23,7 +23,7 @@ class EpiDict(Epi):
         log_root: Log = None,
         type: str = None,
     ):
-        """Initialize the epi object.
+        """Initialize the financial object.
 
         This uses the Frame object and populates it with default data unless
         you override it
@@ -36,11 +36,11 @@ class EpiDict(Epi):
         if config is None:
             raise ValueError(f"{config=} is null")
 
-        # get epi data
+        # get financial data
         # Using the new Lucas data class
-        self.epi_eE_pr = Data(
-            "epi_eE_pr",
+        self.financial_fF_pr = Data(
+            "financial_fF_pr",
             config,
             log_root=log_root,
         )
-        log.debug(f"{self.epi_eE_pr.df=}")
+        log.debug(f"{self.financial_fF_pr.df=}")

@@ -1,17 +1,17 @@
-"""Mobility Data Read from a large table.
+"""Mobility Data Read.
 
-Read in the mobility from an external table
+Read in the mobility from the model dictionary
 """
 
 import confuse  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
 
-from data import Data
-from log import Log
-from mobility import Mobility
+from .data import Data  # type: ignore
+from .log import Log  # type: ignore
+from .mobility import Mobility  # type: ignore
 
 
-class MobilityTable(Mobility):
+class MobilityDict(Mobility):
     """Mobility Data Readers.
 
     Reads the mobility data. The default is to read from the model.data
@@ -43,4 +43,4 @@ class MobilityTable(Mobility):
             config,
             log_root=log_root,
         )
-        log.debug(f"{self.mobility_mM_pr.df=}")
+        log.critical(f"{self.mobility_mM_pr.df=}")

@@ -8,9 +8,9 @@ import confuse  # type: ignore
 import numpy as np  # type: ignore # noqa: F401
 import pandas as pd  # type: ignore # noqa: F401
 
-from base import Base
-from data import Data
-from log import Log
+from .base import Base  # type: ignore
+from .data import Data  # type: ignore
+from .log import Log  # type: ignore
 
 
 class Mobility(Base):

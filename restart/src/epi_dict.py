@@ -1,20 +1,20 @@
-"""Mobility Data Read.
+"""Epi Data Read.
 
-Read in the mobility from the model dictionary
+Read in the epi from the model dictionary
 """
 
 import confuse  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
 
-from data import Data
-from log import Log
-from mobility import Mobility
+from .data import Data  # type: ignore
+from .epi import Epi  # type: ignore
+from .log import Log  # type: ignore
 
 
-class MobilityDict(Mobility):
-    """Mobility Data Readers.
+class EpiDict(Epi):
+    """Epi Data Readers.
 
-    Reads the mobility data. The default is to read from the model.data
+    Reads the epi data. The default is to read from the model.data
     """
 
     def __init__(
@@ -23,7 +23,7 @@ class MobilityDict(Mobility):
         log_root: Log = None,
         type: str = None,
     ):
-        """Initialize the mobility object.
+        """Initialize the epi object.
 
         This uses the Frame object and populates it with default data unless
         you override it
@@ -36,11 +36,11 @@ class MobilityDict(Mobility):
         if config is None:
             raise ValueError(f"{config=} is null")
 
-        # get mobility data
+        # get epi data
         # Using the new Lucas data class
-        self.mobility_mM_pr = Data(
-            "mobility_mM_pr",
+        self.epi_eE_pr = Data(
+            "epi_eE_pr",
             config,
             log_root=log_root,
         )
-        log.critical(f"{self.mobility_mM_pr.df=}")
+        log.debug(f"{self.epi_eE_pr.df=}")

@@ -6,12 +6,12 @@ Read in the financial from the model dictionary
 import confuse  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
 
-from data import Data
-from financial import Financial
-from log import Log
+from .data import Data  # type: ignore
+from .financial import Financial  # type: ignore
+from .log import Log  # type: ignore
 
 
-class FinancialDict(Financial):
+class FinancialTable(Financial):
     """Financial Data Readers.
 
     Reads the financial data. The default is to read from the model.data
@@ -37,7 +37,6 @@ class FinancialDict(Financial):
             raise ValueError(f"{config=} is null")
 
         # get financial data
-        # Using the new Lucas data class
         self.financial_fF_pr = Data(
             "financial_fF_pr",
             config,

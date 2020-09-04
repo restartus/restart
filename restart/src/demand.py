@@ -7,11 +7,11 @@ from typing import Dict, Optional
 import confuse  # type: ignore
 import numpy as np  # type: ignore
 
-from base import Base
-from data import Data
-from log import Log
-from population import Population
-from resourcemodel import Resource
+from .base import Base  # type: ignore
+from .data import Data  # type: ignore
+from .log import Log  # type: ignore
+from .population import Population  # type: ignore
+from .resourcemodel import Resource  # type: ignore
 
 
 class Demand(Base):

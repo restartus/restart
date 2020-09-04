@@ -13,11 +13,9 @@ from typing import Optional
 import confuse  # type: ignore
 
 # Note that pip install data-science-types caused errors
-from base import Base
-from data import Data
-from log import Log
-
-# import pandas as pd  # type:ignore
+from .base import Base  # type: ignore
+from .data import Data  # type: ignore
+from .log import Log  # type: ignore
 
 
 class Population(Base):

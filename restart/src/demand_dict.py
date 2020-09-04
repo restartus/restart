@@ -6,11 +6,11 @@ from typing import Optional
 
 import confuse  # type: ignore
 
-from demand import Demand
-from log import Log
-from organization import Organization
-from population import Population
-from resourcemodel import Resource
+from .demand import Demand  # type: ignore
+from .log import Log  # type: ignore
+from .organization import Organization  # type: ignore
+from .population import Population  # type: ignore
+from .resourcemodel import Resource  # type: ignore
 
 
 class DemandDict(Demand):

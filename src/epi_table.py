@@ -3,12 +3,12 @@
 Read in the epi from the model dictionary
 """
 import os
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple
 
 import confuse  # type: ignore
-import pandas as pd  # type: ignore # noqa: F401
-import numpy as np  # type: ignore
 import h5py  # type: ignore
+import numpy as np  # type: ignore
+import pandas as pd  # type: ignore # noqa: F401
 
 from data import Data
 from epi import Epi

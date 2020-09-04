@@ -16,3 +16,7 @@ gitpod: $(Dockerfile)
 include lib/include.docker.mk
 include lib/include.mk
 include lib/include.python.mk
+
+.PHONY: pypi-clean
+pypi-clean:
+	rm -r build dist *.egg-info/

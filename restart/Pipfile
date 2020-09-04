@@ -36,6 +36,7 @@ setuptools = "*"
 wheel = "*"
 twine = "*"
 pyomo = "*"
+h5py = "*"
 
 [requires]
 python_version = "3.8"

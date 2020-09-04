@@ -1,0 +1,6 @@
+# https://packaging.python.org/guides/using-manifest-in/
+# For file not otherwise picked up.
+
+recursive-include ../../data/ingestion/ *
+recursive-include ../../data/epidemiological/processed/ *
+recursive-include ../config/ *

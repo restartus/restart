@@ -9,8 +9,8 @@ with open("README.md", "r") as f:
     long_description = f.read()
 
 setuptools.setup(
-    name="restart-model",
-    version="2.0.1",
+    name="restart",
+    version="2.5.0.3",
     # this script doesn't exist
     # scripts=["model"],
     author="Restart Partners",

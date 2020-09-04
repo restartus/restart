@@ -168,7 +168,7 @@ conda:
 lint:
 	$(RUN) flake8
 ifdef all_py
-	$(RUN) seed-isort-config ||ture
+	$(RUN) seed-isort-config ||true
 	$(RUN) mypy --namespace-packages $(all_py) || true
 	$(RUN) bandit $(all_py) || true
 	$(RUN) pydocstyle --convention=google $(all_py) || true

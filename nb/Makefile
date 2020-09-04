@@ -10,7 +10,7 @@ CALIFORNIA ?= CaliforniaDash.ipynb
 PIPENV_CHECK_FLAGS ?= -i 38212
 
 # consumed by include.python.mk for makes
-PIP_DEV = pre-commit
+PIP_DEV = pre-commit isort
 PIP = voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify voila-vuetify \
 		  scipy confuse voila-reveal
 PIP_ONLY = jupyter-server

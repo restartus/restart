@@ -2,7 +2,10 @@ FROM jupyter/base-notebook
 LABEL maintainer="Restart Us <admin@restart.us>"
 # Using this as the base to get user working right
 ARG DOCKER_USER=jovyan
-ARG ENV=src
+ENV CONDA_ENV=restart
+
+# This is set for make files of restart
+#
 
 #
 # library for docker files
@@ -15,6 +18,8 @@ ARG ENV=src
 
 
 # create_user(user, group, groupuserid)
+
+
 
 
 # src specific for Docker
@@ -44,17 +49,17 @@ RUN usermod -aG sudo $DOCKER_USER && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc
 USER $DOCKER_USER
 
 
-RUN conda create --name $ENV && \
+RUN conda create --name $CONDA_ENV && \
     conda config --add channels conda-forge && \
     conda config --set channel_priority strict && \
-    conda install --name $ENV --quiet --yes \
+    conda install --name $CONDA_ENV --quiet --yes \
             python=3.8 \
-            pandas confuse ipysheet h5py \
+            pandas confuse ipysheet h5py  \
             nptyping pydocstyle pdoc3 flake8 mypy bandit \
             black tox pytest pytest-cov pytest-xdist tox yamllint \
             pre-commit isort seed-isort-config \
             setuptools wheel twine && \
-    conda run -n $ENV pip install tables && \
+    conda run -n $CONDA_ENV pip install tables && \
     conda clean -afy && \
     conda init
 

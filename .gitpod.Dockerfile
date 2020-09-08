@@ -1,12 +1,13 @@
 FROM restartus/src:latest
-LABEL MAINTAINER="Admin Restart<admin@restart.us>"
 # Set environment for setup
-ENV ENV=docker
 
 # To be used in gitpod.io must be debian/ubuntu or alpine based
 # Must also have a gitpod use
 # With the jupyter/scipy-notebook base we end up with two users
 # gitpod and joyvan
+# This is set for make files of restart
+#
+
 #
 # library for docker files
 # Desigend for docker files
@@ -18,6 +19,13 @@ ENV ENV=docker
 
 
 # create_user(user, group, groupuserid)
+
+
+
+
+
+ENV ENV=docker
+LABEL MAINTAINER="Admin Restart<admin@restart.us>"
 
 
 
@@ -68,12 +76,10 @@ RUN conda create --name nb && \
 # '-l': see https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
 USER root
 
-# adapted from 
+# adapted from
 # https://github.com/restartus/gitpod/blob/master/components/image-builder/workspace-image-layer/gitpod-layer/debian/gitpod/layer.sh
         # users in the 'sudo' group for non gitpod entires, gitpod does not
-        # allow sudo so this is for other dockerfile
-RUN getent group gitpod || addgroup --gid 33333 gitpod
-RUN useradd --no-log-init --create-home --home-dir  /home/gitpod --shell /bin/bash \
+        # allow sudo so this is for other dockerfile RUN getent group gitpod || addgroup --gid 33333 gitpod RUN useradd --no-log-init --create-home --home-dir  /home/gitpod --shell /bin/bash \
             --uid 33333 --gid 33333 gitpod && \
     sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
 ENV HOME=/home/gitpod
@@ -95,4 +101,4 @@ USER gitpod
 RUN  echo "export ENV=docker" >> $HOME/.bashrc && \
      conda init && \
      eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
-     conda activate src
+     conda activate restart

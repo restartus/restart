@@ -9,7 +9,7 @@ DOCKER_USER := gitpod
 name := gitpod
 
 
-$(Dockerfile): $(Dockerfile.in) lib/lib.docker nb/nb.docker restart/src.docker lib/debug.docker
+$(Dockerfile): $(Dockerfile.in) lib/lib.docker nb/nb.docker restart/restart.docker lib/debug.docker
 
 ## repo-pre-commit: Install the base precommit for the repo
 .PHONY: repo-pre-commit

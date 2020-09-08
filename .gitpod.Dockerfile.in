@@ -1,15 +1,16 @@
 FROM restartus/src:latest
-LABEL MAINTAINER="Admin Restart<admin@restart.us>"
 # Set environment for setup
-ENV ENV=docker
 
 # To be used in gitpod.io must be debian/ubuntu or alpine based
 # Must also have a gitpod use
 # With the jupyter/scipy-notebook base we end up with two users
 # gitpod and joyvan
 include(lib/lib.docker)
+
+boilerplate()
+
 include(lib/debug.docker)
-include(restart/src.docker)
+include(restart/restart.docker)
 include(nb/nb.docker)
 
 # create the environment for the joyvan user which is used for notebooks
@@ -28,8 +29,4 @@ add_group(users,gitpod)
 # https://stackoverflow.com/questions/55507519/python-activate-conda-env-through-shell-script
 #
      # source "$HOME/.bashrc" && \  # does not work
-USER gitpod
-RUN  echo "export ENV=docker" >> $HOME/.bashrc && \
-     conda init && \
-     eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
-     conda activate src
+set_env(gitpod, restart)

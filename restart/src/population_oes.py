@@ -104,9 +104,6 @@ class PopulationOES(Population):
         elif self.subpop == "wa_tier2_opt2":
             df = self.wa_tier2_opt2_filter(df)
 
-        elif self.subpop == "wa_groupings":
-            df = self.wa_public_safety_filter(df)
-
         # the actual data passed onto the model
         self.pop_detail_df = self.drop_code(df)
         self.population_pP_tr = Data(
@@ -127,15 +124,7 @@ class PopulationOES(Population):
             array=pop_to_burn_df.to_numpy(),
         )
 
-        if self.subpop != "wa_groupings":
-            self.set_essential(xls_df, config)
-        else:
-            self.pop_to_popsum1_per_unit_map_pp1_us = Data(
-                "pop_to_popsum1_per_unit_map_pp1_us",
-                config,
-                log_root=self.log_root,
-        )
-
+        self.set_essential(xls_df, config)
         # detail_pd_arr = detail_pd_df["Size"].to_numpy()
         # self.pop_demand_per_unit_map_pd_um: Data = self.pop_to_burn_rate(
         #         df,
@@ -615,24 +604,15 @@ class PopulationOES(Population):
         return filt
 
     def wa_public_safety_filter(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Return a detailed breakdown of Washington public safety."""
-        occ_list = [
-            "29-2040",
-            "33-2011",
-            "33-3012",
-            "33-3021",
-            "33-9093",
-            "33-3041",
-            "33-3051",
-        ]
+        """Provide a detailed breakdown of Washington public safety.
 
-        filt = df[df["occ_code"].isin(occ_list)]
-        return filt
+        Args:
+            df: Dataframe
 
-    def set_wa_sum(self, df: pd.DataFrame, config) -> pd.DataFrame:
-        """Washington group summarization."""
-        pop_level: List = []
-
+        Return:
+            Filter stream
+        """
+        pass
 
     def set_essential(self, df: pd.DataFrame, config) -> pd.DataFrame:
         """Get population essential levels from the excel model.

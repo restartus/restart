@@ -20,7 +20,8 @@ container := $(name)
 build_path ?= .
 MAIN ?= $$(basename $(PWD)).py
 DOCKER_USER ?= jovyan
-DOCKER_ENV ?= $(name)
+DOCKER_ENV ?= docker
+CONDA_ENV ?= $(name)
 
 dest_dir ?= /home/$(DOCKER_USER)/$(name)
 volumes ?= -v $$(readlink -f "."):$(dest_dir)

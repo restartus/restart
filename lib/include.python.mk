@@ -25,7 +25,7 @@ STREAMLIT ?= $(MAIN)
 PIPENV_CHECK_FLAGS ?= --ignore 38212
 
 # https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
-# The virtual environment [ pipenv | conda | docker | none ]
+# The virtual environment [ pipenv | conda | none ]
 ENV ?= pipenv
 RUN ?=
 ACTIVATE ?=
@@ -44,7 +44,7 @@ else ifeq ($(ENV),conda)
 	UPDATE := $(RUN) conda update --all
 	INSTALL := conda install -y -n $(name)
 	INSTALL_DEV := $(INSTALL)
-else ifeq ($(ENV),docker)
+else ifeq ($(ENV),none)
 	RUN :=
 	ACTIVATE :=
 	# need a noop as this is not a modifier
@@ -91,7 +91,7 @@ ifeq ($(ENV),conda)
 endif
 	$(INSTALL) $(PIP) || true
 	$(INSTALL_DEV) $(PIP_DEV) || true
-	$(RUN) pip install -y $(PIP_ONLY) || true
+	$(RUN) pip install $(PIP_ONLY) || true
 
 ifeq ($(ENV),pipenv)
 		pipenv lock

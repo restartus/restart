@@ -24,17 +24,9 @@ wheel = "*"
 twine = "*"
 
 [packages]
-voila = "*"
-ipywidgets = "*"
-ipysheet = "*"
 pandas = "*"
-pyyaml = "*"
-xlrd = "*"
-tables = "*"
 confuse = "*"
-setuptools = "*"
-wheel = "*"
-twine = "*"
+ipysheet = "*"
 pyomo = "*"
 h5py = "*"
 

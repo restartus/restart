@@ -13,13 +13,15 @@ CA_VENT_FLAGS ?= --config ../config/ca-vent
 # For docker config link in key directories
 flags ?= -e GRANT_SUDO=1
 DOCKER_USER ?= jovyan
-dest_dir ?= /home/$(DOCKER_USER)/ws
-volumes ?= -v $$(readlink -f "../src"):$(dest_dir)/restart/src \
+# Using same layout as gitpod
+dest_dir ?= /home/$(DOCKER_USER)/workspace
+
+volumes ?= -v $$(readlink -f "."):$(dest_dir)/restart/restart \
 		   -v $$(readlink -f "../config"):$(dest_dir)/restart/config \
 		   -v $$(readlink -f "../lib"):$(dest_dir)/restart/lib \
 		   -v $$(readlink -f "../../data"):$(dest_dir)/data
 
-PIP += pandas confuse ipysheet pyomo h5py
+PIP += pandas confuse ipysheet pyomo h5py 
 		   # pyyaml xlrd
 PIP_ONLY += tables
 # These are for development time
@@ -30,7 +32,7 @@ PIP_DEV += nptyping pydocstyle pdoc3 flake8 mypy bandit \
 
 Dockerfile = Dockerfile
 Dockerfile.in = $(Dockerfile).in
-$(Dockerfile): $(Dockerfile.in) ../lib/debug.docker ../lib/lib.docker src.docker
+$(Dockerfile): $(Dockerfile.in) ../lib/debug.docker ../lib/lib.docker restart.docker
 
 # Note that main run
 ## test: run system test

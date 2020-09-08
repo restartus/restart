@@ -603,6 +603,14 @@ class PopulationOES(Population):
 
         return filt
 
+    def wa_public_safety_filter(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Return a detailed breakdown of Washington public safety.
+
+        Args:
+            None
+
+        return
+
     def set_essential(self, df: pd.DataFrame, config) -> pd.DataFrame:
         """Get population essential levels from the excel model.
 

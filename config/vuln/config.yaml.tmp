@@ -1,3 +1,4 @@
+# The August 20, 2020 analysis for Bono Working Group 3
 ---
 Config:
   modules: 7
@@ -12,8 +13,11 @@ Config:
 # as needed
 Label:
   "Resource n":
-    - "N95 + Mask"
-    - "N95"
+    # N95 1860/S/70 Surgical"
+    - "N95 Surgical"
+    # 8210/8110/8210+/8200 molded, 9210+/9105/9105+ folded
+    # 8211 comfort/faceseal/molded, 8511 comfort/molded
+    - "N95 Non-surgical"
     - "ASTM 3 Mask"
     - "ASTM 1-2 Mask"
     - "Non ASTM Mask"
@@ -22,10 +26,17 @@ Label:
     - "Gloves"
     - "Shoe Covers"
   "Population p":
-    - "Homeless"
-    - "Unemployed Pre-Covid"
-    - "Migrant Farm Workers"
-    - "Nursing Facility Patient"
+    - "Aging and Long Term Support Staff"
+    - "Aging and Long Term Support Clients"
+    - "Developmentally Disabled Staff"
+    - "Developmentally Disabled Clients"
+    - "Low Income and Poverty Staff"
+    - "Low Income and Poverty Clients"
+    - "Child Communities Staff"
+    - "Child Communities Clients"
+    - "Behavioral Health Staff"
+    - "Behavioral Health Clients"
+    - "Agricultural Community"
   "Pop Detail d":
     - Size
   "Pop Level l":
@@ -52,29 +63,59 @@ Data:
   "Population p":
     "Pop Detail Data pd":
       Size:
-        - 22000
-        - 152000
-        - 38000
-        - 16000
+        - 116743
+        - 125213
+        - 14225
+        - 4927
+        - 4800
+        - 1838000
+        - 52682
+        - 387500
+        - 3916
+        - 1351
+        - 160000
     "Protection pm":
-      - [0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.0]
-      - [0.0, 0.0, 0.0, 1, 0.0, 0.0, 0.0]
-      - [0.0, 0.0, 0.0, 0.0, 1.0, 0, 0]
-      - [0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+      # Aging assume that some are going to N95 surgical
+      - [0.0, 0.0, 0.0, 0.0, 0.5, 0.4, 0.1]
+      - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      - [0.0, 0.0, 0.0, 0.0, 0.5, 0.4, 0.1]
+      - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      - [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+      - [0.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.0]
+      - [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+      - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      - [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0]
+      - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      - [0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0]
     "Pop to Level pl":
+      - [1, 0]
       - [0, 1]
+      - [1, 0]
       - [0, 1]
-      - [0.5, 0.5]
+      - [1, 0]
+      - [0, 1]
+      - [1, 0]
+      - [0, 1]
+      - [1, 0]
+      - [0, 1]
       - [0, 1]
   "Demand m":
     "Level to Resource mn":
+      # Using the original and not the Reed figures
+      # No protection
       - [0, 0, 0, 0, 0, 0, 0, 0, 0]
+      # Resident or Patient
       - [0, 0, 0, 0, 1, 0.02, 0.01, 0.5, 0]
+      # Office worker
       - [0, 0, 0, 0, 2, 0.04, 0.02, 1, 0]
+      # Customer facing worker (teacher)
       - [0, 0, 0, 1, 2, 0.08, 0.03, 2, 0.05]
+      # Blue collar
       - [0, 0.05, 1, 0, 3, 0.12, 0.05, 4, 0.2]
+      # Lab and other likely contact
       - [0, 1, 2, 1, 0, 0.18, 1.5, 8, 0.4]
-      - [2.36, 0, 3.03, 1, 0.05, 0.27, 3.65, 12, 0.6]
+      # Healthcare with direct contact
+      - [1.18, 0, 4.03, 1, 0.05, 0.27, 3.65, 12, 0.6]
   "Resource n":
     "Res Attr Data na":
       - [1, 2, 0.7]
@@ -87,8 +128,11 @@ Data:
       - [1, 0.9, 0.7]
       - [1, 2, 2]
     "Pop Level Res Cost ln":
-      - [3, 4.5, 2, 4, 2, 1, 3.9, 2.3, 1.1]
-      - [0.5, 0.75, 0.8, 1, 0.9, 1.2, 0.7, 1.2, 1.14]
+      # Cost from covid-surge-who-v2.01
+      - [5.0, 4.0, 1.0, 0.60, 0.20, 2.50, 4.0, 0.20, 0.15]
+      # Assumes non-essential are using cloth mask $1.95 for 30 days
+      # And lower quality face shields
+      - [5.0, 4.0, 1.0, 0.60, 0.06, 1.50, 4.0, 0.20, 0.15]
     "Res Inventory Initial ln":
       - [1, 2, 3, 4, 5, 6, 7, 8, 9]
       - [10, 20, 30, 40, 50, 60, 70, 80, 90]

@@ -6,6 +6,7 @@
 VOILA_WA ?= Washington.ipynb
 VOILA_DEMO ?= VuetifyDemo.ipynb
 CALIFORNIA ?= CaliforniaDash.ipynb
+WASHINGTON ?= Washington.ipynb
 # voila requires jupyter-server 0.1.1
 PIPENV_CHECK_FLAGS ?= -i 38212
 
@@ -33,6 +34,12 @@ $(Dockerfile): $(Dockerfile).in ../lib/lib.docker nb.docker
 .PHONY: ca
 ca:
 	$(RUN) jupyter notebook $(CALIFORNIA)
+
+
+## wa: the current state of Washington notebook
+.PHONY: wa
+wa:
+	$(RUN) jupyter notebook $(WASHINGTON)
 
 ## voila-ca: deployment view of California
 .PHONY: voila-ca

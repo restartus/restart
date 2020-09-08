@@ -30,5 +30,5 @@ add_group(users,gitpod)
 # https://stackoverflow.com/questions/55507519/python-activate-conda-env-through-shell-script
 #
      # source "$HOME/.bashrc" && \  # does not work
-set_env_test(gitpod,conda)
-set_env(gitpod,conda)
+set_env_test(gitpod,restart)
+set_env(gitpod,restart)

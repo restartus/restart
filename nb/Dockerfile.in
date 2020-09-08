@@ -1,7 +1,7 @@
 FROM jupyter/scipy-notebook
 LABEL maintainer="Restart Us <admin@restart.us>"
 ARG DOCKER_USER=jovyan
-ARG ENV=nb
+ARG CONDA_ENV=nb
 
 include(../lib/lib.docker)
 include(nb.docker)
@@ -9,8 +9,8 @@ include(nb.docker)
 # https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
 add_group(sudo,$DOCKER_USER)
 
-create_conda_nb($ENV)
+create_conda_nb($CONDA_ENV)
 
-setenv($DOCKER_USER,$ENV)
+set_env($DOCKER_USER,$CONDA_ENV)
 
 WORKDIR /home/jovyan/workspace

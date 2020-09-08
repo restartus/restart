@@ -23,6 +23,7 @@ FROM restartus/src:latest
 # create_user(user, group, groupuserid)
 
 
+# set_env(user,conda-env)
 
 
 
@@ -103,14 +104,17 @@ USER gitpod
 
 # which will use the source package
 
-# conda init does not work in a bash script
+# conda init does not work in a bash script so set it here
 # https://stackoverflow.com/questions/55507519/python-activate-conda-env-through-shell-script
 #
      # source "$HOME/.bashrc" && \  # does not work
 USER gitpod
-RUN echo "export ENV=conda" >> "$HOME/.bashrc"
+RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
+    conda init && \
+    echo "finished"
 
 USER gitpod
+RUN conda env list
 RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
     conda init && \
     echo "conda activate restart" >> "$HOME/.bashrc" && \

@@ -1,7 +1,7 @@
 FROM jupyter/scipy-notebook
 LABEL maintainer="Restart Us <admin@restart.us>"
 ARG DOCKER_USER=jovyan
-ARG ENV=nb
+ARG CONDA_ENV=nb
 
 # This is set for make files of restart
 #
@@ -39,10 +39,10 @@ RUN usermod -aG sudo $DOCKER_USER && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc
 USER $DOCKER_USER
 
 
-RUN conda create --name $ENV && \
+RUN conda create --name $CONDA_ENV && \
     conda config --add channels conda-forge && \
     conda config --set channel_priority strict && \
-    conda install --name $ENV --quiet --yes \
+    conda install --name $CONDA_ENV --quiet --yes \
                 voila \
                 confuse \
                 ipysheet \
@@ -52,7 +52,7 @@ RUN conda create --name $ENV && \
                 voila-vuetify \
                 h5py \
                 && \
-    conda run -n $ENV pip install \
+    conda run -n $CONDA_ENV pip install \
                 restart \
                 tables \
                 && \
@@ -60,6 +60,12 @@ RUN conda create --name $ENV && \
     conda init
 
 
-setenv($DOCKER_USER,$ENV)
+USER $DOCKER_USER
+RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
+    conda init && \
+    echo "conda activate $CONDA_ENV" >> "$HOME/.bashrc" && \
+    eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
+    conda activate $CONDA_ENV
+
 
 WORKDIR /home/jovyan/workspace

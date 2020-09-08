@@ -42,6 +42,7 @@ WORKDIR $HOME
 # set_env(user,conda-env)
 define(set_env,
 USER $1
+RUN conda env list
 RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
     conda init && \
     echo "conda activate $2" >> "$HOME/.bashrc" && \
@@ -51,5 +52,7 @@ RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
 
 define(set_env_test,
 USER $1
-RUN echo "export ENV=conda" >> "$HOME/.bashrc"
+RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
+    conda init && \
+    echo "finished"
 )

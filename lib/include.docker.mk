@@ -12,13 +12,13 @@
 # Assumes GNU M4 is installed
 # https://github.com/moby/moby/issues/735
 #
-
+name ?= "$$(basename $(PWD))"
 Dockerfile ?= Dockerfile
 Dockerfile.in ?= $(Dockerfile).in
 image ?= $(repo)/$(name)
 container := $(name)
 build_path ?= .
-MAIN ?= $$(basename $(PWD)).py
+MAIN ?= $(name).py
 DOCKER_USER ?= jovyan
 DOCKER_ENV ?= docker
 CONDA_ENV ?= $(name)

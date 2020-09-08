@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 pre-commit = "*"
+isort = "*"
 
 [packages]
 voila = "*"
@@ -20,6 +21,12 @@ jupyter-server = "*"
 scipy = "*"
 confuse = "*"
 voila-reveal = "*"
+restart = "*"
+h5py = "*"
+altair = "*"
 
 [requires]
 python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true

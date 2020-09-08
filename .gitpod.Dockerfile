@@ -18,13 +18,14 @@ FROM restartus/src:latest
 
 
 
+
+
 # create_user(user, group, groupuserid)
 
 
 
 
 
-ENV ENV=docker
 LABEL MAINTAINER="Admin Restart<admin@restart.us>"
 
 
@@ -62,8 +63,11 @@ RUN conda create --name nb && \
                 bqplot \
                 ipyvuetify \
                 voila-reveal \
+                voila-vuetify \
+                h5py \
                 && \
     conda run -n nb pip install \
+                restart \
                 tables \
                 && \
     conda clean -afy && \
@@ -73,14 +77,18 @@ RUN conda create --name nb && \
 # this creation is required for gitpod so we have the right gitpod
 # https://github.com/gitpod-io/workspace-images/blob/master/full/Dockerfile
 # '-l': see https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
-# '-l': see https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
+USER root
+RUN groupadd -g 33333 gitpod
+
 USER root
 
 # adapted from
 # https://github.com/restartus/gitpod/blob/master/components/image-builder/workspace-image-layer/gitpod-layer/debian/gitpod/layer.sh
-        # users in the 'sudo' group for non gitpod entires, gitpod does not
-        # allow sudo so this is for other dockerfile RUN getent group gitpod || addgroup --gid 33333 gitpod RUN useradd --no-log-init --create-home --home-dir  /home/gitpod --shell /bin/bash \
+# users in the 'sudo' group for non gitpod entires, gitpod does not
+# allow sudo so this is for other dockerfile RUN getent group gitpod || addgroup --gid 33333 gitpod
+RUN useradd --no-log-init --create-home --home  /home/gitpod --shell /bin/bash \
             --uid 33333 --gid 33333 gitpod && \
+    usermod -aG sudo && \
     sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
 ENV HOME=/home/gitpod
 WORKDIR $HOME
@@ -98,7 +106,8 @@ USER gitpod
 #
      # source "$HOME/.bashrc" && \  # does not work
 USER gitpod
-RUN  echo "export ENV=docker" >> $HOME/.bashrc && \
-     conda init && \
-     eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
-     conda activate restart
+RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
+    conda init && \
+    echo "conda activate restart" >> "$HOME/.bashrc" && \
+    eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
+    conda activate restart

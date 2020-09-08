@@ -12,8 +12,11 @@ RUN conda create --name $1 && \
                 bqplot \
                 ipyvuetify \
                 voila-reveal \
+                voila-vuetify \
+                h5py \
                 && \
     conda run -n $1 pip install \
+                restart \
                 tables \
                 && \
     conda clean -afy && \

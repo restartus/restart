@@ -12,16 +12,19 @@ PIPENV_CHECK_FLAGS ?= -i 38212
 
 # consumed by include.python.mk for makes
 PIP_DEV = pre-commit isort
-PIP = voila ipywidgets ipysheet qgrid bqplot ipympl ipyvolume ipyvuetify voila-vuetify \
-		  scipy confuse voila-reveal
-PIP_ONLY = jupyter-server
+PIP = h5py confuse \
+	  voila voila-reveal voila-vuetify \
+	  ipywidgets ipysheet ipympl ipyvolume ipyvuetify  \
+	  scipy altair \
+	  qgrid bqplot
+PIP_ONLY = jrestart jupyter-server tables
 
 # For docker config link in key directories
 DOCKER_USER ?= jovyan
-dest_dir ?= /home/jovyan/ws/restart
+dest_dir ?= /home/jovyan/workspace
 flags ?= -p 8888:8888 \
 		 -e GRANT_SUDO=1
-volumes ?= -v $$(readlink -f "../src"):$(dest_dir)/src \
+volumes ?= -v $$(readlink -f "../restart"):$(dest_dir)/restart \
 		   -v $$(readlink -f "../nb"):$(dest_dir)/nb \
 		   -v $$(readlink -f "../lib"):$(dest_dir)/lib \
 		   -v $$(readlink -f "../config"):$(dest_dir)/config
@@ -34,7 +37,6 @@ $(Dockerfile): $(Dockerfile).in ../lib/lib.docker nb.docker
 .PHONY: ca
 ca:
 	$(RUN) jupyter notebook $(CALIFORNIA)
-
 
 ## wa: the current state of Washington notebook
 .PHONY: wa

@@ -1,7 +1,6 @@
 # This is set for make files of restart
 #
 define(boilerplate,
-ENV ENV=conda
 LABEL MAINTAINER="Admin Restart<admin@restart.us>"
 )
 #
@@ -19,16 +18,22 @@ RUN usermod -aG $1 $2 && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 USER $2
 )
 
+define(create_group,
+USER root
+RUN groupadd -g $2 $1
+)
+
 # create_user(user, group, groupuserid)
 define(create_user,
-# '-l': see https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
 USER root
 
 # adapted from
 # https://github.com/restartus/gitpod/blob/master/components/image-builder/workspace-image-layer/gitpod-layer/debian/gitpod/layer.sh
-        # users in the 'sudo' group for non gitpod entires, gitpod does not
-        # allow sudo so this is for other dockerfile RUN getent group $2 || addgroup --gid $3 $2 RUN useradd --no-log-init --create-home --home-dir  /home/$1 --shell /bin/bash \
+# users in the 'sudo' group for non gitpod entires, gitpod does not
+# allow sudo so this is for other dockerfile RUN getent group $2 || addgroup --gid $3 $2
+RUN useradd --no-log-init --create-home --home  /home/$1 --shell /bin/bash \
             --uid $3 --gid $3 $1 && \
+    usermod -aG sudo && \
     sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
 ENV HOME=/home/$1
 WORKDIR $HOME
@@ -36,8 +41,9 @@ WORKDIR $HOME
 
 define(set_env,
 USER $1
-RUN  echo "export ENV=docker" >> $HOME/.bashrc && \
-     conda init && \
-     eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
-     conda activate $2
+RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
+    conda init && \
+    echo "conda activate $2" >> "$HOME/.bashrc" && \
+    eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
+    conda activate $2
 )

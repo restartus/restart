@@ -63,3 +63,11 @@ RUN conda create --name $CONDA_ENV && \
     conda clean -afy && \
     conda init
 
+
+USER $DOCKER_USER
+RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \ 
+    conda init && \
+    echo "conda activate restart" >> "$HOME/.bashrc" && \
+    eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
+    conda activate restart
+

@@ -11,6 +11,10 @@ name := gitpod
 
 $(Dockerfile): $(Dockerfile.in) lib/lib.docker nb/nb.docker restart/restart.docker lib/debug.docker
 
+## gitpod: Make dockerfile for gitpod
+.PHONY: gitpod
+gitpod: $(Dockerfile)
+
 ## repo-pre-commit: Install the base precommit for the repo
 .PHONY: repo-pre-commit
 repo-pre-commit:

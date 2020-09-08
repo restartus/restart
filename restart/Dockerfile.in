@@ -15,3 +15,5 @@ include(../lib/debug.docker)
 add_group(sudo,$DOCKER_USER)
 
 create_conda_src($CONDA_ENV)
+
+set_env($DOCKER_USER, restart)

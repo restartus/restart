@@ -33,12 +33,13 @@ USER root
 # allow sudo so this is for other dockerfile RUN getent group $2 || addgroup --gid $3 $2
 RUN useradd --no-log-init --create-home --home  /home/$1 --shell /bin/bash \
             --uid $3 --gid $3 $1 && \
-    usermod -aG sudo && \
+    usermod -aG sudo $1 && \
     sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
 ENV HOME=/home/$1
 WORKDIR $HOME
 )
 
+# set_env(user,conda-env)
 define(set_env,
 USER $1
 RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
@@ -46,4 +47,9 @@ RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
     echo "conda activate $2" >> "$HOME/.bashrc" && \
     eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
     conda activate $2
+)
+
+define(set_env_test,
+USER $1
+RUN echo "export ENV=conda" >> "$HOME/.bashrc"
 )

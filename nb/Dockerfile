@@ -21,6 +21,9 @@ ARG ENV=nb
 # create_user(user, group, groupuserid)
 
 
+# set_env(user,conda-env)
+
+
 
 
 
@@ -57,4 +60,6 @@ RUN conda create --name $ENV && \
     conda init
 
 
-WORKDIR /home/jovyan/ws/restart
+setenv($DOCKER_USER,$ENV)
+
+WORKDIR /home/jovyan/workspace

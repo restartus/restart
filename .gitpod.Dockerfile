@@ -26,6 +26,8 @@ FROM restartus/src:latest
 
 
 
+
+
 LABEL MAINTAINER="Admin Restart<admin@restart.us>"
 
 
@@ -88,7 +90,7 @@ USER root
 # allow sudo so this is for other dockerfile RUN getent group gitpod || addgroup --gid 33333 gitpod
 RUN useradd --no-log-init --create-home --home  /home/gitpod --shell /bin/bash \
             --uid 33333 --gid 33333 gitpod && \
-    usermod -aG sudo && \
+    usermod -aG sudo gitpod && \
     sed -i.bkp -e 's/%sudo\s\+ALL=(ALL\(:ALL\)\?)\s\+ALL/%sudo ALL=NOPASSWD:ALL/g' /etc/sudoers
 ENV HOME=/home/gitpod
 WORKDIR $HOME
@@ -106,8 +108,12 @@ USER gitpod
 #
      # source "$HOME/.bashrc" && \  # does not work
 USER gitpod
+RUN echo "export ENV=conda" >> "$HOME/.bashrc"
+
+USER gitpod
 RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
     conda init && \
     echo "conda activate restart" >> "$HOME/.bashrc" && \
     eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
     conda activate restart
+

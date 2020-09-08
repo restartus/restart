@@ -17,7 +17,7 @@ PIP = h5py confuse \
 	  ipywidgets ipysheet ipympl ipyvolume ipyvuetify  \
 	  scipy altair \
 	  qgrid bqplot
-PIP_ONLY = jrestart jupyter-server tables
+PIP_ONLY = restart jupyter-server tables
 
 # For docker config link in key directories
 DOCKER_USER ?= jovyan

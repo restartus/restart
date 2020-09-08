@@ -12,6 +12,7 @@
 # defaults use to add comments when running make help
 #
 FLAGS ?=
+SHELL ?= /bin/bash
 all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
 PYTHON ?= 3.8

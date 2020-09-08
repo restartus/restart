@@ -1,5 +1,6 @@
-FROM restartus/src:latest
+FROM restartus/restart:latest
 # Set environment for setup
+ARG CONDA_ENV=nb
 
 # To be used in gitpod.io must be debian/ubuntu or alpine based
 # Must also have a gitpod use
@@ -15,7 +16,10 @@ include(nb/nb.docker)
 
 # create the environment for the joyvan user which is used for notebooks
 # note that conda does an init here but it is for the joyvan identity
-create_conda_nb(nb)
+
+setup_conda($CONDA_ENV)
+create_conda_nb($CONDA_ENV)
+cleanup_conda()
 
 # this creation is required for gitpod so we have the right gitpod
 # https://github.com/gitpod-io/workspace-images/blob/master/full/Dockerfile

@@ -1,5 +1,17 @@
 # This is set for make files of restart
 #
+## setup_conda(env)
+define(setup_conda,
+RUN conda env list | grep "^$1" || conda create --name $1
+RUN conda config --add channels conda-forge && \
+    conda config --set channel_priority strict
+)
+
+define(cleanup_conda,
+RUN conda clean -afy && \
+    conda init
+)
+
 define(boilerplate,
 LABEL MAINTAINER="Admin Restart<admin@restart.us>"
 )
@@ -42,6 +54,7 @@ WORKDIR $HOME
 # set_env(user,conda-env)
 define(set_env,
 USER $1
+ENV HOME=/home/$1
 RUN conda env list
 RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
     conda init && \

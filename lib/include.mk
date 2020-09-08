@@ -6,7 +6,7 @@
 TAG ?= v1
 # https://www.gnu.org/software/make/manual/make.html#Flavors
 # Use simple expansion for most
-SHELL :- /bin/bash
+SHELL ?= /bin/bash
 repo ?= restartus
 name ?= $$(basename "$(PWD)")
 

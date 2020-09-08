@@ -1,11 +1,10 @@
 
 # Emulate activate for the Makefiles
 # https://pythonspeed.com/articles/activate-conda-dockerfile/
+# Call create_conda(env) to prep and finish_conda() after
+## create_conda_nb(env)
 define(create_conda_nb,
-RUN conda create --name $1 && \
-    conda config --add channels conda-forge && \
-    conda config --set channel_priority strict && \
-    conda install --name $1 --quiet --yes \
+RUN conda install --name $1 --quiet --yes \
                 voila \
                 confuse \
                 ipysheet \
@@ -17,8 +16,5 @@ RUN conda create --name $1 && \
                 && \
     conda run -n $1 pip install \
                 restart \
-                tables \
-                && \
-    conda clean -afy && \
-    conda init
+                tables
 )

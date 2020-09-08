@@ -1,10 +1,17 @@
 FROM jupyter/scipy-notebook
 LABEL maintainer="Restart Us <admin@restart.us>"
 ARG DOCKER_USER=jovyan
-ARG CONDA_ENV=nb
+# We would use nb, but this notebook does not honor
+# .bashrc or allow conda activate
+ARG CONDA_ENV=base
 
 # This is set for make files of restart
 #
+## setup_conda(env)
+
+
+
+
 
 #
 # library for docker files
@@ -29,6 +36,8 @@ ARG CONDA_ENV=nb
 
 # Emulate activate for the Makefiles
 # https://pythonspeed.com/articles/activate-conda-dockerfile/
+# Call create_conda(env) to prep and finish_conda() after
+## create_conda_nb(env)
 
 
 
@@ -39,10 +48,11 @@ RUN usermod -aG sudo $DOCKER_USER && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc
 USER $DOCKER_USER
 
 
-RUN conda create --name $CONDA_ENV && \
-    conda config --add channels conda-forge && \
-    conda config --set channel_priority strict && \
-    conda install --name $CONDA_ENV --quiet --yes \
+RUN conda env list | grep "^$CONDA_ENV" || conda create --name $CONDA_ENV
+RUN conda config --add channels conda-forge && \
+    conda config --set channel_priority strict
+
+RUN conda install --name $CONDA_ENV --quiet --yes \
                 voila \
                 confuse \
                 ipysheet \
@@ -54,13 +64,16 @@ RUN conda create --name $CONDA_ENV && \
                 && \
     conda run -n $CONDA_ENV pip install \
                 restart \
-                tables \
-                && \
-    conda clean -afy && \
+                tables
+
+RUN conda clean -afy && \
     conda init
 
 
+
 USER $DOCKER_USER
+ENV HOME=/home/$DOCKER_USER
+RUN conda env list
 RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
     conda init && \
     echo "conda activate $CONDA_ENV" >> "$HOME/.bashrc" && \

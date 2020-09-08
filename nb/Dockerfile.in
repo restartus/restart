@@ -1,7 +1,9 @@
 FROM jupyter/scipy-notebook
 LABEL maintainer="Restart Us <admin@restart.us>"
 ARG DOCKER_USER=jovyan
-ARG CONDA_ENV=nb
+# We would use nb, but this notebook does not honor
+# .bashrc or allow conda activate
+ARG CONDA_ENV=base
 
 include(../lib/lib.docker)
 include(nb.docker)
@@ -9,7 +11,10 @@ include(nb.docker)
 # https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
 add_group(sudo,$DOCKER_USER)
 
+setup_conda($CONDA_ENV)
 create_conda_nb($CONDA_ENV)
+cleanup_conda()
+
 
 set_env($DOCKER_USER,$CONDA_ENV)
 

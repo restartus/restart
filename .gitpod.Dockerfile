@@ -114,10 +114,10 @@ RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
     echo "finished"
 
 USER gitpod
+ENV HOME=/home/gitpod
 RUN conda env list
 RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
     conda init && \
     echo "conda activate restart" >> "$HOME/.bashrc" && \
     eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
     conda activate restart
-

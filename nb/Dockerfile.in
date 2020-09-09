@@ -4,17 +4,15 @@ ARG DOCKER_USER=jovyan
 # We would use nb, but this notebook does not honor
 # .bashrc or allow conda activate
 ARG CONDA_ENV=base
+ARG PIP_PACKAGES
+ARG PIP_ONLY
 
 include(../lib/lib.docker)
-include(nb.docker)
 
 # https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
 add_group(sudo,$DOCKER_USER)
 
-setup_conda($CONDA_ENV)
-create_conda_nb($CONDA_ENV)
-cleanup_conda()
-
+create_conda($CONDA_ENV,$PYTHON,$PIP,$PIP_ONLY)
 
 set_env($DOCKER_USER,$CONDA_ENV)
 

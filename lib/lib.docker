@@ -1,23 +1,23 @@
 # This is set for make files of restart
 #
-## setup_conda(env)
-define(setup_conda,
+# Emulate activate for the Makefiles
+# https://pythonspeed.com/articles/activate-conda-dockerfile/
+# Call create_conda(env) to prep and finish_conda() after ## create_conda_(env, python_version,pip, pip_only)
+define(create_conda,
 RUN conda env list | grep "^$1" || conda create --name $1
-RUN conda config --add channels conda-forge && \
-    conda config --set channel_priority strict
-)
-
-define(cleanup_conda,
-RUN conda clean -afy && \
+RUN \
+    echo env=$1 python=$2 pip=$3 pip_only=$4 && \
+    conda config --add channels conda-forge && \
+    conda config --set channel_priority strict && \
+    conda install --name $1 --quiet --yes python=$2 \
+                $3 && \
+    conda run -n $1 pip install \
+                $4 && \
+    conda clean -afy && \
     conda init
 )
 
-define(boilerplate,
-LABEL MAINTAINER="Admin Restart<admin@restart.us>"
-)
 #
-# library for docker files
-# Desigend for docker files
 # https://github.com/gitpod-io/gitpod/tree/master/components/image-builder/workspace-image-layer/gitpod-layer
 #
 # https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
@@ -55,8 +55,8 @@ WORKDIR $HOME
 define(set_env,
 USER $1
 ENV HOME=/home/$1
-RUN conda env list
-RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
+RUN conda env list && \
+    echo "export ENV=conda" >> "$HOME/.bashrc" && \
     conda init && \
     echo "conda activate $2" >> "$HOME/.bashrc" && \
     eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
@@ -65,7 +65,10 @@ RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
 
 define(set_env_test,
 USER $1
+ENV HOME=/home/$1
 RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
     conda init && \
+    echo "conda activate $2" >> "$HOME/.bashrc" && \
+    eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
     echo "finished"
 )

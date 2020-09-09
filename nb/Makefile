@@ -3,21 +3,21 @@
 # Only need voila for deployment
 # Use jupyter ot edit
 #
-VOILA_WA ?= Washington.ipynb
-VOILA_DEMO ?= VuetifyDemo.ipynb
-CALIFORNIA ?= CaliforniaDash.ipynb
-WASHINGTON ?= Washington.ipynb
+VOILA_WA ?= Washington
+VOILA_DEMO ?= VuetifyDemo
+CALIFORNIA ?= CaliforniaDash
+WASHINGTON ?= Washington
 # voila requires jupyter-server 0.1.1
 PIPENV_CHECK_FLAGS ?= -i 38212
 
 # consumed by include.python.mk for makes
-PIP_DEV = pre-commit isort
-PIP = h5py confuse \
+PIP_DEV += pre-commit isort
+PIP += h5py confuse \
 	  voila voila-reveal voila-vuetify \
 	  ipywidgets ipysheet ipympl ipyvolume ipyvuetify  \
 	  scipy altair \
 	  qgrid bqplot
-PIP_ONLY = restart jupyter-server tables
+PIP_ONLY += restart jupyter-server tables
 
 # For docker config link in key directories
 DOCKER_USER ?= jovyan
@@ -31,37 +31,53 @@ volumes ?= -v $$(readlink -f "../restart"):$(dest_dir)/restart \
 
 Dockerfile = Dockerfile
 Dockerfile.in = $(Dockerfile).in
-$(Dockerfile): $(Dockerfile).in ../lib/lib.docker nb.docker
+
+$(Dockerfile): $(Dockerfile).in ../lib/lib.docker
 
 ## ca: edit the California notebook
 .PHONY: ca
 ca:
-	$(RUN) jupyter notebook $(CALIFORNIA)
+	$(RUN) jupyter notebook $(CALIFORNIA).ipynb
 
-## wa: the current state of Washington notebook
+## wa: the current state of Washington notebook default
 .PHONY: wa
 wa:
-	$(RUN) jupyter notebook $(WASHINGTON)
+	$(RUN) jupyter notebook $(WASHINGTON).ipynb
+
+## wa-tf: the current state of Washington notebook for taskforce
+.PHONY: wa
+wa-tf:
+	$(RUN) jupyter notebook $(WASHINGTON)-taskforce.ipynb
+
+## wa-fema: the current state of Washington notebook for fema
+.PHONY: wa-fema
+wa-fema:
+	$(RUN) jupyter notebook $(WASHINGTON)-fema.ipynb
+
+## wa-fema-slide: Slideshow for Washington FEMA analysis
+.PHONY: wa-fema-slide
+wa-fema-slide:
+	$(RUN) voila --debug --template=reveal $(WASHINGTON)-fema.ipynb
 
 ## voila-ca: deployment view of California
 .PHONY: voila-ca
 voila-ca:
-	$(RUN) voila $(CALIFORNIA)
+	$(RUN) voila $(CALIFORNIA).ipynb
 
 ## voila-vuetify: Voila demo
 .PHONY: voila-vuetify
 voila-vuetify:
-	$(RUN) voila --template=voila-default $(VOILA_DEMO)
+	$(RUN) voila --template=voila-default $(VOILA_DEMO).ipynb
 
 ## voila-wa: Run Washington Aggregate and Vulnerable Levels
 .PHONY: voila-wa
 voila-wa:
-	$(RUN) voila $(VOILA_WA)
+	$(RUN) voila $(VOILA_WA).ipynb
 
 ## jupyter-wa: Editing the Washington template
 .PHONY: jupyter-wa
 jupyter-wa:
-	$(RUN) jupyter notebook $(VOILA_WA)
+	$(RUN) jupyter notebook $(VOILA_WA).ipynb
 
 ##
 

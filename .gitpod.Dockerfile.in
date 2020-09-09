@@ -1,4 +1,4 @@
-FROM restartus/restart:latest
+FROM gitpod/workspace-full
 # Set environment for setup
 ARG CONDA_ENV=nb
 

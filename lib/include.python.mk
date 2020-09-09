@@ -89,6 +89,7 @@ ifeq ($(ENV),conda)
 		$(ACTIVATE) conda activate $(name)
 		conda config --env --add channels conda-forge
 		conda config --env --set channel_priority strict
+		conda install --name $(name) python=$(PYTHON)
 endif
 	$(INSTALL) $(PIP) || true
 	$(INSTALL_DEV) $(PIP_DEV) || true
@@ -98,7 +99,7 @@ ifeq ($(ENV),pipenv)
 		pipenv lock
 		pipenv update
 endif
-	echo $$SHELL
+	@echo this does not work on WSL so you need to run pre-commit install manually
 	[[ -e .pre-commit-config.yaml ]] && $(RUN) pre-commit install || true
 
 
@@ -199,7 +200,7 @@ pre-commit:
 ##
 ## Installation helpers (users should not need to invoke):
 
-## pipenv-python: Install python version in $(PYTHON)
+## pipenv-python: Install python version in
 # also add to the python path
 # This faile if we don't have brew
 .PHONY: pipenv-python

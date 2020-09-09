@@ -21,7 +21,9 @@ volumes ?= -v $$(readlink -f "."):$(dest_dir)/restart/restart \
 		   -v $$(readlink -f "../lib"):$(dest_dir)/restart/lib \
 		   -v $$(readlink -f "../../data"):$(dest_dir)/data
 
-PIP += pandas confuse ipysheet pyomo h5py 
+PYTHON=3.8
+PACKAGES += make vim gosu
+PIP += pandas confuse ipysheet pyomo h5py
 		   # pyyaml xlrd
 PIP_ONLY += tables
 # These are for development time

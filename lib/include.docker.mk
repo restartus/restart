@@ -24,9 +24,20 @@ DOCKER_ENV ?= docker
 CONDA_ENV ?= $(name)
 SHELL ?= /bin/bash
 
+# pip packages that can also be installed by conda
+PIP ?=
+# pip packages that cannot be conda installed
+PIP_ONLY ?=
+
 dest_dir ?= /home/$(DOCKER_USER)/$(name)
 volumes ?= -v $$(readlink -f "."):$(dest_dir)
 flags ?=
+docker_flags ?= --build-arg "DOCKER_USER=$(DOCKER_USER)" \
+				--build-arg "NB_USER=$(DOCKER_USER)" \
+				--build-arg "ENV=$(DOCKER_ENV)" \
+				--build-arg "PYTHON=$(PYTHON)" \
+				--build-arg "PIP=$(PIP)" \
+				--build-arg "PIP_ONLY=$(PIP_ONLY)" \
 # main.py includes streamlit code that only runs when streamlit invoked
 # --restart=unless-stopped  not needed now
 
@@ -37,14 +48,21 @@ $(Dockerfile): $(Dockerfile.in)
 .PHONY: docker
 docker: $(Dockerfile)
 	docker build --pull \
-				 --build-arg DOCKER_USER=$(DOCKER_USER) \
-				 --build-arg NB_USER=$(DOCKER_USER) \
-				 --build-arg ENV=$(DOCKER_ENV) \
-				 -f $(Dockerfile) \
-				 -t $(image) \
+				$(docker_flags) \
+				 -f "$(Dockerfile)" \
+				 -t "$(image)" \
 				 $(build_path)
 	docker tag $(image) $(image):$$(git rev-parse HEAD)
 	docker push $(image)
+
+## docker-build-debug
+.PHONY: docker-build-debug
+docker-build-debug: $(Dockerfile)
+	docker build --pull \
+				--no-cache $(docker_flags) \
+				 -f "$(Dockerfile)" \
+				 -t "$(image)" \
+				 $(build_path)
 
 ## docker-lint
 .PHONY: docker-lint

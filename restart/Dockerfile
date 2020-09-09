@@ -1,15 +1,23 @@
 FROM jupyter/base-notebook
 LABEL maintainer="Restart Us <admin@restart.us>"
-# Using this as the base to get user working right
 ARG DOCKER_USER=jovyan
+# We would use nb, but this notebook does not honor
+# .bashrc or allow conda activate
 ENV CONDA_ENV=restart
+# Make sure to define ARGs and the default comes from outside
+ARG PIP=pandas
+ARG PIP_ONLY
+ARG PYTHON=3.7
+
 
 # This is set for make files of restart
 #
+# Emulate activate for the Makefiles
+# https://pythonspeed.com/articles/activate-conda-dockerfile/
+# Call create_conda(env) to prep and finish_conda() after ## create_conda_(env, python_version,pip, pip_only)
+
 
 #
-# library for docker files
-# Desigend for docker files
 # https://github.com/gitpod-io/gitpod/tree/master/components/image-builder/workspace-image-layer/gitpod-layer
 #
 # https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
@@ -17,57 +25,58 @@ ENV CONDA_ENV=restart
 
 
 
+
+
 # create_user(user, group, groupuserid)
 
 
-
-
-# src specific for Docker
-# https://pythonspeed.com/articles/activate-conda-dockerfile/
+# set_env(user,conda-env)
 
 
 
 
-# debug tools and sudo need for conda activate
-USER root
 
 # Ubuntu debug for docker containers (use with m4)
 USER root
 RUN mkdir -p /var/lib/apt/lists && apt-get update && \
-    apt-get install -y make \
+    apt-get install -y \
+                    make \
                     vim \
                     sudo \
                     gosu \
-                    git && \
+                    git \
+                    && \
     apt-get clean && rm -rf /var/lib/apt/list/*
 
 
-# make a sudo user
+# https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
 USER root
 RUN usermod -aG sudo $DOCKER_USER && echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 # Testing sudo
 USER $DOCKER_USER
 
 
-RUN conda create --name $CONDA_ENV && \
+RUN conda env list | grep "^$CONDA_ENV" || conda create --name $CONDA_ENV
+RUN \
+    echo env=$CONDA_ENV python=$PYTHON pip=$PIP pip_only=$PIP_ONLY && \
     conda config --add channels conda-forge && \
     conda config --set channel_priority strict && \
-    conda install --name $CONDA_ENV --quiet --yes \
-            python=3.8 \
-            pandas confuse ipysheet h5py  \
-            nptyping pydocstyle pdoc3 flake8 mypy bandit \
-            black tox pytest pytest-cov pytest-xdist tox yamllint \
-            pre-commit isort seed-isort-config \
-            setuptools wheel twine && \
-    conda run -n $CONDA_ENV pip install tables && \
+    conda install --name $CONDA_ENV --quiet --yes python=$PYTHON \
+                $PIP && \
+    conda run -n $CONDA_ENV pip install \
+                $PIP_ONLY && \
     conda clean -afy && \
     conda init
 
 
 USER $DOCKER_USER
-RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \ 
+ENV HOME=/home/$DOCKER_USER
+RUN conda env list && \
+    echo "export ENV=conda" >> "$HOME/.bashrc" && \
     conda init && \
-    echo "conda activate restart" >> "$HOME/.bashrc" && \
+    echo "conda activate $CONDA_ENV" >> "$HOME/.bashrc" && \
     eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
-    conda activate restart
+    conda activate $CONDA_ENV
 
+
+WORKDIR /home/jovyan/workspace

@@ -1,5 +1,6 @@
-FROM restartus/src:latest
+FROM gitpod/workspace-full
 # Set environment for setup
+ARG CONDA_ENV=nb
 
 # To be used in gitpod.io must be debian/ubuntu or alpine based
 # Must also have a gitpod use
@@ -7,6 +8,11 @@ FROM restartus/src:latest
 # gitpod and joyvan
 # This is set for make files of restart
 #
+## setup_conda(env)
+
+
+
+
 
 #
 # library for docker files
@@ -51,15 +57,19 @@ RUN mkdir -p /var/lib/apt/lists && apt-get update && \
 
 # Emulate activate for the Makefiles
 # https://pythonspeed.com/articles/activate-conda-dockerfile/
+# Call create_conda(env) to prep and finish_conda() after
+## create_conda_nb(env)
 
 
 
 # create the environment for the joyvan user which is used for notebooks
 # note that conda does an init here but it is for the joyvan identity
-RUN conda create --name nb && \
-    conda config --add channels conda-forge && \
-    conda config --set channel_priority strict && \
-    conda install --name nb --quiet --yes \
+
+RUN conda env list | grep "^$CONDA_ENV" || conda create --name $CONDA_ENV
+RUN conda config --add channels conda-forge && \
+    conda config --set channel_priority strict
+
+RUN conda install --name $CONDA_ENV --quiet --yes \
                 voila \
                 confuse \
                 ipysheet \
@@ -69,11 +79,11 @@ RUN conda create --name nb && \
                 voila-vuetify \
                 h5py \
                 && \
-    conda run -n nb pip install \
+    conda run -n $CONDA_ENV pip install \
                 restart \
-                tables \
-                && \
-    conda clean -afy && \
+                tables
+
+RUN conda clean -afy && \
     conda init
 
 
@@ -109,15 +119,19 @@ USER gitpod
 #
      # source "$HOME/.bashrc" && \  # does not work
 USER gitpod
-RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
-    conda init && \
-    echo "finished"
-
-USER gitpod
 ENV HOME=/home/gitpod
-RUN conda env list
 RUN echo "export ENV=conda" >> "$HOME/.bashrc" && \
     conda init && \
     echo "conda activate restart" >> "$HOME/.bashrc" && \
     eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
+    echo "finished"
+
+USER gitpod
+ENV HOME=/home/gitpod
+RUN conda env list && \
+    echo "export ENV=conda" >> "$HOME/.bashrc" && \
+    conda init && \
+    echo "conda activate restart" >> "$HOME/.bashrc" && \
+    eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
     conda activate restart
+

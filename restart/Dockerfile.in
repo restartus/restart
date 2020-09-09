@@ -1,21 +1,19 @@
 FROM jupyter/base-notebook
 LABEL maintainer="Restart Us <admin@restart.us>"
-# Using this as the base to get user working right
 ARG DOCKER_USER=jovyan
+# We would use nb, but this notebook does not honor
+# .bashrc or allow conda activate
 ENV CONDA_ENV=restart
 
-include(../lib/lib.docker)
-include(restart.docker)
 
-# debug tools and sudo need for conda activate
-USER root
+include(../lib/lib.docker)
 include(../lib/debug.docker)
 
-# make a sudo user
+# https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
 add_group(sudo,$DOCKER_USER)
 
-setup_conda($CONDA_ENV)
-create_conda_src($CONDA_ENV)
-cleanup_conda()
+create_conda($CONDA_ENV,$PYTHON,$PIP,$PIP_ONLY)
 
-set_env($DOCKER_USER, restart)
+set_env($DOCKER_USER,$CONDA_ENV)
+
+WORKDIR /home/jovyan/workspace

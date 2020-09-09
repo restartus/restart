@@ -98,6 +98,7 @@ ifeq ($(ENV),pipenv)
 		pipenv lock
 		pipenv update
 endif
+	echo $$SHELL
 	[[ -e .pre-commit-config.yaml ]] && $(RUN) pre-commit install || true
 
 

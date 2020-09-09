@@ -116,7 +116,7 @@ class EpiTable(Epi):
             ].shape
 
             errormsg = "Dimensions of datacube do not match indices."
-            assert len(shape) == len(indexdf.columns), errormsg
+            assert len(shape) == len(indexdf.columns), errormsg  # nosec
 
             # prune indices of nans and compute index values from parameters
             date_indices: List[pd.Timestamp] = list(

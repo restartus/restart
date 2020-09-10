@@ -44,7 +44,7 @@ test: main ca-main ca-vent wa-main
 ## main: run the main program
 .PHONY: main
 main:
-	$(RUN) python $(MAIN) $(FLAGS)
+	$(RUN) python $(PWD)/$(MAIN) $(FLAGS)
 
 # https://docs.python.org/3/library/pdb.html
 ## pdb: run locally with python to test components from main (uses pipenv)

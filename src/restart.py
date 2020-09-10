@@ -1,9 +1,9 @@
 """Compose the model without a CLI."""
 from typing import Optional
 
-from restart.src.log import Log
-from restart.src.model import Model
-from restart.src.util import set_config
+from src.log import Log
+from src.model import Model
+from src.util import set_config
 
 
 class RestartModel:

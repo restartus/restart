@@ -321,7 +321,6 @@ class Compose:
         log.debug(f"{model=}")
     '''
 
-
 if __name__ == "__main__":
     # compose the entire model runs as a class so it is rentrant
     compose = Compose()

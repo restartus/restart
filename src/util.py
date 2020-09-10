@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 from typing import Dict, Optional, Union
 
+import pkg_resources
 import confuse  # type: ignore
 import ipysheet  # type: ignore
 import numpy as np  # type: ignore

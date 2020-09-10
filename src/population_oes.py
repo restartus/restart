@@ -85,7 +85,7 @@ class PopulationOES(Population):
                 load_dataframe(os.path.join(source["Root"], source["XLS"]))
             )
 
-        # initialize unsliced dataframe from oes data
+                # initialize unsliced dataframe from oes data
         if location["county"] is None and location["state"] is None:
             df = self.create_country_df(oes_df)
         elif location["county"] is not None and location["state"] is not None:

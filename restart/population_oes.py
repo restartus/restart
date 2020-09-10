@@ -78,15 +78,11 @@ class PopulationOES(Population):
             else:
                 root = self.data_dir
             source = LoadCSV(source=source, root=root).data
-            oes_df = load_dataframe(
-                os.path.join(root, source["OES"])
-            )
+            oes_df = load_dataframe(os.path.join(root, source["OES"]))
             code_df = self.format_code(
                 load_dataframe(os.path.join(root, source["CODE"]))
             )
-            pop_df = load_dataframe(
-                os.path.join(root, source["POP"])
-            )
+            pop_df = load_dataframe(os.path.join(root, source["POP"]))
             xls_df = self.format_map(
                 load_dataframe(os.path.join(root, source["XLS"]))
             )
@@ -140,7 +136,7 @@ class PopulationOES(Population):
                 "pop_to_popsum1_per_unit_map_pp1_us",
                 config,
                 log_root=self.log_root,
-        )
+            )
 
         # detail_pd_arr = detail_pd_df["Size"].to_numpy()
         # self.pop_demand_per_unit_map_pd_um: Data = self.pop_to_burn_rate(
@@ -638,7 +634,6 @@ class PopulationOES(Population):
     def set_wa_sum(self, df: pd.DataFrame, config) -> pd.DataFrame:
         """Washington group summarization."""
         pop_level: List = []
-
 
     def set_essential(self, df: pd.DataFrame, config) -> pd.DataFrame:
         """Get population essential levels from the excel model.

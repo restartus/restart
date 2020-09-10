@@ -91,6 +91,24 @@ this.
   Github actions to pull data from below, but they are named files that you copy
 in Athena sheets
 
+## Installation and Usage
+
+To install with pip:
+
+```
+pip install restart
+```
+
+Simple example of analysis for state of California:
+
+```python3
+from restart import RestartModel
+
+restart = RestartModel(config_dir='restart', population='oes', state='California')
+
+model = restart.model  # this contains all the data now
+```
+
 ## Versions and Releases
 
 The main release scheme is to alternate between adding features (the v1, v3,...)

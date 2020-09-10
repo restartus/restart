@@ -10,7 +10,9 @@ FROM gitpod/workspace-full
 LABEL maintainer="Restart Us <admin@restart.us>"
 # Set environment for setup
 ARG CONDA_ENV=restart
+# must use numbers for this gitpod override in makefile
 ARG DOCKER_USER=gitpod
+ARG DOCKER_UID=33333
 
 # To be used in gitpod.io must be debian/ubuntu or alpine based
 # Must also have a gitpod use
@@ -70,12 +72,12 @@ RUN mkdir -p /var/lib/apt/lists && apt-get update && \
 # Testing copies this currently generates an error
 # because the current miniconda puts things in the wrong place
 # COPY --from=conda /opt/conda /opt/conda-from
-COPY --chown=$DOCKER_USER:$DOCKER_USER --from=continuum /opt/conda /opt/conda
+COPY --chown=$DOCKER_UID:$DOCKER_UID --from=continuum /opt/conda /opt/conda
 ENV PATH /opt/conda/bin:$PATH
 RUN mkdir -p /opt/restart/bin
-COPY --chown=$DOCKER_USER:$DOCKER_USER --from=restart /usr/bin/make /opt/restart/bin
-COPY --chown=$DOCKER_USER:$DOCKER_USER --from=restart /usr/bin/vi /opt/restart/bin
-COPY --chown=$DOCKER_USER:$DOCKER_USER --from=restart /usr/sbin/gosu /opt/restart/bin
+COPY --chown=$DOCKER_UID:$DOCKER_UID --from=restart /usr/bin/make /opt/restart/bin
+COPY --chown=$DOCKER_UID:$DOCKER_UID --from=restart /usr/bin/vi /opt/restart/bin
+COPY --chown=$DOCKER_UID:$DOCKER_UID --from=restart /usr/sbin/gosu /opt/restart/bin
 
 USER $DOCKER_USER
 ENV PATH /opt/conda/bin:$PATH

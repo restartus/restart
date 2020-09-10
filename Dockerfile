@@ -4,9 +4,6 @@ ARG DOCKER_USER=jovyan
 # We would use nb, but this notebook does not honor
 # .bashrc or allow conda activate
 ENV CONDA_ENV=restart
-ARG PIP
-ARG PIP_ONLY
-ARG PYTHON
 
 
 # This is set for make files of restart
@@ -84,4 +81,4 @@ RUN conda env list && \
     conda activate $CONDA_ENV
 
 
-WORKDIR /home/$DOCKER_USER/restart
+WORKDIR /home/$DOCKER_USER/workspace

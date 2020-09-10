@@ -73,7 +73,7 @@ repos:
         language: system
         always_run: true
         pass_filenames: false
-        args: [.gitpod.Dockerfile]
+        args: ["-e", "DFILE=gitpod", ".gitpod.Dockerfile"]
 
   # run system test
   - repo: local

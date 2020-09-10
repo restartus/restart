@@ -9,11 +9,12 @@ DOCKER_USER := gitpod
 name := gitpod
 
 # Model targets
-MAIN ?= src.main
-FLAGS ?= --config src
-CA_FLAGS ?= --config src --pop oes --state California --subpop healthcare
+MAIN ?= restart.main
+MOD ?= restart.module_test
+FLAGS ?= --config restart
+CA_FLAGS ?= --config restart --pop oes --state California --subpop healthcare
 CA_VENT_FLAGS ?= --config config/ca-vent
-WA_FLAGS ?= --config config/src --pop oes --state Washington
+WA_FLAGS ?= --config restart --pop oes --state Washington
 
 $(Dockerfile): $(Dockerfile.in) lib/lib.docker nb/nb.docker restart/restart.docker lib/debug.docker
 
@@ -37,7 +38,7 @@ pypi-clean:
 
 ## test: run system test
 .PHONY: test
-test: main ca-main ca-vent wa-main
+test: main ca-main ca-vent wa-main module-test
 
 ## main: run the main program
 .PHONY: main
@@ -63,6 +64,11 @@ ca-pdb:
 .PHONY: ca-vent
 ca-vent:
 	$(RUN) python -m $(MAIN) $(CA_VENT_FLAGS)
+
+## module-test: test python import of model
+.PHONY: module-test
+module-test:
+	$(RUN) python -m $(MOD)
 
 ## ca-vent-pdb: debug CA vent analysis
 .PHONY: ca-vent-pdb

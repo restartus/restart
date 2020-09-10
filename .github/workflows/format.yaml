@@ -43,4 +43,5 @@ jobs:
     - name: Push changes
       run: |
         git checkout ${GITHUB_REF##*/}
+        git pull
         git push

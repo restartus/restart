@@ -59,8 +59,6 @@ class LoadCSV(Load):
             return None
 
         # read all files in the given root directory
-        print(os.path.abspath(source["Root"]))
-        print(source["Root"])
         files = os.listdir(os.path.abspath(source["Root"]))
         rootdir = source["Root"]
 

@@ -18,13 +18,13 @@ import argparse
 import logging  # noqa:F401
 from typing import List
 
-from src.base import Base
+from restart.base import Base
 
 # Use jupyter voila instead
 # from dashboard import Dashboard
-from src.log import Log
-from src.model import Model
-from src.util import set_config
+from restart.log import Log
+from restart.model import Model
+from restart.util import set_config
 
 
 class Compose:
@@ -320,6 +320,7 @@ class Compose:
         model.mobility = Mobility(model.data, log_root=model.log_root)
         log.debug(f"{model=}")
     '''
+
 
 if __name__ == "__main__":
     # compose the entire model runs as a class so it is rentrant

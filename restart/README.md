@@ -16,6 +16,13 @@ The main goal is to:
 3. For business decision-makers, it's the way that they can count on making
    decisions with the best decisions available.
 
+## Installation
+Installation with pip:
+
+```
+pip install restart
+```
+
 ## A note on using Latex
 
 This file lives in README.tex.md and (Texify)[https://github.com/apps/texify] is
@@ -33,18 +40,10 @@ taking a look at [main.py](main.py) as a template but you can with a one liner
 run the entire model. See [doc](doc) for the parameters and model
 
 ```python
-# instantiate any model this way, set parameters as needed
-# document lives in ./doc
-model = Model(name)
-  .configure(LoadYAML("california"))
-  .set_population()
-  .set_resource()
-  .set_consumption()
-  .set_economy()
-  .set_disease()
-  .set_behavioral()
-# to interactively display and change the model
-Dashboard(model)
+# use bls data to generate predictions for state of California
+restart = RestartModel(configdir='restart', population='oes', state='California')
+# access model components, for example population data
+population = restart.model.population.population_pP_tr.df
 ```
 There are host of parameters for each and many options, but this let's you
 create as many models as you want.

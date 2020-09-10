@@ -94,7 +94,7 @@ class Model(Base):
         return self
 
     # TODO: This should be a generated set of methods as they are all identical
-    def set_population(self, type: str = None) -> Model:
+    def set_population(self, type: str = None, data_dir: str = None) -> Model:
         """Create population class for model.
 
         Population created here
@@ -112,6 +112,7 @@ class Model(Base):
             self.population = PopulationOES(
                 self.config,
                 self.filter,
+                data_dir=data_dir,
                 log_root=self.log_root,
             )
         elif type == "wa":

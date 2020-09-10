@@ -17,7 +17,8 @@ class RestartModel:
         county: Optional[str] = None,
         state: Optional[str] = None,
         subpop: Optional[str] = None,
-        configdir: str = ".",
+        config_dir: str = ".",
+        data_dir: str = None,
         output: Optional[str] = None,
         resource: str = "dict",
         inventory: str = "dict",
@@ -40,7 +41,7 @@ class RestartModel:
         log.debug(f"{__name__=}")
 
         # set up the config
-        self.config = set_config(configdir)
+        self.config = set_config(config_dir)
         self.set_model()
 
     def set_model(self, **kwargs):
@@ -55,7 +56,7 @@ class RestartModel:
             .set_filter(
                 county=self.county, state=self.state, subpop=self.subpop
             )
-            .set_population(type=self.population)
+            .set_population(type=self.population, data_dir=self.data_dir)
             .set_organization(type=self.organization)
             .set_resource(type=self.resource)
             .set_inventory(type=self.inventory)

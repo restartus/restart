@@ -10,7 +10,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="restart",
-    version="2.5.0.6",
+    version="2.5.0.7.1",
     # this script doesn't exist
     # scripts=["model"],
     author="Restart Partners",

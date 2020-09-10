@@ -30,6 +30,7 @@ class LoadCSV(Load):
     def __init__(
         self,
         source: Dict = None,
+        root: str = None,
         log_root: Optional[Log] = None,
         excel_ext: List[str] = [".xlsx", ".xls"],
         csv_ext: List[str] = [".csv"],
@@ -59,8 +60,12 @@ class LoadCSV(Load):
             return None
 
         # read all files in the given root directory
-        files = os.listdir(os.path.abspath(source["Root"]))
-        rootdir = source["Root"]
+        if root is None:
+            files = os.listdir(os.path.abspath(source["Root"]))
+            rootdir = source["Root"]
+        else:
+            files = os.listdir(root)
+            rootdir = root
 
         self.data: Dict = source
 

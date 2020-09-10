@@ -37,6 +37,7 @@ class PopulationOES(Population):
         self,
         config: confuse.Configuration,
         filt: Filter,
+        data_dir: str = None,
         log_root: Optional[Log] = None,
     ):
         """Initialize.
@@ -60,6 +61,7 @@ class PopulationOES(Population):
 
         self.subpop = filt.subpop
         self.codes: list
+        self.data_dir = data_dir
 
         self.load_data(config, self.location)
 
@@ -71,21 +73,25 @@ class PopulationOES(Population):
         # extract the dataframes we need from the input files
         if config is not None:
             source = config["Paths"].get()
-            source = LoadCSV(source=source).data
+            if self.data_dir is None:
+                root = source["Root"]
+            else:
+                root = self.data_dir
+            source = LoadCSV(source=source, root=root).data
             oes_df = load_dataframe(
-                os.path.join(source["Root"], source["OES"])
+                os.path.join(root, source["OES"])
             )
             code_df = self.format_code(
-                load_dataframe(os.path.join(source["Root"], source["CODE"]))
+                load_dataframe(os.path.join(root, source["CODE"]))
             )
             pop_df = load_dataframe(
-                os.path.join(source["Root"], source["POP"])
+                os.path.join(root, source["POP"])
             )
             xls_df = self.format_map(
-                load_dataframe(os.path.join(source["Root"], source["XLS"]))
+                load_dataframe(os.path.join(root, source["XLS"]))
             )
 
-            # initialize unsliced dataframe from oes data
+        # initialize unsliced dataframe from oes data
         if location["county"] is None and location["state"] is None:
             df = self.create_country_df(oes_df)
         elif location["county"] is not None and location["state"] is not None:
@@ -103,6 +109,9 @@ class PopulationOES(Population):
 
         elif self.subpop == "wa_tier2_opt2":
             df = self.wa_tier2_opt2_filter(df)
+
+        elif self.subpop == "wa_groupings":
+            df = self.wa_public_safety_filter(df)
 
         # the actual data passed onto the model
         self.pop_detail_df = self.drop_code(df)
@@ -124,7 +133,15 @@ class PopulationOES(Population):
             array=pop_to_burn_df.to_numpy(),
         )
 
-        self.set_essential(xls_df, config)
+        if self.subpop != "wa_groupings":
+            self.set_essential(xls_df, config)
+        else:
+            self.pop_to_popsum1_per_unit_map_pp1_us = Data(
+                "pop_to_popsum1_per_unit_map_pp1_us",
+                config,
+                log_root=self.log_root,
+        )
+
         # detail_pd_arr = detail_pd_df["Size"].to_numpy()
         # self.pop_demand_per_unit_map_pd_um: Data = self.pop_to_burn_rate(
         #         df,
@@ -604,15 +621,24 @@ class PopulationOES(Population):
         return filt
 
     def wa_public_safety_filter(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Provide a detailed breakdown of Washington public safety.
+        """Return a detailed breakdown of Washington public safety."""
+        occ_list = [
+            "29-2040",
+            "33-2011",
+            "33-3012",
+            "33-3021",
+            "33-9093",
+            "33-3041",
+            "33-3051",
+        ]
 
-        Args:
-            df: Dataframe
+        filt = df[df["occ_code"].isin(occ_list)]
+        return filt
 
-        Return:
-            Filter stream
-        """
-        pass
+    def set_wa_sum(self, df: pd.DataFrame, config) -> pd.DataFrame:
+        """Washington group summarization."""
+        pop_level: List = []
+
 
     def set_essential(self, df: pd.DataFrame, config) -> pd.DataFrame:
         """Get population essential levels from the excel model.

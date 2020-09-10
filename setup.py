@@ -10,7 +10,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="restart",
-    version="2.5.0.4",
+    version="2.5.0.6",
     # this script doesn't exist
     # scripts=["model"],
     author="Restart Partners",
@@ -19,7 +19,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/restartus/restart",
-    packages=setuptools.find_namespace_packages(),
+    packages=setuptools.find_packages(include=["restart"]),
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",

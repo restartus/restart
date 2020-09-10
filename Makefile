@@ -20,12 +20,14 @@ Gitpod := .gitpod.Dockerfile
 Gitpod.in := $(Gitpod).in
 GITPOD_USER := gitpod
 GITPOD_NAME := $(GITPOD_USER)
+# not implemented not
+STREAMLIT := restart.dashboard
 
 # Model targets
 MAIN ?= restart.main
 MOD ?= restart.module_test
 FLAGS ?= --config restart
-CA_FLAGS_OLD ?= --config restart --pop oes --state California --subpop healthcare
+CA_FLAGS ?= --config restart --pop oes --state California --subpop healthcare
 CA_VENT_FLAGS ?= --config config/ca-vent
 WA_FLAGS ?= --config restart --pop oes --state Washington
 
@@ -62,7 +64,12 @@ main:
 ## pdb: run locally with python to test components from main
 .PHONY: pdb
 pdb:
-	$(RUN) python -m pdb $(MAIN) $(FLAGS)
+	$(RUN) python -m pdb -m $(MAIN) $(FLAGS)
+
+## debug: run with debug model on for main
+.PHONY: debug
+debug:
+	$(RUN) python -d -m $(MAIN) $(FLAGS)
 
 ## ca-main: run California model
 .PHONY: ca-main
@@ -72,7 +79,7 @@ ca-main:
 ## ca-pdb: debug CA model
 .PHONY: ca-pdb
 ca-pdb:
-	$(RUN) python -m pdb $(MAIN) $(CA_FLAGS)
+	$(RUN) python -m pdb -m $(MAIN) $(CA_FLAGS)
 
 ## ca-vent: vent analysis for California
 .PHONY: ca-vent
@@ -87,45 +94,18 @@ module-test:
 ## ca-vent-pdb: debug CA vent analysis
 .PHONY: ca-vent-pdb
 ca-vent-pdb:
-	$(RUN) python -m pdb $(MAIN) $(CA_VENT_FLAGS)
+	$(RUN) python -m pdb -m $(MAIN) $(CA_VENT_FLAGS)
 
 # wa-main run WA model
 .PHONY: wa-main
 wa-main:
 	$(RUN) python -m $(MAIN) $(WA_FLAGS)
 
-## pipenv-streamlit: use streamlit to run the graphical interface (deprecated)
-# bug as of July 2020 cannot send flags to python
-# https://discuss.streamlit.io/t/command-line-arguments/386
-.PHONY: streamlit
-streamlit:
-	$(RUN) streamlit run -m $(WEB) -- $(FLAGS)
-
-## pipenv-streamlit-debug: run web interface in debugger (deprecated)
-.PHONY: streamlit-debug
-streamlit-debug:
-	$(RUN) python -m pdb $(WEB) $(FLAGS)
-
-## debug: run with debugging outputs on
-.PHONY: debug
-debug:
-	$(RUN) python -d -m $(MAIN) $(FLAGS)
-
 ## config-gen create config yaml files
 .PHONY: config-gen
 config-gen:
 	$(RUN) python -m $(MAIN) --pop oes --state Indiana --county "St. Joseph" --output config/sj/config.yaml
 	$(RUN) python -m $(MAIN)--pop wa --output config/wa/config.yaml
-
-.PHONY: streamlit-ca
-## streamlit-ca: Run streamlit with California flags (deprecated)
-streamlit-ca:
-	$(RUN) streamlit run -m $(WEB) -- $(CA_FLAGS)
-
-.PHONY: streamlit-wa
-## streamlit-wa: Run streamlit with Washington flags (deprecated)
-streamlit-wa:
-	$(RUN) streamlit run -m $(WEB) -- $(WA_FLAGS)
 
 include lib/include.mk
 include lib/include.python.mk

@@ -56,24 +56,29 @@ repos:
       - id: black
         language_version: python3.8
         args: [-l 79]
+  # check shell scripts you check in
+  - repo: git://github.com/detailyang/pre-commit-shell
+    rev: v1.0.6
+    hooks:
+      - id: shell-lint
+        args: [--format=json]
 
+  # https://github.com/pre-commit/pre-commit/issues/1245
+  # Make sure .gitpod.Dockerfile is built
+  - repo: local
+    hooks:
+      - id: gitpod-Dockerfile
+        name: gitpod-make
+        entry: make
+        language: system
+        always_run: true
+        pass_filenames: false
+        args: [.gitpod.Dockerfile]
+
+  # run system test
   - repo: local
     hooks:
       - id: test-build
         name: test-build
         entry: lib/run-tests.sh
         language: script
-  # https://github.com/pre-commit/pre-commit/issues/1245
-  - repo: local
-    hooks:
-      - id: gitpod-Dockerfile
-        name: gitpod-make
-        entry: make .gitpod.Dockerfile
-        language: script
-        always_run: true
-        pass_filenames: false
-  - repo: git://github.com/detailyang/pre-commit-shell
-    rev: v1.0.6
-    hooks:
-      - id: shell-lint
-        args: [--format=json]

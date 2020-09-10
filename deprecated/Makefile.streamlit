@@ -1,0 +1,19 @@
+#
+# Makefile for the project supports Docker running as gitpod locally
+# Or in gitpod land
+#
+STREAMLIT := dashboard.py
+
+.PHONY: streamlit-ca
+## streamlit-ca: Run streamlit with California flags (deprecated)
+streamlit-ca:
+	$(RUN) streamlit run -m $(STREAMLIT) -- $(CA_FLAGS)
+
+.PHONY: streamlit-wa
+## streamlit-wa: Run streamlit with Washington flags (deprecated)
+streamlit-wa:
+	$(RUN) streamlit run -m $(STREAMLIT) -- $(WA_FLAGS)
+
+include lib/include.mk
+include lib/include.python.mk
+include lib/include.docker.mk

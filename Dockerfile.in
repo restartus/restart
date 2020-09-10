@@ -6,8 +6,8 @@ ARG DOCKER_USER=jovyan
 ENV CONDA_ENV=restart
 
 
-include(../lib/lib.docker)
-include(../lib/debug.docker)
+include(lib/lib.docker)
+include(lib/debug.docker)
 
 # https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
 add_group(sudo,$DOCKER_USER)

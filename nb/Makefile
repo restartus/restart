@@ -75,6 +75,11 @@ wa-fema-slide:
 voila-ca:
 	$(RUN) voila $(CALIFORNIA).ipynb
 
+## ca-slides: California slideshow with voila-reveal
+.PHONY: ca-slides
+ca-slides:
+	$(RUN) voila $(CALIFORNIA) --template=reveal
+
 ## voila-vuetify: Voila demo
 .PHONY: voila-vuetify
 voila-vuetify:

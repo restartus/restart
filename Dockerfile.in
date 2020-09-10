@@ -16,4 +16,4 @@ create_conda($CONDA_ENV,$PYTHON,$PIP,$PIP_ONLY)
 
 set_env($DOCKER_USER,$CONDA_ENV)
 
-WORKDIR /home/$DOCKER_USER/workspace
+WORKDIR /home/$DOCKER_USER/restart

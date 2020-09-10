@@ -10,4 +10,4 @@ github:
 
 # https://www.gitpod.io/blog/docker-in-gitpod/
 image:
-  file: Dockerfile
+  file: .gitpod.Dockerfile

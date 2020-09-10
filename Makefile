@@ -4,24 +4,27 @@
 #
 TAG ?= v2.5
 
-Dockerfile := Dockerfile
-Dockerfile.in := $(Dockerfile).in
-DOCKER_USER := joyvan
+
 flags ?= -e GRANT_SUDO=1
 DOCKER_USER ?= jovyan
-# Using same layout as gitpod
-dest_dir ?= /home/$(DOCKER_USER)/workspace
-volumes ?= -v $$(readlink -f "."):$(dest_dir)/restart/restart \
-		   -v $$(readlink -f "../config"):$(dest_dir)/restart/config \
-		   -v $$(readlink -f "../lib"):$(dest_dir)/restart/lib \
-		   -v $$(readlink -f "../../data"):$(dest_dir)/data
+Dockerfile := Dockerfile
 
-Gitpod := .gitpod.Dockerfile
-Gitpod.in := $(Gitpod).in
-GITPOD_USER := gitpod
-GITPOD_NAME := $(GITPOD_USER)
-# not implemented not
-STREAMLIT := restart.dashboard
+ifeq ($(DFILE),gitpod)
+Dockerfile := .$(DFILE).Dockerfile
+DOCKER_USER := $(DFILE)
+name := $(DFILE)
+else ifeq ($(DFILE),gtest)
+Dockerfile := Dockerfile.test
+DOCKER_USER := gitpod
+name := $(DFILE)
+endif
+
+Dockerfile.in := $(Dockerfile).in
+dest_dir ?= /home/$(DOCKER_USER)/workspace
+volumes ?= -v $$(readlink -f "."):$(dest_dir)/restart \
+		   -v $$(readlink -f "../data"):$(dest_dir)/data
+#		   -v $$(readlink -f "config"):$(dest_dir)/restart/config \
+#		   -v $$(readlink -f "lib"):$(dest_dir)/restart/lib \
 
 # Model targets
 MAIN ?= restart.main
@@ -36,7 +39,8 @@ PIPENV_CHECK_FLAGS ?= -i 38212
 include lib/include.src.mk
 include nb/include.nb.mk
 
-$(Dockerfile): $(Dockerfile.in) lib/lib.docker lib/debug.docker restart.docker
+$(Dockerfile): $(Dockerfile.in) lib/lib.docker lib/debug.docker lib/restart.docker
+	m4 <"$(Dockerfile.in)" >"$(Dockerfile)"
 
 ## gitpod: Make dockerfile for gitpod
 .PHONY: gitpod

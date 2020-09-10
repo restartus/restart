@@ -55,10 +55,17 @@ docker: $(Dockerfile)
 	docker tag $(image) $(image):$$(git rev-parse HEAD)
 	docker push $(image)
 
-## docker-lint
+## docker-lint: run the linter against the docker file
 .PHONY: docker-lint
 docker-lint: $(Dockerfile)
 	dockerfilelint $(Dockerfile)
+
+## docker-test: run tests for pip file
+.PHONY: dockertest
+docker-test:
+	@echo PIP=$(PIP)
+	@echo PIP_ONLY=$(PIP_ONLY)
+	@echo PYTHON=$(PYTHON)
 
 ## push: after a build will push the image up
 .PHONY: push

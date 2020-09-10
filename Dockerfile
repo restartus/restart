@@ -4,13 +4,23 @@ ARG DOCKER_USER=jovyan
 # We would use nb, but this notebook does not honor
 # .bashrc or allow conda activate
 ENV CONDA_ENV=restart
+ARG PIP
+ARG PIP_ONLY
+ARG PYTHON
 
 
 # This is set for make files of restart
 #
 # Emulate activate for the Makefiles
 # https://pythonspeed.com/articles/activate-conda-dockerfile/
-# Call create_conda(env) to prep and finish_conda() after ## create_conda_(env, python_version,pip, pip_only)
+# remember very argument needs to be declared in Docker
+ARG PYTHON
+ARG PACKAGES
+ARG PIP
+ARG PIP_ONLY
+# These are for development time
+ARG PIP_DEV
+
 
 
 #
@@ -74,4 +84,4 @@ RUN conda env list && \
     conda activate $CONDA_ENV
 
 
-WORKDIR /home/$DOCKER_USER/workspace
+WORKDIR /home/$DOCKER_USER/restart

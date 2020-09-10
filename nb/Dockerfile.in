@@ -4,8 +4,6 @@ ARG DOCKER_USER=jovyan
 # We would use nb, but this notebook does not honor
 # .bashrc or allow conda activate
 ARG CONDA_ENV=base
-ARG PIP_PACKAGES
-ARG PIP_ONLY
 
 include(../lib/lib.docker)
 

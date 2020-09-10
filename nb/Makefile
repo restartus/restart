@@ -17,19 +17,38 @@ DOCKER_USER ?= jovyan
 dest_dir ?= /home/jovyan/workspace
 flags ?= -p 8888:8888 \
 		 -e GRANT_SUDO=1
-volumes ?= -v $$(readlink -f "../restart"):$(dest_dir)/restart \
-		   -v $$(readlink -f "../nb"):$(dest_dir)/nb \
-		   -v $$(readlink -f "../lib"):$(dest_dir)/lib \
-		   -v $$(readlink -f "../config"):$(dest_dir)/config
+volumes ?= -v $$(readlink -f ".."):$(dest_dir)/restart
+		   # -v $$(readlink -f "../nb"):$(dest_dir)/nb \
+		   # -v $$(readlink -f "../lib"):$(dest_dir)/lib \
+		   # -v $$(readlink -f "../config"):$(dest_dir)/config
 
 Dockerfile = Dockerfile
 Dockerfile.in = $(Dockerfile).in
 
 $(Dockerfile): $(Dockerfile).in ../lib/lib.docker
-
-## ca: edit the California notebook
+## ca: the default california analysis
 .PHONY: ca
-ca:
+ca: ca-ppe
+
+## ca-slide: the default California slide show
+.PHONY: ca-slide
+ca-slide: ca-ppe-slide
+
+## ca-ppe: PPE analysis for California
+.PHONY: ca-ppe
+ca-ppe:
+	$(RUN) jupyter notebook CaliforniaPPE.ipynb
+
+## ca-ppe-slide: Slide show for PPE California
+.PHONY: ca-ppe-slide
+ca-ppe-slide:
+	$(RUN) voila --template=vuetify-default CaliforniaPPE.ipynb
+	$(RUN) voila --template=reveal CaliforniaPPE.ipynb
+
+
+## ca-dash: edit the California notebook dashboard
+.PHONY: ca-dash
+ca-dash:
 	$(RUN) jupyter notebook $(CALIFORNIA).ipynb
 
 ## wa: the current state of Washington notebook default

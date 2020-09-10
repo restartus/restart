@@ -21,16 +21,8 @@ volumes ?= -v $$(readlink -f "."):$(dest_dir)/restart/restart \
 		   -v $$(readlink -f "../lib"):$(dest_dir)/restart/lib \
 		   -v $$(readlink -f "../../data"):$(dest_dir)/data
 
-PYTHON=3.8
-PACKAGES += make vim gosu
-PIP += pandas confuse ipysheet pyomo h5py
-		   # pyyaml xlrd
-PIP_ONLY += tables
-# These are for development time
-PIP_DEV += nptyping pydocstyle pdoc3 flake8 mypy bandit \
-  		   black tox pytest pytest-cov pytest-xdist tox yamllint \
-		   pre-commit isort seed-isort-config \
-		   setuptools wheel twine
+# The package infor
+include include.src.mk
 
 Dockerfile = Dockerfile
 Dockerfile.in = $(Dockerfile).in

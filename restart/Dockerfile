@@ -4,10 +4,6 @@ ARG DOCKER_USER=jovyan
 # We would use nb, but this notebook does not honor
 # .bashrc or allow conda activate
 ENV CONDA_ENV=restart
-# Make sure to define ARGs and the default comes from outside
-ARG PIP=pandas
-ARG PIP_ONLY
-ARG PYTHON=3.7
 
 
 # This is set for make files of restart
@@ -35,11 +31,10 @@ ARG PYTHON=3.7
 
 
 
-
-# Ubuntu debug for docker containers (use with m4)
+# https://peteris.rocks/blog/quiet-and-unattended-installation-with-apt-get/
 USER root
 RUN mkdir -p /var/lib/apt/lists && apt-get update && \
-    apt-get install -y \
+    DEBIAN_FRONTEND=noninteractive apt-get install -qq \
                     make \
                     vim \
                     sudo \
@@ -79,4 +74,4 @@ RUN conda env list && \
     conda activate $CONDA_ENV
 
 
-WORKDIR /home/jovyan/workspace
+WORKDIR /home/$DOCKER_USER/workspace

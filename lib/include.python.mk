@@ -85,7 +85,7 @@ update:
 .PHONY: install
 install:
 ifeq ($(ENV),conda)
-		conda env list | grep ^$(name) || conda create --name -y $(name)
+		conda env list | grep ^$(name) || conda create -y --name $(name)
 		$(ACTIVATE) conda activate $(name)
 		conda config --env --add channels conda-forge
 		conda config --env --set channel_priority strict

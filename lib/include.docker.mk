@@ -55,15 +55,6 @@ docker: $(Dockerfile)
 	docker tag $(image) $(image):$$(git rev-parse HEAD)
 	docker push $(image)
 
-## docker-build-debug
-.PHONY: docker-build-debug
-docker-build-debug: $(Dockerfile)
-	docker build --pull \
-				--no-cache $(docker_flags) \
-				 -f "$(Dockerfile)" \
-				 -t "$(image)" \
-				 $(build_path)
-
 ## docker-lint
 .PHONY: docker-lint
 docker-lint: $(Dockerfile)
@@ -77,13 +68,13 @@ push:
 
 # for those times when we make a change in but the Dockerfile does not notice
 # In the no cache case do not pull as this will give you stale layers
-## nocache: does not use docker hub prevent stale layers from being downloaded
+## no-cache: build docker image with no cache
 .PHONY: no-cache
-no-cache:
-	docker build --no-cache --build-arg USER=$(DOCKER_USER) \
-		--build-arg NB_USER=$(DOCKER_USER) -f $(Dockerfile) -t $(image) .
+no-cache: $(Dockerfile)
+	docker build --pull --no-cache \
+		$(docker_flags) \
+		--build-arg NB_USER=$(DOCKER_USER) -f $(Dockerfile) -t $(image) $(build_path)
 	docker push $(image)
-	docker pull $(image)
 
 for_containers = bash -c 'for container in $$(docker ps -a | grep "$$0" | awk "{print \$$NF}"); \
 						  do \

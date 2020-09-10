@@ -3,7 +3,7 @@
 #
 #
 ## Make sure to run make .gitpod.Dockerfile  before commits
-Dockerfile := .gitpod.Dockerfile
+Dockerfile := Dockerfile
 Dockerfile.in := $(Dockerfile).in
 DOCKER_USER := gitpod
 name := gitpod
@@ -15,8 +15,10 @@ FLAGS ?= --config restart
 CA_FLAGS ?= --config restart --pop oes --state California --subpop healthcare
 CA_VENT_FLAGS ?= --config config/ca-vent
 WA_FLAGS ?= --config restart --pop oes --state Washington
+include restart/include.src.mk
+include nb/include.nb.mk
 
-$(Dockerfile): $(Dockerfile.in) lib/lib.docker nb/nb.docker restart/restart.docker lib/debug.docker
+$(Dockerfile): $(Dockerfile.in) lib/lib.docker lib/debug.docker
 
 ## gitpod: Make dockerfile for gitpod
 .PHONY: gitpod
@@ -26,10 +28,6 @@ gitpod: $(Dockerfile)
 .PHONY: repo-pre-commit
 repo-pre-commit:
 	[[ -e .pre-commit-config.yaml ]] || ln -s lib/root.pre-commit-config.yaml .pre-commit-config.yaml
-
-include lib/include.mk
-include lib/include.python.mk
-include lib/include.docker.mk
 
 ## pypi-clean: Fix the pypi cache
 .PHONY: pypi-clean
@@ -79,3 +77,7 @@ ca-vent-pdb:
 .PHONY: wa-main
 wa-main:
 	$(RUN) python -m $(MAIN) $(WA_FLAGS)
+
+include lib/include.mk
+include lib/include.python.mk
+include lib/include.docker.mk

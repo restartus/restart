@@ -1,75 +1,19 @@
-# this install is different from
-FROM continuumio/miniconda3 as continuum
-# this has the incorrect install and just grabs latest
-# It also has an error in install where it says /opt/conda but is really
-# /usr/local
-# FROM conda/miniconda3 AS conda
-FROM restartus/restart AS restart
-
-FROM gitpod/workspace-full
+FROM jupyter/base-notebook
 LABEL maintainer="Restart Us <admin@restart.us>"
-# Set environment for setup
-ARG CONDA_ENV=nb
-ARG DOCKER_USER=gitpod
-
-# To be used in gitpod.io must be debian/ubuntu or alpine based
-# Must also have a gitpod use
-# With the jupyter/scipy-notebook base we end up with two users
-# gitpod and joyvan
-include(lib/lib.docker)
-
-# if you can figure out where apt-get installs
-# this could also become
-# FROM restart/debug AS debug
-# Then in the current container
-# COPY --from=debug /usr/bin /usr/bin
-include(lib/debug.docker)
-
-# Testing copies this currently generates an error
-# because the current miniconda puts things in the wrong place
-# COPY --from=conda /opt/conda /opt/conda-from
-COPY --from=continuum /opt/conda /opt/conda
-ENV PATH /opt/conda/bin:$PATH
-RUN mkdir -p /opt/restart/bin
-COPY --from=restart /usr/bin/make /opt/restart/bin
-COPY --from=restart /usr/bin/vi /opt/restart/bin
-COPY --from=restart /usr/sbin/gosu /opt/restart/bin
-
-# https://hub.docker.com/r/conda/miniconda3/dockerfile
-# as of September 2020 note there is typo corrected
-# in the Dockerfile it puts it in /usr/local but the path is /opt/conda
-# we use /opt/conda to make it easy to copy out assets
-# try to get running as root first
-# If this works then can try
-# FROM:conda/miniconda3 AS conda
-# COPY --from=conda /opt/conda /opt/conda
-# ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
-# ENV PATH /opt/conda/bin:$PATH
-# RUN apt-get -qq update && apt-get -qq -y install curl bzip2 \
-    #     && curl -sSL https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -o /tmp/miniconda.sh \
-    #  && bash /tmp/miniconda.sh -bfp /opt/conda \
-    #     && rm -rf /tmp/miniconda.sh \
-    # && conda install -y python=3 \
-    # && conda update conda \
-    #& & apt-get -qq -y remove curl bzip2 \
-    #&&& apt-get -qq -y autoremove \
-    #&& apt-get autoclean \
-    #&& rm -rf /var/lib/apt/lists/* /var/log/dpkg.log \
-    #&& conda clean --all --yes
+ARG DOCKER_USER=jovyan
+# We would use nb, but this notebook does not honor
+# .bashrc or allow conda activate
+ENV CONDA_ENV=restart
 
 
-# adjust permissions as root
-#.RUN mkdir -p /opt && \
-    #    chown -R $DOCKER_USER /opt && \
-    #mkdir -p /etc/profile.d && \
-    # chown "$DOCKER_USER" /etc/profile.d
-USER $DOCKER_USER
-ENV PATH /opt/conda/bin:$PATH
+include(../lib/lib.docker)
+include(../lib/debug.docker)
+
+# https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
+add_group(sudo,$DOCKER_USER)
+
 create_conda($CONDA_ENV,$PYTHON,$PIP,$PIP_ONLY)
-
 
 set_env($DOCKER_USER,$CONDA_ENV)
 
 WORKDIR /home/$DOCKER_USER/workspace
-
-USER root

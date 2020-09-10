@@ -29,10 +29,10 @@ This file lives in README.tex.md and (Texify)[https://github.com/apps/texify] is
 a Github application that automatically renders README.md with Latex formulas
 which you add by putting the Latex between double dollar signs.
 
-<p align="center"><img src="/restart/tex/ce64ef4363eed7196ffc6ed3c4761042.svg?invert_in_darkmode&sanitize=true" align=middle width=9.61479915pt height=14.611878599999999pt/></p> LaTeX and it is not and this is more formally known as
-and there are arbitrarily summarizations from <p align="center"><img src="/restart/tex/afa921d8065c9b75169abacf1ebafddf.svg?invert_in_darkmode&sanitize=true" align=middle width=14.8230951pt height=14.611878599999999pt/></p> to the more
-summarized as the nth summarization is <p align="center"><img src="/restart/tex/ccfb8e56fa0de96aaf2384824f7ce8ee.svg?invert_in_darkmode&sanitize=true" align=middle width=16.3965714pt height=14.611878599999999pt/></p> in python we use the
-notation <p align="center"><img src="/restart/tex/9671989d0ae023df99422a88c302a0a4.svg?invert_in_darkmode&sanitize=true" align=middle width=63.899361899999995pt height=14.611878599999999pt/></p> and <p align="center"><img src="/restart/tex/12e5f573a7052c63116931fd4ffb9062.svg?invert_in_darkmode&sanitize=true" align=middle width=77.3268672pt height=14.611878599999999pt/></p>
+<p align="center"><img src="/tex/ce64ef4363eed7196ffc6ed3c4761042.svg?invert_in_darkmode&sanitize=true" align=middle width=9.61479915pt height=14.611878599999999pt/></p> LaTeX and it is not and this is more formally known as
+and there are arbitrarily summarizations from <p align="center"><img src="/tex/afa921d8065c9b75169abacf1ebafddf.svg?invert_in_darkmode&sanitize=true" align=middle width=14.8230951pt height=14.611878599999999pt/></p> to the more
+summarized as the nth summarization is <p align="center"><img src="/tex/ccfb8e56fa0de96aaf2384824f7ce8ee.svg?invert_in_darkmode&sanitize=true" align=middle width=16.3965714pt height=14.611878599999999pt/></p> in python we use the
+notation <p align="center"><img src="/tex/9671989d0ae023df99422a88c302a0a4.svg?invert_in_darkmode&sanitize=true" align=middle width=63.899361899999995pt height=14.611878599999999pt/></p> and <p align="center"><img src="/tex/12e5f573a7052c63116931fd4ffb9062.svg?invert_in_darkmode&sanitize=true" align=middle width=77.3268672pt height=14.611878599999999pt/></p>
 
 ## The model structure over view in a nutshell
 In a nutshell, to create any model, you just create a chain with parameters by
@@ -94,7 +94,7 @@ We are assuming you have a Mac and it is naked so from
 [Python](https://docs.python-guide.org/starting/install3/osx/) itself
 ```
 # install homebrew as a bootstrap
-ruby -e "<img src="/restart/tex/f1550fa5f2cbf10ea3db3f744456de91.svg?invert_in_darkmode&sanitize=true" align=middle width=1537.0778642999999pt height=24.7161288pt/>PATH =~ /usr/local/opt/python/libexec/bin ]] || export PATH="/usr/local/opt/python/libexec/bin:<img src="/restart/tex/c5119ae286a706d4518cf2bd0e46f3f3.svg?invert_in_darkmode&sanitize=true" align=middle width=3388.0543884pt height=5364.0913095pt/>{{ matrix.python-version }}
+ruby -e "<img src="/tex/f1550fa5f2cbf10ea3db3f744456de91.svg?invert_in_darkmode&sanitize=true" align=middle width=1537.0778642999999pt height=24.7161288pt/>PATH =~ /usr/local/opt/python/libexec/bin ]] || export PATH="/usr/local/opt/python/libexec/bin:<img src="/tex/c5119ae286a706d4518cf2bd0e46f3f3.svg?invert_in_darkmode&sanitize=true" align=middle width=3388.0543884pt height=5364.0913095pt/>{{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}

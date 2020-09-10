@@ -1,28 +1,44 @@
 #
-# Makefile for Gitpod and other project-wise use
+# Makefile for the project supports Docker running as gitpod locally
+# Or in gitpod land
 #
-#
-## Make sure to run make .gitpod.Dockerfile  before commits
+TAG ?= v2.5
+
 Dockerfile := Dockerfile
 Dockerfile.in := $(Dockerfile).in
-DOCKER_USER := gitpod
-name := gitpod
+DOCKER_USER := joyvan
+flags ?= -e GRANT_SUDO=1
+DOCKER_USER ?= jovyan
+# Using same layout as gitpod
+dest_dir ?= /home/$(DOCKER_USER)/workspace
+volumes ?= -v $$(readlink -f "."):$(dest_dir)/restart/restart \
+		   -v $$(readlink -f "../config"):$(dest_dir)/restart/config \
+		   -v $$(readlink -f "../lib"):$(dest_dir)/restart/lib \
+		   -v $$(readlink -f "../../data"):$(dest_dir)/data
+
+Gitpod := .gitpod.Dockerfile
+Gitpod.in := $(Gitpod).in
+GITPOD_USER := gitpod
+GITPOD_NAME := $(GITPOD_USER)
 
 # Model targets
 MAIN ?= restart.main
 MOD ?= restart.module_test
 FLAGS ?= --config restart
-CA_FLAGS ?= --config restart --pop oes --state California --subpop healthcare
+CA_FLAGS_OLD ?= --config restart --pop oes --state California --subpop healthcare
 CA_VENT_FLAGS ?= --config config/ca-vent
 WA_FLAGS ?= --config restart --pop oes --state Washington
-include restart/include.src.mk
+
+# the packages and config needed for the main package and notebooks
+PIPENV_CHECK_FLAGS ?= -i 38212
+include lib/include.src.mk
 include nb/include.nb.mk
 
-$(Dockerfile): $(Dockerfile.in) lib/lib.docker lib/debug.docker
+$(Dockerfile): $(Dockerfile.in) lib/lib.docker lib/debug.docker restart.docker
 
 ## gitpod: Make dockerfile for gitpod
 .PHONY: gitpod
-gitpod: $(Dockerfile)
+gitpod: $(Gitpod)
 
 ## repo-pre-commit: Install the base precommit for the repo
 .PHONY: repo-pre-commit
@@ -77,6 +93,39 @@ ca-vent-pdb:
 .PHONY: wa-main
 wa-main:
 	$(RUN) python -m $(MAIN) $(WA_FLAGS)
+
+## pipenv-streamlit: use streamlit to run the graphical interface (deprecated)
+# bug as of July 2020 cannot send flags to python
+# https://discuss.streamlit.io/t/command-line-arguments/386
+.PHONY: streamlit
+streamlit:
+	$(RUN) streamlit run -m $(WEB) -- $(FLAGS)
+
+## pipenv-streamlit-debug: run web interface in debugger (deprecated)
+.PHONY: streamlit-debug
+streamlit-debug:
+	$(RUN) python -m pdb $(WEB) $(FLAGS)
+
+## debug: run with debugging outputs on
+.PHONY: debug
+debug:
+	$(RUN) python -d -m $(MAIN) $(FLAGS)
+
+## config-gen create config yaml files
+.PHONY: config-gen
+config-gen:
+	$(RUN) python -m $(MAIN) --pop oes --state Indiana --county "St. Joseph" --output config/sj/config.yaml
+	$(RUN) python -m $(MAIN)--pop wa --output config/wa/config.yaml
+
+.PHONY: streamlit-ca
+## streamlit-ca: Run streamlit with California flags (deprecated)
+streamlit-ca:
+	$(RUN) streamlit run -m $(WEB) -- $(CA_FLAGS)
+
+.PHONY: streamlit-wa
+## streamlit-wa: Run streamlit with Washington flags (deprecated)
+streamlit-wa:
+	$(RUN) streamlit run -m $(WEB) -- $(WA_FLAGS)
 
 include lib/include.mk
 include lib/include.python.mk

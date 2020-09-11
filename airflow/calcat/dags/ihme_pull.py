@@ -1,0 +1,88 @@
+from zipfile import ZipFile
+from typing import List
+import datetime as dt
+import pathlib
+import requests
+import io
+
+import pandas as pd
+
+from airflow import DAG
+from airflow.operators.bash_operator import BashOperator
+from airflow.operators.python_operator import PythonOperator
+
+import dagmod
+
+URL: str = (
+    "https://ihmecovid19storage.blob.core.windows.net/latest/ihme-covid19.zip"
+)
+PATH0: pathlib.PosixPath = pathlib.Path(
+    "../../extern/data/epidemiological/global/IHME"
+)
+
+paths: List[pathlib.PosixPath] = []
+
+
+def rw_zip(format: str = ".csv"):
+
+    # check arg format
+    if format not in [".csv", ".h5"]:
+        raise dagmod.IllegalArgumentError(
+            "Must specify either .csv or .h5 as file format."
+        )
+
+    # retrieve contents
+    try:
+        c: requests.Response = requests.get(URL)
+    except Exception as e:
+        dagmod.bad_url(URL, e)
+
+    # if contents don't checkout, don't proceed and report error
+    if not c.ok:
+        print(
+            "There was a problem with the retrieved content."
+            + "Nothing written. Exiting."
+        )
+        return
+
+    # interpret url contents as zip
+    z: ZipFile = ZipFile(io.BytesIO(c.content))
+
+    # check the zipfile
+    if z.testzip() != None:
+        print(
+            "There was a problem with the zip file."
+            + "Nothing written. Exiting."
+        )
+        return
+
+    # write each csv to /IHME dir in the desired format
+    for member in z.namelist():
+
+        # skip if member file is not a csv
+        if ".csv" not in member:
+            continue
+
+        with z.open(member) as file:
+
+            # read in data
+            df = pd.DataFrame()
+            try:
+                df = pd.read_csv(file)
+            except Exception as e:
+                print("There was a problem with file " + str(member))
+
+            # build path and write file in desired format
+            path: pathlib.PosixPath = PATH0.joinpath(
+                member[(member.index("/") + 1) :]
+            )
+            dagmod.rw(format, path, df)
+
+
+dag: DAG = dagmod.create_dag("IHMEdatapull", "daily IHME data pull")
+
+date_task: BashOperator = dagmod.get_date_op(dag)
+
+pull_task: PythonOperator = dagmod.get_pull_op("IHMEallpull", rw_zip, [], dag)
+
+date_task >> pull_task

@@ -8,10 +8,12 @@ TAG ?= v2.5
 flags ?= -e GRANT_SUDO=1
 DOCKER_USER ?= jovyan
 Dockerfile := Dockerfile
+DOCKER_UID ?= $(id -g $DOCKER_USER)
 
 ifeq ($(DFILE),gitpod)
 Dockerfile := .$(DFILE).Dockerfile
 DOCKER_USER := $(DFILE)
+DOCKER_UID := 33333
 name := $(DFILE)
 else ifeq ($(DFILE),gtest)
 Dockerfile := Dockerfile.test
@@ -39,12 +41,15 @@ PIPENV_CHECK_FLAGS ?= -i 38212
 include lib/include.src.mk
 include nb/include.nb.mk
 
+## Dockerfile fix because .gitpod does not proecss correctly
+## Note this is Mac only
 $(Dockerfile): $(Dockerfile.in) lib/lib.docker lib/debug.docker lib/restart.docker
-	m4 <"$(Dockerfile.in)" >"$(Dockerfile)"
 
 ## gitpod: Make dockerfile for gitpod
 .PHONY: gitpod
-gitpod: $(Gitpod)
+gitpod:
+	m4 <.gitpod.Dockerfile.in | \
+	DOCKER_USER=$(DOCKER_USER) envsubst '$$DOCKER_USER' > .gitpod.Dockerfile
 
 ## repo-pre-commit: Install the base precommit for the repo
 .PHONY: repo-pre-commit

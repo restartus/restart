@@ -30,12 +30,12 @@ include(lib/debug.docker)
 # Testing copies this currently generates an error
 # because the current miniconda puts things in the wrong place
 # COPY --from=conda /opt/conda /opt/conda-from
-COPY --chown=$DOCKER_UID:$DOCKER_UID --from=continuum /opt/conda /opt/conda
+COPY --chown=$DOCKER_USER:$DOCKER_USER --from=continuum /opt/conda /opt/conda
 ENV PATH /opt/conda/bin:$PATH
 RUN mkdir -p /opt/restart/bin
-COPY --chown=$DOCKER_UID:$DOCKER_UID --from=restart /usr/bin/make /opt/restart/bin
-COPY --chown=$DOCKER_UID:$DOCKER_UID --from=restart /usr/bin/vi /opt/restart/bin
-COPY --chown=$DOCKER_UID:$DOCKER_UID --from=restart /usr/sbin/gosu /opt/restart/bin
+COPY --chown=$DOCKER_USER:$DOCKER_USER --from=restart /usr/bin/make /opt/restart/bin
+COPY --chown=$DOCKER_USER:$DOCKER_USER --from=restart /usr/bin/vi /opt/restart/bin
+COPY --chown=$DOCKER_USER:$DOCKER_USER --from=restart /usr/sbin/gosu /opt/restart/bin
 
 USER $DOCKER_USER
 ENV PATH /opt/conda/bin:$PATH

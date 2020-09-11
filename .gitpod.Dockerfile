@@ -72,14 +72,14 @@ RUN mkdir -p /var/lib/apt/lists && apt-get update && \
 # Testing copies this currently generates an error
 # because the current miniconda puts things in the wrong place
 # COPY --from=conda /opt/conda /opt/conda-from
-COPY --chown=$DOCKER_UID:$DOCKER_UID --from=continuum /opt/conda /opt/conda
+COPY --chown=gitpod:gitpod --from=continuum /opt/conda /opt/conda
 ENV PATH /opt/conda/bin:$PATH
 RUN mkdir -p /opt/restart/bin
-COPY --chown=$DOCKER_UID:$DOCKER_UID --from=restart /usr/bin/make /opt/restart/bin
-COPY --chown=$DOCKER_UID:$DOCKER_UID --from=restart /usr/bin/vi /opt/restart/bin
-COPY --chown=$DOCKER_UID:$DOCKER_UID --from=restart /usr/sbin/gosu /opt/restart/bin
+COPY --chown=gitpod:gitpod --from=restart /usr/bin/make /opt/restart/bin
+COPY --chown=gitpod:gitpod --from=restart /usr/bin/vi /opt/restart/bin
+COPY --chown=gitpod:gitpod --from=restart /usr/sbin/gosu /opt/restart/bin
 
-USER $DOCKER_USER
+USER gitpod
 ENV PATH /opt/conda/bin:$PATH
 RUN conda env list | grep "^$CONDA_ENV" || conda create --name $CONDA_ENV
 RUN \
@@ -95,8 +95,8 @@ RUN \
 
 
 
-USER $DOCKER_USER
-ENV HOME=/home/$DOCKER_USER
+USER gitpod
+ENV HOME=/home/gitpod
 RUN conda env list && \
     echo "export ENV=conda" >> "$HOME/.bashrc" && \
     conda init && \
@@ -105,5 +105,5 @@ RUN conda env list && \
     conda activate $CONDA_ENV
 
 
-WORKDIR /home/$DOCKER_USER/workspace
-USER $DOCKER_USER
+WORKDIR /home/gitpod/workspace
+USER gitpod

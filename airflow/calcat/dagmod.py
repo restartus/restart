@@ -11,7 +11,7 @@ import pathlib
 import datetime as dt
 from typing import List, Dict
 
-import pandas as pd
+import pandas as pd  # type:ignore
 
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator

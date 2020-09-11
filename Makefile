@@ -8,7 +8,7 @@ TAG ?= v2.5
 flags ?= -e GRANT_SUDO=1
 DOCKER_USER ?= jovyan
 Dockerfile := Dockerfile
-DOCKER_UID ?= $(id -g $DOCKER_USER)
+DOCKER_UID ?= $(DOCKER_USER)
 
 ifeq ($(DFILE),gitpod)
 Dockerfile := .$(DFILE).Dockerfile
@@ -18,6 +18,7 @@ name := $(DFILE)
 else ifeq ($(DFILE),gtest)
 Dockerfile := Dockerfile.test
 DOCKER_USER := gitpod
+DOCKER_UID := 33333
 name := $(DFILE)
 endif
 
@@ -49,7 +50,7 @@ $(Dockerfile): $(Dockerfile.in) lib/lib.docker lib/debug.docker lib/restart.dock
 .PHONY: gitpod
 gitpod:
 	m4 <.gitpod.Dockerfile.in | \
-	DOCKER_USER=$(DOCKER_USER) envsubst '$$DOCKER_USER' > .gitpod.Dockerfile
+	DOCKER_UID=$(DOCKER_UID) envsubst '$$DOCKER_UID' > .gitpod.Dockerfile
 
 ## repo-pre-commit: Install the base precommit for the repo
 .PHONY: repo-pre-commit

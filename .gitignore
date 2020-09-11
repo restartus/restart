@@ -2,3 +2,16 @@
 .DS_Store
 __pycache__
 *.log
+.ipynb_checkpoints/
+.local/
+.cache/
+.ipython/
+.jupyter/
+
+# for python virtual environments
+venv/
+logs/
+
+# no big files
+*.zip
+*.exe

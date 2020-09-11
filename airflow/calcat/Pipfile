@@ -6,13 +6,6 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-apache-airflow = "*"
-mysqlclient = "*"
-datetime = "*"
-tables = "*"
 
 [requires]
 python_version = "3.7"
-
-[pipenv]
-allow_prereleases = true

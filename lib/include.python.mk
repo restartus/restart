@@ -202,13 +202,16 @@ pre-commit:
 
 ## pipenv-python: Install python version in
 # also add to the python path
-# This faile if we don't have brew
+# This fail if we don't have brew
+# Note when you delete the Pipfile, it will search recursively upward
+# looking for one, so on clean recreate one
 .PHONY: pipenv-python
 pipenv-python: pipenv-clean
 	@echo currently using python $(PYTHON) override changing PYTHON make flag
 	brew upgrade python@$(PYTHON) pipenv
 	@echo pipenv sometimes corrupts after python $(PYTHON) install so reinstall if needed
 	pipenv --version || brew reinstall pipenv
+
 	PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --python /usr/local/opt/python@$(PYTHON)/bin/python3
 	pipenv clean
 	@echo use .env to ensure we can see all packages
@@ -218,7 +221,10 @@ pipenv-python: pipenv-clean
 # note pipenv --rm will fail if there is nothing there so ignore that
 # do not do a pipenv clean until later otherwise it creats an environment
 # Same with the remove if the files are not there
+# Then add a dummy pipenv so that you do not move up recursively 
+# And create an environment in the current directory
 .PHONY: pipenv-clean
 pipenv-clean:
 	pipenv --rm || true
 	rm Pipfile* || true
+	touch Pipfile

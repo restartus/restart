@@ -63,6 +63,7 @@ airflow-pipenv: airflow-clean pipenv-python
 	command -v mysql || brew install mysql-client
 	grep mysql-client "$$HOME/.bash_profile" || \
 		echo PATH="/usr/local/opt/mysql-client/bin:$$PATH" >> "$$HOME/.bash_profile"
+	[[ xcode-select --version ]] || xcode-select --install
 ifdef AIRFLOW_PIP
 	pipenv install $(AIRFLOW_PIP)
 	pipenv install --dev $(AIRFLOW_PIP_DEV) || true

@@ -12,9 +12,7 @@ import pandas as pd  # type: ignore # noqa: F401
 
 from .data import Data  # type: ignore
 from .epi import Epi  # type: ignore
-from .load_csv import LoadCSV  # type: ignore
 from .log import Log  # type: ignore
-from .util import load_dataframe  # type: ignore
 
 
 class EpiTable(Epi):
@@ -114,9 +112,6 @@ class EpiTable(Epi):
             shape: Tuple[int, int, int, int, int, int] = cube[
                 "zipped_reichcube"
             ].shape
-
-            errormsg = "Dimensions of datacube do not match indices."
-            assert len(shape) == len(indexdf.columns), errormsg  # nosec
 
             # prune indices of nans and compute index values from parameters
             date_indices: List[pd.Timestamp] = list(

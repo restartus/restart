@@ -529,6 +529,6 @@ Paths:
   XLS: covid-surge-who.xlsx
 
 Reich:
-  Root: ../../data/epidemiological/processed
+  Root: ../data/epidemiological/processed
   CUBE: reich.hdf5
   INDEX: reichindex.csv

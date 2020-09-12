@@ -6,21 +6,9 @@ TAG ?= v2.5
 
 
 flags ?= -e GRANT_SUDO=1
-DOCKER_USER ?= jovyan
 Dockerfile := Dockerfile
+DOCKER_USER ?= jovyan
 DOCKER_UID ?= $(DOCKER_USER)
-
-ifeq ($(DFILE),gitpod)
-Dockerfile := .$(DFILE).Dockerfile
-DOCKER_USER := $(DFILE)
-DOCKER_UID := 33333
-name := $(DFILE)
-else ifeq ($(DFILE),gtest)
-Dockerfile := Dockerfile.test
-DOCKER_USER := gitpod
-DOCKER_UID := 33333
-name := $(DFILE)
-endif
 
 Dockerfile.in := $(Dockerfile).in
 dest_dir ?= /home/$(DOCKER_USER)/workspace
@@ -47,10 +35,23 @@ include nb/include.nb.mk
 $(Dockerfile): $(Dockerfile.in) lib/lib.docker lib/debug.docker lib/restart.docker
 
 ## gitpod: Make dockerfile for gitpod
+# we need to do envsubst since gitpod.io does not honor ARGS
 .PHONY: gitpod
 gitpod:
 	m4 <.gitpod.Dockerfile.in | \
-	DOCKER_UID=$(DOCKER_UID) envsubst '$$DOCKER_UID' > .gitpod.Dockerfile
+	DOCKER_USER=gitpod \
+	DOCKER_UID="33333"  \
+	PYTHON="$(PYTHON)" \
+	PIP="$(PIP)" \
+	PIP_ONLY="$(PIP_ONLY)" \
+	PIP_DEV="$(PIP_DEV)" \
+		envsubst '$$DOCKER_USER \
+			      $$DOCKER_UID \
+				  $$PYTHON \
+				  $$PIP \
+				  $$PIP_ONLY \
+				  $$PIP_DEV' \
+			> .gitpod.Dockerfile
 
 ## repo-pre-commit: Install the base precommit for the repo
 .PHONY: repo-pre-commit

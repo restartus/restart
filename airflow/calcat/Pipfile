@@ -4,8 +4,17 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+neovim = "*"
 
 [packages]
+apache-airflow = "*"
+mysqlclient = "*"
+datetime = "*"
+tables = "*"
+h5py = "*"
 
 [requires]
 python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true

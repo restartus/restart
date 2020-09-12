@@ -9,8 +9,10 @@ FROM restartus/restart AS restart
 FROM gitpod/workspace-full
 LABEL maintainer="Restart Us <admin@restart.us>"
 # Set environment for setup
-ARG CONDA_ENV=nb
+ARG CONDA_ENV=restart
+# must use numbers for this gitpod override in makefile
 ARG DOCKER_USER=gitpod
+ARG DOCKER_UID=33333
 
 # To be used in gitpod.io must be debian/ubuntu or alpine based
 # Must also have a gitpod use
@@ -70,52 +72,24 @@ RUN mkdir -p /var/lib/apt/lists && apt-get update && \
 # Testing copies this currently generates an error
 # because the current miniconda puts things in the wrong place
 # COPY --from=conda /opt/conda /opt/conda-from
-COPY --from=continuum /opt/conda /opt/conda
+COPY --chown=jovyan:jovyan --from=continuum /opt/conda /opt/conda
 ENV PATH /opt/conda/bin:$PATH
 RUN mkdir -p /opt/restart/bin
-COPY --from=restart /usr/bin/make /opt/restart/bin
-COPY --from=restart /usr/bin/vi /opt/restart/bin
-COPY --from=restart /usr/sbin/gosu /opt/restart/bin
+COPY --chown=jovyan:jovyan --from=restart /usr/bin/make /opt/restart/bin
+COPY --chown=jovyan:jovyan --from=restart /usr/bin/vi /opt/restart/bin
+COPY --chown=jovyan:jovyan --from=restart /usr/sbin/gosu /opt/restart/bin
 
-# https://hub.docker.com/r/conda/miniconda3/dockerfile
-# as of September 2020 note there is typo corrected
-# in the Dockerfile it puts it in /usr/local but the path is /opt/conda
-# we use /opt/conda to make it easy to copy out assets
-# try to get running as root first
-# If this works then can try
-# FROM:conda/miniconda3 AS conda
-# COPY --from=conda /opt/conda /opt/conda
-# ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
-# ENV PATH /opt/conda/bin:$PATH
-# RUN apt-get -qq update && apt-get -qq -y install curl bzip2 \
-    #     && curl -sSL https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -o /tmp/miniconda.sh \
-    #  && bash /tmp/miniconda.sh -bfp /opt/conda \
-    #     && rm -rf /tmp/miniconda.sh \
-    # && conda install -y python=3 \
-    # && conda update conda \
-    #& & apt-get -qq -y remove curl bzip2 \
-    #&&& apt-get -qq -y autoremove \
-    #&& apt-get autoclean \
-    #&& rm -rf /var/lib/apt/lists/* /var/log/dpkg.log \
-    #&& conda clean --all --yes
-
-
-# adjust permissions as root
-#.RUN mkdir -p /opt && \
-    #    chown -R $DOCKER_USER /opt && \
-    #mkdir -p /etc/profile.d && \
-    # chown "$DOCKER_USER" /etc/profile.d
 USER $DOCKER_USER
 ENV PATH /opt/conda/bin:$PATH
 RUN conda env list | grep "^$CONDA_ENV" || conda create --name $CONDA_ENV
 RUN \
-    echo env=$CONDA_ENV python=$PYTHON pip=$PIP pip_only=$PIP_ONLY && \
+    echo env=$CONDA_ENV python=3.8 pip=pandas confuse ipysheet pyomo h5py h5py confuse voila voila-reveal voila-vuetify ipywidgets ipysheet ipympl ipyvolume ipyvuetify scipy altair qgrid bqplot pip_only=tables restart jupyter-server tables && \
     conda config --add channels conda-forge && \
     conda config --set channel_priority strict && \
-    conda install --name $CONDA_ENV --quiet --yes python=$PYTHON \
-                $PIP && \
+    conda install --name $CONDA_ENV --quiet --yes python=3.8 \
+                pandas confuse ipysheet pyomo h5py h5py confuse voila voila-reveal voila-vuetify ipywidgets ipysheet ipympl ipyvolume ipyvuetify scipy altair qgrid bqplot && \
     conda run -n $CONDA_ENV pip install \
-                $PIP_ONLY && \
+                tables restart jupyter-server tables && \
     conda clean -afy && \
     conda init
 
@@ -132,5 +106,4 @@ RUN conda env list && \
 
 
 WORKDIR /home/$DOCKER_USER/workspace
-
-USER root
+USER $DOCKER_USER

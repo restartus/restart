@@ -10,6 +10,9 @@ ARG PIP_ONLY
 # These are for development time
 ARG PIP_DEV
 
+# Note that conda does not work in gitpod, it can use pipenv but prefers bare
+# pip
+# create_conda env python_version conda_pip pip_only
 define(create_conda,
 RUN conda env list | grep "^$1" || conda create --name $1
 RUN \
@@ -24,7 +27,16 @@ RUN \
     conda init
 )
 
-#
+# Gitpod runs bare pip3 and pyenv
+# create_gitpod python_version conda_pip piponly)
+# https://www.gitpod.io/docs/languages/python/
+# pyenv install 3.8 does not work
+# https://www.gitpod.io/docs/languages/python/
+define(create_gitpod,
+  RUN pyenv global $1 && \
+      pip3 install $2 $3
+)
+
 # https://github.com/gitpod-io/gitpod/tree/master/components/image-builder/workspace-image-layer/gitpod-layer
 #
 # https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh

@@ -1,11 +1,3 @@
-# this install is different from
-FROM continuumio/miniconda3 as continuum
-# this has the incorrect install and just grabs latest
-# It also has an error in install where it says /opt/conda but is really
-# /usr/local
-# FROM conda/miniconda3 AS conda
-FROM restartus/restart AS restart
-
 FROM gitpod/workspace-full
 LABEL maintainer="Restart Us <admin@restart.us>"
 # Set environment for setup
@@ -30,9 +22,18 @@ ARG PIP_ONLY
 # These are for development time
 ARG PIP_DEV
 
+# Note that conda does not work in gitpod, it can use pipenv but prefers bare
+# pip
+# create_conda env python_version conda_pip pip_only
 
 
-#
+# Gitpod runs bare pip3 and pyenv
+# create_gitpod python_version conda_pip piponly)
+# https://www.gitpod.io/docs/languages/python/
+# pyenv install 3.8 does not work
+# https://www.gitpod.io/docs/languages/python/
+
+
 # https://github.com/gitpod-io/gitpod/tree/master/components/image-builder/workspace-image-layer/gitpod-layer
 #
 # https://github.com/jupyter/docker-stacks/blob/master/base-notebook/start.sh
@@ -69,41 +70,10 @@ RUN mkdir -p /var/lib/apt/lists && apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/list/*
 
 
-# Testing copies this currently generates an error
-# because the current miniconda puts things in the wrong place
-# COPY --from=conda /opt/conda /opt/conda-from
-COPY --chown=jovyan:jovyan --from=continuum /opt/conda /opt/conda
-ENV PATH /opt/conda/bin:$PATH
-RUN mkdir -p /opt/restart/bin
-COPY --chown=jovyan:jovyan --from=restart /usr/bin/make /opt/restart/bin
-COPY --chown=jovyan:jovyan --from=restart /usr/bin/vi /opt/restart/bin
-COPY --chown=jovyan:jovyan --from=restart /usr/sbin/gosu /opt/restart/bin
-
-USER $DOCKER_USER
-ENV PATH /opt/conda/bin:$PATH
-RUN conda env list | grep "^$CONDA_ENV" || conda create --name $CONDA_ENV
-RUN \
-    echo env=$CONDA_ENV python=$PYTHON pip=$PIP pip_only=$PIP_ONLY && \
-    conda config --add channels conda-forge && \
-    conda config --set channel_priority strict && \
-    conda install --name $CONDA_ENV --quiet --yes python=$PYTHON \
-                $PIP && \
-    conda run -n $CONDA_ENV pip install \
-                $PIP_ONLY && \
-    conda clean -afy && \
-    conda init
+USER gitpod
+RUN pyenv global 3.8 && \
+      pip3 install pandas confuse ipysheet pyomo h5py h5py confuse voila voila-reveal voila-vuetify ipywidgets ipysheet ipympl ipyvolume ipyvuetify scipy altair qgrid bqplot tables restart jupyter-server tables
 
 
-
-USER $DOCKER_USER
-ENV HOME=/home/$DOCKER_USER
-RUN conda env list && \
-    echo "export ENV=conda" >> "$HOME/.bashrc" && \
-    conda init && \
-    echo "conda activate $CONDA_ENV" >> "$HOME/.bashrc" && \
-    eval "$(command conda 'shell.bash' 'hook' 2>/dev/null)" && \
-    conda activate $CONDA_ENV
-
-
-WORKDIR /home/$DOCKER_USER/workspace
-USER $DOCKER_USER
+WORKDIR /home/gitpod/workspace
+USER gitpod

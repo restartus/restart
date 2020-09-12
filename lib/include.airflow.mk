@@ -15,12 +15,13 @@
 # defaults use to add comments when running make help
 #
 # https://stackoverflow.com/questions/589276/how-can-i-use-bash-syntax-in-makefile-targets
+SHELL ?= /bin/bash
 airflow_data ?= $(PWD)
-AIRFLOW_PIP ?= apache-airflow mysqlclient datetime tables
-AIRFLOW_PIP_DEV ?=
+PIP += apache-airflow mysqlclient datetime tables h5py
+PIP_DEV += neovim
+
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
-
 
 ## airflow-install: configure airflow data directories
 # the side effect of airflow version is to create a default airflow.cfg
@@ -59,16 +60,11 @@ airflow:
 .PHONY: airflow-pipenv
 # override to lower versino
 PYTHON = 3.7
-airflow-pipenv: airflow-clean pipenv-python
+airflow-pipenv: install airflow-clean pipenv-python
 	command -v mysql || brew install mysql-client
 	grep mysql-client "$$HOME/.bash_profile" || \
 		echo PATH="/usr/local/opt/mysql-client/bin:$$PATH" >> "$$HOME/.bash_profile"
-	[[ xcode-select --version ]] || xcode-select --install
-ifdef AIRFLOW_PIP
-	pipenv install $(AIRFLOW_PIP)
-	pipenv install --dev $(AIRFLOW_PIP_DEV) || true
-endif
-	pipenv update
+	xcode-select --version || xcode-select --install
 
 ## airflow-clean: start over remove all config files
 .PHONY: airflow-clean

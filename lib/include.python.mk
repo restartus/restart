@@ -89,7 +89,7 @@ ifeq ($(ENV),conda)
 		$(ACTIVATE) conda activate $(name)
 		conda config --env --add channels conda-forge
 		conda config --env --set channel_priority strict
-		conda install --name $(name) python=$(PYTHON)
+		conda install --name $(name) -y python=$(PYTHON)
 endif
 	$(INSTALL) $(PIP) || true
 	$(INSTALL_DEV) $(PIP_DEV) || true

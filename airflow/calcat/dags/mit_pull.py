@@ -1,12 +1,12 @@
+"""Pull MIT Data."""
 from typing import List, Dict
 import datetime as dt
 
-import pandas as pd
-
-from airflow import DAG
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
-from airflow.utils.dates import days_ago
+import pandas as pd  # type:ignore
+from airflow import DAG  # type:ignore
+from airflow.operators.bash_operator import BashOperator  # type:ignore
+from airflow.operators.python_operator import PythonOperator  # type:ignore
+from airflow.utils.dates import days_ago  # type:ignore
 
 import dagmod
 

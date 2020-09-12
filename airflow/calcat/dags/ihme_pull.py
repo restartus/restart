@@ -1,31 +1,28 @@
+"""Pull IMHE Data."""
 from zipfile import ZipFile
 from typing import List
-import datetime as dt
-import pathlib
+from pathlib import Path
 import requests
 import io
 
-import pandas as pd
+import pandas as pd  # type: ignore
 
-from airflow import DAG
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
+from airflow import DAG  # type: ignore
+from airflow.operators.bash_operator import BashOperator  # type: ignore
+from airflow.operators.python_operator import PythonOperator  # type:ignore
 
 import dagmod
 
 URL: str = (
     "https://ihmecovid19storage.blob.core.windows.net/latest/ihme-covid19.zip"
 )
-PATH0: pathlib.PosixPath = pathlib.Path(
-    "../../extern/data/epidemiological/global/IHME"
-)
+PATH0: Path = Path("../../extern/data/epidemiological/global/IHME")
 
-paths: List[pathlib.PosixPath] = []
+paths: List[Path] = []
 
 
 def rw_zip(format: str = ".csv"):
-
-    # check arg format
+    """Check arg format."""
     if format not in [".csv", ".h5"]:
         raise dagmod.IllegalArgumentError(
             "Must specify either .csv or .h5 as file format."
@@ -70,12 +67,10 @@ def rw_zip(format: str = ".csv"):
             try:
                 df = pd.read_csv(file)
             except Exception as e:
-                print("There was a problem with file " + str(member))
+                print("Exception" + str(e) + " with file " + str(member))
 
             # build path and write file in desired format
-            path: pathlib.PosixPath = PATH0.joinpath(
-                member[(member.index("/") + 1) :]
-            )
+            path: Path = PATH0.joinpath(member[(member.index("/") + 1) :])
             dagmod.rw(format, path, df)
 
 

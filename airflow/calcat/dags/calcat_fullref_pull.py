@@ -1,10 +1,10 @@
-"""Dag for calcat scraping"""
+"""Dag for calcat scraping."""
 from datetime import datetime, timedelta
-from airflow import DAG
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
-from airflow.utils.dates import days_ago
-import pandas as pd
+from airflow import DAG  # type: ignore
+from airflow.operators.bash_operator import BashOperator  # type: ignore
+from airflow.operators.python_operator import PythonOperator  # type: ignore
+from airflow.utils.dates import days_ago  # type:ignore
+import pandas as pd  # type: ignore
 
 CALCAT_FULL_REF_DATA_URL = "https://raw.githubusercontent.com/StateOfCalifornia/CalCAT/master/data/CA/can_full_reff_table.csv"
 
@@ -28,8 +28,9 @@ default_args = {
 }
 
 
-# pulls data from URL into a dataframe and writes to current directory with specified filename
 def read_url():
+    """Pull data from URL into a dataframe and writes to current directory with
+    specified filename."""
     URL = "https://raw.githubusercontent.com/StateOfCalifornia/CalCAT/master/data/CA/can_full_reff_table.csv"
     # filename = "calCAT_full_ref.h5"
     filename = "calCAT_full_ref.csv"

@@ -1,21 +1,17 @@
-import datetime as dt
-import pathlib
+"""Pull COVID Action Network data."""
+from pathlib import Path
 from typing import List
 
-import pandas as pd
-
-from airflow import DAG
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
+from airflow import DAG  # type: ignore
+from airflow.operators.bash_operator import BashOperator  # type: ignore
+from airflow.operators.python_operator import PythonOperator  # type: ignore
 
 import dagmod
 
 # constants
 URL0: str = "https://data.covidactnow.org/latest/us/"
 URL1: str = ".timeseries.csv"
-PATH0: pathlib.PosixPath = pathlib.Path(
-    "../../extern/data/epidemiological/us/forecasts/CAN"
-)
+PATH0: Path = Path("../../extern/data/epidemiological/us/forecasts/CAN")
 WFORMAT: str = ".csv"
 AGGS: List[str] = ["states", "counties"]
 INTERVENTIONS: List[str] = [
@@ -26,16 +22,16 @@ INTERVENTIONS: List[str] = [
 ]
 
 # build filepaths and urls for all pairs of agg. and intervention
-paths: List[pathlib.PosixPath] = []
-urls: List[pathlib.PosixPath] = []
+paths: List[Path] = []
+urls: List[Path] = []
 for agg in AGGS:
     for intervention in INTERVENTIONS:
 
-        url: str = URL0 + agg + "." + intervention + URL1
+        url: Path = Path(URL0 + agg + "." + intervention + URL1)
         urls.append(url)
 
         filename: str = "can_" + agg + "_" + intervention + WFORMAT
-        path: pathlib.PosixPath = PATH0.joinpath(filename)
+        path: Path = PATH0.joinpath(filename)
         paths.append(path)
 
 # define operators and dag

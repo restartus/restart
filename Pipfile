@@ -22,6 +22,7 @@ seed-isort-config = "*"
 setuptools = "*"
 wheel = "*"
 twine = "*"
+neovim = "*"
 
 [packages]
 pandas = "*"
@@ -40,6 +41,10 @@ scipy = "*"
 altair = "*"
 qgrid = "*"
 bqplot = "*"
+apache-airflow = "*"
+mysqlclient = "*"
+datetime = "*"
+tables = "*"
 
 [requires]
 python_version = "3.8"

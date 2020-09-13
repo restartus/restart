@@ -27,6 +27,7 @@ WA_FLAGS ?= --config restart --pop oes --state Washington
 
 # the packages and config needed for the main package and notebooks
 PIPENV_CHECK_FLAGS ?= -i 38212
+# The order matters because of PYTHON so put it first
 include lib/include.src.mk
 include nb/include.nb.mk
 

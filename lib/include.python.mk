@@ -15,7 +15,8 @@ FLAGS ?=
 SHELL ?= /bin/bash
 all_py = $$(find . -name "*.py")
 all_yaml = $$(find . -name "*.yaml")
-PYTHON ?= 3.8
+# gitpod needs three digits
+PYTHON ?= 3.8.5
 DOC ?= doc
 LIB ?= lib
 name ?= $$(basename $(PWD))
@@ -221,7 +222,7 @@ pipenv-python: pipenv-clean
 # note pipenv --rm will fail if there is nothing there so ignore that
 # do not do a pipenv clean until later otherwise it creats an environment
 # Same with the remove if the files are not there
-# Then add a dummy pipenv so that you do not move up recursively 
+# Then add a dummy pipenv so that you do not move up recursively
 # And create an environment in the current directory
 .PHONY: pipenv-clean
 pipenv-clean:

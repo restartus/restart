@@ -13,8 +13,11 @@ repos:
       - id: check-merge-conflict
       - id: check-yaml
         args: [--allow-multiple-documents]
-      # - id: detect-aws-credentials
       - id: detect-private-key
+  - repo: https://github.com/kynan/nbstripout
+    rev: master
+    hooks:
+      - id: nbstripout
   # https://github.com/roy-ht/pre-commit-jupyter
   # Note we still run src checks here as we depend on it for notebooks
   # This is generating a fail with json cannot be read so comment out for now

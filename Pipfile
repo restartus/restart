@@ -23,6 +23,7 @@ setuptools = "*"
 wheel = "*"
 twine = "*"
 neovim = "*"
+pylint = "*"
 
 [packages]
 pandas = "*"

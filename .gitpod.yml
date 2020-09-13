@@ -11,3 +11,8 @@ github:
 # https://www.gitpod.io/blog/docker-in-gitpod/
 image:
   file: .gitpod.Dockerfile
+
+# https://www.gitpod.io/blog/gitpodify
+# Need to use gp to have persistent variables
+tasks:
+  - command: gp env ENV=none

@@ -5,6 +5,7 @@ ARG CONDA_ENV=restart
 # must use numbers for this gitpod override in makefile
 ARG DOCKER_USER=gitpod
 ARG DOCKER_UID=33333
+ENV ENV=none
 
 # To be used in gitpod.io must be debian/ubuntu or alpine based
 # Must also have a gitpod use
@@ -24,14 +25,22 @@ ARG PIP_DEV
 
 # Note that conda does not work in gitpod, it can use pipenv but prefers bare
 # pip
-# create_conda env python_version conda_pip pip_only
+# create_conda env python_version conda_pip pip_only pip_dev
 
 
+#
+# create_gitpod(python_version,conda_pip,pip-only,pip-dev)
 # Gitpod runs bare pip3 and pyenv
-# create_gitpod python_version conda_pip piponly)
 # https://www.gitpod.io/docs/languages/python/
-# pyenv install 3.8 does not work
+# pyenv install 3.8 does not work but 3.8.5 does, need three digits
+# Not 3.8 installed only have 3.8.x and need to specificy a final versino
+#  RUN pyenv global $1 && \
 # https://www.gitpod.io/docs/languages/python/
+# do for both bare and for ENV=pipenv
+# note that ENV variables are not passed with gitpod
+# Also balck in pipenv --dev needs --pre
+
+
 
 
 # https://github.com/gitpod-io/gitpod/tree/master/components/image-builder/workspace-image-layer/gitpod-layer
@@ -71,9 +80,19 @@ RUN mkdir -p /var/lib/apt/lists && apt-get update && \
 
 
 USER gitpod
-RUN pyenv global 3.8 && \
-      pip3 install pandas confuse ipysheet pyomo h5py h5py confuse voila voila-reveal voila-vuetify ipywidgets ipysheet ipympl ipyvolume ipyvuetify scipy altair qgrid bqplot tables restart jupyter-server tables
+
+# gitpod does not like anaconda
+# create_conda(3.8.5,pandas confuse ipysheet pyomo h5py h5py confuse voila voila-reveal voila-vuetify ipywidgets ipysheet ipympl ipyvolume ipyvuetify scipy altair qgrid bqplot,tables restart jupyter-server tables,PIP_DEV)
+
+# this works
+# ENV=none means do not use pipenv ENV=pipenv enables it
+WORKDIR /home/gitpod
+RUN echo "ENV=none" >> ".bashrc"
+RUN pyenv global 3.8.5 && \
+        pip3 install pandas confuse ipysheet pyomo h5py h5py confuse voila voila-reveal voila-vuetify ipywidgets ipysheet ipympl ipyvolume ipyvuetify scipy altair qgrid bqplot tables restart jupyter-server tables nptyping pydocstyle pdoc3 flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox yamllint pre-commit isort seed-isort-config setuptools wheel twine neovim pre-commit isort nbstripout
 
 
-WORKDIR /home/gitpod/workspace
-USER gitpod
+RUN pyenv global 3.8.5 && \
+        pipenv install pandas confuse ipysheet pyomo h5py h5py confuse voila voila-reveal voila-vuetify ipywidgets ipysheet ipympl ipyvolume ipyvuetify scipy altair qgrid bqplot tables restart jupyter-server tables && \
+        pipenv install --dev --pre nptyping pydocstyle pdoc3 flake8 mypy bandit black tox pytest pytest-cov pytest-xdist tox yamllint pre-commit isort seed-isort-config setuptools wheel twine neovim pre-commit isort nbstripout
+

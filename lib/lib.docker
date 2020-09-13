@@ -12,7 +12,7 @@ ARG PIP_DEV
 
 # Note that conda does not work in gitpod, it can use pipenv but prefers bare
 # pip
-# create_conda env python_version conda_pip pip_only
+# create_conda env python_version conda_pip pip_only pip_dev
 define(create_conda,
 RUN conda env list | grep "^$1" || conda create --name $1
 RUN \
@@ -20,21 +20,33 @@ RUN \
     conda config --add channels conda-forge && \
     conda config --set channel_priority strict && \
     conda install --name $1 --quiet --yes python=$2 \
-                $3 && \
+                $3 $5 && \
     conda run -n $1 pip install \
                 $4 && \
     conda clean -afy && \
     conda init
 )
 
+#
+# create_gitpod(python_version,conda_pip,pip-only,pip-dev)
 # Gitpod runs bare pip3 and pyenv
-# create_gitpod python_version conda_pip piponly)
 # https://www.gitpod.io/docs/languages/python/
-# pyenv install 3.8 does not work
+# pyenv install 3.8 does not work but 3.8.5 does, need three digits
+# Not 3.8 installed only have 3.8.x and need to specificy a final versino
+#  RUN pyenv global $1 && \
 # https://www.gitpod.io/docs/languages/python/
+# do for both bare and for ENV=pipenv
+# note that ENV variables are not passed with gitpod
+# Also balck in pipenv --dev needs --pre
 define(create_gitpod,
-  RUN pyenv global $1 && \
-      pip3 install $2 $3
+    RUN pyenv global $1 && \
+        pip3 install $2 $3 $4
+)
+
+define(create_gitpod_pipenv,
+    RUN pyenv global $1 && \
+        pipenv install $2 $3 && \
+        pipenv install --dev --pre $4
 )
 
 # https://github.com/gitpod-io/gitpod/tree/master/components/image-builder/workspace-image-layer/gitpod-layer

@@ -8,17 +8,20 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
       - id: check-added-large-files
       - id: check-case-conflict
+      - id: check-builtin-literals
       - id: check-executables-have-shebangs
       - id: check-merge-conflict
+      - id: check-json
       - id: check-yaml
         args: [--allow-multiple-documents]
-      # - id: detect-aws-credentials
+      - id: check-symlinks
+      - id: check-toml
       - id: detect-private-key
+      - id: end-of-file-fixer
+      # - id: detect-aws-credentials
+      - id: trailing-whitespace
   # https://ljvmiranda921.github.io/notebook/2018/06/21/precommits-using-black-and-flake8/
   # https://github.com/pre-commit/mirrors-mypy
   - repo: https://github.com/pre-commit/mirrors-mypy
@@ -73,7 +76,7 @@ repos:
         language: system
         always_run: true
         pass_filenames: false
-        args: ["-e", "DFILE=gitpod", ".gitpod.Dockerfile"]
+        args: ["gitpod"]
 
   # run system test
   - repo: local

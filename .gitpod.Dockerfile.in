@@ -5,6 +5,7 @@ ARG CONDA_ENV=restart
 # must use numbers for this gitpod override in makefile
 ARG DOCKER_USER=gitpod
 ARG DOCKER_UID=33333
+ENV ENV=none
 
 # To be used in gitpod.io must be debian/ubuntu or alpine based
 # Must also have a gitpod use
@@ -20,7 +21,14 @@ include(lib/lib.docker)
 include(lib/debug.docker)
 
 USER $DOCKER_USER
-create_gitpod($PYTHON,$PIP,$PIP_ONLY)
 
-WORKDIR /home/$DOCKER_USER/workspace
-USER $DOCKER_USER
+# gitpod does not like anaconda
+# create_conda($PYTHON,$PIP,$PIP_ONLY,PIP_DEV)
+
+# this works
+# ENV=none means do not use pipenv ENV=pipenv enables it
+WORKDIR /home/$DOCKER_USER
+RUN echo "ENV=none" >> ".bashrc"
+create_gitpod($PYTHON,$PIP,$PIP_ONLY,$PIP_DEV)
+
+create_gitpod_pipenv($PYTHON,$PIP,$PIP_ONLY,$PIP_DEV)

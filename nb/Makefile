@@ -6,6 +6,7 @@
 VOILA_WA ?= Washington
 VOILA_DEMO ?= VuetifyDemo
 CALIFORNIA ?= CaliforniaDash
+CA_PPE ?= CaliforniaPPE
 WASHINGTON ?= Washington
 # voila requires jupyter-server 0.1.1
 PIPENV_CHECK_FLAGS ?= -i 38212
@@ -65,11 +66,6 @@ wa-tf:
 wa-fema:
 	$(RUN) jupyter notebook $(WASHINGTON)-fema.ipynb
 
-## wa-fema-slide: Slideshow for Washington FEMA analysis
-.PHONY: wa-fema-slide
-wa-fema-slide:
-	$(RUN) voila --debug --template=reveal $(WASHINGTON)-fema.ipynb
-
 ## voila-ca: deployment view of California
 .PHONY: voila-ca
 voila-ca:
@@ -78,7 +74,17 @@ voila-ca:
 ## ca-slides: California slideshow with voila-reveal
 .PHONY: ca-slides
 ca-slides:
-	$(RUN) voila $(CALIFORNIA) --template=reveal
+	$(RUN) voila $(CALIFORNIA).ipynb --template=reveal
+
+## ca-ppe-slides: CaliforniaPPE slideshow with voila-reveal
+.PHONY: ca-ppe-slides
+ca-ppe-slides:
+	$(RUN) voila $(CA_PPE).ipynb --template=reveal
+
+## wa-fema-slides: Washington-fema slideshow with voila-reveal
+.PHONY: wa-fema-slides
+wa-fema-slides:
+	$(RUN) voila $(WASHINGTON)-fema.ipynb --template=reveal
 
 ## voila-vuetify: Voila demo
 .PHONY: voila-vuetify

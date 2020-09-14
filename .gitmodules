@@ -1,0 +1,6 @@
+[submodule "extern/data"]
+	path = extern/data
+	url = git@github.com:restartus/data
+[submodule "extern/airflow"]
+	path = extern/airflow
+	url = git@github.com:restartus/airflow

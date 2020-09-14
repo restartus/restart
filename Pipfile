@@ -24,6 +24,7 @@ wheel = "*"
 twine = "*"
 neovim = "*"
 pylint = "*"
+rope = "*"
 
 [packages]
 pandas = "*"

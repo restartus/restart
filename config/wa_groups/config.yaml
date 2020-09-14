@@ -540,13 +540,13 @@ Model:
 
 
 Paths:
-  Root: ../../data/ingestion/
+  Root: ../extern/data/ingestion/
   OES: all_data_M_2019.xlsx
   CODE: list1_2020.xls
   POP: co-est2019-alldata.csv
   XLS: covid-surge-who.xlsx
 
 Reich:
-  Root: ../../data/epidemiological/processed
+  Root: ../extern/data/epidemiological/processed
   CUBE: reich.hdf5
   INDEX: reichindex.csv

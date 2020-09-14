@@ -1,3 +1,4 @@
+---
 Config:
   dashboard: true
   modules: 7
@@ -4516,4 +4517,4 @@ Paths:
   MAP: covid-surge-who.h5
   OES: all_data_M_2019.h5
   POP: co-est2019-alldata.h5
-  Root: ../../data/ingestion/
+  Root: ../extern/data/ingestion/

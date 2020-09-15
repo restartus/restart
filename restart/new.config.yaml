@@ -57,7 +57,7 @@ Dimension:
     - Essential
     - Non-essential
 
-  Demand Models (dx):
+  Demand Model (dx):
     - WA DOH
     - JHU
     - CDPH
@@ -87,11 +87,9 @@ Dimension:
     - Area
     - Capacity
 
-  Epi Model (ex):
+  Epi (e):
     - Reich
     - IHME
-  Epi (e):
-    - COVID-19
   Epi Attribute (E):
     - Cases
     - Hospitalizations
@@ -100,13 +98,15 @@ Dimension:
   # cases, deaths by week, hosps by day
   # counties only have case data
   Mobility (m):
-    - Mobility
+    - Apple
+    - Google
   Mobility Attribute (M):
-    - Apple Driving
-    - Apple Walking
-    - Apple Transit
+    - Driving
+    - Walking
+    - Transit
   Financial (f):
-    - Finance
+    - BoA
+    - Fed
   Financial Attribute (F):
     - GDP
     - Unemployment
@@ -421,52 +421,127 @@ Model:
           - [0.8, 1.1, 0.6]
           - [0.9, 1.2, 0.7]
 
-  demand_per_unit_map_dn_um:
-    name: Demand Level for Resource Per Unit Map (d->n:um)
+  demand_per_unit_map_dxrdn_um:
+    name: Demand Level for Resource by Demand Model Per Unit Map (dxrd->n:um)
     description: |
-      Demand levels for a given population for resources. This is the
-      consumption map that for each protection level shows which resources are
-      burned.  Also now as the burn rates for PPE.
+      Demand levels d for resources by different demand models for resources n.
+      This is the consumption map that for each protection level shows which
+      resources are burned.  Also now as the burn rates for PPE.
     units: Per Resource
     index:
+      - Demand Model (dx)
+      - Range (r)
       - Demand for Resource (d)
       - Resource (n)
     array:
-      - [0, 0, 0, 0, 0, 0, 0, 0, 0]
-      # Resident or patient
-      - [0, 0, 0, 0, 1, 0.02, 0.01, 0.5, 0]
-      # Office worker
-      - [0, 0, 0, 0, 2, 0.04, 0.02, 1, 0]
-      # Customer facing worker (teacher)
-      - [0, 0, 0, 1, 2, 0.08, 0.03, 2, 0.05]
-      # Blue collar
-      - [0, 0.05, 1, 0, 3, 0.12, 0.05, 4, 0.2]
-      # Lab and other likely contact
-      - [0, 1, 2, 1, 0, 0.18, 1.5, 8, 0.4]
-      # Healthcare with direct contact
-      - [1.18, 0, 4.03, 1, 0.05, 0.27, 3.65, 12, 0.6]
+      # Demand Model WA DOH
+      -
+        # Range Lo
+        -
+          - [0, 0, 0, 0, 0, 0, 0, 0, 0]
+          # Resident or patient
+          - [0, 0, 0, 0, 1, 0.02, 0.01, 0.5, 0]
+          # Office worker
+          - [0, 0, 0, 0, 2, 0.04, 0.02, 1, 0]
+          # Customer facing worker (teacher)
+          - [0, 0, 0, 1, 2, 0.08, 0.03, 2, 0.05]
+          # Blue collar
+          - [0, 0.05, 1, 0, 3, 0.12, 0.05, 4, 0.2]
+          # First Responder (this is synthetic)
+          - [0.5, 0.5, 1, 0.1, 0, 0.18, 1.5, 4, 0.4]
+          # Lab and other likely contact
+          - [0.1, 1, 2, 1, 0, 0.18, 1.5, 8, 0.4]
+          # Healthcare with direct contact
+          - [1.18, 0, 4.03, 1, 0.05, 0.27, 3.65, 12, 0.6]
+        # WA DOH High
+        -
+          - [0, 0, 0, 0, 0, 0, 0, 0, 0]
+          # Resident or patient
+          - [0, 0, 0, 0, 1, 0.02, 0.01, 0.5, 0]
+          # Office worker
+          - [0, 0, 0, 0, 2, 0.04, 0.02, 1, 0]
+          # Customer facing worker (teacher)
+          - [0, 0, 0, 1, 2, 0.08, 0.03, 2, 0.05]
+          # Blue collar
+          - [0, 0.05, 1, 0, 3, 0.12, 0.05, 4, 0.2]
+          # First Responder (this is synthetic)
+          - [0.5, 0.5, 1, 0.1, 0, 0.18, 1.5, 4, 0.4]
+          # Lab and other likely contact
+          - [0.5, 0.7, 2, 1, 0, 0.18, 1.5, 8, 0.4]
+          # Healthcare with direct contact
+          - [2.18, 0, 3.03, 1, 0.05, 0.27, 3.65, 12, 0.6]
+      # Demand Model CPPH
+      -
+        # Range Lo
+        -
+          - [0, 0, 0, 0, 0, 0, 0, 0, 0]
+          # Resident or patient
+          - [0, 0, 0, 0, 1, 0.02, 0.01, 0.5, 0]
+          # Office worker
+          - [0, 0, 0, 0, 2, 0.04, 0.02, 1, 0]
+          # Customer facing worker (teacher)
+          - [0, 0, 0, 1, 2, 0.08, 0.03, 2, 0.05]
+          # Blue collar
+          - [0, 0.05, 1, 0, 3, 0.12, 0.05, 4, 0.2]
+          # First Responder (this is synthetic)
+          - [0.5, 0.5, 1, 0.1, 0, 0.18, 1.5, 4, 0.4]
+          # Lab and other likely contact
+          - [0.1, 1, 2, 1, 0, 0.18, 1.5, 8, 0.4]
+          # Healthcare with direct contact
+          - [1.18, 0, 4.03, 1, 0.05, 0.27, 3.65, 12, 0.6]
+        # Range High
+        -
+          - [0, 0, 0, 0, 0, 0, 0, 0, 0]
+          # Resident or patient
+          - [0, 0, 0, 0, 1, 0.02, 0.01, 0.5, 0]
+          # Office worker
+          - [0, 0, 0, 0, 2, 0.04, 0.02, 1, 0]
+          # Customer facing worker (teacher)
+          - [0, 0, 0, 1, 2, 0.08, 0.03, 2, 0.05]
+          # Blue collar
+          - [0, 0.05, 1, 0, 3, 0.12, 0.05, 4, 0.2]
+          # First Responder (this is synthetic)
+          - [0.5, 0.5, 1, 0.1, 0, 0.18, 1.5, 4, 0.4]
+          # Lab and other likely contact
+          - [0.5, 0.7, 2, 1, 0, 0.18, 1.5, 8, 0.4]
+          # Healthcare with direct contact
+          - [2.18, 0, 3.03, 1, 0.05, 0.27, 3.65, 12, 0.6]
 
-  resource_nN_ur:
+  resource_rnN_ur:
     name: Resources Attributes (n->N:ur)
     description: |
         For all n Resources, these are the figures for each of the N Attribute
         of each resource.
     index:
+      - Range (r)
       - Resource (n)
       - Resource Attribute (N)
     array:
-      - [1, 2, 0.7]
-      - [1, 1.5, 0.8]
-      - [1, 4, 0.9]
-      - [1, 2, 3]
-      - [1, 2.3, 0.7]
-      - [1, 2, 1]
-      - [1, 1, 0.5]
-      - [1, 0.9, 0.7]
-      - [1, 2, 2]
+      # Range Lo
+      -
+        - [1, 2, 0.7]
+        - [1, 1.5, 0.8]
+        - [1, 4, 0.9]
+        - [1, 2, 3]
+        - [1, 2.3, 0.7]
+        - [1, 2, 1]
+        - [1, 1, 0.5]
+        - [1, 0.9, 0.7]
+        - [1, 2, 2]
+      # Range Hi
+      -
+        - [1, 2.1, 0.8]
+        - [1, 1.6, 0.9]
+        - [1, 4.1, 1.9]
+        - [1, 2.1, 4]
+        - [1, 2.4, 0.8]
+        - [1, 2.1, 2]
+        - [1, 1.1, 0.6]
+        - [1, 0.95, 0.8]
+        - [1, 2.1, 2.1]
 
-  res_by_popsum1_cost_per_unit_p1n_us:
-    name: Cost of Resources by Population Summary Level 1 (p1->n:us)
+  res_by_popsum1_cost_per_unit_rp1n_us:
+    name: Cost of Resources by Population Summary Level 1 (rp1->n:us)
     description: |
       For each of p1 summary levels, get the per capita cost for each of n
       Resources.

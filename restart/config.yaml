@@ -35,7 +35,6 @@ Dimension:
     - Hospital
     - First Responders
   Organization Attribute (O):
-    # TODO: this needs to be Size to match population
     - Employees
     - Patients
     - ICU Patients

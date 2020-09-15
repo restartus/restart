@@ -95,8 +95,8 @@ class Compose:
         """
         # set up the logging
         # This name should *not* be the same as any module name like main
-        name = "model"
-        self.log_root = Log(name)
+        model_name = "model"
+        self.log_root = Log(model_name)
         log = self.log = self.log_root.log
         # There is a root logger we cannot shutoff so turn off propagation
         log.propagate = False
@@ -122,13 +122,12 @@ class Compose:
 
         # uses method chaining
         self.model = model = (
-            Model(name, log_root=self.log_root)
+            Model(model_name, log_root=self.log_root)
             .set_configure(self.config)
             .set_filter(
                 county=args.county, state=args.state, subpop=args.subpop
             )
             .set_population(type=args.population)
-            .set_organization(type=args.organization)
             .set_resource(type=args.resource)
             .set_inventory(type=args.inventory)
             .set_demand(type=args.demand)
@@ -143,11 +142,11 @@ class Compose:
 
         # http://net-informations.com/python/iq/instance.htm
         log.debug(f"{model=} is {vars(model)=}")
-        for name, value in vars(model).items():
+        for model_name, value in vars(model).items():
             # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
             # if issubclass(value, Base):
             if isinstance(value, Base):
-                log.debug(f"object {name} holds {value} subclass of Base")
+                log.debug(f"object {model_name} holds {value} subclass of Base")
 
         # test iteration
         for base_key, base_value in model:

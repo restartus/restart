@@ -8,108 +8,217 @@ Parameter:
 # Note each of these yaml files has an overall label, so you can copy and concat
 # as needed
 Dimension:
-  # meta dimensionals for everything
   Geolocation (g):
-    - King
-    - Cupertino
+    name: Geographic Location (g)
+    description: |
+      Geographic location at the lowest level. Typically counties in
+      the US.  Note that this does not have to contiguous or
+      orthogonal. So you can have an entry for Seattle and then
+      Snohohomish County and this should be non overlapping to prevent
+      double counting.
+    short: by county
+    label:
+      - King
+      - Cupertino
   Geolocation Summary 1 (g1):
-    - Washington
-    - California
+    name: Geographic Location Summary Level 1 (g1)
+    description: |
+      The first level summary which in this model is at the state level
+    short: by state
+    label:
+      - Washington
+      - California
   Time (t):
-    - August 2020
-    - September 2020
-  Time Summary (t1):
-    - Summer 2020
-    - Fall 2020
+    name: Time (t)
+    description: |
+      Time of event at the lowest level
+    short: by month
+    label:
+      - August 2020
+      - September 2020
+  Time Summary 1 (t1):
+    name: Time Summary Level 1 (t1)
+    description: |
+      Time summary typically by quarter
+    short: by quarter
+    label:
+      - Summer 2020
+      - Fall 2020
   Range (r):
-    - Low
-    - High
-
+    name: Range of Estimates (r)
+    description: |
+      The range of estimates in the model
+    short: with ranges
+    label:
+      - Low
+      - High
   Resource (n):
-    - N95 Surgical
-    - N95 Non-surgical
-    - ASTM 3 Mask
-    - ASTM 1-2 Mask
-    - Non ASTM Mask
-    - Face Shield
-    - Gowns
-    - Gloves
-    - Shoe Covers
-  Resource Summary (n1):
-    - N95
-    - Masks
-    - Gloves
-    - Other
+    name: Resources (n)
+    description: |
+      The critical resources needed
+    short: of resources
+    label:
+      - N95 Surgical
+      - N95 Non-surgical
+      - ASTM 3 Mask
+      - ASTM 1-2 Mask
+      - Non ASTM Mask
+      - Face Shield
+      - Gowns
+      - Gloves
+      - Shoe Covers
+  Resource Summary 1 (n1):
+    name: Resource Summary Level 1 (n1)
+    description: |
+      Resource summarized by level 1
+    short: resource summary
+    label:
+      - N95
+      - Masks
+      - Gloves
+      - Other
   Resource Attribute (N):
-    - Units
-    - Volume
-    - Area
-
+    name: Resource Attributes (N)
+    description: |
+      Resource Attributes
+    short: attribute
+    label:
+      - Units
+      - Volume
+      - Area
   Population (p):
-    - Healthcare Workers
-    - First Responders
-    - Other Workers
-  # https://www.kff.org/coronavirus-covid-19/issue-brief/how-many-adults-are-at-risk-of-serious-illness-if-infected-with-coronavirus/
+    name: Population (p)
+    description: |
+      Population being studied
+    short: population
+    label:
+      - Healthcare Workers
+      - First Responders
+      - Other Workers
   Population Attribute (P):
-    - Total
-    - Higher Risk
+    # https://www.kff.org/coronavirus-covid-19/issue-brief/how-many-adults-are-at-risk-of-serious-illness-if-infected-with-coronavirus/
+    name: Population attributes (P)
+    description: |
+      Attributes of the population such as the total number of people or who is
+      at risk
+    short: attribute
+    label:
+      - Total
+      - Higher Risk
   Population Summary Level 1 (p1):
-    - Essential
-    - Non-essential
-
+    name: Population Summary Summary 1 (p1)
+    description: |
+      Population summary level 1
+    short: summary population 1
+    label:
+      - Essential
+      - Non-essential
   Demand Model (dx):
-    - WA DOH
-    - JHU
-    - CDPH
+    name: Demand Model (dx)
+    description: |
+      Consumption of resources based on different model
+    short: by demand model
+    label:
+      - WA DOH
+      - JHU
+      - CDPH
   Demand for Resource (d):
-    - WA0
-    - WA1
-    - WA2
-    - WA3
-    - WA4
-    - WA5
-    - WA6
-
-  # Owner of the warehouse only hold the State for now
+    name: Demand for Resource (d)
+    description: |
+      Demand for given resources. We divide population by what their demands are
+    short: by demand
+    label:
+      - WA0
+      - WA1
+      - WA2
+      - WA3
+      - WA4
+      - WA5
+      - WA6
   Inventory (i):
-    - State
-  # Inventory attributes typically these are over different Resources
-  # So iIR will be typical so for instance State Backstop i=State
-  # might have N95 Surgical and ASTM 3 Masks in stock r=Resources
-  # And then each will have inventory parameters I
+    name: Inventory (i)
+    description: |
+      Inventory attributes typically these are over different Resources
+      So iIR will be typical so for instance State Backstop i=State
+      might have N95 Surgical and ASTM 3 Masks in stock r=Resources
+    short: inventory
+    label:
+      - State
   Inventory Attribute (I):
-    - Initial
-    - EOQ
-    - Minimum
+    name: Inventory Attribute (I)
+    description: |
+      The key parameters are initial, EOQ and minimum
+    short: attribute
+    label:
+      - Initial
+      - EOQ
+      - Minimum
   Warehouse (w):
-    - Tukwila
+    name: Warehouse (w)
+    description: |
+      Warehouse location
+    short: warehouse
+    label:
+      - Tukwila
   Warehouse Attribute (W):
-    - Area
-    - Capacity
-
+    name: Warehouse Attribute (W)
+    description: |
+      Attributes of the warehouse
+    short: warehouse attribute
+    label:
+      - Area
+      - Capacity
   Epi (e):
-    - Reich
-    - IHME
+    name: Epidemiological Model (e)
+    description:
+      The study of the disease and rates of infectino
+    short: epi
+    label:
+      - Reich
+      - IHME
   Epi Attribute (E):
-    - Cases
-    - Hospitalizations
-    - Deaths
-  # all Reich Lab collected forecasts for now
-  # cases, deaths by week, hosps by day
-  # counties only have case data
+    name: Epidemiological Attributes (E)
+    description: |
+       All Reich Lab collected forecasts for now cases, deaths by week, hosps
+       by day counties only have case data
+    short: epi attribute
+    label:
+      - Cases
+      - Hospitalizations
+      - Deaths
   Mobility (m):
-    - Apple
-    - Google
+    name: Mobility (m)
+    description: |
+      Mobility and activity model
+    short: mobility
+    label:
+      - Apple
+      - Google
   Mobility Attribute (M):
-    - Driving
-    - Walking
-    - Transit
+    name: Mobility Attribute (M)
+    description: |
+      Mobility model parameters
+    short: mobility parameters
+    label:
+      - Driving
+      - Walking
+      - Transit
   Financial (f):
-    - BoA
-    - Fed
+    name: Financial (f)
+    description: |
+      Financial modelers
+    short: financial
+    label:
+      - BoA
+      - Fed
   Financial Attribute (F):
-    - GDP
-    - Unemployment
+    name: Financial Attribute (F)
+    description: |
+      Financial model outputs
+    short: financial attributes
+    label:
+      - GDP
+      - Unemployment
 
 # Uses the dimensions above to create matrices
 Model:
@@ -156,7 +265,6 @@ Model:
           - [435.2, 180]
           - [350.2, 101]
           - [7279.6, 2756]
-
   pop_demand_per_unit_map_rgpd_um:
     name: Per Unit Demand by Population for Resources (rgp->d:um)
     description: |
@@ -194,7 +302,6 @@ Model:
           - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
           - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
           - [0.0, 0.5, 0.4, 0.1, 0.1, 0.0, 0.0]
-
   pop_to_popsum_per_unit_dict_p_ul:
     name: Population to Summary Dictionary (p:ul)
     description: |
@@ -205,7 +312,6 @@ Model:
     list:
       - pop_to_popsum1_per_unit_map_pp1_us
       - popsum1_to_popsum2_per_unit_map_p1p2_us
-
   pop_to_popsum1_per_unit_map_pp1_us:
     name: Population to Population Level 1 Summary Map (p->p1:us)
     description: |
@@ -224,7 +330,6 @@ Model:
       - [1, 0]
       - [1, 0]
       - [0, 1]
-
   epi_rtgexeE_tr:
     name: Epi (exrtge->E:pr)
     description: |
@@ -324,7 +429,6 @@ Model:
             -
               - [400, 600, 8]
               - [4000, 600, 80]
-
   financial_gtfF_pr:
     name: Financial (gtf->F:pr)
     description: |
@@ -385,7 +489,6 @@ Model:
           # GPD Index, Unemployment
           - [80, 0.13]
           - [80, 0.13]
-
   mobility_gtmM_pr:
     name: Mobility (gtm->M:pr)
     description: |
@@ -420,7 +523,6 @@ Model:
         -
           - [0.8, 1.1, 0.6]
           - [0.9, 1.2, 0.7]
-
   demand_per_unit_map_dxrdn_um:
     name: Demand Level for Resource by Demand Model Per Unit Map (dxrd->n:um)
     description: |
@@ -506,7 +608,6 @@ Model:
           - [0.5, 0.7, 2, 1, 0, 0.18, 1.5, 8, 0.4]
           # Healthcare with direct contact
           - [2.18, 0, 3.03, 1, 0.05, 0.27, 3.65, 12, 0.6]
-
   resource_rnN_ur:
     name: Resources Attributes (n->N:ur)
     description: |
@@ -539,7 +640,6 @@ Model:
         - [1, 1.1, 0.6]
         - [1, 0.95, 0.8]
         - [1, 2.1, 2.1]
-
   res_by_popsum1_cost_per_unit_rp1n_us:
     name: Cost of Resources by Population Summary Level 1 (rp1->n:us)
     description: |
@@ -549,11 +649,16 @@ Model:
       - Population Summary Level 1 (p1)
       - Resource (n)
     array:
-      - [5.0, 4.0, 1.0, 0.60, 0.20, 2.50, 4.0, 0.20, 0.15]
-      - [5.0, 4.0, 1.0, 0.60, 0.06, 1.50, 4.0, 0.20, 0.15]
-
-  # TODO: will eventually merge init, eoq and min frames into this one
+      # Range: Lo
+      -
+        - [5.0, 4.0, 1.0, 0.60, 0.20, 2.50, 4.0, 0.20, 0.15]
+        - [5.0, 4.0, 1.0, 0.60, 0.06, 1.50, 4.0, 0.20, 0.15]
+      # Range: High
+      -
+        - [6.0, 4.0, 1.0, 0.60, 0.20, 2.50, 4.0, 0.20, 0.15]
+        - [6.0, 4.0, 1.0, 0.60, 0.06, 1.50, 4.0, 0.20, 0.15]
   inv_by_popsum1_param_iIp1n_tp:
+    # TODO: will eventually merge init, eoq and min frames into this one
     name: |
       Inventory by Attributes of Resources by
       Population Summary Level 1 Parameters (iIp1n:tr)
@@ -583,7 +688,6 @@ Model:
         -
           - [101, 200, 300, 400, 500, 600, 700, 800, 900]
           - [102, 201, 301, 401, 501, 601, 701, 801, 901]
-
   inv_init_by_popsum1_total_rp1n_tc:
     name: |
       Total Initial Inventory of Resources by Population Summary Level 1
@@ -601,7 +705,6 @@ Model:
       -
         - [201, 300, 500, 700, 900, 1001, 2003, 2004, 2006]
         - [200, 400, 600, 800, 1000, 2001, 2002, 2005, 2007]
-
   inv_eoq_by_popsum1_total_rp1n_tc:
     name: |
       Economic Order Quantity for Inventory Minimum of Resources by Population
@@ -619,7 +722,6 @@ Model:
       -
         - [1, 2, 3, 4, 5, 6, 7, 8, 9]
         - [10, 20, 30, 40, 50, 60, 70, 80, 90]
-
   inv_min_by_popsum1_total_rp1n_tc:
     name: |
       Total Inventory Minimum of Resources by Population Summary Level 1
@@ -641,20 +743,23 @@ Model:
   # These tables are generated from the inputs above so they are derived values
   # These are typically meta values that are derived from real objectcs
   # And maps that serve as input to processes
-  demand_by_pop_per_person_pn_uc:
-    name: Per Capita Demand by Population for Resources (pn:uc)
+  demand_by_pop_per_person_rtgpn_uc:
+    name: Per Capita Demand by Population for Resources (rtgp->n:uc)
     description: |
       This is the per capita demand for a give population so this is not the per
-      capita demand but for every n Resource for ever subpopulation p
-    index:
-      - Population (p)
-      - Resource (n)
+      capita demand but for every n Resource for ever subpopulation p over time
+      and with a range of estimates by geographic location
     units: Per Capita
     kind: Calculated
-
-  demand_by_popsum1_per_person_p1n_uc:
+    index:
+      - Range (r)
+      - Time (t)
+      - Geolocation (g)
+      - Population (p)
+      - Resource (n)
+  demand_by_popsum1_per_person_rtgp1n_uc:
     name: |
-      Per Capita Demand for Resources by Population Summary Level 1 (p1n:uc)
+      Per Capita Demand for Resources by Population Summary Level 1 (rtgp1->n:uc)
     description: |
       This is the per capita demand for a set of n resources
       summarized by the l Summary Level used. It provides a view of demand
@@ -662,33 +767,39 @@ Model:
     units: Per Capita
     kind: Calculated
     index:
+      - Range (r)
+      - Time (t)
+      - Geolocation (g)
       - Population Summary Level 1 (p1)
       - Resource (n)
-
-  demand_by_pop_total_pn_tc:
-    name: Total Demand for Resources by Population (pn:tc)
+  demand_by_pop_total_rtgpn_tc:
+    name: Total Demand for Resources by Population (rtgp->n:tc)
     description: |
       This is the total demand for all p sub-Population for every resource n
     units: Total
     kind: Calculated
     index:
+      - Range (r)
+      - Time (t)
+      - Geolocation (g)
       - Population (p)
       - Resource (n)
-
-  demand_by_popsum1_total_p1n_tc:
-    name: Total Demand for Resources by Population Summary Level 1 (p1n:tc)
+  demand_by_popsum1_total_rtgp1n_tc:
+    name: Total Demand for Resources by Population Summary Level 1 (rtgp1->n:tc)
     description: |
       For all population summary levels p1, the total demand for a set
       of n resources
     units: Total
     kind: Calculated
     index:
+      - Range (r)
+      - Time (t)
+      - Geolocation (g)
       - Population Summary Level 1 (p1)
       - Resource (n)
-
   # TODO: As we start the conversion to range, inventory goes first
   # So this dupliction the p1n_tc version above
-  demand_by_popsum1_total_rp1n_tc:
+  demand_by_popsum1_total_rtgp1n_tc:
     name: |
       Total Demand for Resources by Population Summary Level 1 with Ranges
       (rp1n:tc)
@@ -699,35 +810,39 @@ Model:
     kind: Calculated
     index:
       - Range (r)
+      - Time (t)
+      - Geolocation (g)
       - Population Summary Level 1 (p1)
       - Resource (n)
-
-  demand_by_popsum1_total_cost_p1n_xc:
+  demand_by_popsum1_total_cost_rtgp1n_xc:
     name: |
-      Total Cost of Demand for Resources by Population Summary Level 1 (p1n:xc)
+      Total Cost of Demand for Resources by Population Summary Level 1 (rtgp1->n:xc)
     description: |
       For all population summary levels (p1), the total cost for a set of
       n resources
     units: Total Cost
     kind: Calculated
     index:
+      - Range (r)
+      - Time (t)
+      - Geolocation (g)
       - Population Summary Level 1 (p1)
       - Resource (n)
-
-  inv_by_popsum1_total_rp1n_tc:
+  inv_by_popsum1_total_rtgp1n_tc:
     name: |
-      Total Inventory of Resources by Population Summary Level 1 (rp1n_tc)
+      Total Inventory of Resources by Population Summary Level 1 (rtgp1->n_tc)
     description: |
       For all population summary levels, the total inventory in stock for all
       resources held in current inventory
     index:
       - Range (r)
+      - Time (t)
+      - Geolocation (g)
       - Population Summary Level 1 (p1)
       - Resource (n)
     units: Total Units
     kind: Calculated
-
-  inv_min_by_popsum1_in_periods_rp1n_pc:
+  inv_min_by_popsum1_in_periods_rtgp1n_pc:
     name: |
       Inventory Minimum of Resources by Population Summary Level 1 in Periods
       (p1n_tc)
@@ -736,34 +851,37 @@ Model:
       calculated for each Population Summary Level
     index:
       - Range (r)
+      - Time (t)
+      - Geolocation (g)
       - Population Summary Level 1 (p1)
       - Resource (n)
     units: Period
     kind: Calculated
-
-  inv_average_orders_by_popsum1_per_period_rp1n_uf:
+  inv_average_orders_by_popsum1_per_period_rtgp1n_uf:
     name: |
       Average Inventory Orders of Resource by Population Summary Level 1 for a
-      Period (rp1n:uf)
+      Period (rtgp1->n:uf)
     description: |
       Average Inventory needed for a given period (normally a day)
       for Resources by Population Summary Level 1. This is the flow of units
       needed every period.
     index:
       - Range (r)
+      - Time (t)
+      - Geolocation (g)
       - Population Summary Level 1 (p1)
       - Resource (n)
     units: Units Per Period
     kind: Calculated
-
-  inv_order_by_popsum1_total_rp1n_tc:
+  inv_order_by_popsum1_total_rtgp1n_tc:
     name: |
-      Inventory Order of Resources by Population Summary Level 1
+      Inventory Order of Resources by Population Summary Level 1 (rtgp1->n)
     description: |
       The order for resources from population by Summary Level 1
-      (rp1nL:tc)
     index:
       - Range (r)
+      - Time (t)
+      - Geolocation (g)
       - Population Summary Level 1 (p1)
       - Resource (n)
     units: Period
@@ -776,7 +894,6 @@ Paths:
   CODE: list1_2020.xls
   POP: co-est2019-alldata.csv
   XLS: covid-surge-who.xlsx
-
 Reich:
   Root: ../data/epidemiological/processed
   CUBE: reich.hdf5

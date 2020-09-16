@@ -38,21 +38,22 @@ class PopulationDict(Population):
         # get population data
         # Using the new Lucas data class
         self.population_rpP_tr = Data(
-            "population_rpP_tr",
+            # send an f-string so coc.nvim rename will work for all string
+            f"{self.population_rpP_tr=}",
             config,
             log_root=log_root,
         )
         log.debug(f"{self.population_rpP_tr=}")
 
-        self.pop_demand_per_unit_map_rgpd_um = Data(
-            "pop_demand_per_unit_map_rgpd_um",
+        self.pop_demand_per_unit_map_rgpDd_um = Data(
+            f"{self.pop_demand_per_unit_map_rgpDd_um=}",
             config,
             log_root=log_root,
         )
-        log.debug(f"{self.pop_demand_per_unit_map_rgpd_um=}")
+        log.debug(f"{self.pop_demand_per_unit_map_rgpDd_um=}")
 
         self.pop_to_popsum1_per_unit_map_pp1_us = Data(
-            "pop_to_popsum1_per_unit_map_pp1_us",
+            f"{self.pop_to_popsum1_per_unit_map_pp1_us=}",
             config,
             log_root=log_root,
         )

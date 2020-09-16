@@ -103,7 +103,7 @@ Dimension:
       at risk
     short: attribute
     label:
-      - Total
+      - Count
       - Higher Risk
   Population Summary Level 1 (p1):
     name: Population Summary Summary 1 (p1)
@@ -113,14 +113,13 @@ Dimension:
     label:
       - Essential
       - Non-essential
-  Demand Model (x):
-    name: Demand Model (x)
+  Demand Model (D):
+    name: Demand Model (D)
     description: |
       Consumption of resources based on different model
     short: by demand model
     label:
       - WA DOH
-      - JHU
       - CDPH
   Demand for Resource (d):
     name: Demand for Resource (d)
@@ -241,34 +240,34 @@ Model:
     # The dimensions for each
     index:
       - Range (r)
-      - Geography (g)
+      - Geolocation (g)
       - Population (p)
       - Population Attribute (P)
     array:
       # Range Lo
       -
-        # Geography: CA
-        -
-          - [1310.2, 635]
-          - [2010.2, 910]
-          - [34659, 13159]
         # Geography: WA
         -
           - [335.2, 170]
           - [250.2, 91]
           - [7179.6, 2756]
+        # Geography: CA
+        -
+          - [1310.2, 635]
+          - [2010.2, 910]
+          - [34659, 13159]
       # Range High
       -
-        -
-          - [1410.2, 735]
-          - [2010.2, 1010]
-          - [35659, 14159]
         -
           - [435.2, 180]
           - [350.2, 101]
           - [7279.6, 2756]
-  pop_demand_per_unit_map_rtgpd_um:
-    name: Per Unit Demand by Population for Resources (rgp->d:um)
+        -
+          - [1410.2, 735]
+          - [2010.2, 1010]
+          - [35659, 14159]
+  pop_demand_per_unit_map_rgpDd_um:
+    name: Per Unit Demand by Population for Resources (rgp->Dd:um)
     description: |
       For each p Populations falls into which protection
       category for the burn rate. That is what does each population p need
@@ -278,33 +277,64 @@ Model:
     kind: Map
     index:
       - Range (r)
-      - Time (t)
-      - Geography (g)
+      - Geolocation (g)
+      - Demand Model (D)
       - Population (p)
       - Demand for Resource (d)
     array:
-      # Range Lo
+      # Range lo
       -
         # Geography: CA
         -
-          - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
-          - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
-          - [0.0, 0.4, 0.3, 0.2, 0.1, 0.0, 0.0]
+          # Demand Model: DOH
+          -
+            - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
+            - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
+            - [0.0, 0.4, 0.3, 0.2, 0.1, 0.0, 0.0]
+          # Demand Model: CDPH
+          -
+            - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
+            - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
+            - [0.0, 0.5, 0.4, 0.1, 0.1, 0.0, 0.0]
         # Geography: WA
         -
-          - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
-          - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
-          - [0.0, 0.5, 0.4, 0.1, 0.1, 0.0, 0.0]
-      # Range Hi
+          # Demand Model: DOH
+          -
+            - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
+            - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
+            - [0.0, 0.4, 0.3, 0.2, 0.1, 0.0, 0.0]
+          # Demand Model: CDPH
+          -
+            - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
+            - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
+            - [0.0, 0.5, 0.4, 0.1, 0.1, 0.0, 0.0]
+      # Range High
       -
+        # Geography: CA
         -
-          - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
-          - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
-          - [0.0, 0.4, 0.3, 0.2, 0.1, 0.0, 0.0]
+          # Demand : DOH
+          -
+            - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
+            - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
+            - [0.0, 0.4, 0.3, 0.2, 0.1, 0.0, 0.0]
+          # Demand Model: CDPH
+          -
+            - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
+            - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
+            - [0.0, 0.5, 0.4, 0.1, 0.1, 0.0, 0.0]
+        # Geography: WA
         -
-          - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
-          - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
-          - [0.0, 0.5, 0.4, 0.1, 0.1, 0.0, 0.0]
+          # Demand Model: DOH
+          -
+            - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
+            - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
+            - [0.0, 0.4, 0.3, 0.2, 0.1, 0.0, 0.0]
+          # Demand Model: CDPH
+          -
+            - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
+            - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
+            - [0.0, 0.5, 0.4, 0.1, 0.1, 0.0, 0.0]
+
   pop_to_popsum_per_unit_dict_p_ul:
     name: Population to Summary Dictionary (p:ul)
     description: |
@@ -343,7 +373,7 @@ Model:
     index:
       - Epi Model (ex)
       - Range (r)
-      - Geography (g)
+      - Geolocation (g)
       - Time (t)
       - Epi (e)
       - Epi Attribute (E)
@@ -439,7 +469,7 @@ Model:
     units: Percentage
     kind: Real
     index:
-      - Geography (g)
+      - Geolocation (g)
       - Time (t)
       - Financial (f)
       - Financial Attribute (F)
@@ -499,7 +529,7 @@ Model:
     units: Percentage
     kind: Real
     index:
-      - Geography (g)
+      - Geolocation (g)
       - Time (t)
       - Mobility (m)
       - Mobility Attribute (M)
@@ -618,7 +648,7 @@ Model:
         of each resource with a range of attributes across geographyies g
     index:
       - Range (r)
-      - Geography (g)
+      - Geolocation (g)
       - Resource (n)
       - Resource Attribute (N)
     array:

@@ -58,14 +58,14 @@ class Demand(Base):
         self.pop = pop
         self.res = res
 
+        # note because we call recalc  we can not use chaining
         if pop is not None:
             self.recalc()
 
-    def adjust_burn(self, new_burn) -> self:
+    def adjust_burn(self, new_burn):
         """Adjust the burn rates."""
         self.demand_per_unit_map_xrdn_um.array = new_burn
         self.recalc()
-        return self
 
     def set_data(self, config, log_root):
         """Instantiate the base data objects for inheritance purposes."""
@@ -103,20 +103,18 @@ class Demand(Base):
         )
         log.debug(f"{self.demand_by_popsum1_total_cost_xrtgp1n_xc.df=}")
 
-    def recalc(self) -> self:
+    def recalc(self):
         """Recalculate all demands.
 
         Right now it must be run in this order
         """
-        return (
-            self.set_demand_by_pop_per_person_xrtgpn_uc()
-            .set_demand_pop_total_xrtgpn_tc()
-            .set_demand_by_popsum1_per_person_xrtgp1n_uc()
-            .set_demand_by_popsum1_total_xrtgp1n_tc()
-            .set_demand_by_popsum1_total_cost_xrtgp1n_xc()
-        )
+        self.set_demand_by_pop_per_person_xrtgpn_uc()
+        self.set_demand_pop_total_xrtgpn_tc()
+        self.set_demand_by_popsum1_per_person_xrtgp1n_uc()
+        self.set_demand_by_popsum1_total_xrtgp1n_tc()
+        self.set_demand_by_popsum1_total_cost_xrtgp1n_xc()
 
-    def set_demand_by_pop_per_person_xrtgpn_uc(self) -> self:
+    def set_demand_by_pop_per_person_xrtgpn_uc(self):
         """Sets the Demand by Population Per Person."""
         log = self.log
 
@@ -141,9 +139,8 @@ class Demand(Base):
             self.demand_per_unit_map_xrdn_um.array,
         )
         log.debug(f"{self.demand_by_pop_per_person_xrtgpn_uc.array=}")
-        return self
 
-    def set_demand_pop_total_xrtgpn_tc(self) -> self:
+    def set_demand_pop_total_xrtgpn_tc(self):
         """Recalcs the Demand by Population for Resources."""
         # Note there is a big hack here as we should really calculate
         # demand across many parameters, but we just pick size
@@ -172,9 +169,8 @@ class Demand(Base):
             self.demand_by_pop_per_person_xrtgpn_uc.array,
             self.pop.population_rpP_tr.df["Size"].to_numpy(),
         )
-        return self
 
-    def set_demand_by_popsum1_per_person_xrtgp1n_uc(self) -> self:
+    def set_demand_by_popsum1_per_person_xrtgp1n_uc(self):
         """Recalcs the Demand by Population Summary Level 1 for Resources."""
         log = self.log
         # Original math put the level or popsum1 data here now move to
@@ -199,9 +195,8 @@ class Demand(Base):
             self.demand_by_pop_per_person_xrtgpn_uc.array,
         )
         log.debug(f"{self.demand_by_popsum1_per_person_xrtgp1n_uc.df=}")
-        return self
 
-    def set_demand_by_popsum1_total_xrtgp1n_tc(self) -> self:
+    def set_demand_by_popsum1_total_xrtgp1n_tc(self):
         """Recalcs the Demand by Population Level 1 for Total Resource."""
         log = self.log
         # TODO: Convert to only doing by _pop and then output do the summarization
@@ -215,9 +210,8 @@ class Demand(Base):
             self.pop.pop_to_popsum1_per_unit_map_pp1_us.array,
             self.demand_by_pop_total_xrtgpn_tc.array,
         )
-        return self
 
-    def set_demand_by_popsum1_total_cost_xrtgp1n_xc(self) -> self:
+    def set_demand_by_popsum1_total_cost_xrtgp1n_xc(self):
         """Recalc the total cost of demand by Population Level 1."""
         # log = self.log
         # original formula
@@ -241,4 +235,3 @@ class Demand(Base):
             log.critical(
                 f"einsum fail f{self.demand_by_popsum1_total_rtgp1n_tc=}"
             )
-        return self

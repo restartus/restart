@@ -87,7 +87,9 @@ class Demand(Base):
         )
 
         self.demand_by_popsum1_per_person_xrtgp1n_uc = Data(
-            "demand_by_popsum1_per_person_xrtgp1n_uc", config, log_root=log_root
+            "demand_by_popsum1_per_person_xrtgp1n_uc",
+            config,
+            log_root=log_root,
         )
 
         self.demand_by_popsum1_total_xrtgp1n_tc = Data(
@@ -95,7 +97,9 @@ class Demand(Base):
         )
 
         self.demand_by_popsum1_total_cost_xrtgp1n_xc = Data(
-            "demand_by_popsum1_total_cost_xrtgp1n_xc", config, log_root=log_root
+            "demand_by_popsum1_total_cost_xrtgp1n_xc",
+            config,
+            log_root=log_root,
         )
         log.debug(f"{self.demand_by_popsum1_total_cost_xrtgp1n_xc.df=}")
 
@@ -104,11 +108,12 @@ class Demand(Base):
 
         Right now it must be run in this order
         """
-        return (self.set_demand_by_pop_per_person_xrtgpn_uc()
-                .set_demand_pop_total_xrtgpn_tc()
-                .set_demand_by_popsum1_per_person_xrtgp1n_uc()
-                .set_demand_by_popsum1_total_xrtgp1n_tc()
-                .set_demand_by_popsum1_total_cost_xrtgp1n_xc()
+        return (
+            self.set_demand_by_pop_per_person_xrtgpn_uc()
+            .set_demand_pop_total_xrtgpn_tc()
+            .set_demand_by_popsum1_per_person_xrtgp1n_uc()
+            .set_demand_by_popsum1_total_xrtgp1n_tc()
+            .set_demand_by_popsum1_total_cost_xrtgp1n_xc()
         )
 
     def set_demand_by_pop_per_person_xrtgpn_uc(self) -> self:
@@ -125,8 +130,8 @@ class Demand(Base):
 
         # This no longer works in a multidimensional world
         # self.demand_by_pop_per_person_pn_uc.array = (
-            # self.pop.pop_demand_per_unit_map_pd_um.array
-            # @ self.demand_per_unit_map_dn_um.array
+        # self.pop.pop_demand_per_unit_map_pd_um.array
+        # @ self.demand_per_unit_map_dn_um.array
         # )
         # log.debug(f"{self.demand_by_pop_per_person_rtgpn_uc.df=}")
         # Einsum equivalent for automatic generation
@@ -181,11 +186,10 @@ class Demand(Base):
             raise ValueError("pop.pop_to_popsum1_per_unit_map_pp1_us")
         # then add to them
 
-
         # the matrix math only works in 2D
         # self.demand_by_popsum1_per_person_p1n_uc.array = (
-            # self.pop.pop_to_popsum1_per_unit_map_pp1_us.array.T
-            # @ self.demand_by_pop_per_person_pn_uc.array
+        # self.pop.pop_to_popsum1_per_unit_map_pp1_us.array.T
+        # @ self.demand_by_pop_per_person_pn_uc.array
         # )
         # Einsum equivalent of the above, we use x since index needs to be a
         # single character
@@ -203,8 +207,8 @@ class Demand(Base):
         # TODO: Convert to only doing by _pop and then output do the summarization
         # This only works in 2-D
         # self.demand_by_popsum1_total_p1n_tc.array = (
-            # self.pop.pop_to_popsum1_per_unit_map_pp1_us.array.T
-            # @ self.demand_pop_total_pn_tc.array
+        # self.pop.pop_to_popsum1_per_unit_map_pp1_us.array.T
+        # @ self.demand_pop_total_pn_tc.array
         # )
         self.demand_by_popsum1_total_xrtgp1n_tc.array = np.einsum(
             "pz,xrtgpn->xrtgzn",

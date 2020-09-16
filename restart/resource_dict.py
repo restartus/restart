@@ -30,10 +30,10 @@ class ResourceDict(Resource):
         log = self.log
         log.debug(f"in {__name__}")
 
-        self.resource_nN_ur = Data("resource_nN_ur", config, log_root=log_root)
-        log.debug(f"{self.resource_nN_ur=}")
+        self.resource_rnN_ur = Data("resource_rnN_ur", config, log_root=log_root)
+        log.debug(f"{self.resource_rnN_ur=}")
 
-        self.res_by_popsum1_cost_per_unit_p1n_us = Data(
-            "res_by_popsum1_cost_per_unit_p1n_us", config, log_root=log_root
+        self.res_by_popsum1_cost_per_unit_rp1n_us = Data(
+            f"{self.res_by_popsum1_cost_per_unit_rp1n_us=}",config, log_root=log_root
         )
-        log.debug(f"{self.res_by_popsum1_cost_per_unit_p1n_us=}")
+        log.debug(f"{self.res_by_popsum1_cost_per_unit_rp1n_us=}")

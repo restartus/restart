@@ -77,6 +77,6 @@ class Population(Base):
         # these need to be filled out by the subclasses
         # define them here for type checking purposes
         # And to have them instantiated for subclasses
-        self.population_pP_tr: Optional[Data] = None
+        self.population_rpP_tr: Optional[Data] = None
         self.pop_demand_per_unit_map_pd_um: Optional[Data] = None
         self.pop_to_popsum1_per_unit_map_pp1_us: Optional[Data] = None

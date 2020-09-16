@@ -111,8 +111,8 @@ class PopulationOES(Population):
 
         # the actual data passed onto the model
         self.pop_detail_df = self.drop_code(df)
-        self.population_pP_tr = Data(
-            "population_pP_tr",
+        self.population_rpP_tr = Data(
+            "population_rpP_tr",
             config,
             log_root=self.log_root,
             p_index=list(self.pop_detail_df.index),

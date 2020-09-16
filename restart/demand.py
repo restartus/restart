@@ -61,62 +61,57 @@ class Demand(Base):
         if pop is not None:
             self.recalc()
 
-    def adjust_burn(self, new_burn):
+    def adjust_burn(self, new_burn) -> self:
         """Adjust the burn rates."""
-        self.demand_per_unit_map_dn_um.array = new_burn
+        self.demand_per_unit_map_xrdn_um.array = new_burn
         self.recalc()
+        return self
 
     def set_data(self, config, log_root):
         """Instantiate the base data objects for inheritance purposes."""
         log = self.log
 
-        self.demand_per_unit_map_dn_um = Data(
-            "demand_per_unit_map_dn_um", config, log_root=log_root
+        self.demand_per_unit_map_xrdn_um = Data(
+            "demand_per_unit_map_xrdn_um", config, log_root=log_root
         )
-        log.debug(f"{self.demand_per_unit_map_dn_um.df=}")
+        log.debug(f"{self.demand_per_unit_map_xrdn_um.df=}")
 
-        self.demand_by_pop_per_person_pn_uc = Data(
-            "demand_by_pop_per_person_pn_uc", config, log_root=log_root
+        self.demand_by_pop_per_person_xrtgpn_uc = Data(
+            "demand_by_pop_per_person_xrtgpn_uc", config, log_root=log_root
         )
 
         # need to instantiate variables first
 
-        self.demand_by_pop_total_pn_tc = Data(
-            "demand_by_pop_total_pn_tc", config, log_root=log_root
+        self.demand_pop_total_xrtgpn_tc = Data(
+            "demand_pop_total_xrtgpn_tc", config, log_root=log_root
         )
 
-        # not used
-        self.demand_by_popsum_ps_us: Optional[Dict] = None
-
-        self.demand_by_popsum1_per_person_p1n_uc = Data(
-            "demand_by_popsum1_per_person_p1n_uc", config, log_root=log_root
+        self.demand_by_popsum1_per_person_xrtgp1n_uc = Data(
+            "demand_by_popsum1_per_person_xrtgp1n_uc", config, log_root=log_root
         )
 
-        self.demand_by_popsum1_total_p1n_tc = Data(
-            "demand_by_popsum1_total_p1n_tc", config, log_root=log_root
-        )
-        # get a range enabled version of the above for inventory
-        self.demand_by_popsum1_total_rp1n_tc = Data(
-            "demand_by_popsum1_total_rp1n_tc", config, log_root=log_root
+        self.demand_by_popsum1_total_xrtgp1n_tc = Data(
+            "demand_by_popsum1_total_xrtgp1n_tc", config, log_root=log_root
         )
 
-        self.demand_by_popsum1_total_cost_p1n_xc = Data(
-            "demand_by_popsum1_total_cost_p1n_xc", config, log_root=log_root
+        self.demand_by_popsum1_total_cost_xrtgp1n_xc = Data(
+            "demand_by_popsum1_total_cost_xrtgp1n_xc", config, log_root=log_root
         )
-        log.debug(f"{self.demand_by_popsum1_total_cost_p1n_xc.df=}")
+        log.debug(f"{self.demand_by_popsum1_total_cost_xrtgp1n_xc.df=}")
 
-    def recalc(self):
+    def recalc(self) -> self:
         """Recalculate all demands.
 
         Right now it must be run in this order
         """
-        self.set_demand_by_pop_per_person_pn_uc()
-        self.set_demand_by_pop_total_pn_tc()
-        self.set_demand_by_popsum1_per_person_p1n_uc()
-        self.set_demand_by_popsum1_total_p1n_tc()
-        self.set_demand_by_popsum1_total_cost_p1n_xc()
+        return (self.set_demand_by_pop_per_person_xrtgpn_uc()
+                .set_demand_pop_total_xrtgpn_tc()
+                .set_demand_by_popsum1_per_person_xrtgp1n_uc()
+                .set_demand_by_popsum1_total_xrtgp1n_tc()
+                .set_demand_by_popsum1_total_cost_xrtgp1n_xc()
+        )
 
-    def set_demand_by_pop_per_person_pn_uc(self):
+    def set_demand_by_pop_per_person_xrtgpn_uc(self) -> self:
         """Sets the Demand by Population Per Person."""
         log = self.log
 
@@ -125,25 +120,25 @@ class Demand(Base):
         #     self.level_to_res_mn_df
         # )
 
-        if self.pop.pop_demand_per_unit_map_pd_um is None:
-            raise ValueError("pop.pop_demand_per_unit_map_pd_um")
+        if self.pop.pop_demand_per_unit_map_pgrd_um is None:
+            raise ValueError("pop.pop_demand_per_unit_map_rgpd_um")
 
-        self.demand_by_pop_per_person_pn_uc.array = (
-            self.pop.pop_demand_per_unit_map_pd_um.array
-            @ self.demand_per_unit_map_dn_um.array
-        )
-        log.debug(f"{self.demand_by_pop_per_person_pn_uc.df=}")
+        # This no longer works in a multidimensional world
+        # self.demand_by_pop_per_person_pn_uc.array = (
+            # self.pop.pop_demand_per_unit_map_pd_um.array
+            # @ self.demand_per_unit_map_dn_um.array
+        # )
+        # log.debug(f"{self.demand_by_pop_per_person_rtgpn_uc.df=}")
         # Einsum equivalent for automatic generation
-        test = np.einsum(
-            "pd,dn->pn",
-            self.pop.pop_demand_per_unit_map_pd_um.array,
-            self.demand_per_unit_map_dn_um.array,
+        self.demand_by_pop_per_person_xrtgpn_uc.array = np.einsum(
+            "rgpd,xrdn->xrptn",
+            self.pop.pop_demand_per_unit_map_rgpd_um.array,
+            self.demand_per_unit_map_xrdn_um.array,
         )
-        log.debug(f"{test=}")
-        if not np.array_equal(self.demand_by_pop_per_person_pn_uc.array, test):
-            log.critical("einsum fails!")
+        log.debug(f"{self.demand_by_pop_per_person_xrtgpn_uc.array=}")
+        return self
 
-    def set_demand_by_pop_total_pn_tc(self):
+    def set_demand_pop_total_xrtgpn_tc(self) -> self:
         """Recalcs the Demand by Population for Resources."""
         # Note there is a big hack here as we should really calculate
         # demand across many parameters, but we just pick size
@@ -161,24 +156,20 @@ class Demand(Base):
         # https://stackoverflow.com/questions/29241056/how-does-numpy-newaxis-work-and-when-to-use-it
         # need this to prevent type check problems
         log = self.log
-        if self.pop.population_pP_tr is None:
-            raise ValueError("pop.population_pP_tr")
-        self.demand_by_pop_total_pn_tc.array = (
-            self.demand_by_pop_per_person_pn_uc.array.T
-            * self.pop.population_pP_tr.df["Size"].to_numpy().T
+        if self.pop.population_rpP_tr is None:
+            raise ValueError("pop.population_rpP_tr")
+        self.demand_pop_total_xrtgpn_tc.array = (
+            self.demand_by_pop_per_person_xrtgpn_uc.array.T
+            * self.pop.population_rpP_tr.df["Size"].to_numpy().T
         ).T
-        log.debug(f"{self.demand_by_pop_total_pn_tc.df=}")
-        test = np.einsum(
-            "pn,p->pn",
-            self.demand_by_pop_per_person_pn_uc.array,
-            self.pop.population_pP_tr.df["Size"].to_numpy(),
+        self.demand_pop_total_xrtgpn_tc.array = np.einsum(
+            "xrtgpn,rp->xrtgpn",
+            self.demand_by_pop_per_person_xrtgpn_uc.array,
+            self.pop.population_rpP_tr.df["Size"].to_numpy(),
         )
-        log.debug(f"{test=}")
-        if not np.array_equal(self.demand_by_pop_total_pn_tc.array, test):
-            breakpoint()
-            log.critical("einsum fails!")
+        return self
 
-    def set_demand_by_popsum1_per_person_p1n_uc(self):
+    def set_demand_by_popsum1_per_person_xrtgp1n_uc(self) -> self:
         """Recalcs the Demand by Population Summary Level 1 for Resources."""
         log = self.log
         # Original math put the level or popsum1 data here now move to
@@ -190,81 +181,60 @@ class Demand(Base):
             raise ValueError("pop.pop_to_popsum1_per_unit_map_pp1_us")
         # then add to them
 
-        self.demand_by_popsum1_per_person_p1n_uc.array = (
-            self.pop.pop_to_popsum1_per_unit_map_pp1_us.array.T
-            @ self.demand_by_pop_per_person_pn_uc.array
-        )
-        log.debug(f"{self.demand_by_popsum1_per_person_p1n_uc.df=}")
+
+        # the matrix math only works in 2D
+        # self.demand_by_popsum1_per_person_p1n_uc.array = (
+            # self.pop.pop_to_popsum1_per_unit_map_pp1_us.array.T
+            # @ self.demand_by_pop_per_person_pn_uc.array
+        # )
         # Einsum equivalent of the above, we use x since index needs to be a
         # single character
-        breakpoint
-        test = np.einsum(
-            "px,pn->xn",
+        self.demand_by_popsum1_per_person_xrtgp1n_uc = np.einsum(
+            "pz,rtgpn->xrtgzn",
             self.pop.pop_to_popsum1_per_unit_map_pp1_us.array,
-            self.demand_by_pop_per_person_pn_uc.array,
+            self.demand_by_pop_per_person_xrtgpn_uc.array,
         )
-        log.debug(f"{test=}")
-        if not np.array_equal(
-            self.demand_by_popsum1_per_person_p1n_uc.array, test
-        ):
-            log.debug("einsum fails!")
+        log.debug(f"{self.demand_by_popsum1_per_person_xrtgp1n_uc.df=}")
+        return self
 
-    def set_demand_by_popsum1_total_p1n_tc(self):
+    def set_demand_by_popsum1_total_xrtgp1n_tc(self) -> self:
         """Recalcs the Demand by Population Level 1 for Total Resource."""
         log = self.log
-        # TODO: Eventually we will want to calculate this iteration
-        # across all summaries so p -> p1 -> p2...
-        # We need a general function that knows how to walk
-        # a series of transforms so you feed it any point and it knows how to
-        # get to any other level
-        # Original math
-        # self.level_total_demand_ln_df = (
-        #    self.level_pl_df.T @ self.total_demand_pn_df
+        # TODO: Convert to only doing by _pop and then output do the summarization
+        # This only works in 2-D
+        # self.demand_by_popsum1_total_p1n_tc.array = (
+            # self.pop.pop_to_popsum1_per_unit_map_pp1_us.array.T
+            # @ self.demand_pop_total_pn_tc.array
         # )
-        self.demand_by_popsum1_total_p1n_tc.array = (
-            self.pop.pop_to_popsum1_per_unit_map_pp1_us.array.T
-            @ self.demand_by_pop_total_pn_tc.array
-        )
-        log.debug(f"{self.demand_by_pop_per_person_pn_uc.df=}")
-        test = np.einsum(
-            "px,pn->xn",
+        self.demand_by_popsum1_total_xrtgp1n_tc.array = np.einsum(
+            "pz,xrtgpn->xrtgzn",
             self.pop.pop_to_popsum1_per_unit_map_pp1_us.array,
-            self.demand_by_pop_total_pn_tc.array,
+            self.demand_by_pop_total_xrtgpn_tc.array,
         )
-        if not np.array_equal(self.demand_by_popsum1_total_p1n_tc.array, test):
-            log.debug("einsum fails f{self.demand_by_popsum1_total_p1n_tc=}")
+        return self
 
-        log.debug("for future calculate a dummy range version")
-        # https://stackoverflow.com/questions/32171917/copy-2d-array-into-3rd-dimension-n-times-python
-        # repeat along the first axis
-        self.demand_by_popsum1_total_rp1n_tc.array = np.repeat(
-            self.demand_by_popsum1_total_p1n_tc.array[np.newaxis, ...],
-            self.demand_by_popsum1_total_rp1n_tc.array.shape[0],
-            axis=0,
-        )
-
-    def set_demand_by_popsum1_total_cost_p1n_xc(self):
+    def set_demand_by_popsum1_total_cost_xrtgp1n_xc(self) -> self:
         """Recalc the total cost of demand by Population Level 1."""
         # log = self.log
         # original formula
         # self.level_total_cost_ln_df = (
         #       self.level_total_demand_ln_df * cost_ln_df.values)
         log = self.log
-        if self.res.res_by_popsum1_cost_per_unit_p1n_us is None:
-            raise ValueError("res_by_popsum1_cost_per_unit_p1n_us")
-        self.demand_by_popsum1_total_cost_p1n_xc.array = (
-            self.demand_by_popsum1_total_p1n_tc.array
-            * self.res.res_by_popsum1_cost_per_unit_p1n_us.array
+        if self.res.res_by_popsum1_cost_per_unit_pr1n_us is None:
+            raise ValueError("self.res_by_popsum1_cost_per_unit_p1n_us")
+        self.demand_by_popsum1_total_cost_rtgp1n_xc.array = (
+            self.demand_by_popsum1_total_xrtgp1n_tc.array
+            * self.res.res_by_popsum1_cost_per_unit_rp1n_us.array
         )
-        # TODO: the einsum is broken
         test = np.einsum(
-            "xn,xn->xn",
-            self.demand_by_popsum1_total_p1n_tc.array,
+            "xrtgzn,zn->zn",
+            self.demand_by_popsum1_total_xrtgp1n_tc.array,
             self.res.res_by_popsum1_cost_per_unit_p1n_us.array,
         )
         if not np.array_equal(
-            self.demand_by_popsum1_total_cost_p1n_xc.array, test
+            self.demand_by_popsum1_total_cost_xrtgp1n_xc.array, test
         ):
             log.critical(
-                f"einsum fail f{self.demand_by_popsum1_total_p1n_tc=}"
+                f"einsum fail f{self.demand_by_popsum1_total_rtgp1n_tc=}"
             )
+        return self

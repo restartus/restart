@@ -146,7 +146,9 @@ class Compose:
             # http://effbot.org/pyfaq/how-do-i-check-if-an-object-is-an-instance-of-a-given-class-or-of-a-subclass-of-it.htm
             # if issubclass(value, Base):
             if isinstance(value, Base):
-                log.debug(f"object {model_name} holds {value} subclass of Base")
+                log.debug(
+                    f"object {model_name} holds {value} subclass of Base"
+                )
 
         # test iteration
         for base_key, base_value in model:

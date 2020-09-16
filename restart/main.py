@@ -30,7 +30,7 @@ from restart.util import set_config
 class Compose:
     """Compose an entire model together.
 
-    Note this must be rentrant for streamlit to work
+    Note this must be reentrant for streamlit to work
     So it detects if it has been called again
     """
 
@@ -197,8 +197,6 @@ class Compose:
             default="dict",
             help="Select population data cube",
         )
-
-        parser.add_argument("--organization", help=["dict", "ca"])
 
         parser.add_argument("--csv", help="Select CSV file output")
 

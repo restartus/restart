@@ -1,0 +1,9 @@
+{
+    "python.jediEnabled": false,
+    "python.linting.banditEnabled": false,
+    "python.linting.mypyEnabled": true,
+    "python.linting.flake8Enabled": false,
+    "python.linting.pydocstyleEnabled": false,
+    "python.linting.pylintEnabled": false,
+    "python.linting.enabled": true
+}

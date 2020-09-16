@@ -233,7 +233,7 @@ class Data(BaseLog):
             # Also note that we need .get for a confus object
             # And need to dereference the index_name
             self.index_name = self.index_name[0]
-            self.index = self.dimension_cf[self.index_name].get()['label']
+            self.index = self.dimension_cf[self.index_name].get()["label"]
             df = pd.DataFrame(
                 self.array,
                 index=self.index,

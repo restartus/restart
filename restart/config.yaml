@@ -363,18 +363,18 @@ Model:
       - [1, 0]
       - [1, 0]
       - [0, 1]
-  epi_rtgexeE_tr:
-    name: Epi (exrtge->E:pr)
+  epi_trgexeE_tr:
+    name: Epi (trgexe->E:pr)
     description: |
       The disease maps p different populations against E
       attributes Shows the number of patients typically.
     units: Total People
     kind: Real
     index:
-      - Epi Model (ex)
+      - Time (t)
       - Range (r)
       - Geolocation (g)
-      - Time (t)
+      - Epi Model (ex)
       - Epi (e)
       - Epi Attribute (E)
     array:
@@ -462,15 +462,15 @@ Model:
             -
               - [400, 600, 8]
               - [4000, 600, 80]
-  financial_gtfF_pr:
-    name: Financial (gtf->F:pr)
+  financial_tgtF_pr:
+    name: Financial (tgf->F:pr)
     description: |
       The Econometric attributes
     units: Percentage
     kind: Real
     index:
-      - Geolocation (g)
       - Time (t)
+      - Geolocation (g)
       - Financial (f)
       - Financial Attribute (F)
     array:
@@ -522,15 +522,15 @@ Model:
           # GPD Index, Unemployment
           - [80, 0.13]
           - [80, 0.13]
-  mobility_gtmM_pr:
-    name: Mobility (gtm->M:pr)
+  mobility_tgmM_pr:
+    name: Mobility (tgm->M:pr)
     description: |
       The mobility of statistics
     units: Percentage
     kind: Real
     index:
-      - Geolocation (g)
       - Time (t)
+      - Geolocation (g)
       - Mobility (m)
       - Mobility Attribute (M)
     array:
@@ -778,8 +778,8 @@ Model:
   # These are typically meta values that are derived from real objectcs
   # And maps that serve as input to processes
   # So this dupliction the p1n_tc version above
-  demand_by_pop_per_person_xrtgpn_uc:
-    name: Per Capita Demand by Population for Resources (xrtgp->n:uc)
+  demand_by_pop_per_person_tgrDpn_uc:
+    name: Per Capita Demand by Population for Resources (tgrDp->n:uc)
     description: |
       This is the per capita demand for a give population so this is not the per
       capita demand but for every n Resource for ever subpopulation p over time
@@ -787,15 +787,16 @@ Model:
     units: Per Capita
     kind: Calculated
     index:
-      - Demand Model (x)
-      - Range (r)
       - Time (t)
       - Geolocation (g)
+      - Range (r)
+      - Demand Model (D)
       - Population (p)
       - Resource (n)
-  demand_by_popsum1_per_person_xrtgp1n_uc:
+  demand_by_popsum1_per_person_tgrDp1n_uc:
     name: |
-      Per Capita Demand for Resources by Population Summary Level 1 (xrtgp1->n:uc)
+      Per Capita Demand for Resources by Population Summary Level 1
+      (tgrgDp1->n:uc)
     description: |
       This is the per capita demand for a set of n resources
       summarized by the l Summary Level used. It provides a view of demand
@@ -803,107 +804,109 @@ Model:
     units: Per Capita
     kind: Calculated
     index:
-      - Demand Model (x)
-      - Range (r)
       - Time (t)
       - Geolocation (g)
+      - Range (r)
+      - Demand Model (D)
       - Population Summary Level 1 (p1)
       - Resource (n)
-  demand_by_pop_total_xrtgpn_tc:
-    name: Total Demand for Resources by Population (xrtgp->n:tc)
+  demand_by_pop_total_tgrDpn_tc:
+    name: Total Demand for Resources by Population (tgrDp->n:tc)
     description: |
       This is the total demand for all p sub-Population for every resource n
     units: Total
     kind: Calculated
     index:
-      - Demand Model (x)
-      - Range (r)
       - Time (t)
       - Geolocation (g)
+      - Range (r)
+      - Demand Model (D)
       - Population (p)
       - Resource (n)
-  demand_by_popsum1_total_xrtgp1n_tc:
-    name: Total Demand for Resources by Population Summary 1 (xrtgp1->n:tc)
+  demand_by_popsum1_total_tgrDp1n_tc:
+    name: Total Demand for Resources by Population Summary 1 (tgrDp1->n:tc)
     description: |
       For all population summary levels p1, the total demand for a set
       of n resources
     units: Total
     kind: Calculated
     index:
-      - Demand Model (x)
-      - Range (r)
       - Time (t)
+      - Range (r)
       - Geolocation (g)
+      - Demand Model (D)
       - Population Summary Level 1 (p1)
       - Resource (n)
-  demand_by_popsum1_total_cost_rtgp1n_xc:
+  demand_by_popsum1_total_cost_tgrDp1n_xc:
     name: |
-      Total Cost of Demand for Resources by Population Summary Level 1 (rtgp1->n:xc)
+      Total Cost of Demand for Resources by Population Summary Level 1
+      (tgrDp1->n:xc)
     description: |
       For all population summary levels (p1), the total cost for a set of
       n resources
     units: Total Cost
     kind: Calculated
     index:
-      - Range (r)
       - Time (t)
+      - Range (r)
       - Geolocation (g)
+      - Demand Model (D)
       - Population Summary Level 1 (p1)
       - Resource (n)
-  inv_by_popsum1_total_rtgp1n_tc:
+  inv_by_popsum1_total_tgrDp1n_tc:
     name: |
-      Total Inventory of Resources by Population Summary Level 1 (rtgp1->n_tc)
+      Total Inventory of Resources by Population Summary Level 1 (tgrDp1->n_tc)
     description: |
       For all population summary levels, the total inventory in stock for all
       resources held in current inventory
     index:
-      - Range (r)
       - Time (t)
+      - Range (r)
       - Geolocation (g)
+      - Demand Model (D)
       - Population Summary Level 1 (p1)
       - Resource (n)
     units: Total Units
     kind: Calculated
-  inv_min_by_popsum1_in_periods_rtgp1n_pc:
+  inv_min_by_popsum1_in_periods_rgp1n_pc:
     name: |
       Inventory Minimum of Resources by Population Summary Level 1 in Periods
-      (p1n_tc)
+      (rgp1n_tc)
     description: |
       The minimum inventory in days on hand of  units that should be held
       calculated for each Population Summary Level
     index:
       - Range (r)
-      - Time (t)
       - Geolocation (g)
       - Population Summary Level 1 (p1)
       - Resource (n)
     units: Period
     kind: Calculated
-  inv_average_orders_by_popsum1_per_period_rtgp1n_uf:
+  inv_average_orders_by_popsum1_per_period_rgp1n_uf:
     name: |
       Average Inventory Orders of Resource by Population Summary Level 1 for a
-      Period (rtgp1->n:uf)
+      Period (rgp1->n:uf)
     description: |
       Average Inventory needed for a given period (normally a day)
       for Resources by Population Summary Level 1. This is the flow of units
       needed every period.
     index:
       - Range (r)
-      - Time (t)
       - Geolocation (g)
       - Population Summary Level 1 (p1)
       - Resource (n)
     units: Units Per Period
     kind: Calculated
-  inv_order_by_popsum1_total_rtgp1n_tc:
+  inv_order_by_popsum1_total_trgDp1n_tc:
     name: |
-      Inventory Order of Resources by Population Summary Level 1 (rtgp1->n)
+      Inventory Order of Resources by Population Summary Level 1 (trgDp1->n)
     description: |
       The order for resources from population by Summary Level 1
     index:
-      - Range (r)
       - Time (t)
+      - Range (r)
       - Geolocation (g)
+      - Demand Model (D)
       - Population Summary Level 1 (p1)
       - Resource (n)
     units: Period

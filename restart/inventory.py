@@ -45,8 +45,8 @@ class Inventory(Base):
         self.config = config
         log.debug(f"in {__name__}")
 
-        self.inv_by_popsum1_total_rp1n_tc = Data(
-            "inv_by_popsum1_total_rp1n_tc", config, log_root=log_root
+        self.inv_by_popsum1_total_rtgp1n_tc = Data(
+            "inv_by_popsum1_total_rtgp1n_tc", config, log_root=log_root
         )
 
         self.inv_by_popsum1_param_iIp1n_tp = Data(
@@ -151,10 +151,10 @@ class Inventory(Base):
         log = self.log
 
         # https://stackoverflow.com/questions/53375161/use-numpy-array-to-replace-pandas-dataframe-values
-        self.inv_by_popsum1_total_rp1n_tc.array = (
+        self.inv_by_popnum1_total_rtgp1n_tc.array = (
             min_by_popsum1_total_rp1n_tc.array
         )
-        log.debug(f"{self.inv_by_popsum1_total_rp1n_tc.df=}")
+        log.debug(f"{self.inv_by_popsum1_total_rptg1n_tc.df=}")
         self.supply_order()
         return self
 

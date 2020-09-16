@@ -15,12 +15,12 @@ other two representations
 """
 from __future__ import annotations
 
+from re import search
 from typing import Tuple
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
-from re import search
 
 from base import BaseLog  # type: ignore
 from log import Log  # type: ignore
@@ -77,7 +77,7 @@ class Data(BaseLog):
         log.debug(f"{__name__=}")
 
         # remove all the modifiers like self. first then get right of everything after equals
-        self.key: str = key.split('.')[-1].split('=')[0]
+        self.key: str = key.split(".")[-1].split("=")[0]
         log.debug(f"after split {self.key=}")
         self.config_cf: confuse.Configuration = config
 
@@ -226,7 +226,7 @@ class Data(BaseLog):
         # dimensions or lables, but only the data inside
         self.index_name = self.index_cf.get()[:-1]
         self.columns_name = self.index_cf.get()[-1]
-        self.columns = self.dimension_cf[self.columns_name].get()['label']
+        self.columns = self.dimension_cf[self.columns_name].get()["label"]
         if len(self.index_name) <= 1:
             # this is two dimensional
             # https://stackoverflow.com/questions/18691084/what-does-1-mean-in-numpy-reshape
@@ -246,7 +246,9 @@ class Data(BaseLog):
             self.flat2d_arr = self.array.reshape(-1, self.array.shape[-1])
             # Do a lookup of the index in dimension
             # https://stackoverflow.com/questions/49542348/using-a-list-comprehension-to-look-up-variables-works-with-globals-but-not-loc/49542378
-            self.index = [self.dimension_cf[x].get()["label"] for x in self.index_name]
+            self.index = [
+                self.dimension_cf[x].get()["label"] for x in self.index_name
+            ]
             self.multi_index = pd.MultiIndex.from_product(
                 self.index,
                 names=self.index_name,

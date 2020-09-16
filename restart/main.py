@@ -17,6 +17,7 @@ import argparse
 # https://inventwithpython.com/blog/2012/04/06/stop-using-print-for-debugging-a-5-minute-quickstart-guide-to-pythons-logging-module/
 import logging  # noqa:F401
 from typing import List
+
 from base import Base
 
 # Use jupyter voila instead

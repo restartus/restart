@@ -6,9 +6,9 @@ Read in the epi from the model dictionary
 import confuse  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
 
-from .data import Data  # type: ignore
-from .epi import Epi  # type: ignore
-from .log import Log  # type: ignore
+from data import Data  # type: ignore
+from epi import Epi  # type: ignore
+from log import Log  # type: ignore
 
 
 class EpiDict(Epi):

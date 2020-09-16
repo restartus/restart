@@ -6,9 +6,9 @@ Read in the mobility from an external table
 import confuse  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
 
-from .data import Data  # type: ignore
-from .log import Log  # type: ignore
-from .mobility import Mobility  # type: ignore
+from data import Data  # type: ignore
+from log import Log  # type: ignore
+from mobility import Mobility  # type: ignore
 
 
 class MobilityTable(Mobility):

@@ -10,31 +10,29 @@ from __future__ import annotations
 
 from typing import Generator, List, Optional, Tuple
 
-from .base import Base  # type: ignore
-from .demand import Demand  # type: ignore
-from .demand_dict import DemandDict  # type: ignore
-from .epi import Epi  # type: ignore
-from .epi_dict import EpiDict  # type: ignore
-from .epi_table import EpiTable  # type: ignore
-from .filtermodel import Filter  # type: ignore
-from .financial import Financial  # type: ignore
-from .financial_dict import FinancialDict  # type: ignore
-from .financial_table import FinancialTable  # type: ignore
-from .inventory import Inventory  # type: ignore
-from .inventory_dict import InventoryDict  # type: ignore
-from .log import Log  # type: ignore
-from .mobility import Mobility  # type: ignore
-from .mobility_dict import MobilityDict  # type: ignore
-from .mobility_table import MobilityTable  # type: ignore
-from .organization import Organization  # type: ignore
-from .organization_dict import OrganizationDict  # type: ignore
-from .output import Output  # type: ignore
-from .population import Population  # type: ignore
-from .population_dict import PopulationDict  # type: ignore
-from .population_oes import PopulationOES  # type: ignore
-from .population_wa import PopulationWA  # type: ignore
-from .resource_dict import ResourceDict  # type: ignore
-from .resourcemodel import Resource  # type: ignore
+from base import Base  # type: ignore
+from demand import Demand  # type: ignore
+from demand_dict import DemandDict  # type: ignore
+from epi import Epi  # type: ignore
+from epi_dict import EpiDict  # type: ignore
+from epi_table import EpiTable  # type: ignore
+from filtermodel import Filter  # type: ignore
+from financial import Financial  # type: ignore
+from financial_dict import FinancialDict  # type: ignore
+from financial_table import FinancialTable  # type: ignore
+from inventory import Inventory  # type: ignore
+from inventory_dict import InventoryDict  # type: ignore
+from log import Log  # type: ignore
+from mobility import Mobility  # type: ignore
+from mobility_dict import MobilityDict  # type: ignore
+from mobility_table import MobilityTable  # type: ignore
+from output import Output  # type: ignore
+from population import Population  # type: ignore
+from population_dict import PopulationDict  # type: ignore
+from population_oes import PopulationOES  # type: ignore
+from population_wa import PopulationWA  # type: ignore
+from resource_dict import ResourceDict  # type: ignore
+from resourcemodel import Resource  # type: ignore
 
 
 class Model(Base):
@@ -127,16 +125,6 @@ class Model(Base):
             )
         else:
             raise ValueError(f"{type=} not implemented")
-        return self
-
-    def set_organization(self, type: str = None) -> Model:
-        """Set organization."""
-        self.organization: Organization
-        if type == "dict":
-            self.organization = OrganizationDict(
-                self.config, log_root=self.log_root
-            )
-
         return self
 
     def set_resource(self, type: str = None) -> Model:

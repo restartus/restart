@@ -7,8 +7,8 @@ from typing import Dict, List, Optional
 
 import pandas as pd  # type:ignore
 
-from .load import Load  # type: ignore
-from .log import Log  # type: ignore
+from load import Load  # type: ignore
+from log import Log  # type: ignore
 
 
 class LoadCSV(Load):

@@ -12,9 +12,9 @@ from typing import List
 import confuse  # type: ignore
 import numpy as np  # type: ignore
 
-from .base import Base  # type: ignore
-from .data import Data  # type: ignore
-from .log import Log  # type: ignore
+from base import Base  # type: ignore
+from data import Data  # type: ignore
+from log import Log  # type: ignore
 
 
 # https://docs.python.org/3/library/enum.html

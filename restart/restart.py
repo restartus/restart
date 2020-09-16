@@ -1,9 +1,9 @@
 """Compose the model without a CLI."""
 from typing import Optional
 
-from restart.log import Log
-from restart.model import Model
-from restart.util import set_config
+from log import Log
+from model import Model
+from util import set_config
 
 
 class RestartModel:
@@ -12,7 +12,6 @@ class RestartModel:
     def __init__(
         self,
         population: str = "dict",
-        organization: Optional[str] = None,
         csv: Optional[str] = None,
         county: Optional[str] = None,
         state: Optional[str] = None,
@@ -57,7 +56,6 @@ class RestartModel:
                 county=self.county, state=self.state, subpop=self.subpop
             )
             .set_population(type=self.population, data_dir=self.data_dir)
-            .set_organization(type=self.organization)
             .set_resource(type=self.resource)
             .set_inventory(type=self.inventory)
             .set_demand(type=self.demand)

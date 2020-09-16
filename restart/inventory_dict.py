@@ -5,8 +5,8 @@ Reads from dictionary for defaults
 
 import confuse  # type: ignore
 
-from .inventory import Inventory  # type: ignore
-from .log import Log  # type: ignore
+from inventory import Inventory  # type: ignore
+from log import Log  # type: ignore
 
 
 class InventoryDict(Inventory):

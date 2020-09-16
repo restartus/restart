@@ -7,8 +7,8 @@ users are done filtering.
 import numpy as np  # type: ignore # noqa: F401
 import pandas as pd  # type: ignore # noqa: F401
 
-from .base import Base  # type: ignore
-from .log import Log  # type: ignore
+from base import Base  # type: ignore
+from log import Log  # type: ignore
 
 
 # TODO: This will be much easier once we add geo to it

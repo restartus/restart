@@ -5,9 +5,9 @@ Reads from dictionary for defaults
 
 import confuse  # type: ignore
 
-from .data import Data  # type: ignore
-from .log import Log  # type: ignore
-from .resourcemodel import Resource  # type: ignore
+from data import Data  # type: ignore
+from log import Log  # type: ignore
+from resourcemodel import Resource  # type: ignore
 
 
 class ResourceDict(Resource):

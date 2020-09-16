@@ -10,9 +10,9 @@ import h5py  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
 
-from .data import Data  # type: ignore
-from .epi import Epi  # type: ignore
-from .log import Log  # type: ignore
+from data import Data  # type: ignore
+from epi import Epi  # type: ignore
+from log import Log  # type: ignore
 
 
 class EpiTable(Epi):

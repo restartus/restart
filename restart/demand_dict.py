@@ -6,11 +6,10 @@ from typing import Optional
 
 import confuse  # type: ignore
 
-from .demand import Demand  # type: ignore
-from .log import Log  # type: ignore
-from .organization import Organization  # type: ignore
-from .population import Population  # type: ignore
-from .resourcemodel import Resource  # type: ignore
+from demand import Demand  # type: ignore
+from log import Log  # type: ignore
+from population import Population  # type: ignore
+from resourcemodel import Resource  # type: ignore
 
 
 class DemandDict(Demand):
@@ -25,7 +24,6 @@ class DemandDict(Demand):
         config: confuse.Configuration,
         res: Resource,
         pop: Optional[Population] = None,
-        org: Optional[Organization] = None,
         log_root: Optional[Log] = None,
         type: Optional[str] = None,
     ):

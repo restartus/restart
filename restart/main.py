@@ -18,13 +18,13 @@ import argparse
 import logging  # noqa:F401
 from typing import List
 
-from restart.base import Base
+from base import Base
 
 # Use jupyter voila instead
 # from dashboard import Dashboard
-from restart.log import Log
-from restart.model import Model
-from restart.util import set_config
+from log import Log
+from model import Model
+from util import set_config
 
 
 class Compose:

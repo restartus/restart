@@ -7,7 +7,7 @@ from typing import Dict, Optional, Tuple
 
 import pandas as pd  # type:ignore
 
-from .log import Log  # type: ignore
+from log import Log  # type: ignore
 
 
 class BaseLog:

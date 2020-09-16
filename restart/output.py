@@ -7,8 +7,8 @@ from typing import Callable, Dict
 import confuse  # type: ignore
 import yaml
 
-from .base import Base  # type: ignore
-from .log import Log  # type: ignore
+from base import Base  # type: ignore
+from log import Log  # type: ignore
 
 
 class Output(Base):

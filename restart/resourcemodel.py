@@ -10,9 +10,9 @@ from typing import Optional
 
 import confuse  # type: ignore
 
-from .base import Base  # type: ignore
-from .data import Data  # type: ignore
-from .log import Log  # type: ignore
+from base import Base  # type: ignore
+from data import Data  # type: ignore
+from log import Log  # type: ignore
 
 
 class Resource(Base):

@@ -6,9 +6,9 @@ Read in the population from the model dictionary
 import confuse  # type: ignore
 import pandas as pd  # type: ignore # noqa: F401
 
-from .data import Data  # type: ignore
-from .log import Log  # type: ignore
-from .population import Population  # type: ignore
+from data import Data  # type: ignore
+from log import Log  # type: ignore
+from population import Population  # type: ignore
 
 
 class PopulationDict(Population):

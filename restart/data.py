@@ -21,8 +21,8 @@ import confuse  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 
-from .base import BaseLog  # type: ignore
-from .log import Log  # type: ignore
+from base import BaseLog  # type: ignore
+from log import Log  # type: ignore
 
 
 class Data(BaseLog):

@@ -51,7 +51,7 @@ class Resource(Base):
         super().__init__(log_root=log_root)
         log = self.log
         self.config = config
-        log.debug(f"in {__name__}")
+        # log.debug(f"in {__name__}")
 
         # Filling these is the job of the child classes
         self.resource_rnN_ur: Optional[Data] = None

@@ -104,7 +104,7 @@ class Log:
         )
         self.fh.setFormatter(self.fh_format)
         self.log.addHandler(self.fh)
-        self.log.debug(f"{self.log=} f")
+        # self.log.debug(f"{self.log=} f")
         # note we don't need self.fh, it is also accessible at
         # self.log.handlers[0] and self.log.handlers[1]
 
@@ -114,7 +114,7 @@ class Log:
         Creates a custom logger just for a class
         """
         class_log_name = self.name + "." + type(object).__name__
-        self.log.debug(f"new logger {class_log_name=}")
+        # self.log.debug(f"new logger {class_log_name=}")
         log = logging.getLogger(class_log_name)
         return log
 
@@ -132,9 +132,9 @@ class Log:
 
         Testing code run this to make sure all levels are used
         """
-        log.debug("test debug")
-        log.warning("test warning")
-        log.error("test error")
-        log.critical("test critical")
+        # log.debug("test debug")
+        # log.warning("test warning")
+        # log.error("test error")
+        # log.critical("test critical")
 
         return self

@@ -692,7 +692,6 @@ Model:
         - [6.0, 4.0, 1.0, 0.60, 0.20, 2.50, 4.0, 0.20, 0.15]
         - [6.0, 4.0, 1.0, 0.60, 0.06, 1.50, 4.0, 0.20, 0.15]
   inv_by_popsum1_param_rp1n_tp:
-    # TODO: will eventually merge init, eoq and min frames into this one
     name: |
       Inventory by Attributes of Resources by
       Population Summary Level 1 Parameters (rp1->n:tr)

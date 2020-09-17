@@ -7,7 +7,7 @@ from __future__ import annotations
 
 # For slices of parameters
 from enum import Enum
-from typing import List
+from typing import List, Optional, Dict
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
@@ -35,35 +35,13 @@ class Inventory(Base):
         super().__init__(log_root=log_root)
         log = self.log
         self.config = config
-        log.debug(f"in {__name__}")
 
-        self.inv_by_popsum1_total_tgrDp1n_tc = Data(
-            f"{self.inv_by_popsum1_total_tgrDp1n_tc=}",
-            config,
-            log_root=log_root,
-        )
-
-        self.inv_by_popsum1_param_rp1n_tp = DataDict(
-            f"{self.inv_by_popsum1_param_rp1n_tp=}", config, log_root=log_root
-        )
-        log.debug(f"{self.inv_by_popsum1_param_rp1n_tp.df=}")
-
+        self.inv_by_popsum1_total_tgrDp1n_tc: Optional[Data] = None
+        self.inv_by_popsum1_param_rp1n_tp: Optional[Data] = None
         # Helpers to handle period calculations
-        self.inv_min_by_popsum1_in_periods_rp1n_pc = Data(
-            "inv_min_by_popsum1_in_periods_rp1n_pc", config, log_root=log_root
-        )
-        self.inv_average_orders_by_popsum1_per_period_rp1n_uf = Data(
-            "inv_average_orders_by_popsum1_per_period_rp1n_uf",
-            config,
-            log_root=log_root,
-        )
-
-        self.inv_order_by_popsum1_total_rp1n_tc = Data(
-            "inv_order_by_popsum1_total_rp1n_tc", config, log_root=log_root
-        )
-
-        # can only set minmum once inv_min exists and order too
-        self.set_min(self.inv_init_by_popsum1_total_rp1n_tc)
+        self.inv_min_by_popsum1_in_periods_rp1n_pc: Optional[Data] = None
+        self.inv_average_orders_by_popsum1_per_period_rp1n_uf: Optional[Data] = None
+        self.inv_order_by_popsum1_total_rp1n_tc: Optional[Base]  = None
 
     def set_average_orders_per_period(
         self, inv_average_orders_by_popsum1_per_period_rp1n_uf: Data

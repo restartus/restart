@@ -103,8 +103,8 @@ class Compose:
         # test that logging works
         #  https://docs.python.org/3/howto/logging-cookbook.html
         self.log_root.test(log)
-        log.debug(f"{__name__=}")  # goes to log file
-        log.info("hello world")  # goes to console
+        # log.debug(f"{__name__=}")  # goes to log file
+        # log.info("hello world")  # goes to console
 
         parser = self.create_parser()
         args = parser.parse_args()

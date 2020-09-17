@@ -170,7 +170,7 @@ conda:
 ## lint : code check (conda)
 .PHONY: lint
 lint:
-	$(RUN) flake8
+	$(RUN) flake8 || true
 ifdef all_py
 	$(RUN) seed-isort-config ||true
 	$(RUN) mypy --namespace-packages $(all_py) || true

@@ -15,7 +15,6 @@ other two representations
 """
 from __future__ import annotations
 
-from re import search
 from typing import Tuple
 
 import confuse  # type: ignore
@@ -32,12 +31,13 @@ class DataBase(BaseLog):
     def __init__(
         self,
         key: str,
-        config_cf: config.Configuration,
-        source_cf: config.Configuration = None,
+        config_cf: confuse.Configuration,
+        source_cf: confuse.Configuration = None,
         log_root: Log = None,
         **kwargs,
     ):
-        # remove all the modifiers like self. first then get right of everything after equals
+        # remove all the modifiers like self. first then get right of
+        # everything after equals
         super().__init__(log_root=log_root)
         log = self.log
         self.key: str = key.split(".")[-1].split("=")[0]

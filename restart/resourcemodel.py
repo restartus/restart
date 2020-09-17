@@ -55,4 +55,4 @@ class Resource(Base):
 
         # Filling these is the job of the child classes
         self.resource_rnN_ur: Optional[Data] = None
-        self.res_by_popsum1_cost_per_unit_rp1n_us: Optional[Data] =None
+        self.res_by_popsum1_cost_per_unit_rp1n_us: Optional[Data] = None

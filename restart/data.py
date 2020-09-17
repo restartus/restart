@@ -25,17 +25,21 @@ import pandas as pd  # type: ignore
 from base import BaseLog  # type: ignore
 from log import Log  # type: ignore
 
+
 class DataBase(BaseLog):
     """Loads a Data Object Headers."""
-    def __init__(self, 
-                 key: str, 
-                 config_cf: config.Configuration, 
-                 source_cf: config.Configuration = None,
-                 log_root: Log = None,
-                 **kwargs):
-       # remove all the modifiers like self. first then get right of everything after equals
+
+    def __init__(
+        self,
+        key: str,
+        config_cf: config.Configuration,
+        source_cf: config.Configuration = None,
+        log_root: Log = None,
+        **kwargs,
+    ):
+        # remove all the modifiers like self. first then get right of everything after equals
         super().__init__(log_root=log_root)
-        log=self.log
+        log = self.log
         self.key: str = key.split(".")[-1].split("=")[0]
         log.debug(f"after split {self.key=}")
         self.config_cf: confuse.Configuration = config_cf
@@ -55,7 +59,7 @@ class DataBase(BaseLog):
                 else:
                     args = {"Model": {self.key: {k: v}}}
                 config_cf.set_args(args, dots=True)
-            
+
         if source_cf is None:
             source_cf = config_cf["Model"][self.key]
         log.debug(f"{source_cf=}")
@@ -64,17 +68,19 @@ class DataBase(BaseLog):
         self.dimension_cf: confuse.Configuration = config_cf["Dimension"]
         self.index_cf: confuse.Configuration = self.data_cf["index"]
 
+
 class DataDict(DataBase):
     """Load a Dictionary of Data Objects.
     This is a subclass so it can use the header info
     But actually stores a dictionary of Data objects
     """
+
     def __init__(
         self,
         key: str,
         config_cf: confuse.Configuration,
         log_root: Log = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(key, config_cf, log_root=log_root, **kwargs)
         log = self.log
@@ -83,7 +89,12 @@ class DataDict(DataBase):
         try:
             self.dict_cf = self.data_cf["dict"]
             for key in self.dict_cf:
-                self.dict[key] = Data(self.dict_cf[key], config_cf, source=self.dict_cf, log_root=self.log_root)
+                self.dict[key] = Data(
+                    self.dict_cf[key],
+                    config_cf,
+                    source=self.dict_cf,
+                    log_root=self.log_root,
+                )
         except confuse.NotFoundError:
             pass
 

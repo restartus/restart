@@ -16,8 +16,8 @@ from base import Base  # type: ignore
 from data import Data, DataDict
 from log import Log  # type: ignore
 
-
 # https://docs.python.org/3/library/enum.html
+
 
 class Inventory(Base):
     """Inventory - Manages all the inventorys that are used in the model."""
@@ -38,7 +38,9 @@ class Inventory(Base):
         log.debug(f"in {__name__}")
 
         self.inv_by_popsum1_total_tgrDp1n_tc = Data(
-            f"{self.inv_by_popsum1_total_tgrDp1n_tc=}", config, log_root=log_root
+            f"{self.inv_by_popsum1_total_tgrDp1n_tc=}",
+            config,
+            log_root=log_root,
         )
 
         self.inv_by_popsum1_param_rp1n_tp = DataDict(

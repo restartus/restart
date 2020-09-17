@@ -2,7 +2,7 @@
 # Makefile for the project supports Docker running as gitpod locally
 # Or in gitpod land
 #
-TAG ?= v2.6
+TAG ?= v3.0
 
 
 flags ?= -e GRANT_SUDO=1

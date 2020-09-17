@@ -334,7 +334,6 @@ Model:
             - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
             - [0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.2]
             - [0.0, 0.5, 0.4, 0.1, 0.1, 0.0, 0.0]
-
   pop_to_popsum_per_unit_dict_p_ul:
     name: Population to Summary Dictionary (p:ul)
     description: |
@@ -772,7 +771,6 @@ Model:
             -
               - [121, 200, 300, 400, 500, 600, 700, 800, 900]
               - [102, 201, 301, 401, 501, 601, 701, 801, 901]
-
   # These tables are generated from the inputs above so they are derived values
   # These are typically meta values that are derived from real objectcs
   # And maps that serve as input to processes

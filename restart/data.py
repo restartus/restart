@@ -91,16 +91,17 @@ class DataDict(DataBase):
         self.dict: Dict = {}
         try:
             self.dict_cf = self.data_cf["dict"]
-            log.debug(f"{self.dict_cf=}")
-            for key in self.dict_cf:
-                self.dict[key] = Data(
-                    self.dict_cf[key],
-                    config_cf,
-                    source=self.dict_cf,
-                    log_root=self.log_root,
-                )
         except confuse.NotFoundError:
-            pass
+            return
+        log.debug(f"{self.dict_cf=}")
+        for entry in self.dict_cf:
+            breakpoint()
+            self.dict[entry] = Data(
+                entry,
+                config_cf,
+                source=self.dict_cf,
+                log_root=self.log_root,
+            )
 
 
 class Data(DataBase):
@@ -142,6 +143,7 @@ class Data(DataBase):
         self,
         key: str,
         config: confuse.Configuration,
+        source_cf: confuse.Configuration = None,
         log_root: Log = None,
         **kwargs,
     ):
@@ -150,7 +152,9 @@ class Data(DataBase):
         Mainly the descriptions
         """
         # Sets logging
-        super().__init__(key, config, log_root=log_root, **kwargs)
+        super().__init__(
+            key, config, log_root=log_root, source_cf=source_cf, **kwargs
+        )
         log = self.log
 
         self._array: np.ndArray = None
@@ -165,11 +169,15 @@ class Data(DataBase):
         except confuse.NotFoundError:
             log.debug(f"set null array based on {self.index_cf.get()=}")
             shape = [
-                len(self.dimension_cf[x].get()) for x in self.index_cf.get()
+                len(self.dimension_cf[x].get()["label"])
+                for x in self.index_cf.get()
             ]
             log.debug(f"of {shape=}")
             self._array = np.empty(
-                [len(self.dimension_cf[x].get()) for x in self.index_cf.get()]
+                [
+                    len(self.dimension_cf[x].get()["label"])
+                    for x in self.index_cf.get()
+                ]
             )
 
         log.debug(f"{self._array=}")

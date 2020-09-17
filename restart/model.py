@@ -73,12 +73,12 @@ class Model(Base):
         # https://stackoverflow.com/questions/1385759/should-init-call-the-parent-classs-init/7059529
         super().__init__(log_root=log_root)
         log = self.log
-        log.debug(f"{__name__=}")
+        # log.debug(f"{__name__=}")
 
         self.name: str = name
         if not log.hasHandlers():
-            print(f"{log=} has no handlers")
-        log.debug(f"{self.name=}")
+            log.debug(f"{log=} has no handlers")
+        # log.debug(f"{self.name=}")
 
     def set_configure(self, config) -> Model:
         """Configure the Model.
@@ -87,11 +87,11 @@ class Model(Base):
         """
         log = self.log
         self.config = config
-        log.debug(f"{self.config=}")
+        log.debug(f"{self.config.get()=}")
 
         return self
 
-    # TODO: This should be a generated set of methods as they are all identical
+    # TODO: Use callbacks instead
     def set_population(self, type: str = None, data_dir: str = None) -> Model:
         """Create population class for model.
 

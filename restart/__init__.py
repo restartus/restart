@@ -1,8 +1,5 @@
-"""Initialization script for restart package."""
+"""Null init needed.
 
-# Version
-__version__ = "2.5.0.7.1"
-
-# Public interface for the model
-from restart.data import Data
-from restart.restart import RestartModel
+For some reason pdb blows up without a blank __init__.py
+https://stackoverflow.com/questions/52317696/attributeerror-module-has-no-attribute-path
+"""

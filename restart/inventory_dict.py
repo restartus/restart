@@ -26,7 +26,7 @@ class InventoryDict(Inventory):
         super().__init__(config, log_root=log_root)
         log = self.log
         log.debug(f"in {__name__}")
-
+        breakpoint()
         self.inv_by_popsum1_total_tgrDp1n_tc = Data(
             f"{self.inv_by_popsum1_total_tgrDp1n_tc=}",
             config,

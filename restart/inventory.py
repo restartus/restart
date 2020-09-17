@@ -7,7 +7,7 @@ from __future__ import annotations
 
 # For slices of parameters
 from enum import Enum
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
@@ -40,8 +40,10 @@ class Inventory(Base):
         self.inv_by_popsum1_param_rp1n_tp: Optional[Data] = None
         # Helpers to handle period calculations
         self.inv_min_by_popsum1_in_periods_rp1n_pc: Optional[Data] = None
-        self.inv_average_orders_by_popsum1_per_period_rp1n_uf: Optional[Data] = None
-        self.inv_order_by_popsum1_total_rp1n_tc: Optional[Base]  = None
+        self.inv_average_orders_by_popsum1_per_period_rp1n_uf: Optional[
+            Data
+        ] = None
+        self.inv_order_by_popsum1_total_rp1n_tc: Optional[Base] = None
 
     def set_average_orders_per_period(
         self, inv_average_orders_by_popsum1_per_period_rp1n_uf: Data

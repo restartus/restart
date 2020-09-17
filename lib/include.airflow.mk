@@ -19,11 +19,12 @@ SHELL ?= /bin/bash
 airflow_data ?= $(PWD)
 PIP += apache-airflow mysqlclient datetime tables h5py
 PIP_DEV += neovim
+PYTHON = 3.7
 
 # https://www.gnu.org/software/make/manual/html_node/Splitting-Lines.html#Splitting-Lines
 # https://stackoverflow.com/questions/54503964/type-hint-for-numpy-ndarray-dtype/54541916
 
-## airflow-install: configure airflow data directories
+## airflow-install: install pipenv, environment and then configure airflow data directories
 # the side effect of airflow version is to create a default airflow.cfg
 # Which has the current directory as AIRFLOW_HOME
 # Make sure to use a relative path not absolute and .env is checked in!
@@ -59,8 +60,7 @@ airflow:
 # dependency on include.mk
 .PHONY: airflow-pipenv
 # override to lower versino
-PYTHON = 3.7
-airflow-pipenv: install airflow-clean pipenv-python
+airflow-pipenv: install airflow-clean install
 	command -v mysql || brew install mysql-client
 	grep mysql-client "$$HOME/.bash_profile" || \
 		echo PATH="/usr/local/opt/mysql-client/bin:$$PATH" >> "$$HOME/.bash_profile"

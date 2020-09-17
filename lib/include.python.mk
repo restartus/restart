@@ -13,8 +13,13 @@
 #
 FLAGS ?=
 SHELL ?= /bin/bash
-all_py = $$(find . -name "*.py")
-all_yaml = $$(find . -name "*.yaml")
+# does not work the excluded directories are still listed
+# https://www.theunixschool.com/2012/07/find-command-15-examples-to-exclude.html
+# exclude := -type d \( -name extern -o -name .git \) -prune -o
+# https://stackoverflow.com/questions/4210042/how-to-exclude-a-directory-in-find-command
+exclude := -not \( -path "./extern/*" -o -path "./.git/" \)
+all_py := $$(find . -name "*.py" $(exclude) )
+all_yaml := $$(find . -name "*.yaml" $(exclude))
 # gitpod needs three digits
 PYTHON ?= 3.8.5
 DOC ?= doc

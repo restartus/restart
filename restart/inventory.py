@@ -13,19 +13,11 @@ import confuse  # type: ignore
 import numpy as np  # type: ignore
 
 from base import Base  # type: ignore
-from data import Data  # type: ignore
+from data import Data, DataDict
 from log import Log  # type: ignore
 
 
 # https://docs.python.org/3/library/enum.html
-# These are the slices used
-class InvParam(Enum):
-    """List positions in Inventory Parameter List."""
-
-    INIT = 0
-    EOQ = 1
-    MIN = 2
-
 
 class Inventory(Base):
     """Inventory - Manages all the inventorys that are used in the model."""
@@ -45,26 +37,14 @@ class Inventory(Base):
         self.config = config
         log.debug(f"in {__name__}")
 
-        self.inv_by_popsum1_total_rtgp1n_tc = Data(
-            "inv_by_popsum1_total_rtgp1n_tc", config, log_root=log_root
+        self.inv_by_popsum1_total_tgrDp1n_tc = Data(
+            f"{self.inv_by_popsum1_total_tgrDp1n_tc=}", config, log_root=log_root
         )
 
-        self.inv_by_popsum1_param_iIp1n_tp = Data(
-            "inv_by_popsum1_param_iIp1n_tp", config, log_root=log_root
+        self.inv_by_popsum1_param_rp1n_tp = DataDict(
+            f"{self.inv_by_popsum1_param_rp1n_tp=}", config, log_root=log_root
         )
-        log.debug(f"{self.inv_by_popsum1_param_iIp1n_tp.df=}")
-
-        # TODO: This should be taken from the param file
-        self.inv_init_by_popsum1_total_rp1n_tc = Data(
-            "inv_init_by_popsum1_total_rp1n_tc", config, log_root=log_root
-        )
-        log.debug(f"set inv to {self.inv_init_by_popsum1_total_rp1n_tc=}")
-        self.inv_eoq_by_popsum1_total_rp1n_tc = Data(
-            "inv_eoq_by_popsum1_total_rp1n_tc", config, log_root=log_root
-        )
-        self.inv_min_by_popsum1_total_rp1n_tc = Data(
-            "inv_min_by_popsum1_total_rp1n_tc", config, log_root=log_root
-        )
+        log.debug(f"{self.inv_by_popsum1_param_rp1n_tp.df=}")
 
         # Helpers to handle period calculations
         self.inv_min_by_popsum1_in_periods_rp1n_pc = Data(

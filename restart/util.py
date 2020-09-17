@@ -12,6 +12,7 @@ import ipysheet  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
 import pkg_resources
+
 """Find keywords."""
 from IPython.display import display  # type: ignore
 

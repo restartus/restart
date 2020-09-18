@@ -59,7 +59,7 @@ windows:
       # will be deprecated in a future release, in favour of 'after'
       # synchronize: after
       panes:
-        - vi config.yaml
+        - pushd .. && make vi "ED_DIR=./restart" "ED=config.yaml"
         - pushd .. && tail -F model.log
-        - vi <% @args %>
+        - pushd .. && make vi "ED_DIR=./restart" "ED=<% @args %>"
         - pushd .. && make pdb

@@ -27,6 +27,8 @@ LIB ?= lib
 name ?= $$(basename $(PWD))
 MAIN ?= $(name).py
 STREAMLIT ?= $(MAIN)
+ED ?=
+ED_DIR ?= .
 # As of September 2020, run jupyter 0.2 and this generates a pipenv error
 # so ignore it
 PIPENV_CHECK_FLAGS ?= --ignore 38212
@@ -85,6 +87,11 @@ test-type:
 .PHONY: update
 update:
 	$(UPDATE)
+
+## vi: run the editor in the right environment
+.PHONY: vi
+vi:
+	cd $(ED_DIR) && $(RUN) "$$VISUAL" $(ED)
 
 ## install: install packages
 # Note that black is still prelease so need --pre

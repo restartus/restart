@@ -67,6 +67,8 @@ class Inventory(Base):
         """
         log = self.log
         log.debug(f"{min_periods_r_pc=}")
+        if self.inv_min_by_popsum1_in_periods_rp1n_pc is None:
+            return self
         self.inv_min_by_popsum1_in_periods_rp1n_pc.array = np.einsum(
             "r,rxn->rxn",
             min_periods_r_pc,
@@ -150,9 +152,9 @@ class Inventory(Base):
 
         Each order needs to get rounded up to an economic quantity
         """
-        if np.any(self.inv_eoq_by_popsum1_total_rp1n_tc.array <= 0):
+        if np.any(self.inv_by_popsum1_param_rp1n_tp["eoq"].array <= 0):
             raise ValueError(
-                f"EOQ not positive {self.inv_eoq_by_popsum1_total_rp1n_tc.df=}"
+                f"Not pos {self.inv_by_popsum1_param_rp1n_tp=}"
             )
 
         if np.any(order_by_popsum1_total_rp1n_tc.array < 0):
@@ -169,10 +171,10 @@ class Inventory(Base):
         return (
             order_by_popsum1_total_rp1n_tc.array
             + (
-                self.inv_eoq_by_popsum1_total_rp1n_tc.array
+                self.inv_by_popsum1_param_rp1n_tp["eoq"].array
                 - order_by_popsum1_total_rp1n_tc.array
             )
-            % self.inv_eoq_by_popsum1_total_rp1n_tc.array
+            % self.inv_by_popsum1_param_rp1n_tp["eoq"].array
         )
 
     def fulfill(self, order_by_popsum1_total_rp1n_tc: Data):

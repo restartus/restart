@@ -153,9 +153,7 @@ class Inventory(Base):
         Each order needs to get rounded up to an economic quantity
         """
         if np.any(self.inv_by_popsum1_param_rp1n_tp["eoq"].array <= 0):
-            raise ValueError(
-                f"Not pos {self.inv_by_popsum1_param_rp1n_tp=}"
-            )
+            raise ValueError(f"Not pos {self.inv_by_popsum1_param_rp1n_tp=}")
 
         if np.any(order_by_popsum1_total_rp1n_tc.array < 0):
             raise ValueError(

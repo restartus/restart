@@ -95,7 +95,6 @@ class DataDict(DataBase):
         super().__init__(key, config_cf, log_root=log_root, **kwargs)
         log = self.log
 
-        breakpoint()
         self.dict: Dict = {}
         self.dict_data_cf = self.data_cf["dict_data"]
         try:

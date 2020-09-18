@@ -44,7 +44,7 @@ class Inventory(Base):
         self.inv_average_orders_by_popsum1_per_period_rp1n_uf: Optional[
             Data
         ] = None
-        self.inv_order_by_popsum1_total_rp1n_tc: Optional[Data] = None
+        self.inv_order_by_popsum1_total_trgDp1n_tc: Optional[Data] = None
 
     def set_average_orders_per_period(
         self, inv_average_orders_by_popsum1_per_period_rp1n_uf: Data
@@ -127,22 +127,22 @@ class Inventory(Base):
         Order up to the minimum inventory
         """
         # hack here because we only do ranges for min inventory
-        self.inv_order_by_popsum1_total_rp1n_tc.array = (
+        self.inv_order_by_popsum1_total_trgDp1n_tc.array = (
             self.inv_by_popsum1_param_rp1n_tp.dict["min"].array
             - self.inv_by_popsum1_total_rp1n_tc.array
         )
         # negative means we have inventory above safety levels
         # so get rid of those
         # https://www.w3inventory.com/python-exercises/numpy/python-numpy-exercise-90.php
-        self.inv_order_by_popsum1_total_rp1n_tc.array[
-            self.inv_order_by_popsum1_total_rp1n_tc.array < 0
+        self.inv_order_by_popsum1_total_trgDp1n_tc.array[
+            self.inv_order_by_popsum1_total_trgDp1n_tc.array < 0
         ] = 0
         # now gross up the order to the economic order quantity
-        self.round_up_to_eoq(self.inv_order_by_popsum1_total_rp1n_tc)
-        self.log.debug(f"{self.inv_order_by_popsum1_total_rp1n_tc.df=}")
+        self.round_up_to_eoq(self.inv_order_by_popsum1_total_trgDp1n_tc)
+        self.log.debug(f"{self.inv_order_by_popsum1_total_trgDp1n_tc.df=}")
 
         # now that we have an order rounded up and ready, let's get supply
-        self.fulfill(self.inv_order_by_popsum1_total_rp1n_tc)
+        self.fulfill(self.inv_order_by_popsum1_total_trgDp1n_tc)
         return self
 
     # https://stackoverflow.com/questions/2272149/round-to-5-or-other-number-in-python
@@ -200,16 +200,16 @@ class Inventory(Base):
         # the inventory, just ship it all out.
         # the simple min won't work, need an element0-wise minimum
         # https://numpy.org/doc/stable/reference/generated/numpy.minimum.html
-        self.inv_order_by_popsum1_total_rp1n_tc.array = np.minimum(
+        self.inv_order_by_popsum1_total_trgDp1n_tc.array = np.minimum(
             order_by_popsum1_total_rp1n_tc.array,
             self.inv_by_popsum1_total_rp1n_tc.array,
         )
 
         # ship it!
         self.inv_by_popsum1_total_rp1n_tc.array -= (
-            self.inv_order_by_popsum1_total_rp1n_tc.array
+            self.inv_order_by_popsum1_total_trgDp1n_tc.array
         )
 
         # now restock
         self.supply_order()
-        return self.inv_order_by_popsum1_total_rp1n_tc
+        return self.inv_order_by_popsum1_total_trgDp1n_tc

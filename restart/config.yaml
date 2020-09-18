@@ -867,7 +867,7 @@ Model:
       - Resource (n)
     units: Total Units
     kind: Calculated
-  inv_min_by_popsum1_in_periods_rgp1n_pc:
+  inv_min_by_popsum1_in_periods_rp1n_pc:
     name: |
       Inventory Minimum of Resources by Population Summary Level 1 in Periods
       (rgp1n_tc)
@@ -876,12 +876,11 @@ Model:
       calculated for each Population Summary Level
     index:
       - Range (r)
-      - Geolocation (g)
       - Population Summary Level 1 (p1)
       - Resource (n)
     units: Period
     kind: Calculated
-  inv_average_orders_by_popsum1_per_period_rgp1n_uf:
+  inv_average_orders_by_popsum1_per_period_rp1n_uf:
     name: |
       Average Inventory Orders of Resource by Population Summary Level 1 for a
       Period (rgp1->n:uf)
@@ -891,7 +890,6 @@ Model:
       needed every period.
     index:
       - Range (r)
-      - Geolocation (g)
       - Population Summary Level 1 (p1)
       - Resource (n)
     units: Units Per Period

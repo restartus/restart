@@ -95,22 +95,24 @@ class DataDict(DataBase):
         super().__init__(key, config_cf, log_root=log_root, **kwargs)
         log = self.log
 
+        breakpoint()
         self.dict: Dict = {}
+        self.dict_data_cf = self.data_cf["dict_data"]
         try:
-            self.dict_cf = self.data_cf["dict"]
+            self.dict_key = self.data_cf["dict_key"].get()
+            self.dict_data_cf.get()
         except confuse.NotFoundError:
+            log.error(f"{self.dict_data_cf=} {self.dict_key=} invalid")
             return
-        log.debug(f"{self.dict_cf.get()=}")
-        for entry in self.dict_cf:
-            log.debug(f"{entry=} {value.get()=}")
-            breakpoint()
+        log.debug(f"{self.dict_data_cf.get()=}")
+        for entry in self.dict_key:
+            log.debug(f"{entry=} {self.dict_data_cf.get()=}")
             self.dict[entry] = Data(
                 entry,
                 config_cf,
-                source_cf=value,
+                source_cf=self.dict_data_cf[entry],
                 log_root=self.log_root,
             )
-        breakpoint()
 
 
 class Data(DataBase):

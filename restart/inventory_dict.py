@@ -34,7 +34,7 @@ class InventoryDict(Inventory):
         self.inv_by_popsum1_param_rp1n_tp = DataDict(
             f"{self.inv_by_popsum1_param_rp1n_tp=}", config, log_root=log_root
         )
-        log.debug(f"{self.inv_by_popsum1_param_rp1n_tp.df=}")
+        log.debug(f"{self.inv_by_popsum1_param_rp1n_tp=}")
         # Helpers to handle period calculations
         self.inv_min_by_popsum1_in_periods_rp1n_pc = Data(
             "inv_min_by_popsum1_in_periods_rp1n_pc", config, log_root=log_root

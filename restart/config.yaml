@@ -706,7 +706,10 @@ Model:
       - Range (r)
       - Population Summary Level 1 (p1)
       - Resource (n)
-    dict:
+    # confuse has no way to iterate, so we nee a list of dict items
+    # we could resolve with a .get() but then we cannot reuse DataBase code
+    dict_key: [initial, eoq, min]
+    dict_data:
       initial:
         name: |
           Total Initial Inventory of Resources by Population Summary Level 1
@@ -729,48 +732,47 @@ Model:
           -
             - [301, 300, 500, 700, 900, 1001, 2003, 2004, 2006]
             - [300, 400, 600, 800, 1000, 2001, 2002, 2005, 2007]
+      eoq:
+        name: |
+          Economic Order Quantity for Inventory Minimum of Resources by
+          Population Summary Level 1 (p1n_tc)
+        description: |
+          The minimum inventory in total units that should be held calculated
+          for each Population Summary Level
+        index:
+          - Range (r)
+          - Population Summary Level 1 (p1)
+          - Resource (n)
+        units: Total Units
+        kind: Calculated
+        array:
+          -
+            - [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            - [10, 20, 30, 40, 50, 60, 70, 80, 90]
+          -
+            - [12, 2, 3, 4, 5, 6, 7, 8, 9]
+            - [10, 20, 30, 40, 50, 60, 70, 80, 90]
+      min:
+        name: |
+          Total Inventory Minimum of Resources by Population Summary Level 1
+          (p1n_tc)
+        description: |
+          The minimum inventory in total units that should be held calculated
+          for each Population Summary Level
+        index:
+          - Range (r)
+          - Population Summary Level 1 (p1)
+          - Resource (n)
+        units: Total Units
+        kind: Calculated
+        array:
+          -
+            - [101, 200, 300, 400, 500, 600, 700, 800, 900]
+            - [102, 201, 301, 401, 501, 601, 701, 801, 901]
+          -
+            - [121, 200, 300, 400, 500, 600, 700, 800, 900]
+            - [102, 201, 301, 401, 501, 601, 701, 801, 901]
 
-        eoq:
-          name: |
-            Economic Order Quantity for Inventory Minimum of Resources by
-            Population Summary Level 1 (p1n_tc)
-          description: |
-            The minimum inventory in total units that should be held calculated
-            for each Population Summary Level
-          index:
-            - Range (r)
-            - Population Summary Level 1 (p1)
-            - Resource (n)
-          units: Total Units
-          kind: Calculated
-          array:
-            -
-              - [1, 2, 3, 4, 5, 6, 7, 8, 9]
-              - [10, 20, 30, 40, 50, 60, 70, 80, 90]
-            -
-              - [12, 2, 3, 4, 5, 6, 7, 8, 9]
-              - [10, 20, 30, 40, 50, 60, 70, 80, 90]
-
-        min:
-          name: |
-            Total Inventory Minimum of Resources by Population Summary Level 1
-            (p1n_tc)
-          description: |
-            The minimum inventory in total units that should be held calculated
-            for each Population Summary Level
-          index:
-            - Range (r)
-            - Population Summary Level 1 (p1)
-            - Resource (n)
-          units: Total Units
-          kind: Calculated
-          array:
-            -
-              - [101, 200, 300, 400, 500, 600, 700, 800, 900]
-              - [102, 201, 301, 401, 501, 601, 701, 801, 901]
-            -
-              - [121, 200, 300, 400, 500, 600, 700, 800, 900]
-              - [102, 201, 301, 401, 501, 601, 701, 801, 901]
   # These tables are generated from the inputs above so they are derived values
   # These are typically meta values that are derived from real objectcs
   # And maps that serve as input to processes

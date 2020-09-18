@@ -54,6 +54,12 @@ gitpod:
 				  $$PIP_DEV' \
 			> .gitpod.Dockerfile
 
+
+## tmux: open up set windows to debug in python setup with tmuxinator
+.PHONY: tmux
+tmux:
+	tmuxinator
+
 ## repo-pre-commit: Install the base precommit for the repo
 .PHONY: repo-pre-commit
 repo-pre-commit:

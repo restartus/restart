@@ -44,7 +44,8 @@ root: ./restart
 
 # Specifies (by index) which pane of the specified window will be selected on
 # project startup. If not set, the first pane is used.
-# startup_pane: 1
+# Numbering starts at 0 and goes clockwise
+startup_pane: 2
 
 # Controls whether the tmux session should be attached to automatically.
 # Defaults to true.

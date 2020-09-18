@@ -68,6 +68,13 @@ class DataBase(BaseLog):
         self.data_cf: confuse.Configuration = source_cf
         self.dimension_cf: confuse.Configuration = config_cf["Dimension"]
         self.index_cf: confuse.Configuration = self.data_cf["index"]
+        try:
+            self.data_cf.get()
+            self.dimension_cf.get()
+            self.index_cf.get()
+        except confuse.NotFoundError:
+            log.error("params not found")
+            raise confuse.NotFoundError
 
 
 class DataDict(DataBase):
@@ -93,15 +100,17 @@ class DataDict(DataBase):
             self.dict_cf = self.data_cf["dict"]
         except confuse.NotFoundError:
             return
-        log.debug(f"{self.dict_cf=}")
+        log.debug(f"{self.dict_cf.get()=}")
         for entry in self.dict_cf:
+            log.debug(f"{entry=} {value.get()=}")
             breakpoint()
             self.dict[entry] = Data(
                 entry,
                 config_cf,
-                source=self.dict_cf,
+                source_cf=value,
                 log_root=self.log_root,
             )
+        breakpoint()
 
 
 class Data(DataBase):
@@ -142,7 +151,7 @@ class Data(DataBase):
     def __init__(
         self,
         key: str,
-        config: confuse.Configuration,
+        config_cf: confuse.Configuration,
         source_cf: confuse.Configuration = None,
         log_root: Log = None,
         **kwargs,
@@ -153,7 +162,7 @@ class Data(DataBase):
         """
         # Sets logging
         super().__init__(
-            key, config, log_root=log_root, source_cf=source_cf, **kwargs
+            key, config_cf, source_cf=source_cf, log_root=log_root, **kwargs
         )
         log = self.log
 

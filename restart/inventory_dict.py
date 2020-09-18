@@ -48,4 +48,4 @@ class InventoryDict(Inventory):
             "inv_order_by_popsum1_total_rp1n_tc", config, log_root=log_root
         )
         # can only set minimum once inv_min exists and order too
-        self.set_min(self.inv_init_by_popsum1_total_rp1n_tc)
+        self.set_min(self.inv_by_popsum1_param_rp1n_tp.dict["initial"])

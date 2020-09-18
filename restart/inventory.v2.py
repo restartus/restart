@@ -7,16 +7,24 @@ from __future__ import annotations
 
 # For slices of parameters
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import List
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore
 
-from base import Base  # type: ignore
-from data import Data, DataDict
-from log import Log  # type: ignore
+from .base import Base  # type: ignore
+from .data import Data  # type: ignore
+from .log import Log  # type: ignore
+
 
 # https://docs.python.org/3/library/enum.html
+# These are the slices used
+class InvParam(Enum):
+    """List positions in Inventory Parameter List."""
+
+    INIT = 0
+    EOQ = 1
+    MIN = 2
 
 
 class Inventory(Base):
@@ -35,17 +43,45 @@ class Inventory(Base):
         super().__init__(log_root=log_root)
         log = self.log
         self.config = config
+        log.debug(f"in {__name__}")
 
-        self.inv_by_popsum1_total_tgrDp1n_tc: Optional[Data] = None
-        self.inv_by_popsum1_param_rp1n_tp: Optional[DataDict] = None
+        self.inv_by_popsum1_total_rp1n_tc = Data(
+            "inv_by_popsum1_total_rp1n_tc", config, log_root=log_root
+        )
+
+        self.inv_by_popsum1_param_iIp1n_tp = Data(
+            "inv_by_popsum1_param_iIp1n_tp", config, log_root=log_root
+        )
+        log.debug(f"{self.inv_by_popsum1_param_iIp1n_tp.df=}")
+
+        # TODO: This should be taken from the param file
+        self.inv_init_by_popsum1_total_rp1n_tc = Data(
+            "inv_init_by_popsum1_total_rp1n_tc", config, log_root=log_root
+        )
+        log.debug(f"set inv to {self.inv_init_by_popsum1_total_rp1n_tc=}")
+        self.inv_eoq_by_popsum1_total_rp1n_tc = Data(
+            "inv_eoq_by_popsum1_total_rp1n_tc", config, log_root=log_root
+        )
+        self.inv_min_by_popsum1_total_rp1n_tc = Data(
+            "inv_min_by_popsum1_total_rp1n_tc", config, log_root=log_root
+        )
 
         # Helpers to handle period calculations
-        self.inv_min_by_popsum1_in_periods_rp1n_pc: Optional[Data] = None
-        self.inv_average_orders_by_popsum1_per_period_rp1n_uf: Optional[
-            Data
-        ] = None
-        self.inv_order_by_popsum1_total_rp1n_tc: Optional[Data] = None
+        self.inv_min_by_popsum1_in_periods_rp1n_pc = Data(
+            "inv_min_by_popsum1_in_periods_rp1n_pc", config, log_root=log_root
+        )
+        self.inv_average_orders_by_popsum1_per_period_rp1n_uf = Data(
+            "inv_average_orders_by_popsum1_per_period_rp1n_uf",
+            config,
+            log_root=log_root,
+        )
 
+        self.inv_order_by_popsum1_total_rp1n_tc = Data(
+            "inv_order_by_popsum1_total_rp1n_tc", config, log_root=log_root
+        )
+
+        # can only set minmum once inv_min exists and order too
+        self.set_min(self.inv_init_by_popsum1_total_rp1n_tc)
 
     def set_average_orders_per_period(
         self, inv_average_orders_by_popsum1_per_period_rp1n_uf: Data
@@ -64,15 +100,15 @@ class Inventory(Base):
     ) -> Inventory:
         """Sets the Minimum Inventory as measured in Average Days Shipments.
 
-        This overrides the settings in the parameter array, with v3 you
-        don't need to use it because you can just set a range in the param file
+        A Helper function that fill out an entire array and then passes it
+        down
         """
         log = self.log
         log.debug(f"{min_periods_r_pc=}")
         self.inv_min_by_popsum1_in_periods_rp1n_pc.array = np.einsum(
             "r,rxn->rxn",
             min_periods_r_pc,
-            np.ones_like(self.inv_by_popsum1_in_periods_rp1n_pc.array),
+            np.ones_like(self.inv_min_by_popsum1_in_periods_rp1n_pc.array),
         )
         self.set_min_in_periods_array(
             self.inv_min_by_popsum1_in_periods_rp1n_pc
@@ -98,12 +134,12 @@ class Inventory(Base):
         #     self.inv_min_by_popsum1_per_period_rp1n_uc.array, axis=0
         # )
         # need to do a dot product
-        self.inv_by_popsum1_param_rp1n_tp.dict["min"].array = np.einsum(
+        self.inv_min_by_popsum1_total_rp1n_tc.array = np.einsum(
             "rxn,rxn->rxn",
             min_periods_rp1n_tc.array,
             self.inv_average_orders_by_popsum1_per_period_rp1n_uf.array,
         )
-        self.set_min(self.inv_by_popsum1_param_rp1n_tp.dict['min'].array)
+        self.set_min(self.inv_min_by_popsum1_total_rp1n_tc)
         return self
 
     def set_min(self, min_by_popsum1_total_rp1n_tc: Data) -> Inventory:
@@ -115,10 +151,10 @@ class Inventory(Base):
         log = self.log
 
         # https://stackoverflow.com/questions/53375161/use-numpy-array-to-replace-pandas-dataframe-values
-        self.inv_by_popnum1_total_rtgp1n_tc.array = (
+        self.inv_by_popsum1_total_rp1n_tc.array = (
             min_by_popsum1_total_rp1n_tc.array
         )
-        log.debug(f"{self.inv_by_popsum1_total_rptg1n_tc.df=}")
+        log.debug(f"{self.inv_by_popsum1_total_rp1n_tc.df=}")
         self.supply_order()
         return self
 
@@ -129,7 +165,7 @@ class Inventory(Base):
         """
         # hack here because we only do ranges for min inventory
         self.inv_order_by_popsum1_total_rp1n_tc.array = (
-            self.inv_by_popsum1_param_rp1n_tp.dict["min"].array
+            self.inv_min_by_popsum1_total_rp1n_tc.array
             - self.inv_by_popsum1_total_rp1n_tc.array
         )
         # negative means we have inventory above safety levels
@@ -152,9 +188,9 @@ class Inventory(Base):
 
         Each order needs to get rounded up to an economic quantity
         """
-        if np.any(self.inv_by_popsum1_param_rp1n_tp.dict["eoq"].array <= 0):
+        if np.any(self.inv_eoq_by_popsum1_total_rp1n_tc.array <= 0):
             raise ValueError(
-                f"Not pos {self.inv_by_popsum1_param_rp1n_tp.dict=}"
+                f"EOQ not positive {self.inv_eoq_by_popsum1_total_rp1n_tc.df=}"
             )
 
         if np.any(order_by_popsum1_total_rp1n_tc.array < 0):
@@ -171,10 +207,10 @@ class Inventory(Base):
         return (
             order_by_popsum1_total_rp1n_tc.array
             + (
-                self.inv_by_popsum1_param_rp1n_tp.dict["eoq"].array
+                self.inv_eoq_by_popsum1_total_rp1n_tc.array
                 - order_by_popsum1_total_rp1n_tc.array
             )
-            % self.inv_by_popsum1_param_rp1n_tp.dict["eoq"].array
+            % self.inv_eoq_by_popsum1_total_rp1n_tc.array
         )
 
     def fulfill(self, order_by_popsum1_total_rp1n_tc: Data):

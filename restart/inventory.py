@@ -114,7 +114,7 @@ class Inventory(Base):
         log = self.log
 
         # https://stackoverflow.com/questions/53375161/use-numpy-array-to-replace-pandas-dataframe-values
-        self.inv_by_popnum1_total_rtgp1n_tc.array = (
+        self.inv_by_popsum1_total_tgrDp1n_tc.array = (
             min_by_popsum1_total_rp1n_tc.array
         )
         log.debug(f"{self.inv_by_popsum1_total_rptg1n_tc.df=}")

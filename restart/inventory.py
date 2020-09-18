@@ -46,7 +46,6 @@ class Inventory(Base):
         ] = None
         self.inv_order_by_popsum1_total_rp1n_tc: Optional[Data] = None
 
-
     def set_average_orders_per_period(
         self, inv_average_orders_by_popsum1_per_period_rp1n_uf: Data
     ):
@@ -103,7 +102,7 @@ class Inventory(Base):
             min_periods_rp1n_tc.array,
             self.inv_average_orders_by_popsum1_per_period_rp1n_uf.array,
         )
-        self.set_min(self.inv_by_popsum1_param_rp1n_tp.dict['min'].array)
+        self.set_min(self.inv_by_popsum1_param_rp1n_tp.dict["min"].array)
         return self
 
     def set_min(self, min_by_popsum1_total_rp1n_tc: Data) -> Inventory:

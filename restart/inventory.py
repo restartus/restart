@@ -6,7 +6,7 @@ What inventory are and how they are consumed
 from __future__ import annotations
 
 # For slices of parameters
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 import confuse  # type: ignore
 import numpy as np  # type: ignore

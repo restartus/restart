@@ -3,12 +3,13 @@
 Reads from dictionary for defaults as a Callback
 """
 
+import logging
+
 from confuse import Configuration  # type: ignore
 
 from data import Data, DataDict
 from inventory import Inventory  # type: ignore
 from log import Log
-import logging
 
 
 def inventory_dict_read(inv: Inventory, config: Configuration, log_root: Log):

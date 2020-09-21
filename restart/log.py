@@ -115,7 +115,7 @@ class Log:
         """
         class_log_name = self.name + "." + type(object).__name__
         # self.log.debug(f"new logger {class_log_name=}")
-        log = logging.getLogger(class_log_name)
+        log: logging.Logger = logging.getLogger(class_log_name)
         return log
 
     def log_module(self, name: str):

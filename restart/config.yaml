@@ -1,9 +1,7 @@
-# Using anchors and aliases to limit duplication
-# https://medium.com/@kinghuang/docker-compose-anchors-aliases-extensions-a1e4105d70bd
+# Note backstop is replaced by a parameter in inventory that asks for days
 ---
 Parameter:
   version: 3.0
-  backstop: [30, 60, 90, 120]
 
 # Note each of these yaml files has an overall label, so you can copy and concat
 # as needed
@@ -708,7 +706,7 @@ Model:
       - Resource (n)
     # confuse has no way to iterate, so we nee a list of dict items
     # we could resolve with a .get() but then we cannot reuse DataBase code
-    dict_key: [initial, eoq, min]
+    dict_key: [initial, eoq, min, min_in_periods]
     dict_data:
       initial:
         name: |
@@ -755,7 +753,7 @@ Model:
       min:
         name: |
           Total Inventory Minimum of Resources by Population Summary Level 1
-          (p1n_tc)
+          (rp1n_tc)
         description: |
           The minimum inventory in total units that should be held calculated
           for each Population Summary Level
@@ -772,6 +770,26 @@ Model:
           -
             - [121, 200, 300, 400, 500, 600, 700, 800, 900]
             - [102, 201, 301, 401, 501, 601, 701, 801, 901]
+      min_in_periods:
+        name: |
+          Total Inventory Minimum of Resources by Population Summary Level 1 in
+          periods (rp1n_tc)
+        description: |
+          The minimum inventory in average usage per period that should be held
+          calculated for each Population Summary Level
+        index:
+          - Range (r)
+          - Population Summary Level 1 (p1)
+          - Resource (n)
+        units: Periods
+        kind: Calculated
+        array:
+          -
+            - [30, 30, 30, 30, 30, 30, 30, 30, 30]
+            - [30, 30, 30, 30, 30, 30, 30, 30, 30]
+          -
+            - [60, 60, 60, 60, 60, 60, 60, 60, 60]
+            - [60, 60, 60, 60, 60, 60, 60, 60, 60]
 
   # These tables are generated from the inputs above so they are derived values
   # These are typically meta values that are derived from real objectcs

@@ -1,0 +1,41 @@
+# This is tuned for Jupyter notebooks which do not have .py files
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: detect-private-key
+  - repo: https://github.com/kynan/nbstripout
+    rev: master
+    hooks:
+      - id: nbstripout
+  # https://github.com/roy-ht/pre-commit-jupyter
+  # Note we still run src checks here as we depend on it for notebooks
+  # This is generating a fail with json cannot be read so comment out for now
+  # Even though it seems to be working there is a bad file somewhere it
+  # cannot parse
+  # - repo: https://github.com/aflc/pre-commit-jupyter
+  #  rev: v1.1.0
+  #   hooks:
+  #    - id: jupyter-notebook-cleanup
+  #      args:
+  #        - --remove-kernel-metadata
+  #        - --pin-patterns
+  #        - "[pin];[donotremove]"
+  #      files: \.ipynb$
+  #      types: ["file"]
+  - repo: local
+    hooks:
+      - id: test-build
+        name: test-build
+        entry: lib/run-tests.sh
+        language: script

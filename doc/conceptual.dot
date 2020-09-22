@@ -1,0 +1,32 @@
+digraph conceptual {
+	node [shape=box]
+	subgraph Pop_class {
+		style=filled
+		P [label=Population]
+	}
+	C [label=Consumption]
+	P -> C [label=Counts]
+	A [label=Activity]
+	P -> A [label=Counts]
+	A -> P [label="%Normal"]
+	D [label="Disease (Epidemiological)"]
+	D -> P [label=Recovered]
+	P -> D [label=Cases]
+	E [label=Economics]
+	E -> P [label="GDP, Employment"]
+	P -> E [label=Cost]
+	B [label=Behavior]
+	P -> B [label="Motivation, Ability, Prompt"]
+	B -> P [label=Activity]
+	subgraph Res {
+		R [label=Resource]
+		R -> P [label=Supply]
+		C -> R [label="Burn Rates"]
+		I [label=Inventory]
+		R -> I [label=Fill]
+		I -> R [label=Use]
+		S [label=Supply]
+		R -> S [label="Sales Order"]
+		S -> R [label=Fulfillment]
+	}
+}

@@ -1,0 +1,177 @@
+---
+Config:
+  modules: 7
+  dashboard: true
+  stockpile: 30
+  stockpile_high: 90
+
+# The base dictionary data
+Data:
+  "Population p":
+    "Pop Detail Data pd":
+      Size:
+        - 735.2
+        - 7179.6
+    "Protection pm":
+      - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
+      - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    "Pop to Level pl":
+      - [1, 0]
+      - [0, 1]
+  "Demand m":
+    "Level to Resource mn":
+      - [0, 0, 0, 0, 0, 0, 0, 0, 0]
+      - [0, 0, 0, 0, 1, 0.02, 0.01, 0.5, 0]
+      - [0, 0, 0, 0, 2, 0.04, 0.02, 1, 0]
+      - [0, 0, 0, 1, 2, 0.08, 0.03, 2, 0.05]
+      - [0, 0.05, 1, 0, 3, 0.12, 0.05, 4, 0.2]
+      - [0, 0.1, 2, 1, 0, 0.18, 1.5, 8, 0.4]
+      - [1.18, 0, 3.51, 1.5, 0.05, 0.27, 2.57, 12, 0.5]
+  "Resource n":
+    "Res Attr Data na":
+      - [1, 2, 0.7]
+      - [1, 1.5, 0.8]
+      - [1, 4, 0.9]
+      - [1, 2, 3]
+      - [1, 2.3, 0.7]
+      - [1, 2, 1]
+      - [1, 1, 0.5]
+      - [1, 0.9, 0.7]
+      - [1, 2, 2]
+    "Pop Level Res Cost ln":
+      - [3, 4.5, 2, 4, 2, 1, 3.9, 2.3, 1.1]
+      - [0.5, 0.75, 0.8, 1, 0.9, 1.2, 0.7, 1.2, 1.14]
+    "Res Inventory Initial ln":
+      - [1, 2, 3, 4, 5, 6, 7, 8, 9]
+      - [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    "Res Inventory EOC ln":
+      - [101, 200, 300, 400, 500, 600, 700, 800, 900]
+      - [102, 201, 301, 401, 501, 601, 701, 801, 901]
+    "Res Inventory Min ln":
+      - [201, 300, 500, 700, 900, 1001, 2003, 2004, 2006]
+      - [200, 400, 600, 800, 1000, 2001, 2002, 2005, 2007]
+    "Res Inventory Min in Periods ln":
+      - [30, 15, 15, 15, 25, 20, 30, 15, 20]
+      - [30, 15, 15, 15, 25, 20, 30, 15, 20]
+
+Description:
+  "Population p":
+    "Pop Detail pd": |
+      ## Population Details (pd)
+      There are p Populations in the model and each population
+      can have d details about them such as their degree of age,
+      ethnicity, attitudes and awareness behaviors
+    "Protection pm": |
+      ## Population to Protection Level (pm)
+      For each p Populations falls into which protection
+      category m for the burn rates
+    "Population Demand pn": |
+      ## Population Demand for each of n Resources (pn)
+      This is the per capita demand for a give population so this is not the per
+      capita demand but for every n Resource for ever subpopulation p
+    "Pop to Level pl": |
+      ## Population's mapped into Summary Levels (pl)
+      This maps every population p into any number of summary levels l
+      summarized by the l Level level used. In this model higher
+      levels mean more protection by convention, but that isn't necessary.
+      You can also a given population row spread across different levels
+      so that for instance a percentage of a population could go into
+      different rows
+    "Level Demand ln": |
+      ## Population Demand by Summary Level for Resources (ln)
+      This is the per capita demand for a set of n resources
+      summarized by the l Summary Level used. It provides a view of demand
+      aggregated by the summary level.
+    "Population Total Demand pn": |
+      ## Population Demand Resource pn
+      This is the total demand for all p sub-Population for every resource n
+    "Level Total Demand ln": |
+      ## Total Demand for all Population Summary Levels for Resources (ln)
+      For all L population summary levels, the total demand for a set
+      of n resources
+    "Level Total Cost ln": |
+        ## Population Demand Total Cost by N Summary Levels
+        For all L population summary levels, the total cost for a set of
+        n resources
+  "Demand m":
+    "Demand Resource mn": |
+      ## Protection by Level Demand for Resources aka Burn Rate (mn)
+      The burn rates per capita for resources
+      For example, 1.18 would mean you need 1.18 N95 masks per day for a
+      given population
+  "Resource n":
+    "Res Attr Data na": |
+        ## Resource Attributes Data (na)
+        For all n Resources, these are the figures for each of the a Attributes
+        of each resource.
+    "Pop Level Res Cost ln": |
+        ## For Each Summary Level, the cost of Resources
+        For each of l summary levels, get the per capita cost for each of n
+        Resources.
+    "Res Inventory Initial ln": |
+        ## Inventory by Population Summary Levels
+        For each summarized population level l, this gives for every resource n
+        the current inventory of each.
+    "Res Inventory EOC ln": |
+        ## Economic Order Quantity
+        For each summarized population level l, this gives for every resource n
+        the economic order quantity for reordering.
+    "Res Inventory Min ln": |
+        ## Inventory minimum
+        For each summarized population level l, this is the minimum inventory
+        also known as the safety stock
+    "Res Inventory Min in Periods ln": |
+        ## Days of Stockpile
+        For each summaried population level l, this gives the number of periods
+        which are typically days that you have to hold. This is multiplied by
+        demand so Inventory Min should be Demand * Days.
+    "Res Inventory ln": |
+        ## Current Resource Inventory ln
+        The current inventory held ready for deliver to Population levels l
+        of n resource
+
+# Dimensions of the model
+# Note each of these yaml files has an overall label, so you can copy and concat
+# as needed
+Label:
+  "Resource n":
+    - "N95 + Mask"
+    - "N95"
+    - "ASTM 3 Mask"
+    - "ASTM 1-2 Mask"
+    - "Non ASTM Mask"
+    - "Face Shield"
+    - "Gowns"
+    - "Gloves"
+    - "Shoe Covers"
+  "Population p":
+    - "Healthcare Workers"
+    - "Non-Heathcare Worker"
+  "Pop Detail d":
+    - Size
+  "Pop Level l":
+    - "Essential"
+    - "Non-essential"
+  "Demand m":
+    - WA0
+    - WA1
+    - WA2
+    - WA3
+    - WA4
+    - WA5
+    - WA6
+  "Res Attribute a":
+    - Units
+    - Volume
+    - Area
+  "Res Safety Stock s":
+    - High
+    - Mid
+    - Low
+
+Paths:
+  Root: '../extern/data/ingestion/'
+  OES: 'all_data_M_2019.xlsx'
+  CODE: 'list1_2020.xls'
+  POP: 'co-est2019-alldata.csv'
+  MAP: 'covid-surge-who.xlsx'

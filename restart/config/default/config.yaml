@@ -1,0 +1,534 @@
+---
+Parameter:
+  modules: 7
+  dashboard: true
+  backstop: [30, 60, 90, 120]
+
+# Note each of these yaml files has an overall label, so you can copy and concat
+# as needed
+Dimension:
+  Resource (n):
+    - N95 Surgical
+    - N95 Non-surgical
+    - ASTM 3 Mask
+    - ASTM 1-2 Mask
+    - Non ASTM Mask
+    - Face Shield
+    - Gowns
+    - Gloves
+    - Shoe Covers
+  Resource Attribute (N):
+    - Units
+    - Volume
+    - Area
+  Population (p):
+    - Healthcare Workers
+    - Non-Heathcare Worker
+  Population Attribute (P):
+    - Size
+    - Sick
+    - Diabetes
+  Population Summary Level 1 (p1):
+    - Essential
+    - Non-essential
+  Organization (o):
+    - Hospital
+    - First Responders
+  Organization Attribute (O):
+    # TODO: this needs to be Size to match population
+    - Employees
+    - Patients
+    - ICU Patients
+    - Runs
+  Organization Summary Level 1 (o1):
+    - Front-line
+    - Non-frontline
+  Demand for Resource (d):
+    - WA0
+    - WA1
+    - WA2
+    - WA3
+    - WA4
+    - WA5
+    - WA6
+  # Owner of the warehouse only hold the State for now
+  Inventory (i):
+    - State
+  # Inventory attributes typically these are over different Resources
+  # So iIR will be typical so for instance State Backstop i=State
+  # might have N95 Surgical and ASTM 3 Masks in stock r=Resources
+  # And then each will have inventory parameters I
+  Inventory Attribute (I):
+    - Initial
+    - EOQ
+    - Minimum
+  Warehouse (w):
+    - Tukwila
+  Warehouse Attribute (W):
+    - Area
+    - Capacity
+  Range (r):
+    - Mid
+  Geographical Location (g):
+    - County
+    - State
+    - Country
+  Time (t):
+    - August 20, 2020
+  Epi (e):
+    - COVID-19
+  Epi Attribute (E):
+    - Cases
+    - Hospitalizations
+    - Deaths
+  # all Reich Lab collected forecasts for now
+  # cases, deaths by week, hosps by day
+  # counties only have case data
+  Mobility (m):
+    - Mobility
+  Mobility Attribute (M):
+    - Apple Driving
+    - Apple Walking
+    - Apple Transit
+  Financial (f):
+    - Finance
+  Financial Attribute (F):
+    - GDP
+    - Unemployment
+
+# Uses the dimensions above to create matrices
+Model:
+  population_pP_tr:
+    name: Population Attributes (p->P:tr)
+    description: |
+      There are p Populations in the model and each population
+      can have P attributes about them such as their degree of age,
+      ethnicity, attitudes and awareness behaviors. The first attribute is
+      the size of the sub-population. It models a real entity.
+
+      The populations can be classes of people from OES by SOC, they
+      could be organizations from OCEW by NAICS or they could be
+      census units
+    units: Total
+    kind: Real
+    # The dimensions for each
+    index:
+      - Population (p)
+      - Population Attribute (P)
+    # note the data can be an array, or a file pointer
+    array:
+      - [735.2, 0, 12]
+      - [7179.6, 74, 234]
+
+  pop_demand_per_unit_map_pd_um:
+    name: Per Unit Demand by Population for Resources (p->d:um)
+    description: |
+      For each p Populations falls into which protection
+      category for the burn rate. That is what does each population p need
+      of each resource r.  For example, 1.18 would mean you need 1.18 N95
+      masks per day for a given population
+    units: Per Person
+    kind: Map
+    index:
+      - Population (p)
+      - Demand for Resource (d)
+    array:
+      - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
+      - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+  # TODO: not yet used, but allows iteration in levels
+  pop_to_popsum_per_unit_dict_p_ul:
+    name: Population to Summary Dictionary (p:ul)
+    units: Per Person
+    kind: List
+    list:
+      - pop_to_popsum1_per_unit_map_pp1_us
+      # not yet implemented
+      - popsum1_to_popsum2_per_unit_map_p1p2_us
+      - popsum2_to_popsum3_per_unit_map—p2p3_us
+
+  pop_to_popsum1_per_unit_map_pp1_us:
+    name: Population to Population Level 1 Summary Map (p->p1:us)
+    description: |
+      This maps every population p into any number of summary levels p1
+      summarized by the p1 Level level used. In this model higher
+      levels mean more protection by convention, but that isn't necessary.
+      You can also a given population row spread across different levels
+      so that for instance a percentage of a population could go into
+      different rows.
+    units: Per Person
+    kind: Summary
+    index:
+      - Population (p)
+      - Population Summary Level 1 (p1)
+    array:
+      - [1, 0]
+      - [0, 1]
+
+  organization_oO_tr:
+    name: Organization Attributes (o->O:tr)
+    description: |
+      For p Organizations we are modeling there are O attributes
+      for each. For example an attribute might be how many
+      employees or how many patients that have if the are a hospital
+    units: Total
+    kind: Real
+    index:
+      - Organization (o)
+      - Organization Attribute (O)
+    array:
+      - [437, 21, 1, 0]
+      - [58, 0, 0, 10]
+
+  org_demand_per_unit_map_od_um:
+    name: Per Unit Demand by Organization for Resources (p->d:um)
+    description: |
+      For each o Organizations falls into which protection
+      category for the burn rate. That is what does each population o need
+      of each resource r. For example, 1.18 would mean you need 1.18 N95
+      masks per day for a given organization
+    units: Per Organization
+    kind: Map
+    index:
+      - Organization (o)
+      - Demand for Resource (d)
+    array:
+      - [0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5]
+      - [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+  org_to_orgsum1_per_unit_map_oo1_us:
+    name: Organization to Organization Level 1 Summary Map (o->o1:us)
+    description: |
+      This map summarized every Organiation into a first summary level o1.
+    units: Per Capita
+    kind: Summary
+    index:
+      - Organization (o)
+      - Organization Summary Level 1 (o1)
+    array:
+      - [1, 0]
+      - [0, 1]
+
+  epi_eE_pr:
+    name: Epi (d->D:pr)
+    description: |
+      The disease maps e different populations against E
+      attributes Shows the number of patients typically. But what we really want
+      is the percentages. So this is calculated later
+    units: Total
+    kind: Percentage
+    index:
+      - Epi (e)
+      - Epi Attribute (E)
+    array:
+      - [10000, 2000, 300]
+
+  financial_fF_pr:
+    name: Financial (e->E:pr)
+    description: |
+      The Econometric attributes
+    units: Percentage
+    kind: Real
+    index:
+      - Financial (f)
+      - Financial Attribute (F)
+    array:
+      - [0.03, 12]
+
+  mobility_mM_pr:
+    name: Mobility (m->M:pr)
+    description: |
+      The mobility of statistics
+    units: Percentage
+    kind: Real
+    index:
+      - Mobility (m)
+      - Mobility Attribute (M)
+    array:
+      - [0.9, 1.2, 0.7]
+
+  demand_per_unit_map_dn_um:
+    name: Demand Level for Resource Per Unit Map (d->n:um)
+    description: |
+      Demand levels for a given population for resources. This is the
+      consumption map that for each protection level shows which resources are
+      burned.  Also now as the burn rates for PPE.
+    units: Per Resource
+    index:
+      - Demand for Resource (d)
+      - Resource (n)
+    array:
+      - [0, 0, 0, 0, 0, 0, 0, 0, 0]
+      # Resident or patient
+      - [0, 0, 0, 0, 1, 0.02, 0.01, 0.5, 0]
+      # Office worker
+      - [0, 0, 0, 0, 2, 0.04, 0.02, 1, 0]
+      # Customer facing worker (teacher)
+      - [0, 0, 0, 1, 2, 0.08, 0.03, 2, 0.05]
+      # Blue collar
+      - [0, 0.05, 1, 0, 3, 0.12, 0.05, 4, 0.2]
+      # Lab and other likely contact
+      - [0, 1, 2, 1, 0, 0.18, 1.5, 8, 0.4]
+      # Healthcare with direct contact
+      - [1.18, 0, 4.03, 1, 0.05, 0.27, 3.65, 12, 0.6]
+
+  resource_nN_ur:
+    name: Resources Attributes (n->N:ur)
+    description: |
+        For all n Resources, these are the figures for each of the N Attribute
+        of each resource.
+    index:
+      - Resource (n)
+      - Resource Attribute (N)
+    array:
+      - [1, 2, 0.7]
+      - [1, 1.5, 0.8]
+      - [1, 4, 0.9]
+      - [1, 2, 3]
+      - [1, 2.3, 0.7]
+      - [1, 2, 1]
+      - [1, 1, 0.5]
+      - [1, 0.9, 0.7]
+      - [1, 2, 2]
+
+  res_by_popsum1_cost_per_unit_p1n_us:
+    name: Cost of Resources by Population Summary Level 1 (p1->n:us)
+    description: |
+      For each of p1 summary levels, get the per capita cost for each of n
+      Resources.
+    index:
+      - Population Summary Level 1 (p1)
+      - Resource (n)
+    array:
+      - [5.0, 4.0, 1.0, 0.60, 0.20, 2.50, 4.0, 0.20, 0.15]
+      - [5.0, 4.0, 1.0, 0.60, 0.06, 1.50, 4.0, 0.20, 0.15]
+
+  # TODO: will eventually merge init, eoq and min frames into this one
+  inv_by_popsum1_param_iIp1n_tp:
+    name: |
+      Inventory by Attributes of Resources by
+      Population Summary Level 1 Parameters (iIp1n:tr)
+    description: |
+      For each summarized population level l, this gives for every resource n
+      initial inventory. The first plane is the initial inventory, the
+      second plane is the economic order quantity and the initial inventory,
+      third plane is the minimum safety stock. The units are total units we
+      also keep an inventory expressed in periods separately for human readable
+      reasons. This is not used yet as we do not have an easy way to slice
+      apart this
+    index:
+      - Inventory (i)
+      - Inventory Attribute (I)
+      - Population Summary Level 1 (p1)
+      - Resource (n)
+    unit: Total Units
+    kind: Real
+    array:
+      -
+        -
+          - [201, 300, 500, 700, 900, 1001, 2003, 2004, 2006]
+          - [200, 400, 600, 800, 1000, 2001, 2002, 2005, 2007]
+        -
+          - [1, 2, 3, 4, 5, 6, 7, 8, 9]
+          - [10, 20, 30, 40, 50, 60, 70, 80, 90]
+        -
+          - [101, 200, 300, 400, 500, 600, 700, 800, 900]
+          - [102, 201, 301, 401, 501, 601, 701, 801, 901]
+
+  inv_init_by_popsum1_total_rp1n_tc:
+    name: |
+      Total Initial Inventory of Resources by Population Summary Level 1
+      (p1n_tc)
+    description: |
+      The Initial inventory in total units that should be held calculated for
+      each Population Summary Level
+    index:
+      - Range (r)
+      - Population Summary Level 1 (p1)
+      - Resource (n)
+    units: Total Units
+    kind: Calculated
+    array:
+      -
+        - [201, 300, 500, 700, 900, 1001, 2003, 2004, 2006]
+        - [200, 400, 600, 800, 1000, 2001, 2002, 2005, 2007]
+
+  inv_eoq_by_popsum1_total_rp1n_tc:
+    name: |
+      Economic Order Quantity for Inventory Minimum of Resources by Population
+      Summary Level 1 (p1n_tc)
+    description: |
+      The minimum inventory in total units that should be held calculated for
+      each Population Summary Level
+    index:
+      - Range (r)
+      - Population Summary Level 1 (p1)
+      - Resource (n)
+    units: Total Units
+    kind: Calculated
+    array:
+      -
+        - [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        - [10, 20, 30, 40, 50, 60, 70, 80, 90]
+
+  inv_min_by_popsum1_total_rp1n_tc:
+    name: |
+      Total Inventory Minimum of Resources by Population Summary Level 1
+      (p1n_tc)
+    description: |
+      The minimum inventory in total units that should be held calculated for
+      each Population Summary Level
+    index:
+      - Range (r)
+      - Population Summary Level 1 (p1)
+      - Resource (n)
+    units: Total Units
+    kind: Calculated
+    array:
+      -
+        - [101, 200, 300, 400, 500, 600, 700, 800, 900]
+        - [102, 201, 301, 401, 501, 601, 701, 801, 901]
+
+  # These tables are generated from the inputs above so they are derived values
+  # These are typically meta values that are derived from real objectcs
+  # And maps that serve as input to processes
+  demand_by_pop_per_person_pn_uc:
+    name: Per Capita Demand by Population for Resources (pn:uc)
+    description: |
+      This is the per capita demand for a give population so this is not the per
+      capita demand but for every n Resource for ever subpopulation p
+    index:
+      - Population (p)
+      - Resource (n)
+    units: Per Capita
+    kind: Calculated
+
+  demand_by_popsum1_per_person_p1n_uc:
+    name: |
+      Per Capita Demand for Resources by Population Summary Level 1 (p1n:uc)
+    description: |
+      This is the per capita demand for a set of n resources
+      summarized by the l Summary Level used. It provides a view of demand
+      aggregated by the summary level.
+    units: Per Capita
+    kind: Calculated
+    index:
+      - Population Summary Level 1 (p1)
+      - Resource (n)
+
+  demand_by_pop_total_pn_tc:
+    name: Total Demand for Resources by Population (pn:tc)
+    description: |
+      This is the total demand for all p sub-Population for every resource n
+    units: Total
+    kind: Calculated
+    index:
+      - Population (p)
+      - Resource (n)
+
+  demand_by_popsum1_total_p1n_tc:
+    name: Total Demand for Resources by Population Summary Level 1 (p1n:tc)
+    description: |
+      For all population summary levels p1, the total demand for a set
+      of n resources
+    units: Total
+    kind: Calculated
+    index:
+      - Population Summary Level 1 (p1)
+      - Resource (n)
+
+  # TODO: As we start the conversion to range, inventory goes first
+  # So this dupliction the p1n_tc version above
+  demand_by_popsum1_total_rp1n_tc:
+    name: |
+      Total Demand for Resources by Population Summary Level 1 with Ranges
+      (rp1n:tc)
+    description: |
+      For all populatio summary levels p1, the total demand for a set of
+      resources with a range r of values
+    units: Total
+    kind: Calculated
+    index:
+      - Range (r)
+      - Population Summary Level 1 (p1)
+      - Resource (n)
+
+  demand_by_popsum1_total_cost_p1n_xc:
+    name: |
+      Total Cost of Demand for Resources by Population Summary Level 1 (p1n:xc)
+    description: |
+      For all population summary levels (p1), the total cost for a set of
+      n resources
+    units: Total Cost
+    kind: Calculated
+    index:
+      - Population Summary Level 1 (p1)
+      - Resource (n)
+
+  inv_by_popsum1_total_rp1n_tc:
+    name: |
+      Total Inventory of Resources by Population Summary Level 1 (rp1n_tc)
+    description: |
+      For all population summary levels, the total inventory in stock for all
+      resources held in current inventory
+    index:
+      - Range (r)
+      - Population Summary Level 1 (p1)
+      - Resource (n)
+    units: Total Units
+    kind: Calculated
+
+  inv_min_by_popsum1_in_periods_rp1n_pc:
+    name: |
+      Inventory Minimum of Resources by Population Summary Level 1 in Periods
+      (p1n_tc)
+    description: |
+      The minimum inventory in days on hand of  units that should be held
+      calculated for each Population Summary Level
+    index:
+      - Range (r)
+      - Population Summary Level 1 (p1)
+      - Resource (n)
+    units: Period
+    kind: Calculated
+
+  inv_average_orders_by_popsum1_per_period_rp1n_uf:
+    name: |
+      Average Inventory Orders of Resource by Population Summary Level 1 for a
+      Period (rp1n:uf)
+    description: |
+      Average Inventory needed for a given period (normally a day)
+      for Resources by Population Summary Level 1. This is the flow of units
+      needed every period.
+    index:
+      - Range (r)
+      - Population Summary Level 1 (p1)
+      - Resource (n)
+    units: Units Per Period
+    kind: Calculated
+
+  inv_order_by_popsum1_total_rp1n_tc:
+    name: |
+      Inventory Order of Resources by Population Summary Level 1
+    description: |
+      The order for resources from population by Summary Level 1
+      (rp1nL:tc)
+    index:
+      - Range (r)
+      - Population Summary Level 1 (p1)
+      - Resource (n)
+    units: Period
+    kind: Calculated
+
+
+Paths:
+  Root: ../data/ingestion
+  OES: all_data_M_2019.xlsx
+  CODE: list1_2020.xls
+  POP: co-est2019-alldata.csv
+  XLS: covid-surge-who.xlsx
+
+Reich:
+  Root: ../data/epidemiological/processed
+  CUBE: reich.hdf5
+  INDEX: reichindex.csv

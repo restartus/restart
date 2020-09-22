@@ -1,0 +1,52 @@
+# This name appears in the actions user interface
+name: Upload from XLTrail.com
+
+env:
+  RELEASE_SPREADSHEET: covid-surge-who.xlsx
+# This is a basic workflow to help you get started with Actions
+# https://www.xltrail.com/blog/how-to-manage-and-release-excel-files-on-github-part2
+#
+# This uses the Release mechanism of GitHub, instead of the command line with
+# Publish Release
+#
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+
+# Only run when a release is created
+on:
+  release:
+    types:
+      - created
+
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        # Note that this does a full lfs pull which is very slow
+        # with:
+        #   lfs: true
+      - name: Checkout LFS Objects
+        # https://git-scm.com/book/en/v2/Git-Basics-Tagging
+        run: git lfs pull --include "$RELEASE_SPREADSHEET"
+      - name: Upload Excel file to GitHub Release Page
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+        if: github.event_name == 'release'
+        uses: actions/upload-release-asset@v1.0.1
+        # this is a required variable
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          # The magic file to upload
+          asset_path: ./${{ env.RELEASE_SPREADSHEET }}
+          asset_name: covid-surge-projection-xlt-${{ github.event.release.tag_name }}.xlsx
+          asset_content_type: application/zip

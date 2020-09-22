@@ -1,0 +1,49 @@
+---
+name: Lint
+
+on: push
+
+jobs:
+
+  lint:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    # checkout repo under $GITHUB_WORKSPACE
+    - name: Checkout action
+      uses: actions/checkout@v2
+
+    # install latest python version
+    - name: Setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        flake8 --exclude ./model/model0,./model/streamlit ./deprecated ./exp
+
+    - name: Lint with mypy
+      run: |
+        pip install mypy
+        mypy --namespace-packages $(find ./restart -name "*.py")
+
+    - name: Lint with bandit
+      run: |
+        pip install bandit
+        bandit $(find ./restart -name "*.py")
+
+    - name: Lint with pydocstyle
+      run: |
+        pip install pydocstyle
+        pydocstyle --convention=google $(find ./restart/ -name "*.py")
+
+
+    # temporarily removing for now until we finalize config structure
+    # - name: Lint with yamllint
+    #   run: |
+    #     pip install yamllint
+    #     yamllint $(find ./restart/ -name "*.yaml")

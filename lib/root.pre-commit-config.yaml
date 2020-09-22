@@ -1,0 +1,87 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+# Note taht the check-yaml argument does not work
+# so only single document in a yamlm file is allowed
+# tried dockerfilelint but too strict and disabling does not work
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-builtin-literals
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: check-json
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-symlinks
+      - id: check-toml
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      # - id: detect-aws-credentials
+      - id: trailing-whitespace
+  # https://ljvmiranda921.github.io/notebook/2018/06/21/precommits-using-black-and-flake8/
+  # https://github.com/pre-commit/mirrors-mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 'v0.782'
+    hooks:
+      - id: mypy
+  - repo: https://github.com/pycqa/flake8
+    rev: 3.8.3
+    hooks:
+      - id: flake8
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 5.1.1
+    hooks:
+      - id: pydocstyle
+
+  # puts the isort.cfg at the root we do not want that
+  # https://pypi.org/project/seed-isort-config/
+  # - repo: https://github.com/asottile/seed-isort-config
+  #   rev: v2.2.0
+  #   hooks:
+  #     # remember this will place things at the root of the repo
+  #     # but running in lint locally places it in the current directory
+  #    - id: seed-isort-config
+  # does not respect the local arguments
+  # - repo: https://github.com/timothycrosley/isort
+  #   rev: 5.2.0
+  #   hooks:
+  #     - id: isort
+  #       args: [--profile=black, -w 79]
+  # https://ljvmiranda921.github.io/notebook/2018/06/21/precommits-using-black-and-flake8/
+
+  - repo: https://github.com/ambv/black
+    rev: 20.8b1
+    hooks:
+      - id: black
+        language_version: python3.8
+        args: [-l 79]
+  # check shell scripts you check in
+  - repo: git://github.com/detailyang/pre-commit-shell
+    rev: v1.0.6
+    hooks:
+      - id: shell-lint
+        args: [--format=json]
+
+  # https://github.com/pre-commit/pre-commit/issues/1245
+  # Make sure .gitpod.Dockerfile is built
+  - repo: local
+    hooks:
+      - id: gitpod-Dockerfile
+        name: gitpod-make
+        entry: make
+        language: system
+        always_run: true
+        pass_filenames: false
+        args: ["gitpod"]
+
+  # run system test
+  - repo: local
+    hooks:
+      - id: test-build
+        name: test-build
+        entry: lib/run-tests.sh
+        language: script

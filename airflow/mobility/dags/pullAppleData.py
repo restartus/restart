@@ -1,12 +1,8 @@
-from datetime import datetime, timedelta
+"""DAG for pulling Apple data."""
 
-# import OS
-import os
-
-# The DAG object; we'll need this to instantiate a DAG
+import requests
+from datetime import timedelta
 from airflow import DAG
-
-# Operators; we need this to operate!
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
@@ -46,10 +42,8 @@ dag = DAG(
 
 
 def get_apple_file():
-    import requests
-    import csv
-
-    url1 = "https://covid19-static.cdn-apple.com/covid19-mobility-data/2012HotfixDev18/v3/en-us/applemobilitytrends-2020-07-18.csv"
+    """Download Apple data."""
+    url1 = "https://covid19-static.cdn-apple.com/covid19-mobility-data/2012HotfixDev18/v3/en-us/applemobilitytrends-2020-07-18.csv"  # noqa: E501
     csv_file = open("DownloadedApple.csv", "wb")
     r = requests.get(url1).content
     # print("/n/n" + r[0] + "/n/n")

@@ -14,8 +14,6 @@ jobs:
     # checkout repo under $GITHUB_WORKSPACE
     - name: Checkout action
       uses: actions/checkout@v2
-      with:
-        lfs: true
 
     # install latest python version
     - name: Setup python

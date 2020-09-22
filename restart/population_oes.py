@@ -3,7 +3,6 @@
 Population is working
 """
 import math
-import os
 from typing import Dict, List, Optional, Tuple
 
 import confuse  # type: ignore
@@ -13,10 +12,9 @@ from restart_datasets import data  # type: ignore
 
 from .data import Data  # type: ignore
 from .filtermodel import Filter  # type: ignore
-from .load_csv import LoadCSV  # type: ignore
 from .log import Log  # type: ignore
 from .population import Population  # type: ignore
-from .util import datetime_to_code, load_dataframe  # type: ignore
+from .util import datetime_to_code  # type: ignore
 
 
 class PopulationOES(Population):
@@ -605,7 +603,7 @@ class PopulationOES(Population):
 
     def _set_wa_sum(self, df: pd.DataFrame, config) -> pd.DataFrame:
         """Washington group summarization."""
-        pop_level: List = []
+        pop_level: List = []  # noqa: F841
 
     def _set_essential(self, df: pd.DataFrame, config) -> pd.DataFrame:
         """Get population essential levels from the excel model.

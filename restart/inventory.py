@@ -112,7 +112,7 @@ class Inventory(Base):
         log.debug(f"Calling {read_data_fn=}")
         self.read_data_fn(self, config, log_root)
 
-    def order(self, order_by_popsum1_total_tgrDp1n_tc: Data) -> Data:
+    def order(self, order_by_popsum1_total_tgrDp1n_tc: Data) -> Inventory:
         """Order by Customer from Inventory.
 
         Take a new order that is a time vector. This assumes that each row of
@@ -144,6 +144,7 @@ class Inventory(Base):
         inv = self.inv_by_popsum1_total_tgrDp1n_tc.array
         backorders = self.inv_backorders_by_popsum1_total_tgrDp1n_tc.array
         backorder = self.inv_backorder_by_popsum1_total_tgrDp1n_tc.array
+        backorder_fulfill = self.inv_backorder_fulfill_by_popsum1_total_tgrDp1n_tc.array
         backfills = self.inv_backfills_by_popsum1_total_tgrDp1n_tc.array
         backfill = self.inv_backfill_by_popsum1_total_tgrDp1n_tc.array
         supply_fulfill = (
@@ -163,7 +164,39 @@ class Inventory(Base):
             # for the very start
             inv[t] = inv[min(t - 1, 0)] + self.supply_fulfilled(t)
 
-        return self.inv_order_by_popsum1_total_trgDp1n_tc
+            # Decrease the back orders, hooray! 
+            backorder_fulfill[t] = self.fulfill_order(inv[t],
+                                                      backorder[min(t-1),0])
+
+            # less backorder for next period
+            backorders[t] = backorder[t] - backorder_fulfill[t]
+
+            # now do the same for current orders
+            # this should really be a function as it's nearly the same as
+            # backorderg
+            fulfill[t] = self.fulfill_order(inv[t], orders[t])
+
+            # if we didn't fulfill it all, add to the backorders
+            backorder[t] = order[t] - fulfill[t]
+            backorders[t] = backorders[t] + backorder[t]
+
+            # we are happy until inventory hits a minimum then we reorder
+            if inv[t] < np.min(inv_min):
+                # we order at least the inventory minimum
+                supply_order[t] = max(inv_min, order[t])
+                supply_order[t] = self.round_up_to_min_order(supply_order[t])
+
+        return self
+
+    def fulfill_order(self,
+                      inv: np.ndarray,
+                      order: np.ndarray,
+                      supply_order: np.ndarray) -> np.ndarray :
+        """Calculate what can be fulfilled and take from inventory."""
+        fulfill = np.min(inv, order)
+        inv = inv - fulfill
+        supply_order = supply_order + order
+        return fulfill
 
     def supply_fulfilled(self, t: int) -> Inventory:
         """Fulfill supply order lagged by leadtime.
@@ -175,39 +208,21 @@ class Inventory(Base):
         ]
         return self
 
-    def supply_order(self) -> Inventory:
-        """Order from supplier.
-
-        Order up to the minimum inventory
-        """
-        # negative means we have inventory above safety levels
-        # so get rid of those
-        # https://www.w3inventory.com/python-exercises/numpy/python-numpy-exercise-90.php
-        self.inv_order_by_popsum1_total_trgDp1n_tc.array[
-            self.inv_order_by_popsum1_total_trgDp1n_tc.array < 0
-        ] = 0
-        # now gross up the order to the economic order quantity
-        self.round_up_to_min_order(self.inv_order_by_popsum1_total_trgDp1n_tc)
-        self.log.debug(f"{self.inv_order_by_popsum1_total_trgDp1n_tc.df=}")
-
-        return self
-
-    def round_up_to_min_order(
-        self, order_by_popsum1_total_rp1n_tc: Data
-    ) -> Data:
+    def round_up_to_min_order( self, order:np.ndarray) -> np.ndarray:
         """Round order up the economic order quantity.
 
         Each order needs to get rounded up to an economic quantity
         """
+        min_order = self.inv_by_popsum1_param_grDp1n_tp.dict["min_order"].array
         # https://stackoverflow.com/questions/2272149/round-to-5-or-other-number-in-python
-        if np.any(self.inv_by_popsum1_param_grDp1n_tp.dict["eoq"].array <= 0):
+        if np.any(min_order <= 0):
             raise ValueError(
-                f"Not pos {self.inv_by_popsum1_param_grDp1n_tp.dict=}"
+                f"Not pos {min_order=}"
             )
 
-        if np.any(order_by_popsum1_total_rp1n_tc.array < 0):
+        if np.any(order < 0):
             raise ValueError(
-                f"Negative order in {order_by_popsum1_total_rp1n_tc.df=}"
+                f"Negative order in {order=}"
             )
 
         # So take the order and then get the distance to the eoc
@@ -216,11 +231,4 @@ class Inventory(Base):
         # https://numpy.org/doc/stable/reference/generated/numpy.any.html
         # https://softwareengineering.stackexchange.com/questions/225956/python-assert-vs-if-return
         # do not use asserts they are stripped with optimization, raise errors
-        return (
-            order_by_popsum1_total_rp1n_tc.array
-            + (
-                self.inv_by_popsum1_param_grDp1n_tp.dict["min_order"].array
-                - order_by_popsum1_total_rp1n_tc.array
-            )
-            % self.inv_by_popsum1_param_grDp1n_tp.dict["min_order"].array
-        )
+        return order + (min_order.array - order.array) % min_order.array

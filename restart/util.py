@@ -11,10 +11,31 @@ import confuse  # type: ignore
 import ipysheet  # type: ignore
 import numpy as np  # type: ignore
 import pandas as pd  # type: ignore
-import pkg_resources
-
-"""Find keywords."""
+# Find keywords."""
 from IPython.display import display  # type: ignore
+
+
+def round_up(order: np.ndarray, round_to: np.ndarray) -> np.ndarray:
+    """Round up a Numpy array.
+
+    round up
+    """
+    # https://stackoverflow.com/questions/2272149/round-to-5-or-other-number-in-python
+    if np.any(round_to <= 0):
+        raise ValueError(
+            f"Not pos {round_to=}"
+        )
+    if np.any(order < 0):
+        raise ValueError(
+            f"Negative order in {order=}"
+        )
+    # So take the order and then get the distance to the eoc
+    # by using modulo
+    # https://stackoverflow.com/questions/50767452/check-if-dataframe-has-a-zero-element
+    # https://numpy.org/doc/stable/reference/generated/numpy.any.html
+    # https://softwareengineering.stackexchange.com/questions/225956/python-assert-vs-if-return
+    # do not use asserts they are stripped with optimization, raise errors
+    return order + (round_to - order) % round_to
 
 
 def set_config(path: str):

@@ -1273,7 +1273,23 @@
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4'",
             "version": "==2.24.0"
         },
-        "scipy": {
+        "restart": {
+            "hashes": [
+                "sha256:546ebcd2f1068daa37831e89efcfa7417ee0ba2528aa9a2a14baae251d7f365e",
+                "sha256:8cd676a77005c2f0d448f5671bdc661f96c81ee26fd3e94a3f4edd55fcfade49"
+            ],
+            "index": "pypi",
+            "version": "==2.6.2"
+        },
+        "restart-datasets": {
+            "hashes": [
+                "sha256:2be7417f9830d0138b5dfa137187f564c29c3bb4eda310135bd1c6420f6e9200",
+                "sha256:d5f9f646a64daefa2f92165989c58eab1e2d25375efdb6e4d861821775ac5940"
+            ],
+            "index": "pypi",
+            "version": "==0.5"
+        },
+	"scipy": {
             "hashes": [
                 "sha256:066c513d90eb3fd7567a9e150828d39111ebd88d3e924cdfc9f8ce19ab6f90c9",
                 "sha256:07e52b316b40a4f001667d1ad4eb5f2318738de34597bd91537851365b6c61f1",
@@ -1554,6 +1570,13 @@
                 "sha256:81195de0ac94fbc8368abbaf9197b88c4f3ffd6c2719b5bf5fc9da744f3d829c"
             ],
             "version": "==2.3.3"
+        },
+	"xlrd": {
+            "hashes": [
+                "sha256:546eb36cee8db40c3eaa46c351e67ffee6eeb5fa2650b71bc4c758a29a1b29b2",
+                "sha256:e551fb498759fa3a5384a94ccd4c3c02eb7c00ea424426e212ac0c57be9dfbde"
+            ],
+            "version": "==1.2.0"
         },
         "zope.deprecation": {
             "hashes": [

@@ -1,3 +1,4 @@
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/restartus/restart/ethan-binder?filepath=nb%2FSAMPLE.ipynb)
 # COVID-19 Restart the World
 
 Getting the world up and running again isn't going to be easy. This project is

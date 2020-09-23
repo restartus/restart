@@ -25,6 +25,7 @@ twine = "*"
 neovim = "*"
 pylint = "*"
 rope = "*"
+nbstripout = "*"
 
 [packages]
 pandas = "*"
@@ -47,6 +48,9 @@ apache-airflow = "*"
 mysqlclient = "*"
 datetime = "*"
 tables = "*"
+xlrd = "*"
+restart = "*"
+restart_datasets = "*"
 
 [requires]
 python_version = "3.8"

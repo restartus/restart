@@ -485,7 +485,7 @@ class PopulationOES(Population):
             The processed dataframe
         """
         # load in sliced dataframe
-        df = self._load_state(location, oes_df)
+        df = self._load_state(location, oes_df).drop(["area"], axis=1)
         major = df[df["o_group"] == "major"].copy()
         detailed = df[df["o_group"] == "detailed"].copy()
 

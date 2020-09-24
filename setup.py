@@ -10,11 +10,9 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="restart",
-    version="2.6",
-    # this script doesn't exist
-    # scripts=["model"],
+    version="2.6.2",
     author="Restart Partners",
-    author_email="lucas@restart.us",  # need a valid email here
+    author_email="lucas@restart.us",
     description="COVID-19 decision model tool",
     long_description=long_description,
     long_description_content_type="text/markdown",

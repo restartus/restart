@@ -1,8 +1,8 @@
 """Initialization script for restart package."""
 
 # Version
-__version__ = "2.6"
+__version__ = "2.6.2"
 
 # Public interface for the model
-from restart.data import Data  # type: ignore
-from restart.restart import RestartModel  # type: ignore
+from restart.data import Data
+from restart.restart import RestartModel

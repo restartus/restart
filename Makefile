@@ -29,7 +29,6 @@ WA_FLAGS ?= --pop oes --state Washington
 PIPENV_CHECK_FLAGS ?= -i 38212
 # The order matters because of PYTHON so put it first
 include lib/include.src.mk
-include nb/include.nb.mk
 
 ## Dockerfile fix because .gitpod does not proecss correctly
 ## Note this is Mac only

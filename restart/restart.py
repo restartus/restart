@@ -3,6 +3,8 @@ import os
 import pathlib
 from typing import Optional
 
+import numpy as np  # type: ignore
+
 from restart.log import Log
 from restart.model import Model
 from restart.util import set_config
@@ -47,6 +49,10 @@ class RestartModel:
         self.config = set_config(os.path.join(PATH, f"config/{config}"))
         self.set_model()
 
+    def recalc_burn(self, burn: np.ndarray):
+        """Change a model attribute and recalculate."""
+        self.model.demand.adjust_burn(burn)
+
     def set_model(self, **kwargs):
         """Bootstrap the model."""
         # override defaults with keywords
@@ -69,3 +75,5 @@ class RestartModel:
             .set_mobility(type=self.mobility)
             .set_output(out=self.output, csv=self.csv)
         )
+
+        self.demand = self.model.demand

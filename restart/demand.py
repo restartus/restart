@@ -197,7 +197,6 @@ class Demand(Base):
         log.debug(f"{self.demand_by_popsum1_per_person_p1n_uc.df=}")
         # Einsum equivalent of the above, we use x since index needs to be a
         # single character
-        breakpoint
         test = np.einsum(
             "px,pn->xn",
             self.pop.pop_to_popsum1_per_unit_map_pp1_us.array,

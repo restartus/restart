@@ -42,6 +42,7 @@ right message at the right time is key.
 9. [Release Schedule](#release-schedule)
 10. [GitHub, XLTrail, and Git LFS](#github-xltrail-and-git-lfs)
 11. [Notes on Using Excel](#notes-on-using-excel)
+12. [Binder](#binder)
 
 ## Conceptual diagram
 
@@ -717,3 +718,16 @@ Then we have transformations that are typically a `to` attached:
 - Population.attr_p (Population.attr_pd). Population attributes with a 1 in the
   first column always but then you can have others like covid patients
 - Population.resource_pn. Resource neede per capita
+
+## Binder
+
+To get a url for a specific notebook, go [here](mybinder.org)
+and enter in https://github.com/restartus/restart as the repo,
+master as the branch, and the path to the notebook as the file path.
+The url will be generated as you enter these fields.
+
+Here is an example file path: nb/SAMPLE.ipynb
+
+If a notebook uses voila and you want the url to launch with voila
+immediately, change the type of "Path to a notebook file (optional)"
+from file to url and enter "voila/render/<path-to-nb>".

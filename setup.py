@@ -10,7 +10,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="restart",
-    version="2.6.6",
+    version="2.6.7",
     author="Restart Partners",
     author_email="lucas@restart.us",
     description="COVID-19 decision model tool",
